@@ -1,0 +1,271 @@
+{
+  "imageService": {
+    "overview": {
+      "title": "Image Service ခြုံငုံသုံးသပ်ချက်",
+      "subtitle": "ပုံရိပ်စီမံခန့်ခွဲမှုစနစ် ဒက်ရှ်ဘုတ်",
+      "totalImages": "စုစုပေါင်းပုံများ",
+      "activeCameras": "အလုပ်လုပ်နေသော ကင်မရာများ",
+      "storageUsed": "သုံးထားသော သိုလှောင်မှု",
+      "processingRate": "လုပ်ဆောင်မှုနှုန်း",
+      "recentActivity": "လတ်တလောလုပ်ဆောင်ချက်များ",
+      "storageGrowth": "သိုလှောင်မှုကြီးထွားမှုလမ်းကြောင်း",
+      "cameraStatus": "ကင်မရာအခြေအနေ",
+      "imagesByCamera": "ကင်မရာအလိုက်ပုံများ",
+      "imagesToday": "ယနေ့ပုံများ",
+      "editLayout": "Layout ပြင်ရန်",
+      "resetLayout": "Layout ပြန်သတ်မှတ်ရန်",
+      "finishEditing": "တည်းဖြတ်ပြီးပါပြီ",
+      "dragHint": "ကတ်များကိုဆွဲယူ၍ ပြန်စီရန် (သို့) ညာဘက်အောက်ထောင့်ကိုဆွဲ၍ အရွယ်ပြင်ရန်"
+    },
+    "search": {
+      "title": "ပုံရှာဖွေခြင်း",
+      "subtitle": "ရိုက်ကူးထားသောပုံများကို ရှာဖွေကြည့်ရှုရန်",
+      "searchPlaceholder": "ဖိုင်အမည် သို့မဟုတ် Checksum ဖြင့်ရှာရန်...",
+      "allCameras": "ကင်မရာအားလုံး",
+      "allStatus": "အခြေအနေအားလုံး",
+      "dateRange": "ရက်စွဲအပိုင်းအခြား",
+      "fromDate": "စတင်ရက်",
+      "toDate": "ပြီးဆုံးရက်",
+      "filter": "စစ်ထုတ်ရန်",
+      "clearFilter": "ရှင်းလင်းရန်",
+      "imageDetail": "ပုံအသေးစိတ်",
+      "files": "ဖိုင်များ",
+      "metadata": "Metadata",
+      "tags": "တဂ်များ",
+      "noResults": "ရှာဖွေတွေ့ရှိမှုမရှိပါ",
+      "downloadRaw": "မူရင်းဒေါင်းလုတ်",
+      "downloadPng": "PNG ဒေါင်းလုတ်",
+      "downloadThumb": "Thumbnail ဒေါင်းလုတ်",
+      "deleteImage": "ပုံဖျက်ရန်",
+      "deleteConfirm": "ဤပုံကိုဖျက်မည်မှာ သေချာပါသလား?",
+      "deleteSuccess": "ပုံဖျက်ခြင်းအောင်မြင်ပါသည်"
+    },
+    "cameras": {
+      "title": "ကင်မရာစီမံခန့်ခွဲမှု",
+      "subtitle": "ကင်မရာအရင်းအမြစ်အားလုံးကို စောင့်ကြည့်စီမံရန်",
+      "newCamera": "ကင်မရာအသစ်ထည့်ရန်",
+      "editCamera": "ကင်မရာပြင်ရန်",
+      "cameraName": "ကင်မရာအမည်",
+      "ipAddress": "IP လိပ်စာ",
+      "smbPath": "SMB လမ်းကြောင်း",
+      "status": "အခြေအနေ",
+      "pollInterval": "Poll ကြားကာလ",
+      "lastPoll": "နောက်ဆုံး Poll",
+      "lastImage": "နောက်ဆုံးပုံ",
+      "totalImages": "စုစုပေါင်းပုံများ",
+      "active": "အလုပ်လုပ်နေသည်",
+      "inactive": "မလုပ်ဆောင်ပါ",
+      "error": "အမှား",
+      "maintenance": "ပြုပြင်ထိန်းသိမ်းမှု",
+      "deactivateConfirm": "ဤကင်မရာကိုပိတ်မည်မှာ သေချာပါသလား?",
+      "created": "ကင်မရာထည့်သွင်းခြင်းအောင်မြင်ပါသည်",
+      "updated": "ကင်မရာမွမ်းမံခြင်းအောင်မြင်ပါသည်",
+      "deactivated": "ကင်မရာပိတ်ခြင်းအောင်မြင်ပါသည်",
+      "viewLogs": "Logs ကြည့်ရန်"
+    },
+    "storage": {
+      "title": "သိုလှောင်မှုစောင့်ကြည့်ခြင်း",
+      "subtitle": "စနစ်သိုလှောင်မှုအသုံးပြုမှုကို စောင့်ကြည့်ရန်",
+      "totalFiles": "စုစုပေါင်းဖိုင်များ",
+      "totalSize": "စုစုပေါင်းအရွယ်",
+      "byFileType": "ဖိုင်အမျိုးအစားအလိုက်",
+      "byCamera": "ကင်မရာအလိုက်",
+      "growthTrend": "ကြီးထွားမှုလမ်းကြောင်း",
+      "days": "ရက်များ",
+      "rawImages": "မူရင်းပုံများ",
+      "processedImages": "လုပ်ဆောင်ပြီးပုံများ",
+      "thumbnails": "Thumbnail များ",
+      "noData": "သိုလှောင်မှုဒေတာမရှိပါ"
+    },
+    "retention": {
+      "title": "ထိန်းသိမ်းမှုမူဝါဒများ",
+      "subtitle": "ပုံထိန်းသိမ်းမှုမူဝါဒများကို စီမံရန်",
+      "newPolicy": "မူဝါဒအသစ်",
+      "editPolicy": "မူဝါဒပြင်ရန်",
+      "policyName": "မူဝါဒအမည်",
+      "description": "ဖော်ပြချက်",
+      "rawRetentionDays": "မူရင်းထိန်းသိမ်းရက်",
+      "processedRetentionDays": "လုပ်ဆောင်ပြီးထိန်းသိမ်းရက်",
+      "thumbnailRetentionDays": "Thumbnail ထိန်းသိမ်းရက်",
+      "archiveEnabled": "Archive ဖွင့်ရန်",
+      "archiveRawDays": "ရက်ပြည့်လျှင် Archive လုပ်ရန်",
+      "coldStorageClass": "Cold Storage အမျိုးအစား",
+      "camerasUsing": "ဤမူဝါဒသုံးသော ကင်မရာများ",
+      "deleteConfirm": "ဤမူဝါဒကိုဖျက်မည်မှာ သေချာပါသလား?",
+      "deleteDisabled": "ကင်မရာများအသုံးပြုနေသော မူဝါဒကိုမဖျက်နိုင်ပါ",
+      "created": "မူဝါဒဖန်တီးခြင်းအောင်မြင်ပါသည်",
+      "updated": "မူဝါဒမွမ်းမံခြင်းအောင်မြင်ပါသည်",
+      "deleted": "မူဝါဒဖျက်ခြင်းအောင်မြင်ပါသည်"
+    },
+    "processing": {
+      "title": "လုပ်ဆောင်မှုစောင့်ကြည့်ရန်",
+      "subtitle": "အချိန်နှင့်တစ်ပြေးညီ လုပ်ဆောင်မှုအခြေအနေ ဒက်ရှ်ဘုတ်",
+      "totalJobs": "စုစုပေါင်းအလုပ်များ",
+      "completed": "ပြီးဆုံး",
+      "failed": "မအောင်မြင်",
+      "inProgress": "လုပ်ဆောင်ဆဲ",
+      "jobStatus": "အလုပ်အခြေအနေ",
+      "byType": "အမျိုးအစားအလိုက်",
+      "recentJobs": "လတ်တလောအလုပ်များ",
+      "noData": "လုပ်ဆောင်မှုဒေတာမရှိပါ"
+    },
+    "processingLogs": {
+      "title": "လုပ်ဆောင်မှု Logs",
+      "subtitle": "ပုံလုပ်ဆောင်မှုမှတ်တမ်းကိုကြည့်ရန်",
+      "allJobs": "အလုပ်အားလုံး",
+      "jobType": "အလုပ်အမျိုးအစား",
+      "status": "အခြေအနေ",
+      "imageId": "ပုံ ID",
+      "workerId": "Worker",
+      "queuedAt": "တန်းစီချိန်",
+      "startedAt": "စတင်ချိန်",
+      "completedAt": "ပြီးဆုံးချိန်",
+      "duration": "ကြာချိန်",
+      "errorMessage": "အမှားစာတို",
+      "retry": "ပြန်ကြိုးစားရန်",
+      "retrySuccess": "အလုပ်ကိုပြန်လည်တန်းစီခြင်းအောင်မြင်ပါသည်",
+      "noLogs": "လုပ်ဆောင်မှု Logs မတွေ့ပါ",
+      "allTypes": "အမျိုးအစားအားလုံး",
+      "allStatuses": "အခြေအနေအားလုံး"
+    },
+    "settings": {
+      "title": "ဆက်တင်များ",
+      "subtitle": "Image Service စနစ်ဆက်တင်များကို စီမံရန်",
+      "appearance": "အသွင်အပြင်",
+      "appearanceDesc": "အပြင်အဆင်နှင့် ဘာသာစကားကို စိတ်ကြိုက်ပြင်ရန်",
+      "theme": "အပြင်အဆင်",
+      "language": "ဘာသာစကား",
+      "notifications": "အကြောင်းကြားချက်များ",
+      "notificationsDesc": "သတိပေးချက်နှင့် အကြောင်းကြားချက်ဆက်တင်များကို ပြင်ဆင်ရန်",
+      "alertEmail": "သတိပေးအီးမေးလ်",
+      "processing": "လုပ်ဆောင်မှု",
+      "processingDesc": "လုပ်ဆောင်မှု ပါရာမီတာများကို ပြင်ဆင်ရန်",
+      "pollInterval": "Poll ကြားကာလ (စက္ကန့်)",
+      "retryMax": "အများဆုံး ပြန်ကြိုးစားရန်",
+      "systemInfo": "စနစ်အချက်အလက်",
+      "systemInfoDesc": "Image Service စနစ်အကြောင်း ယေဘုယျအချက်အလက်များ",
+      "totalImages": "စုစုပေါင်းပုံများ",
+      "activeCameras": "အလုပ်လုပ်နေသော ကင်မရာများ",
+      "totalAlerts": "စုစုပေါင်းသတိပေးချက်များ",
+      "refreshData": "ဒေတာပြန်လည်ရယူရန်",
+      "resetAll": "အားလုံးပြန်သတ်မှတ်ရန်",
+      "resetSuccess": "ဆက်တင်အားလုံးကို အောင်မြင်စွာပြန်သတ်မှတ်ပြီးပါပြီ"
+    },
+    "nav": {
+      "overview": "ခြုံငုံ",
+      "cameras": "ကင်မရာများ",
+      "search": "ရှာဖွေ",
+      "processing": "လုပ်ဆောင်",
+      "storage": "သိုလှောင်",
+      "logs": "မှတ်တမ်း",
+      "retention": "ထိန်းသိမ်း",
+      "roadmap": "လမ်းပြမြေပုံ",
+      "settings": "ဆက်တင်"
+    },
+    "roadmap": {
+      "title": "လမ်းပြမြေပုံ",
+      "subtitle": "စနစ်ဖွံ့ဖြိုးမှုလမ်းပြမြေပုံနှင့် ဗိသုကာခြုံငုံသုံးသပ်ချက်",
+      "architecture": "စနစ်ဗိသုကာ",
+      "architectureDesc": "လက်ရှိစနစ်အခြေခံအဆောက်အအုံနှင့် နည်းပညာအစုအဝေး",
+      "phases": "ဖွံ့ဖြိုးမှုအဆင့်များ",
+      "phasesDesc": "ဦးစားပေးအလိုက် စီစဉ်ထားသော ဖွံ့ဖြိုးမှုမှတ်တိုင်များ",
+      "rules": "စနစ်စည်းမျဉ်းများ",
+      "rulesDesc": "မဖြစ်မနေလိုက်နာရန် — မည်သည့် feature မဆို ဤစည်းမျဉ်းများကို မချိုးဖောက်ရ",
+      "rulesGroupsLabels": {
+        "priority1": { "label": "Priority 1 — 100% သုံးရမည်", "color": "#ef4444" },
+        "priority2": { "label": "Priority 2 — CRUD/Auth ရှိလျှင်", "color": "#f59e0b" },
+        "priority3": { "label": "Priority 3 — Phase 2+", "color": "#eab308" },
+        "priority4": { "label": "Priority 4 — Masterdata Entity", "color": "#3b82f6" },
+        "priority5": { "label": "Priority 5 — ERP Integration", "color": "#8b5cf6" },
+        "imageService": { "label": "Image Service သီးသန့်", "color": "#06b6d4" }
+      },
+      "rulesGroups": {
+        "priority1": [
+          "Shared Layout — စာမျက်နှာတိုင်းကို <Layout> ဖြင့်ထုပ်ပါ",
+          "Central Dialog — <Modal>/<ConfirmDialog> သုံးပါ, alert() မသုံးရ",
+          "5-Language i18n — UI စာသားအားလုံး t('key') (th/en/cn/mm/jp)",
+          "Theme tokens — theme မှီသော styling အားလုံး themeConfig မှ",
+          "SearchableSelect — native <select> မသုံးရ",
+          "React Query — useQuery + invalidateQueries, useEffect+setState မသုံးရ",
+          "Date Display — formatDate(date, i18n.language) အမြဲသုံး",
+          "Table UX — TableSkeleton, sort columns, ColumnSelector, pagination"
+        ],
+        "priority2": [
+          "authorize() on write — POST/PUT/PATCH/DELETE တိုင်းတွင်",
+          "Soft Delete — deletedAt + trash/restore, hard delete မလုပ်ရ"
+        ],
+        "priority3": [
+          "Low-Code Config — business rules ကို Admin UI မှတဆင့်, hardcode မလုပ်ရ"
+        ],
+        "priority4": [
+          "Masterdata Fields — code @unique, name 5 ဘာသာ, description, sortOrder, isActive"
+        ],
+        "priority5": [
+          "Kafka Event Standard — ERP ဝန်ဆောင်မှုများအတွက် image.processed event"
+        ],
+        "imageService": [
+          "Image Storage Rule — image တိုင်းတွင် raw + processed + thumbnail ရှိရမည်",
+          "Traceability Rule — image တိုင်းကို Camera → Machine → Lot → Operator → Shift သို့ခြေရာခံနိုင်ရမည်",
+          "Event Rule — လုပ်ဆောင်မှုပြီးဆုံးပါက downstream services အတွက် event ထုတ်လွှင့်ရမည်"
+        ]
+      },
+      "microservices": "မိုက်ခရိုဆာဗစ်များ",
+      "databases": "ဒေတာဘေ့စ်များ",
+      "vms": "Virtual Machines",
+      "monitoring": "စောင့်ကြည့်ခြင်း",
+      "phase0": "P0 — Core Pipeline",
+      "phase0Desc": "အဆုံးမှအဆုံး ပုံရိပ်လမ်းကြောင်း: Sync → Process → Store → Serve",
+      "phase0Status": "လုပ်ဆောင်ဆဲ",
+      "phase0Tasks": [
+        "image_files ထည့်သွင်းမှုပျက်ကွက်ရခြင်းကို စုံစမ်းစစ်ဆေးခြင်း",
+        "MinIO သို့ PNG အပ်လုဒ်ကို အတည်ပြုခြင်း",
+        "Thumbnail ထုတ်လုပ်မှုကို အတည်ပြုခြင်း",
+        "image_files မှတ်တမ်းများကို အတည်ပြုခြင်း",
+        "Download endpoint စမ်းသပ်ခြင်း",
+        "အဆုံးမှအဆုံး စစ်ဆေးခြင်း: TIFF ဝင် → PNG ထွက် → ဒေါင်းလုဒ်ရနိုင်"
+      ],
+      "phase1": "P1 — စောင့်ကြည့်ခြင်းနှင့် မြင်နိုင်စွမ်း",
+      "phase1Desc": "Auth မထည့်သွင်းမီ လည်ပတ်မှုမြင်နိုင်စွမ်းကို မြှင့်တင်ခြင်း",
+      "phase1Status": "စီစဉ်ထားသည်",
+      "phase1Tasks": [
+        "GET /api/v1/overview ပေါင်းစပ် endpoint",
+        "ProcessingJob model မှ GET /api/v1/processing-logs",
+        "POST /api/v1/processing-logs/:id/retry",
+        "အမှားရှာရန် docker logs ကို မှီခိုမှုလျှော့ချခြင်း"
+      ],
+      "phase2": "P2 — အတည်ပြုခြင်း",
+      "phase2Desc": "Login, JWT, refresh, logout, profile",
+      "phase2Status": "စီစဉ်ထားသည်",
+      "phase2Tasks": [
+        "Login စာမျက်နှာ (POST /api/v1/auth/login)",
+        "Axios JWT interceptor",
+        "Token ပြန်လည်ရယူခြင်းယန္တရား",
+        "ထွက်ခြင်း + user profile ပြသခြင်း"
+      ],
+      "phase3": "P3 — Frontend လုပ်ဆောင်ချက်များ",
+      "phase3Desc": "ကျန်ရှိသော UI လုပ်ဆောင်ချက်များကို backend နှင့်ချိတ်ဆက်ခြင်း",
+      "phase3Status": "စီစဉ်ထားသည်",
+      "phase3Tasks": [
+        "Download ခလုတ်များ → GET /api/v1/images/:id/files/:fileType",
+        "Settings Save ကို backend အစစ်နှင့်ချိတ်ဆက်ခြင်း",
+        "Image Detail modal တွင် Tag စီမံခန့်ခွဲခြင်း"
+      ],
+      "phase4": "P4 — ERP ပေါင်းစည်းခြင်း",
+      "phase4Desc": "Event-driven ဖြင့် လုပ်ငန်းသုံးစနစ်များနှင့် ပေါင်းစည်းခြင်း",
+      "phase4Status": "စီစဉ်ထားသည်",
+      "phase4Tasks": [
+        "image.processed ဖြစ်စဉ်တွင် Kafka event ထုတ်လွှင့်ခြင်း",
+        "Event model: imageId, cameraId, pngPath, thumbnailPath",
+        "vision / predictive / historian ဝန်ဆောင်မှုများအတွက် consumer stubs"
+      ],
+      "phase5": "P5 — စာမျက်နှာအသစ်များ",
+      "phase5Desc": "ရှိပြီးသား data models များအတွက် UI စာမျက်နှာအသစ်များ",
+      "phase5Status": "စီစဉ်ထားသည်",
+      "phase5Tasks": [
+        "Alert Management စာမျက်နှာ (list / acknowledge / resolve)",
+        "User Management စာမျက်နှာ (admin CRUD)",
+        "Health / Status dashboard"
+      ]
+    }
+  }
+}

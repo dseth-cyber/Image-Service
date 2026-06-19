@@ -1,0 +1,271 @@
+{
+  "imageService": {
+    "overview": {
+      "title": "图像服务概览",
+      "subtitle": "图像管理系统仪表板",
+      "totalImages": "总图像数",
+      "activeCameras": "活跃摄像头",
+      "storageUsed": "已用存储",
+      "processingRate": "处理速率",
+      "recentActivity": "近期活动",
+      "storageGrowth": "存储增长趋势",
+      "cameraStatus": "摄像头状态",
+      "imagesByCamera": "按摄像头统计图像",
+      "imagesToday": "今日图像",
+      "editLayout": "编辑布局",
+      "resetLayout": "重置布局",
+      "finishEditing": "完成编辑",
+      "dragHint": "拖拽卡片重新排列，或拖拽右下角调整大小"
+    },
+    "search": {
+      "title": "图像搜索",
+      "subtitle": "搜索和浏览已采集图像",
+      "searchPlaceholder": "按文件名或校验码搜索...",
+      "allCameras": "所有摄像头",
+      "allStatus": "所有状态",
+      "dateRange": "日期范围",
+      "fromDate": "开始日期",
+      "toDate": "结束日期",
+      "filter": "筛选",
+      "clearFilter": "清除筛选",
+      "imageDetail": "图像详情",
+      "files": "文件",
+      "metadata": "元数据",
+      "tags": "标签",
+      "noResults": "未找到图像",
+      "downloadRaw": "下载原始文件",
+      "downloadPng": "下载PNG",
+      "downloadThumb": "下载缩略图",
+      "deleteImage": "删除图像",
+      "deleteConfirm": "确定要删除此图像吗？",
+      "deleteSuccess": "图像已删除"
+    },
+    "cameras": {
+      "title": "摄像头管理",
+      "subtitle": "监控和管理所有摄像头源",
+      "newCamera": "添加摄像头",
+      "editCamera": "编辑摄像头",
+      "cameraName": "摄像头名称",
+      "ipAddress": "IP地址",
+      "smbPath": "SMB路径",
+      "status": "状态",
+      "pollInterval": "轮询间隔",
+      "lastPoll": "上次轮询",
+      "lastImage": "上次图像",
+      "totalImages": "总图像数",
+      "active": "活跃",
+      "inactive": "非活跃",
+      "error": "错误",
+      "maintenance": "维护中",
+      "deactivateConfirm": "确定要停用此摄像头吗？",
+      "created": "摄像头添加成功",
+      "updated": "摄像头更新成功",
+      "deactivated": "摄像头已停用",
+      "viewLogs": "查看日志"
+    },
+    "storage": {
+      "title": "存储监控",
+      "subtitle": "监控系统存储使用情况",
+      "totalFiles": "总文件数",
+      "totalSize": "总大小",
+      "byFileType": "按文件类型",
+      "byCamera": "按摄像头",
+      "growthTrend": "增长趋势",
+      "days": "天",
+      "rawImages": "原始图像",
+      "processedImages": "已处理图像",
+      "thumbnails": "缩略图",
+      "noData": "暂无存储数据"
+    },
+    "retention": {
+      "title": "保留策略",
+      "subtitle": "管理图像保留策略",
+      "newPolicy": "新建策略",
+      "editPolicy": "编辑策略",
+      "policyName": "策略名称",
+      "description": "描述",
+      "rawRetentionDays": "原始保留（天）",
+      "processedRetentionDays": "处理后保留（天）",
+      "thumbnailRetentionDays": "缩略图保留（天）",
+      "archiveEnabled": "启用归档",
+      "archiveRawDays": "归档原始文件于（天后）",
+      "coldStorageClass": "冷存储类型",
+      "camerasUsing": "使用此策略的摄像头",
+      "deleteConfirm": "确定要删除此策略吗？",
+      "deleteDisabled": "无法删除正在被摄像头使用的策略",
+      "created": "策略创建成功",
+      "updated": "策略更新成功",
+      "deleted": "策略已删除"
+    },
+    "processing": {
+      "title": "处理监控",
+      "subtitle": "实时处理状态仪表板",
+      "totalJobs": "总任务数",
+      "completed": "已完成",
+      "failed": "失败",
+      "inProgress": "进行中",
+      "jobStatus": "任务状态",
+      "byType": "按类型",
+      "recentJobs": "最近任务",
+      "noData": "暂无处理数据"
+    },
+    "processingLogs": {
+      "title": "处理日志",
+      "subtitle": "查看图像处理历史记录",
+      "allJobs": "所有任务",
+      "jobType": "任务类型",
+      "status": "状态",
+      "imageId": "图像ID",
+      "workerId": "工作节点",
+      "queuedAt": "排队时间",
+      "startedAt": "开始时间",
+      "completedAt": "完成时间",
+      "duration": "耗时",
+      "errorMessage": "错误信息",
+      "retry": "重试",
+      "retrySuccess": "任务已重新加入队列",
+      "noLogs": "未找到处理日志",
+      "allTypes": "所有类型",
+      "allStatuses": "所有状态"
+    },
+    "settings": {
+      "title": "设置",
+      "subtitle": "管理Image Service系统设置",
+      "appearance": "外观",
+      "appearanceDesc": "自定义主题和语言",
+      "theme": "主题",
+      "language": "语言",
+      "notifications": "通知",
+      "notificationsDesc": "配置告警和通知设置",
+      "alertEmail": "告警邮箱",
+      "processing": "处理设置",
+      "processingDesc": "配置处理参数",
+      "pollInterval": "轮询间隔（秒）",
+      "retryMax": "最大重试次数",
+      "systemInfo": "系统信息",
+      "systemInfoDesc": "Image Service系统的一般信息",
+      "totalImages": "总图像数",
+      "activeCameras": "活跃摄像头",
+      "totalAlerts": "总告警数",
+      "refreshData": "刷新数据",
+      "resetAll": "全部重置",
+      "resetSuccess": "所有设置已成功重置"
+    },
+    "nav": {
+      "overview": "概览",
+      "cameras": "摄像头",
+      "search": "搜索",
+      "processing": "处理",
+      "storage": "存储",
+      "logs": "日志",
+      "retention": "保留",
+      "roadmap": "路线图",
+      "settings": "设置"
+    },
+    "roadmap": {
+      "title": "发展路线图",
+      "subtitle": "系统发展路线图与架构概览",
+      "architecture": "系统架构",
+      "architectureDesc": "当前系统基础设施与技术栈",
+      "phases": "开发阶段",
+      "phasesDesc": "按优先级排列的开发里程碑",
+      "rules": "系统规则",
+      "rulesDesc": "强制性约定 — 任何功能都不得违反",
+      "rulesGroupsLabels": {
+        "priority1": { "label": "Priority 1 — 必须100%使用", "color": "#ef4444" },
+        "priority2": { "label": "Priority 2 — 有CRUD/Auth时使用", "color": "#f59e0b" },
+        "priority3": { "label": "Priority 3 — Phase 2+", "color": "#eab308" },
+        "priority4": { "label": "Priority 4 — 主数据实体", "color": "#3b82f6" },
+        "priority5": { "label": "Priority 5 — ERP集成", "color": "#8b5cf6" },
+        "imageService": { "label": "Image Service专用", "color": "#06b6d4" }
+      },
+      "rulesGroups": {
+        "priority1": [
+          "Shared Layout — 每个页面包裹 <Layout>",
+          "Central Dialog — 使用 <Modal>/<ConfirmDialog>，禁止 alert()",
+          "5-Language i18n — 所有UI文本用 t('key') (th/en/cn/mm/jp)",
+          "Theme tokens — 主题样式来自 themeConfig",
+          "SearchableSelect — 禁止原生 <select>",
+          "React Query — useQuery + invalidateQueries，禁止 useEffect+setState",
+          "Date Display — 始终用 formatDate(date, i18n.language)",
+          "Table UX — TableSkeleton, 排序列, ColumnSelector, 分页"
+        ],
+        "priority2": [
+          "authorize() on write — 每个 POST/PUT/PATCH/DELETE",
+          "Soft Delete — deletedAt + trash/restore，不硬删除"
+        ],
+        "priority3": [
+          "Low-Code Config — 业务规则通过Admin UI设置，不硬编码"
+        ],
+        "priority4": [
+          "Masterdata Fields — code @unique, name 5种语言, description, sortOrder, isActive"
+        ],
+        "priority5": [
+          "Kafka Event Standard — image.processed 事件供ERP服务"
+        ],
+        "imageService": [
+          "Image Storage Rule — 每张图在 image_files 中有 raw + processed + thumbnail",
+          "Traceability Rule — 每张图追溯到 Camera → Machine → Lot → Operator → Shift",
+          "Event Rule — 处理完成后发出事件供下游服务"
+        ]
+      },
+      "microservices": "微服务",
+      "databases": "数据库",
+      "vms": "虚拟机",
+      "monitoring": "监控",
+      "phase0": "P0 — 核心管道",
+      "phase0Desc": "端到端管道: 同步 → 处理 → 存储 → 服务",
+      "phase0Status": "进行中",
+      "phase0Tasks": [
+        "调查 image_files 插入失败原因",
+        "验证 PNG 上传到 MinIO",
+        "验证缩略图生成",
+        "验证 image_files 记录已创建",
+        "实现下载端点测试",
+        "端到端验证: TIFF输入 → PNG输出 → 下载成功"
+      ],
+      "phase1": "P1 — 监控与可见性",
+      "phase1Desc": "在添加认证前提高运维可见性",
+      "phase1Status": "已规划",
+      "phase1Tasks": [
+        "GET /api/v1/overview 复合端点",
+        "从 ProcessingJob 模型提供 GET /api/v1/processing-logs",
+        "POST /api/v1/processing-logs/:id/retry",
+        "减少调试时对 docker logs 的依赖"
+      ],
+      "phase2": "P2 — 认证",
+      "phase2Desc": "登录、JWT、刷新、登出、个人资料",
+      "phase2Status": "已规划",
+      "phase2Tasks": [
+        "登录页面 (POST /api/v1/auth/login)",
+        "所有请求的 Axios JWT 拦截器",
+        "令牌刷新机制",
+        "登出 + 用户资料显示"
+      ],
+      "phase3": "P3 — 前端功能",
+      "phase3Desc": "将剩余的交互式 UI 连接到真实后端",
+      "phase3Status": "已规划",
+      "phase3Tasks": [
+        "下载按钮 → GET /api/v1/images/:id/files/:fileType",
+        "设置保存连接到真实后端",
+        "图片详情模态框中的标签管理"
+      ],
+      "phase4": "P4 — ERP 集成",
+      "phase4Desc": "通过事件驱动与企业系统集成",
+      "phase4Status": "已规划",
+      "phase4Tasks": [
+        "image.processed 时发出 Kafka 事件",
+        "事件模型: imageId, cameraId, pngPath, thumbnailPath",
+        "视觉/预测/历史服务的消费者存根"
+      ],
+      "phase5": "P5 — 新增页面",
+      "phase5Desc": "为现有数据模型添加更多 UI 页面",
+      "phase5Status": "已规划",
+      "phase5Tasks": [
+        "告警管理页面 (列表/确认/解决)",
+        "用户管理页面 (管理员 CRUD)",
+        "健康/状态仪表板"
+      ]
+    }
+  }
+}

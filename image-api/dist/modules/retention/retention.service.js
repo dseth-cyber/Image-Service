@@ -1,0 +1,55 @@
+import { getPrisma } from '../../lib/prisma.js';
+import { NotFoundError, ConflictError } from '../../lib/errors.js';
+export async function listPolicies() {
+    const prisma = getPrisma();
+    return prisma.retentionPolicy.findMany({
+        orderBy: { name: 'asc' },
+        include: { _count: { select: { cameras: true } } },
+    });
+}
+export async function getPolicyById(id) {
+    const prisma = getPrisma();
+    const policy = await prisma.retentionPolicy.findUnique({
+        where: { id },
+        include: {
+            cameras: { select: { id: true, name: true, status: true } },
+        },
+    });
+    if (!policy) {
+        throw new NotFoundError('RetentionPolicy', id);
+    }
+    return policy;
+}
+export async function createPolicy(input) {
+    const prisma = getPrisma();
+    const existing = await prisma.retentionPolicy.findFirst({ where: { name: input.name } });
+    if (existing) {
+        throw new ConflictError(`Retention policy with name '${input.name}' already exists`);
+    }
+    const policy = await prisma.retentionPolicy.create({ data: input });
+    return policy;
+}
+export async function updatePolicy(id, input) {
+    const prisma = getPrisma();
+    const existing = await prisma.retentionPolicy.findUnique({ where: { id } });
+    if (!existing) {
+        throw new NotFoundError('RetentionPolicy', id);
+    }
+    const updated = await prisma.retentionPolicy.update({ where: { id }, data: input });
+    return updated;
+}
+export async function deletePolicy(id) {
+    const prisma = getPrisma();
+    const existing = await prisma.retentionPolicy.findUnique({
+        where: { id },
+        include: { _count: { select: { cameras: true } } },
+    });
+    if (!existing) {
+        throw new NotFoundError('RetentionPolicy', id);
+    }
+    if (existing._count.cameras > 0) {
+        throw new ConflictError(`Cannot delete policy '${existing.name}': ${existing._count.cameras} camera(s) are using it`);
+    }
+    await prisma.retentionPolicy.delete({ where: { id } });
+}
+//# sourceMappingURL=retention.service.js.map

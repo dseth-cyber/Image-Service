@@ -1,0 +1,271 @@
+{
+  "imageService": {
+    "overview": {
+      "title": "ภาพรวม Image Service",
+      "subtitle": "แดชบอร์ดภาพรวมระบบจัดการภาพถ่าย",
+      "totalImages": "ภาพทั้งหมด",
+      "activeCameras": "กล้องที่ทำงาน",
+      "storageUsed": "พื้นที่เก็บข้อมูล",
+      "processingRate": "อัตราการประมวลผล",
+      "recentActivity": "กิจกรรมล่าสุด",
+      "storageGrowth": "แนวโน้มพื้นที่เก็บข้อมูล",
+      "cameraStatus": "สถานะกล้อง",
+      "imagesByCamera": "ภาพแบ่งตามกล้อง",
+      "imagesToday": "ภาพวันนี้",
+      "editLayout": "ปรับแต่ง Layout",
+      "resetLayout": "รีเซ็ต Layout",
+      "finishEditing": "เสร็จสิ้น",
+      "dragHint": "ลากการ์ดเพื่อเรียงใหม่ หรือลากมุมล่างขวาเพื่อปรับขนาด"
+    },
+    "search": {
+      "title": "ค้นหาภาพ",
+      "subtitle": "ค้นหาและเรียกดูภาพถ่ายจากระบบ",
+      "searchPlaceholder": "ค้นหาด้วยชื่อไฟล์ หรือ Checksum...",
+      "allCameras": "กล้องทั้งหมด",
+      "allStatus": "สถานะทั้งหมด",
+      "dateRange": "ช่วงวันที่",
+      "fromDate": "วันที่เริ่มต้น",
+      "toDate": "วันที่สิ้นสุด",
+      "filter": "ตัวกรอง",
+      "clearFilter": "ล้างตัวกรอง",
+      "imageDetail": "รายละเอียดภาพ",
+      "files": "ไฟล์",
+      "metadata": "Metadata",
+      "tags": "แท็ก",
+      "noResults": "ไม่พบภาพที่ค้นหา",
+      "downloadRaw": "ดาวน์โหลดต้นฉบับ",
+      "downloadPng": "ดาวน์โหลด PNG",
+      "downloadThumb": "ดาวน์โหลด Thumbnail",
+      "deleteImage": "ลบภาพ",
+      "deleteConfirm": "คุณแน่ใจหรือไม่ว่าต้องการลบภาพนี้?",
+      "deleteSuccess": "ลบภาพสำเร็จ"
+    },
+    "cameras": {
+      "title": "จัดการกล้อง",
+      "subtitle": "ตรวจสอบและจัดการกล้องถ่ายภาพทั้งหมด",
+      "newCamera": "เพิ่มกล้องใหม่",
+      "editCamera": "แก้ไขกล้อง",
+      "cameraName": "ชื่อกล้อง",
+      "ipAddress": "ที่อยู่ IP",
+      "smbPath": "ที่อยู่ SMB",
+      "status": "สถานะ",
+      "pollInterval": "ระยะเวลา Poll",
+      "lastPoll": "Poll ล่าสุด",
+      "lastImage": "ภาพล่าสุด",
+      "totalImages": "ภาพทั้งหมด",
+      "active": "ทำงาน",
+      "inactive": "ไม่ทำงาน",
+      "error": "ข้อผิดพลาด",
+      "maintenance": "ซ่อมบำรุง",
+      "deactivateConfirm": "คุณแน่ใจหรือไม่ว่าต้องการปิดการใช้งานกล้องนี้?",
+      "created": "เพิ่มกล้องสำเร็จ",
+      "updated": "อัปเดตกล้องสำเร็จ",
+      "deactivated": "ปิดการใช้งานกล้องสำเร็จ",
+      "viewLogs": "ดู Log"
+    },
+    "storage": {
+      "title": "พื้นที่เก็บข้อมูล",
+      "subtitle": "ตรวจสอบการใช้งานพื้นที่เก็บข้อมูล",
+      "totalFiles": "ไฟล์ทั้งหมด",
+      "totalSize": "ขนาดทั้งหมด",
+      "byFileType": "แบ่งตามประเภทไฟล์",
+      "byCamera": "แบ่งตามกล้อง",
+      "growthTrend": "แนวโน้มการเติบโต",
+      "days": "วัน",
+      "rawImages": "ภาพต้นฉบับ",
+      "processedImages": "ภาพประมวลผล",
+      "thumbnails": "รูปขนาดย่อ",
+      "noData": "ไม่มีข้อมูลพื้นที่เก็บข้อมูล"
+    },
+    "retention": {
+      "title": "นโยบายการจัดเก็บ",
+      "subtitle": "จัดการนโยบายการจัดเก็บภาพถ่าย",
+      "newPolicy": "เพิ่มนโยบายใหม่",
+      "editPolicy": "แก้ไขนโยบาย",
+      "policyName": "ชื่อนโยบาย",
+      "description": "คำอธิบาย",
+      "rawRetentionDays": "เก็บภาพต้นฉบับ (วัน)",
+      "processedRetentionDays": "เก็บภาพประมวลผล (วัน)",
+      "thumbnailRetentionDays": "เก็บ Thumbnail (วัน)",
+      "archiveEnabled": "เปิดใช้งานการ Archive",
+      "archiveRawDays": "Archive ภาพต้นฉบับหลังจาก (วัน)",
+      "coldStorageClass": "ประเภท Cold Storage",
+      "camerasUsing": "กล้องที่ใช้นโยบายนี้",
+      "deleteConfirm": "คุณแน่ใจหรือไม่ว่าต้องการลบนโยบายนี้?",
+      "deleteDisabled": "ไม่สามารถลบนโยบายที่มีกล้องใช้งานอยู่",
+      "created": "เพิ่มนโยบายสำเร็จ",
+      "updated": "อัปเดตนโยบายสำเร็จ",
+      "deleted": "ลบนโยบายสำเร็จ"
+    },
+    "processing": {
+      "title": "จอภาพการประมวลผล",
+      "subtitle": "ตรวจสอบสถานะการประมวลผลภาพแบบเรียลไทม์",
+      "totalJobs": "งานทั้งหมด",
+      "completed": "สำเร็จ",
+      "failed": "ล้มเหลว",
+      "inProgress": "กำลังดำเนินการ",
+      "jobStatus": "สถานะงาน",
+      "byType": "แบ่งตามประเภท",
+      "recentJobs": "งานล่าสุด",
+      "noData": "ไม่มีข้อมูลการประมวลผล"
+    },
+    "processingLogs": {
+      "title": "Log การประมวลผล",
+      "subtitle": "ตรวจสอบประวัติการประมวลผลภาพถ่าย",
+      "allJobs": "งานทั้งหมด",
+      "jobType": "ประเภทงาน",
+      "status": "สถานะ",
+      "imageId": "ID ภาพ",
+      "workerId": "Worker",
+      "queuedAt": "เข้าคิวเมื่อ",
+      "startedAt": "เริ่มเมื่อ",
+      "completedAt": "เสร็จเมื่อ",
+      "duration": "ระยะเวลา",
+      "errorMessage": "ข้อผิดพลาด",
+      "retry": "ลองใหม่",
+      "retrySuccess": "ส่งงานเข้าคิวอีกครั้งสำเร็จ",
+      "noLogs": "ไม่พบ Log การประมวลผล",
+      "allTypes": "ทุกประเภท",
+      "allStatuses": "ทุกสถานะ"
+    },
+    "settings": {
+      "title": "ตั้งค่า",
+      "subtitle": "จัดการการตั้งค่าระบบ Image Service",
+      "appearance": "ลักษณะที่ปรากฏ",
+      "appearanceDesc": "ปรับแต่งธีมและภาษา",
+      "theme": "ธีม",
+      "language": "ภาษา",
+      "notifications": "การแจ้งเตือน",
+      "notificationsDesc": "กำหนดค่าการแจ้งเตือนและการแจ้งเหตุ",
+      "alertEmail": "อีเมลแจ้งเตือน",
+      "processing": "การประมวลผล",
+      "processingDesc": "กำหนดค่าพารามิเตอร์การประมวลผล",
+      "pollInterval": "ระยะเวลา Poll (วินาที)",
+      "retryMax": "จำนวนลองใหม่สูงสุด",
+      "systemInfo": "ข้อมูลระบบ",
+      "systemInfoDesc": "ข้อมูลทั่วไปเกี่ยวกับระบบ Image Service",
+      "totalImages": "ภาพทั้งหมด",
+      "activeCameras": "กล้องที่ทำงาน",
+      "totalAlerts": "การแจ้งเตือนทั้งหมด",
+      "refreshData": "รีเฟรชข้อมูล",
+      "resetAll": "รีเซ็ตทั้งหมด",
+      "resetSuccess": "รีเซ็ตการตั้งค่าทั้งหมดสำเร็จ"
+    },
+    "nav": {
+      "overview": "ภาพรวม",
+      "cameras": "กล้อง",
+      "search": "ค้นหา",
+      "processing": "ประมวลผล",
+      "storage": "พื้นที่เก็บ",
+      "logs": "บันทึก",
+      "retention": "นโยบาย",
+      "roadmap": "โรดแมป",
+      "settings": "ตั้งค่า"
+    },
+    "roadmap": {
+      "title": "โรดแมป",
+      "subtitle": "โรดแมปการพัฒนาระบบและภาพรวมสถาปัตยกรรม",
+      "architecture": "สถาปัตยกรรมระบบ",
+      "architectureDesc": "โครงสร้างพื้นฐานระบบและเทคโนโลยีที่ใช้ในปัจจุบัน",
+      "phases": "แผนการพัฒนา",
+      "phasesDesc": "เป้าหมายการพัฒนาตามลำดับความสำคัญ",
+      "rules": "กฎหลักที่ต้องไม่หลุด",
+      "rulesDesc": "ข้อบังคับของระบบ — ทุกฟีเจอร์ต้องยึดตาม",
+      "rulesGroupsLabels": {
+        "priority1": { "label": "Priority 1 — ใช้ทันที 100%", "color": "#ef4444" },
+        "priority2": { "label": "Priority 2 — เมื่อมี CRUD / Auth", "color": "#f59e0b" },
+        "priority3": { "label": "Priority 3 — Phase 2+", "color": "#eab308" },
+        "priority4": { "label": "Priority 4 — Masterdata Entity", "color": "#3b82f6" },
+        "priority5": { "label": "Priority 5 — ERP Integration", "color": "#8b5cf6" },
+        "imageService": { "label": "Image Service เฉพาะ", "color": "#06b6d4" }
+      },
+      "rulesGroups": {
+        "priority1": [
+          "Shared Layout — ทุกหน้าใหม่ห่อด้วย <Layout>",
+          "Central Dialog — ใช้ <Modal>/<ConfirmDialog>, ห้าม alert()",
+          "5-Language i18n — ข้อความ UI ใช้ t('key') (th/en/cn/mm/jp)",
+          "Theme tokens — styling ขึ้นกับ theme มาจาก themeConfig",
+          "SearchableSelect — ห้าม <select> native",
+          "React Query — useQuery + invalidateQueries, ห้าม useEffect+setState",
+          "Date Display — formatDate(date, i18n.language) เสมอ",
+          "Table UX — TableSkeleton, sort columns, ColumnSelector, pagination"
+        ],
+        "priority2": [
+          "authorize() on write — ทุก POST/PUT/PATCH/DELETE",
+          "Soft Delete — deletedAt + trash/restore, ไม่ hard delete"
+        ],
+        "priority3": [
+          "Low-Code Config — business rules ผ่าน Admin UI, ห้าม hardcode"
+        ],
+        "priority4": [
+          "Masterdata Fields — code @unique, name 5 ภาษา, description, sortOrder, isActive"
+        ],
+        "priority5": [
+          "Kafka Event Standard — image.processed event สำหรับ ERP services"
+        ],
+        "imageService": [
+          "Image Storage Rule — ทุกภาพมี raw + processed + thumbnail ใน image_files",
+          "Traceability Rule — ทุกภาพ trace ถึง Camera → Machine → Lot → Operator → Shift",
+          "Event Rule — emit event เมื่อประมวลผลเสร็จ"
+        ]
+      },
+      "microservices": "ไมโครเซอร์วิส",
+      "databases": "ฐานข้อมูล",
+      "vms": "เครื่องเสมือน",
+      "monitoring": "การตรวจสอบ",
+      "phase0": "P0 — Core Pipeline",
+      "phase0Desc": "Pipeline ครบวงจร: Sync → Process → Store → Serve",
+      "phase0Status": "กำลังดำเนินการ",
+      "phase0Tasks": [
+        "ตรวจสอบสาเหตุ image_files ไม่ถูกสร้าง",
+        "ยืนยัน PNG upload ไป MinIO ได้",
+        "ยืนยัน Thumbnail ถูกสร้าง",
+        "ตรวจสอบว่า image_files records ถูก insert",
+        "ทดสอบ Download endpoint",
+        "ตรวจสอบ end-to-end: TIFF เข้า → PNG ออก → Download ได้"
+      ],
+      "phase1": "P1 — Monitoring & Visibility",
+      "phase1Desc": "เพิ่มความสามารถในการมองเห็นระบบ ก่อนเพิ่ม Auth",
+      "phase1Status": "วางแผน",
+      "phase1Tasks": [
+        "GET /api/v1/overview composite endpoint",
+        "GET /api/v1/processing-logs จาก ProcessingJob model",
+        "POST /api/v1/processing-logs/:id/retry",
+        "ลดการพึ่งพา docker logs ในการ debug"
+      ],
+      "phase2": "P2 — Authentication",
+      "phase2Desc": "Login, JWT, refresh, logout, profile",
+      "phase2Status": "วางแผน",
+      "phase2Tasks": [
+        "หน้า Login (POST /api/v1/auth/login)",
+        "Axios JWT interceptor สำหรับทุก request",
+        "Token refresh mechanism",
+        "Logout + แสดง user profile"
+      ],
+      "phase3": "P3 — Frontend Features",
+      "phase3Desc": "เชื่อมต่อ UI action ที่เหลือกับ backend จริง",
+      "phase3Status": "วางแผน",
+      "phase3Tasks": [
+        "ปุ่ม Download → GET /api/v1/images/:id/files/:fileType",
+        "Settings Save ไป backend จริง",
+        "จัดการ Tags ใน Image Detail modal"
+      ],
+      "phase4": "P4 — ERP Integration",
+      "phase4Desc": "เชื่อมต่อกับระบบระดับองค์กรด้วย Event-driven",
+      "phase4Status": "วางแผน",
+      "phase4Tasks": [
+        "Kafka event emission เมื่อ image.processed",
+        "Event model: imageId, cameraId, pngPath, thumbnailPath",
+        "Consumer stubs สำหรับ vision / predictive / historian services"
+      ],
+      "phase5": "P5 — หน้าใหม่",
+      "phase5Desc": "หน้า UI เพิ่มเติมสำหรับ data models ที่มีอยู่",
+      "phase5Status": "วางแผน",
+      "phase5Tasks": [
+        "หน้า Alert Management (list / acknowledge / resolve)",
+        "หน้า User Management (admin CRUD)",
+        "Health / Status dashboard"
+      ]
+    }
+  }
+}

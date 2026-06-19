@@ -1,0 +1,271 @@
+{
+  "imageService": {
+    "overview": {
+      "title": "Image Service 概要",
+      "subtitle": "画像管理システムのダッシュボード",
+      "totalImages": "総画像数",
+      "activeCameras": "アクティブカメラ",
+      "storageUsed": "使用ストレージ",
+      "processingRate": "処理レート",
+      "recentActivity": "最近のアクティビティ",
+      "storageGrowth": "ストレージ増加傾向",
+      "cameraStatus": "カメラステータス",
+      "imagesByCamera": "カメラ別画像数",
+      "imagesToday": "本日の画像",
+      "editLayout": "レイアウト編集",
+      "resetLayout": "レイアウトリセット",
+      "finishEditing": "編集完了",
+      "dragHint": "カードをドラッグして並べ替え、右下をドラッグしてサイズ変更"
+    },
+    "search": {
+      "title": "画像検索",
+      "subtitle": "撮影された画像を検索・閲覧",
+      "searchPlaceholder": "ファイル名またはチェックサムで検索...",
+      "allCameras": "すべてのカメラ",
+      "allStatus": "すべてのステータス",
+      "dateRange": "日付範囲",
+      "fromDate": "開始日",
+      "toDate": "終了日",
+      "filter": "フィルター",
+      "clearFilter": "フィルター解除",
+      "imageDetail": "画像詳細",
+      "files": "ファイル",
+      "metadata": "メタデータ",
+      "tags": "タグ",
+      "noResults": "画像が見つかりません",
+      "downloadRaw": "オリジナルをダウンロード",
+      "downloadPng": "PNGをダウンロード",
+      "downloadThumb": "サムネイルをダウンロード",
+      "deleteImage": "画像を削除",
+      "deleteConfirm": "この画像を削除してもよろしいですか？",
+      "deleteSuccess": "画像を削除しました"
+    },
+    "cameras": {
+      "title": "カメラ管理",
+      "subtitle": "すべてのカメラソースの監視と管理",
+      "newCamera": "カメラを追加",
+      "editCamera": "カメラを編集",
+      "cameraName": "カメラ名",
+      "ipAddress": "IPアドレス",
+      "smbPath": "SMBパス",
+      "status": "ステータス",
+      "pollInterval": "ポーリング間隔",
+      "lastPoll": "最終ポーリング",
+      "lastImage": "最終画像",
+      "totalImages": "総画像数",
+      "active": "アクティブ",
+      "inactive": "非アクティブ",
+      "error": "エラー",
+      "maintenance": "メンテナンス",
+      "deactivateConfirm": "このカメラを無効にしてもよろしいですか？",
+      "created": "カメラを作成しました",
+      "updated": "カメラを更新しました",
+      "deactivated": "カメラを無効にしました",
+      "viewLogs": "ログを表示"
+    },
+    "storage": {
+      "title": "ストレージ監視",
+      "subtitle": "システム全体のストレージ使用状況を監視",
+      "totalFiles": "総ファイル数",
+      "totalSize": "総サイズ",
+      "byFileType": "ファイルタイプ別",
+      "byCamera": "カメラ別",
+      "growthTrend": "増加傾向",
+      "days": "日",
+      "rawImages": "Raw画像",
+      "processedImages": "処理済み画像",
+      "thumbnails": "サムネイル",
+      "noData": "ストレージデータがありません"
+    },
+    "retention": {
+      "title": "保存ポリシー",
+      "subtitle": "画像保存ポリシーの管理",
+      "newPolicy": "新規ポリシー",
+      "editPolicy": "ポリシー編集",
+      "policyName": "ポリシー名",
+      "description": "説明",
+      "rawRetentionDays": "Raw保存日数",
+      "processedRetentionDays": "処理後保存日数",
+      "thumbnailRetentionDays": "サムネイル保存日数",
+      "archiveEnabled": "アーカイブ有効",
+      "archiveRawDays": "アーカイブ実行（日後）",
+      "coldStorageClass": "コールドストレージクラス",
+      "camerasUsing": "このポリシーを使用するカメラ",
+      "deleteConfirm": "このポリシーを削除してもよろしいですか？",
+      "deleteDisabled": "カメラが使用中のポリシーは削除できません",
+      "created": "ポリシーを作成しました",
+      "updated": "ポリシーを更新しました",
+      "deleted": "ポリシーを削除しました"
+    },
+    "processing": {
+      "title": "処理モニター",
+      "subtitle": "リアルタイム処理ステータスダッシュボード",
+      "totalJobs": "総ジョブ数",
+      "completed": "完了",
+      "failed": "失敗",
+      "inProgress": "進行中",
+      "jobStatus": "ジョブステータス",
+      "byType": "タイプ別",
+      "recentJobs": "最近のジョブ",
+      "noData": "処理データがありません"
+    },
+    "processingLogs": {
+      "title": "処理ログ",
+      "subtitle": "画像処理履歴の表示",
+      "allJobs": "すべてのジョブ",
+      "jobType": "ジョブタイプ",
+      "status": "ステータス",
+      "imageId": "画像ID",
+      "workerId": "ワーカー",
+      "queuedAt": "キューイング時刻",
+      "startedAt": "開始時刻",
+      "completedAt": "完了時刻",
+      "duration": "所要時間",
+      "errorMessage": "エラーメッセージ",
+      "retry": "リトライ",
+      "retrySuccess": "ジョブを再キューイングしました",
+      "noLogs": "処理ログが見つかりません",
+      "allTypes": "すべてのタイプ",
+      "allStatuses": "すべてのステータス"
+    },
+    "settings": {
+      "title": "設定",
+      "subtitle": "Image Serviceシステム設定の管理",
+      "appearance": "外観",
+      "appearanceDesc": "テーマと言語のカスタマイズ",
+      "theme": "テーマ",
+      "language": "言語",
+      "notifications": "通知",
+      "notificationsDesc": "アラートと通知設定の構成",
+      "alertEmail": "アラートメール",
+      "processing": "処理設定",
+      "processingDesc": "処理パラメータの構成",
+      "pollInterval": "ポーリング間隔（秒）",
+      "retryMax": "最大リトライ回数",
+      "systemInfo": "システム情報",
+      "systemInfoDesc": "Image Serviceシステムの一般情報",
+      "totalImages": "総画像数",
+      "activeCameras": "アクティブカメラ",
+      "totalAlerts": "総アラート数",
+      "refreshData": "データ更新",
+      "resetAll": "すべてリセット",
+      "resetSuccess": "すべての設定をリセットしました"
+    },
+    "nav": {
+      "overview": "概要",
+      "cameras": "カメラ",
+      "search": "検索",
+      "processing": "処理",
+      "storage": "ストレージ",
+      "logs": "ログ",
+      "retention": "保存",
+      "roadmap": "ロードマップ",
+      "settings": "設定"
+    },
+    "roadmap": {
+      "title": "ロードマップ",
+      "subtitle": "システム開発ロードマップとアーキテクチャ概要",
+      "architecture": "システムアーキテクチャ",
+      "architectureDesc": "現在のシステムインフラとテクノロジースタック",
+      "phases": "開発フェーズ",
+      "phasesDesc": "優先順位別の開発マイルストーン",
+      "rules": "システムルール",
+      "rulesDesc": "必須の規約 — いかなる機能でも違反してはならない",
+      "rulesGroupsLabels": {
+        "priority1": { "label": "Priority 1 — 100%必須", "color": "#ef4444" },
+        "priority2": { "label": "Priority 2 — CRUD/Auth時", "color": "#f59e0b" },
+        "priority3": { "label": "Priority 3 — Phase 2+", "color": "#eab308" },
+        "priority4": { "label": "Priority 4 — マスタデータエンティティ", "color": "#3b82f6" },
+        "priority5": { "label": "Priority 5 — ERP統合", "color": "#8b5cf6" },
+        "imageService": { "label": "Image Service固有", "color": "#06b6d4" }
+      },
+      "rulesGroups": {
+        "priority1": [
+          "Shared Layout — 全ページを <Layout> でラップ",
+          "Central Dialog — <Modal>/<ConfirmDialog> を使用、alert() 禁止",
+          "5-Language i18n — UIテキストは t('key') (th/en/cn/mm/jp)",
+          "Theme tokens — テーマ依存のスタイルは themeConfig から",
+          "SearchableSelect — ネイティブ <select> 禁止",
+          "React Query — useQuery + invalidateQueries、useEffect+setState 禁止",
+          "Date Display — formatDate(date, i18n.language) を常に使用",
+          "Table UX — TableSkeleton、ソート列、ColumnSelector、ページネーション"
+        ],
+        "priority2": [
+          "authorize() on write — すべての POST/PUT/PATCH/DELETE",
+          "Soft Delete — deletedAt + trash/restore、ハード削除禁止"
+        ],
+        "priority3": [
+          "Low-Code Config — ビジネスルールはAdmin UI経由、ハードコード禁止"
+        ],
+        "priority4": [
+          "Masterdata Fields — code @unique、name 5言語、description、sortOrder、isActive"
+        ],
+        "priority5": [
+          "Kafka Event Standard — ERPサービス向け image.processed イベント"
+        ],
+        "imageService": [
+          "Image Storage Rule — 全画像が image_files に raw + processed + thumbnail を持つ",
+          "Traceability Rule — 全画像を Camera → Machine → Lot → Operator → Shift にトレース可",
+          "Event Rule — 処理完了時に下流サービス向けイベントを発行"
+        ]
+      },
+      "microservices": "マイクロサービス",
+      "databases": "データベース",
+      "vms": "仮想マシン",
+      "monitoring": "監視",
+      "phase0": "P0 — コアパイプライン",
+      "phase0Desc": "エンドツーエンドパイプライン: Sync → Process → Store → Serve",
+      "phase0Status": "進行中",
+      "phase0Tasks": [
+        "image_files 挿入失敗の原因調査",
+        "MinIO への PNG アップロード確認",
+        "サムネイル生成の確認",
+        "image_files レコード作成の確認",
+        "ダウンロードエンドポイントのテスト実装",
+        "エンドツーエンド検証: TIFF入力 → PNG出力 → ダウンロード成功"
+      ],
+      "phase1": "P1 — 監視と可視性",
+      "phase1Desc": "認証追加前に運用の可視性を向上",
+      "phase1Status": "計画中",
+      "phase1Tasks": [
+        "GET /api/v1/overview 複合エンドポイント",
+        "ProcessingJob モデルから GET /api/v1/processing-logs",
+        "POST /api/v1/processing-logs/:id/retry",
+        "デバッグ時の docker logs 依存度を低減"
+      ],
+      "phase2": "P2 — 認証",
+      "phase2Desc": "ログイン、JWT、リフレッシュ、ログアウト、プロファイル",
+      "phase2Status": "計画中",
+      "phase2Tasks": [
+        "ログインページ (POST /api/v1/auth/login)",
+        "全リクエストの Axios JWT インターセプター",
+        "トークンリフレッシュ機構",
+        "ログアウト + ユーザープロファイル表示"
+      ],
+      "phase3": "P3 — フロントエンド機能",
+      "phase3Desc": "残りのインタラクティブな UI 操作をバックエンドに接続",
+      "phase3Status": "計画中",
+      "phase3Tasks": [
+        "ダウンロードボタン → GET /api/v1/images/:id/files/:fileType",
+        "設定保存を実際のバックエンドに接続",
+        "画像詳細モーダルでタグ管理"
+      ],
+      "phase4": "P4 — ERP 統合",
+      "phase4Desc": "イベント駆動によるエンタープライズシステム連携",
+      "phase4Status": "計画中",
+      "phase4Tasks": [
+        "image.processed 時の Kafka イベント発行",
+        "イベントモデル: imageId, cameraId, pngPath, thumbnailPath",
+        "vision / predictive / historian サービスのコンシューマースタブ"
+      ],
+      "phase5": "P5 — 新規ページ",
+      "phase5Desc": "既存データモデルに対する追加 UI ページ",
+      "phase5Status": "計画中",
+      "phase5Tasks": [
+        "アラート管理ページ (一覧/確認/解決)",
+        "ユーザー管理ページ (管理者 CRUD)",
+        "ヘルス/ステータスダッシュボード"
+      ]
+    }
+  }
+}

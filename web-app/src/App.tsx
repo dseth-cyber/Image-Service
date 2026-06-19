@@ -1,0 +1,176 @@
+import { useState, useRef, useEffect } from 'react'
+import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { useTheme, themes } from '@/contexts/ThemeContext'
+import ImageServiceOverview from '@/pages/image-service/ImageServiceOverview'
+import ImageServiceCameras from '@/pages/image-service/ImageServiceCameras'
+import ImageServiceSearch from '@/pages/image-service/ImageServiceSearch'
+import ImageServiceProcessingMonitor from '@/pages/image-service/ImageServiceProcessingMonitor'
+import ImageServiceStorage from '@/pages/image-service/ImageServiceStorage'
+import ImageServiceProcessingLogs from '@/pages/image-service/ImageServiceProcessingLogs'
+import ImageServiceRetention from '@/pages/image-service/ImageServiceRetention'
+import ImageServiceRoadmap from '@/pages/image-service/ImageServiceRoadmap'
+import ImageServiceSettings from '@/pages/image-service/ImageServiceSettings'
+import {
+  Camera, LayoutDashboard, Search, Activity, HardDrive, FileText, Shield, Settings, Map,
+  Globe, Palette, User, ChevronDown,
+} from 'lucide-react'
+
+const navItems = [
+  { path: '/image-service/overview', labelKey: 'nav.overview', icon: LayoutDashboard },
+  { path: '/image-service/cameras', labelKey: 'nav.cameras', icon: Camera },
+  { path: '/image-service/search', labelKey: 'nav.search', icon: Search },
+  { path: '/image-service/processing', labelKey: 'nav.processing', icon: Activity },
+  { path: '/image-service/storage', labelKey: 'nav.storage', icon: HardDrive },
+  { path: '/image-service/logs', labelKey: 'nav.logs', icon: FileText },
+  { path: '/image-service/retention', labelKey: 'nav.retention', icon: Shield },
+  { path: '/image-service/roadmap', labelKey: 'nav.roadmap', icon: Map },
+  { path: '/image-service/settings', labelKey: 'nav.settings', icon: Settings },
+]
+
+const LANG_OPTIONS = [
+  { value: 'th', label: 'TH' },
+  { value: 'en', label: 'EN' },
+  { value: 'cn', label: 'CN' },
+  { value: 'mm', label: 'MM' },
+  { value: 'jp', label: 'JP' },
+]
+
+const THEME_OPTIONS = [
+  { value: 'modern', label: 'Modern' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'light', label: 'Light' },
+]
+
+function Dropdown({ icon: Icon, options, value, onChange }: {
+  icon: any
+  options: { value: string; label: string }[]
+  value: string
+  onChange: (v: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium hover:bg-white/10 transition-colors"
+      >
+        <Icon size={15} />
+        <span>{options.find(o => o.value === value)?.label}</span>
+        <ChevronDown size={11} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-1 w-32 rounded-md border border-white/20 bg-slate-800 shadow-xl z-50 overflow-hidden">
+          {options.map(o => (
+            <button
+              key={o.value}
+              onClick={() => { onChange(o.value); setOpen(false) }}
+              className={`w-full text-left px-3 py-2 text-xs transition-colors ${
+                value === o.value ? 'bg-cyan-500/20 text-cyan-300' : 'text-gray-200 hover:bg-white/10'
+              }`}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function App() {
+  const { t, i18n } = useTranslation()
+  const { themeConfig, theme, setTheme } = useTheme()
+  const location = useLocation()
+
+  return (
+    <div className={`min-h-screen flex flex-col ${themeConfig.background} ${themeConfig.text.primary}`}>
+      {/* Top Navbar */}
+      <header className={`${themeConfig.navBar} px-5 py-2.5 flex items-center justify-between flex-shrink-0 z-40`}>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Camera size={22} className="text-cyan-400" />
+            <span className="text-sm font-bold tracking-tight">Image Service</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <Dropdown
+            icon={Globe}
+            options={LANG_OPTIONS}
+            value={i18n.language}
+            onChange={v => { i18n.changeLanguage(v); localStorage.setItem('i18nextLng', v) }}
+          />
+          <button
+            onClick={() => {
+              const keys = Object.keys(themes)
+              const idx = keys.indexOf(theme)
+              setTheme(keys[(idx + 1) % keys.length])
+            }}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium hover:bg-white/10 transition-colors"
+            title={t('imageService.settings.theme')}
+          >
+            <Palette size={15} />
+            <span>{THEME_OPTIONS.find(o => o.value === theme)?.label}</span>
+          </button>
+          <div className="w-px h-5 mx-1 bg-white/10" />
+          <div className="flex items-center gap-2 px-2 py-1 rounded-md text-xs text-gray-300">
+            <User size={15} />
+            <span>admin</span>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <aside className={`w-56 flex-shrink-0 ${themeConfig.sidebar} flex flex-col overflow-y-auto`}>
+          <nav className="flex-1 px-3 py-4 space-y-1">
+            {navItems.map(item => {
+              const Icon = item.icon
+              const isActive = location.pathname === item.path
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'bg-cyan-500/15 text-cyan-300'
+                      : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <Icon size={16} />
+                  {t(`imageService.${item.labelKey}`)}
+                </Link>
+              )
+            })}
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-auto">
+          <Routes>
+            <Route path="/image-service/overview" element={<ImageServiceOverview />} />
+            <Route path="/image-service/cameras" element={<ImageServiceCameras />} />
+            <Route path="/image-service/search" element={<ImageServiceSearch />} />
+            <Route path="/image-service/processing" element={<ImageServiceProcessingMonitor />} />
+            <Route path="/image-service/storage" element={<ImageServiceStorage />} />
+            <Route path="/image-service/logs" element={<ImageServiceProcessingLogs />} />
+            <Route path="/image-service/retention" element={<ImageServiceRetention />} />
+            <Route path="/image-service/roadmap" element={<ImageServiceRoadmap />} />
+            <Route path="/image-service/settings" element={<ImageServiceSettings />} />
+            <Route path="*" element={<Navigate to="/image-service/overview" replace />} />
+          </Routes>
+        </main>
+      </div>
+    </div>
+  )
+}

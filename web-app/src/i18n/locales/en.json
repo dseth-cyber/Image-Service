@@ -1,0 +1,271 @@
+{
+  "imageService": {
+    "overview": {
+      "title": "Image Service Overview",
+      "subtitle": "Dashboard overview of the image management system",
+      "totalImages": "Total Images",
+      "activeCameras": "Active Cameras",
+      "storageUsed": "Storage Used",
+      "processingRate": "Processing Rate",
+      "recentActivity": "Recent Activity",
+      "storageGrowth": "Storage Growth Trend",
+      "cameraStatus": "Camera Status",
+      "imagesByCamera": "Images by Camera",
+      "imagesToday": "Images Today",
+      "editLayout": "Edit Layout",
+      "resetLayout": "Reset Layout",
+      "finishEditing": "Finish Editing",
+      "dragHint": "Drag cards to rearrange, or drag bottom-right corner to resize"
+    },
+    "search": {
+      "title": "Image Search",
+      "subtitle": "Search and browse captured images",
+      "searchPlaceholder": "Search by filename or checksum...",
+      "allCameras": "All Cameras",
+      "allStatus": "All Status",
+      "dateRange": "Date Range",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "filter": "Filter",
+      "clearFilter": "Clear Filter",
+      "imageDetail": "Image Detail",
+      "files": "Files",
+      "metadata": "Metadata",
+      "tags": "Tags",
+      "noResults": "No images found",
+      "downloadRaw": "Download Original",
+      "downloadPng": "Download PNG",
+      "downloadThumb": "Download Thumbnail",
+      "deleteImage": "Delete Image",
+      "deleteConfirm": "Are you sure you want to delete this image?",
+      "deleteSuccess": "Image deleted successfully"
+    },
+    "cameras": {
+      "title": "Camera Management",
+      "subtitle": "Monitor and manage all camera sources",
+      "newCamera": "Add Camera",
+      "editCamera": "Edit Camera",
+      "cameraName": "Camera Name",
+      "ipAddress": "IP Address",
+      "smbPath": "SMB Path",
+      "status": "Status",
+      "pollInterval": "Poll Interval",
+      "lastPoll": "Last Poll",
+      "lastImage": "Last Image",
+      "totalImages": "Total Images",
+      "active": "Active",
+      "inactive": "Inactive",
+      "error": "Error",
+      "maintenance": "Maintenance",
+      "deactivateConfirm": "Are you sure you want to deactivate this camera?",
+      "created": "Camera created successfully",
+      "updated": "Camera updated successfully",
+      "deactivated": "Camera deactivated successfully",
+      "viewLogs": "View Logs"
+    },
+    "storage": {
+      "title": "Storage Monitoring",
+      "subtitle": "Monitor storage usage across the system",
+      "totalFiles": "Total Files",
+      "totalSize": "Total Size",
+      "byFileType": "By File Type",
+      "byCamera": "By Camera",
+      "growthTrend": "Growth Trend",
+      "days": "Days",
+      "rawImages": "Raw Images",
+      "processedImages": "Processed Images",
+      "thumbnails": "Thumbnails",
+      "noData": "No storage data available"
+    },
+    "retention": {
+      "title": "Retention Policies",
+      "subtitle": "Manage image retention policies",
+      "newPolicy": "New Policy",
+      "editPolicy": "Edit Policy",
+      "policyName": "Policy Name",
+      "description": "Description",
+      "rawRetentionDays": "Raw Retention (Days)",
+      "processedRetentionDays": "Processed Retention (Days)",
+      "thumbnailRetentionDays": "Thumbnail Retention (Days)",
+      "archiveEnabled": "Archive Enabled",
+      "archiveRawDays": "Archive Raw After (Days)",
+      "coldStorageClass": "Cold Storage Class",
+      "camerasUsing": "Cameras Using This Policy",
+      "deleteConfirm": "Are you sure you want to delete this policy?",
+      "deleteDisabled": "Cannot delete a policy that is in use by cameras",
+      "created": "Policy created successfully",
+      "updated": "Policy updated successfully",
+      "deleted": "Policy deleted successfully"
+    },
+    "processing": {
+      "title": "Processing Monitor",
+      "subtitle": "Real-time processing status dashboard",
+      "totalJobs": "Total Jobs",
+      "completed": "Completed",
+      "failed": "Failed",
+      "inProgress": "In Progress",
+      "jobStatus": "Job Status",
+      "byType": "By Type",
+      "recentJobs": "Recent Jobs",
+      "noData": "No processing data"
+    },
+    "processingLogs": {
+      "title": "Processing Logs",
+      "subtitle": "View image processing history",
+      "allJobs": "All Jobs",
+      "jobType": "Job Type",
+      "status": "Status",
+      "imageId": "Image ID",
+      "workerId": "Worker",
+      "queuedAt": "Queued At",
+      "startedAt": "Started At",
+      "completedAt": "Completed At",
+      "duration": "Duration",
+      "errorMessage": "Error Message",
+      "retry": "Retry",
+      "retrySuccess": "Job re-queued successfully",
+      "noLogs": "No processing logs found",
+      "allTypes": "All Types",
+      "allStatuses": "All Statuses"
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Manage Image Service system settings",
+      "appearance": "Appearance",
+      "appearanceDesc": "Customize theme and language",
+      "theme": "Theme",
+      "language": "Language",
+      "notifications": "Notifications",
+      "notificationsDesc": "Configure alerting and notification settings",
+      "alertEmail": "Alert Email",
+      "processing": "Processing",
+      "processingDesc": "Configure processing parameters",
+      "pollInterval": "Poll Interval (s)",
+      "retryMax": "Max Retries",
+      "systemInfo": "System Info",
+      "systemInfoDesc": "General information about the Image Service system",
+      "totalImages": "Total Images",
+      "activeCameras": "Active Cameras",
+      "totalAlerts": "Total Alerts",
+      "refreshData": "Refresh Data",
+      "resetAll": "Reset All",
+      "resetSuccess": "All settings reset successfully"
+    },
+    "nav": {
+      "overview": "Overview",
+      "cameras": "Cameras",
+      "search": "Search",
+      "processing": "Processing",
+      "storage": "Storage",
+      "logs": "Logs",
+      "retention": "Retention",
+      "roadmap": "Roadmap",
+      "settings": "Settings"
+    },
+    "roadmap": {
+      "title": "Roadmap",
+      "subtitle": "System development roadmap and architecture overview",
+      "architecture": "System Architecture",
+      "architectureDesc": "Current system infrastructure and technology stack",
+      "phases": "Development Phases",
+      "phasesDesc": "Planned development milestones by priority",
+      "rules": "System Rules",
+      "rulesDesc": "Mandatory conventions — must not be violated in any feature",
+      "rulesGroupsLabels": {
+        "priority1": { "label": "Priority 1 — Must Use 100%", "color": "#ef4444" },
+        "priority2": { "label": "Priority 2 — On CRUD / Auth", "color": "#f59e0b" },
+        "priority3": { "label": "Priority 3 — Phase 2+", "color": "#eab308" },
+        "priority4": { "label": "Priority 4 — Masterdata Entity", "color": "#3b82f6" },
+        "priority5": { "label": "Priority 5 — ERP Integration", "color": "#8b5cf6" },
+        "imageService": { "label": "Image Service Specific", "color": "#06b6d4" }
+      },
+      "rulesGroups": {
+        "priority1": [
+          "Shared Layout — every page wraps <Layout>",
+          "Central Dialog — uses <Modal> / <ConfirmDialog>, never alert()",
+          "5-Language i18n — all UI text via t('key') (th/en/cn/mm/jp)",
+          "Theme tokens — all theme-dependent styling from themeConfig",
+          "SearchableSelect — no native <select> allowed",
+          "React Query — useQuery + invalidateQueries, no useEffect+setState",
+          "Date Display — formatDate(date, i18n.language) always",
+          "Table UX — TableSkeleton, sortable columns, ColumnSelector, pagination"
+        ],
+        "priority2": [
+          "authorize() on write — every POST/PUT/PATCH/DELETE",
+          "Soft Delete — deletedAt + trash/restore, never hard delete"
+        ],
+        "priority3": [
+          "Low-Code Config — business rules via Admin UI, never hardcoded"
+        ],
+        "priority4": [
+          "Masterdata Fields — code @unique, name 5 languages, description, sortOrder, isActive"
+        ],
+        "priority5": [
+          "Kafka Event Standard — image.processed event for ERP services"
+        ],
+        "imageService": [
+          "Image Storage Rule — every image has raw + processed + thumbnail in image_files",
+          "Traceability Rule — every image traces to Camera → Machine → Lot → Operator → Shift",
+          "Event Rule — emit event on processing complete for downstream services"
+        ]
+      },
+      "microservices": "Microservices",
+      "databases": "Databases",
+      "vms": "Virtual Machines",
+      "monitoring": "Monitoring",
+      "phase0": "P0 — Core Pipeline",
+      "phase0Desc": "End-to-end pipeline: Sync → Process → Store → Serve",
+      "phase0Status": "In Progress",
+      "phase0Tasks": [
+        "Investigate image_files insert failure",
+        "Verify PNG upload to MinIO",
+        "Verify Thumbnail generation",
+        "Verify image_files records created",
+        "Implement Download endpoint testing",
+        "End-to-end validation: TIFF in → PNG out → Download OK"
+      ],
+      "phase1": "P1 — Monitoring & Visibility",
+      "phase1Desc": "Operational visibility before adding auth",
+      "phase1Status": "Planned",
+      "phase1Tasks": [
+        "GET /api/v1/overview composite endpoint",
+        "GET /api/v1/processing-logs from ProcessingJob model",
+        "POST /api/v1/processing-logs/:id/retry",
+        "Reduce dependency on docker logs for debugging"
+      ],
+      "phase2": "P2 — Authentication",
+      "phase2Desc": "Login, JWT, refresh, logout, profile",
+      "phase2Status": "Planned",
+      "phase2Tasks": [
+        "Login page (POST /api/v1/auth/login)",
+        "Axios JWT interceptor for all requests",
+        "Token refresh mechanism",
+        "Logout + user profile display"
+      ],
+      "phase3": "P3 — Frontend Features",
+      "phase3Desc": "Wire up remaining interactive UI to real backend",
+      "phase3Status": "Planned",
+      "phase3Tasks": [
+        "Download buttons → GET /api/v1/images/:id/files/:fileType",
+        "Settings Save to real backend / localStorage",
+        "Tag management in Image Detail modal"
+      ],
+      "phase4": "P4 — ERP Integration",
+      "phase4Desc": "Event-driven integration with enterprise systems",
+      "phase4Status": "Planned",
+      "phase4Tasks": [
+        "Kafka event emission on image.processed",
+        "Event model: imageId, cameraId, pngPath, thumbnailPath",
+        "Consumer stubs for vision / predictive / historian services"
+      ],
+      "phase5": "P5 — New Pages",
+      "phase5Desc": "Additional UI pages for existing data models",
+      "phase5Status": "Planned",
+      "phase5Tasks": [
+        "Alert Management page (list / acknowledge / resolve)",
+        "User Management page (admin CRUD)",
+        "Health / Status dashboard"
+      ]
+    }
+  }
+}

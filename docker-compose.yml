@@ -1,0 +1,253 @@
+version: "3.9"
+
+services:
+  # ── Infrastructure ──────────────────────────────────────────────
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: image-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-image_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-image_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-image_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-image_user} -d ${POSTGRES_DB:-image_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - image-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: image-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - image-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: image-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+    ports:
+      - "9300:9000"
+      - "9301:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - image-network
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: image-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 ${MINIO_ACCESS_KEY:-minioadmin} ${MINIO_SECRET_KEY:-minioadmin} &&
+      mc mb local/${MINIO_BUCKET:-image-service} --ignore-existing
+      "
+    networks:
+      - image-network
+
+  # ── SMB Server (simulated camera SMB share) ────────────────────
+
+  smb-server:
+    image: dperson/samba:latest
+    container_name: image-smb-server
+    environment:
+      - SHARE=images;/share;yes;no;no;camera
+      - USER=camera;smbpass
+      - WORKGROUP=WORKGROUP
+      - GLOBAL=ntlm auth = yes
+    ports:
+      - "9445:445"
+    volumes:
+      - smb-shares:/share
+    restart: unless-stopped
+    networks:
+      - image-network
+
+  tiff-generator:
+    image: python:3.12-slim
+    container_name: image-tiff-generator
+    depends_on:
+      - smb-server
+    volumes:
+      - smb-shares:/share
+      - ./image-processing-worker/scripts:/scripts:ro
+    entrypoint: >
+      /bin/sh -c "
+      pip install Pillow --quiet &&
+      python /scripts/generate_test_tiff.py --output-dir /share
+      "
+    networks:
+      - image-network
+
+  # ── Image API ──────────────────────────────────────────────────
+
+  image-api-migrate:
+    build:
+      context: ./image-api
+      dockerfile: Dockerfile
+    container_name: image-api-migrate
+    entrypoint: ["/app/docker-entrypoint.sh", "migrate"]
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER:-image_user}:${POSTGRES_PASSWORD:-image_pass}@postgres:5432/${POSTGRES_DB:-image_db}
+      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-in-production}
+      JWT_ACCESS_EXPIRES_IN: ${JWT_ACCESS_EXPIRES_IN:-15m}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-dev-encryption-key-32chars!!}
+      SERVICE_API_KEY: ${SERVICE_API_KEY:-dev-service-api-key-change-in-production}
+      LOG_LEVEL: info
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - image-network
+
+  image-api:
+    build:
+      context: ./image-api
+      dockerfile: Dockerfile
+    container_name: image-api
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER:-image_user}:${POSTGRES_PASSWORD:-image_pass}@postgres:5432/${POSTGRES_DB:-image_db}
+      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-in-production}
+      JWT_ACCESS_EXPIRES_IN: ${JWT_ACCESS_EXPIRES_IN:-15m}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_BUCKET: ${MINIO_BUCKET:-image-service}
+      MINIO_USE_SSL: "false"
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-dev-encryption-key-32chars!!}
+      SERVICE_API_KEY: ${SERVICE_API_KEY:-dev-service-api-key-change-in-production}
+      LOG_LEVEL: info
+    depends_on:
+      image-api-migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+      minio:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - image-network
+
+  # ── Image Sync Worker (SMB scanner + BullMQ producer) ──────────
+
+  image-sync-worker:
+    build:
+      context: ./image-sync-worker
+      dockerfile: Dockerfile
+    container_name: image-sync-worker
+    environment:
+      NODE_OPTIONS: --openssl-legacy-provider
+      NODE_ENV: production
+      LOG_LEVEL: info
+      API_BASE_URL: http://image-api:3001
+      SERVICE_API_KEY: ${SERVICE_API_KEY:-dev-service-api-key-change-in-production}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+      POLL_INTERVAL_MS: 15000
+      POLL_CONCURRENCY: 5
+      CHECKSUM_ALGORITHM: md5
+      PROCESSED_TTL_DAYS: 7
+      RETRY_MAX_RETRIES: 3
+      RETRY_INITIAL_DELAY_MS: 1000
+      RETRY_MAX_DELAY_MS: 30000
+      HEALTH_PORT: 9100
+    depends_on:
+      redis:
+        condition: service_started
+      image-api:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - image-network
+
+  # ── Image Processing Worker (TIFF→PNG converter + MinIO) ───────
+
+  image-processing-worker:
+    build:
+      context: ./image-processing-worker
+      dockerfile: Dockerfile
+    container_name: image-processing-worker
+    volumes:
+      - smb-shares:/mnt/smb/image-smb-server/images
+    environment:
+      WORKER_ID: processing-1
+      LOG_LEVEL: INFO
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+      API_BASE_URL: http://image-api:3001
+      API_SERVICE_API_KEY: ${SERVICE_API_KEY:-dev-service-api-key-change-in-production}
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_BUCKET: ${MINIO_BUCKET:-image-service}
+      MINIO_USE_SSL: "false"
+      SMB_MOUNT_PATH: /mnt/smb
+      PROCESSING_CONCURRENCY: 4
+      PNG_COMPRESSION_LEVEL: 6
+      THUMBNAIL_SIZE: 512
+      TIFF_RESOLUTION_DPI: 300
+      MAX_RETRIES: 3
+      RETRY_DELAY_SECONDS: 5
+      HEALTH_PORT: 9200
+    depends_on:
+      redis:
+        condition: service_started
+      minio:
+        condition: service_started
+      image-api:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - image-network
+
+volumes:
+  postgres-data:
+  redis-data:
+  minio-data:
+  smb-shares:
+
+networks:
+  image-network:
+    driver: bridge
