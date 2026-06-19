@@ -20,7 +20,11 @@ export const config = {
   },
 
   checksum: {
-    algorithm: (process.env.CHECKSUM_ALGORITHM ?? 'md5') as 'md5' | 'sha256',
+    algorithm: (process.env.CHECKSUM_ALGORITHM ?? 'sha256') as 'md5' | 'sha256',
+  },
+
+  scanner: {
+    maxDepth: parseInt(process.env.SCANNER_MAX_DEPTH ?? '50', 10),
   },
 
   tracker: {

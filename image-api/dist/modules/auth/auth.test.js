@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import * as authService from './auth.service.js';
 import { getPrisma } from '../../lib/prisma.js';
 import { UnauthorizedError } from '../../lib/errors.js';

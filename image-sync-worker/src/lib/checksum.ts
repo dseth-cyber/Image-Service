@@ -4,7 +4,7 @@ import { logger } from './logger.js';
 
 export async function computeChecksum(
   stream: Readable,
-  algorithm: 'md5' | 'sha256' = 'md5',
+  algorithm: 'md5' | 'sha256' = 'sha256',
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const hash = createHash(algorithm);
@@ -31,7 +31,7 @@ export async function computeChecksum(
 export async function computeFileChecksumFromPath(
   smb: { createReadStream: (path: string) => Readable },
   filePath: string,
-  algorithm: 'md5' | 'sha256' = 'md5',
+  algorithm: 'md5' | 'sha256' = 'sha256',
 ): Promise<string> {
   const stream = smb.createReadStream(filePath);
   return computeChecksum(stream, algorithm);

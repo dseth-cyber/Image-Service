@@ -36,18 +36,18 @@ export class JobProducer {
     payload: ProcessingJobPayload,
     priority: number = 0,
   ): Promise<string> {
-    const job = await this.queue.add(
-      'process-image',
-      payload,
-      {
-        priority,
-        jobId: `img-${payload.imageId}`,
-        deduplication: {
-          id: payload.checksumMd5,
-          ttl: 300000,
+      const job = await this.queue.add(
+        'process-image',
+        payload,
+        {
+          priority,
+          jobId: `img-${payload.imageId}`,
+          deduplication: {
+            id: payload.checksumSha256 ?? payload.checksumMd5,
+            ttl: 300000,
+          },
         },
-      },
-    );
+      );
 
     logger.info(
       {
@@ -73,7 +73,7 @@ export class JobProducer {
         priority,
         jobId: `img-${payload.imageId}`,
         deduplication: {
-          id: payload.checksumMd5,
+          id: payload.checksumSha256 ?? payload.checksumMd5,
           ttl: 300000,
         },
       },

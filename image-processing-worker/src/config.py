@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     max_retries: int = 3
     retry_delay_seconds: int = 5
 
+    kafka_bootstrap_servers: str = "kafka:9092"
+    kafka_topic_image_processed: str = "image.processed"
+    kafka_client_id: str = "image-processing-worker"
+
     health_port: int = 9200
 
     @property

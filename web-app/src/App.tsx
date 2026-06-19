@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useTheme, themes } from '@/contexts/ThemeContext'
+import { useAuth } from '@/contexts/AuthContext'
+import LoginPage from '@/pages/auth/LoginPage'
 import ImageServiceOverview from '@/pages/image-service/ImageServiceOverview'
 import ImageServiceCameras from '@/pages/image-service/ImageServiceCameras'
 import ImageServiceSearch from '@/pages/image-service/ImageServiceSearch'
@@ -11,9 +13,12 @@ import ImageServiceProcessingLogs from '@/pages/image-service/ImageServiceProces
 import ImageServiceRetention from '@/pages/image-service/ImageServiceRetention'
 import ImageServiceRoadmap from '@/pages/image-service/ImageServiceRoadmap'
 import ImageServiceSettings from '@/pages/image-service/ImageServiceSettings'
+import AlertManagement from '@/pages/image-service/AlertManagement'
+import UserManagement from '@/pages/image-service/UserManagement'
+import HealthStatus from '@/pages/image-service/HealthStatus'
 import {
   Camera, LayoutDashboard, Search, Activity, HardDrive, FileText, Shield, Settings, Map,
-  Globe, Palette, User, ChevronDown,
+  Globe, Palette, User, ChevronDown, LogOut, Bell, Users, HeartPulse,
 } from 'lucide-react'
 
 const navItems = [
@@ -25,6 +30,9 @@ const navItems = [
   { path: '/image-service/logs', labelKey: 'nav.logs', icon: FileText },
   { path: '/image-service/retention', labelKey: 'nav.retention', icon: Shield },
   { path: '/image-service/roadmap', labelKey: 'nav.roadmap', icon: Map },
+  { path: '/image-service/alerts', labelKey: 'nav.alerts', icon: Bell },
+  { path: '/image-service/users', labelKey: 'nav.users', icon: Users },
+  { path: '/image-service/health', labelKey: 'nav.health', icon: HeartPulse },
   { path: '/image-service/settings', labelKey: 'nav.settings', icon: Settings },
 ]
 
@@ -88,10 +96,47 @@ function Dropdown({ icon: Icon, options, value, onChange }: {
   )
 }
 
+function ProfileMenu({ username, role, onLogout }: { username: string; role: string; onLogout: () => void }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative">
+      <button onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium hover:bg-white/10 transition-colors">
+        <User size={15} />
+        <span>{username}</span>
+        <ChevronDown size={11} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-1 w-40 rounded-md border border-white/20 bg-slate-800 shadow-xl z-50 overflow-hidden">
+          <div className="px-3 py-2 text-[11px] text-gray-400 border-b border-white/10">{role}</div>
+          <button onClick={() => { onLogout(); setOpen(false) }}
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-400 hover:bg-white/10 transition-colors">
+            <LogOut size={13} />
+            Sign Out
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function App() {
   const { t, i18n } = useTranslation()
   const { themeConfig, theme, setTheme } = useTheme()
+  const { isAuthenticated, user, logout } = useAuth()
   const location = useLocation()
+
+  if (!isAuthenticated) return <LoginPage />
 
   return (
     <div className={`min-h-screen flex flex-col ${themeConfig.background} ${themeConfig.text.primary}`}>
@@ -123,10 +168,11 @@ export default function App() {
             <span>{THEME_OPTIONS.find(o => o.value === theme)?.label}</span>
           </button>
           <div className="w-px h-5 mx-1 bg-white/10" />
-          <div className="flex items-center gap-2 px-2 py-1 rounded-md text-xs text-gray-300">
-            <User size={15} />
-            <span>admin</span>
-          </div>
+          <ProfileMenu
+            username={user?.username ?? 'admin'}
+            role={user?.role ?? 'viewer'}
+            onLogout={logout}
+          />
         </div>
       </header>
 
@@ -166,7 +212,11 @@ export default function App() {
             <Route path="/image-service/logs" element={<ImageServiceProcessingLogs />} />
             <Route path="/image-service/retention" element={<ImageServiceRetention />} />
             <Route path="/image-service/roadmap" element={<ImageServiceRoadmap />} />
+            <Route path="/image-service/alerts" element={<AlertManagement />} />
+            <Route path="/image-service/users" element={<UserManagement />} />
+            <Route path="/image-service/health" element={<HealthStatus />} />
             <Route path="/image-service/settings" element={<ImageServiceSettings />} />
+            <Route path="/" element={<Navigate to="/image-service/overview" replace />} />
             <Route path="*" element={<Navigate to="/image-service/overview" replace />} />
           </Routes>
         </main>

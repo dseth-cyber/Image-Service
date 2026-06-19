@@ -5,7 +5,7 @@ const BASE = '/image-service/api/v1';
 export function createImageServiceApi(api: any) {
   return {
     // Overview / Dashboard
-    getOverview: () => api.get(`${BASE}/overview`).then((r: any) => r.data),
+    getOverview: () => api.get(`${BASE}/processing-logs/stats`).then((r: any) => r.data),
 
     // Images
     getImages: (params: {
@@ -70,9 +70,41 @@ export function createImageServiceApi(api: any) {
     retryJob: (jobId: string) =>
       api.post(`${BASE}/processing-logs/${jobId}/retry`).then((r: any) => r.data),
 
+    // Image Tags
+    upsertImageTags: (id: string, tags: Record<string, string>) =>
+      api.post(`${BASE}/images/${id}/tags`, tags).then((r: any) => r.data),
+
+    deleteImageTag: (id: string, key: string) =>
+      api.delete(`${BASE}/images/${id}/tags/${key}`).then((r: any) => r.data),
+
     // Alerts
-    getAlerts: (params?: { severity?: string; resolved?: boolean }) =>
+    getAlerts: (params?: { severity?: string; resolved?: boolean; page?: number; limit?: number }) =>
       api.get(`${BASE}/alerts`, { params }).then((r: any) => r.data),
+
+    getAlert: (id: string) =>
+      api.get(`${BASE}/alerts/${id}`).then((r: any) => r.data),
+
+    acknowledgeAlert: (id: string) =>
+      api.patch(`${BASE}/alerts/${id}/acknowledge`).then((r: any) => r.data),
+
+    resolveAlert: (id: string) =>
+      api.patch(`${BASE}/alerts/${id}/resolve`).then((r: any) => r.data),
+
+    // Users
+    getUsers: (params?: { page?: number; limit?: number; enabled?: boolean }) =>
+      api.get(`${BASE}/users`, { params }).then((r: any) => r.data),
+
+    getUser: (id: string) =>
+      api.get(`${BASE}/users/${id}`).then((r: any) => r.data),
+
+    createUser: (data: { username: string; email: string; password: string; role: string }) =>
+      api.post(`${BASE}/users`, data).then((r: any) => r.data),
+
+    updateUser: (id: string, data: Record<string, unknown>) =>
+      api.patch(`${BASE}/users/${id}`, data).then((r: any) => r.data),
+
+    deactivateUser: (id: string) =>
+      api.delete(`${BASE}/users/${id}`).then((r: any) => r.data),
   };
 }
 

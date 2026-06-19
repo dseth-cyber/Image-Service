@@ -14,6 +14,9 @@ import { cameraRoutes } from './modules/cameras/cameras.controller.js';
 import { retentionRoutes } from './modules/retention/retention.controller.js';
 import { healthRoutes } from './modules/health/health.controller.js';
 import { storageRoutes } from './modules/storage/storage.controller.js';
+import { alertRoutes } from './modules/alerts/alerts.controller.js';
+import { userRoutes } from './modules/users/users.controller.js';
+import { processingLogRoutes } from './modules/processing-logs/processing-logs.controller.js';
 export async function buildApp() {
     const app = Fastify({
         logger: false,
@@ -66,6 +69,9 @@ export async function buildApp() {
         await api.register(retentionRoutes, { prefix: '/api/v1/retention-policies' });
         await api.register(healthRoutes, { prefix: '/api/v1/health' });
         await api.register(storageRoutes, { prefix: '/api/v1/storage' });
+        await api.register(alertRoutes, { prefix: '/api/v1/alerts' });
+        await api.register(userRoutes, { prefix: '/api/v1/users' });
+        await api.register(processingLogRoutes, { prefix: '/api/v1/processing-logs' });
     });
     app.get('/api/v1', async (_req, reply) => {
         return reply.status(200).send({

@@ -118,8 +118,9 @@ Consumer ในอนาคต: vision-service, predictive-service, historian-se
 ---
 
 ## Docker & Deployment
-- ทุก service รันผ่าน Docker Compose (3-VM: App / DB / Infra)
-- DB isolation: แต่ละ service เป็นเจ้าของ DB ของตัวเอง — แยกตาราง/schema ได้ง่าย
+- ERP Platform รันบน 3-VM (App / DB / Infra)
+- Image Service รันบน dedicated VM ของตัวเอง แยกจาก ERP Platform
+- DB isolation: แต่ละ service เป็นเจ้าของ DB ของตัวเอง — แยก schema/table ได้ง่าย
 
 ## Charts & Dataviz
 - ใช้ Recharts สำหรับ data visualization

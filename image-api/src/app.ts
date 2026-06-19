@@ -16,6 +16,8 @@ import { retentionRoutes } from './modules/retention/retention.controller.js';
 import { healthRoutes } from './modules/health/health.controller.js';
 import { storageRoutes } from './modules/storage/storage.controller.js';
 import { alertRoutes } from './modules/alerts/alerts.controller.js';
+import { userRoutes } from './modules/users/users.controller.js';
+import { processingLogRoutes } from './modules/processing-logs/processing-logs.controller.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -79,6 +81,8 @@ export async function buildApp() {
       await api.register(healthRoutes, { prefix: '/api/v1/health' });
       await api.register(storageRoutes, { prefix: '/api/v1/storage' });
       await api.register(alertRoutes, { prefix: '/api/v1/alerts' });
+      await api.register(userRoutes, { prefix: '/api/v1/users' });
+      await api.register(processingLogRoutes, { prefix: '/api/v1/processing-logs' });
     },
   );
 

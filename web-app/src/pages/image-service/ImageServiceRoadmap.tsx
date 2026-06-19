@@ -16,30 +16,45 @@ const PHASE_STATUS_STYLES: Record<string, string> = {
 
 const PHASE_ICONS: Record<string, any> = {
   phase0: Activity,
-  phase1: Clock,
+  phase1: Wifi,
   phase2: Shield,
-  phase3: Palette,
-  phase4: Server,
-  phase5: Kanban,
+  phase3: Clock,
+  phase4: Lock,
+  phase5: Palette,
+  phase6: Server,
+  phase7: Kanban,
 }
 
 const PHASES = [
-  { key: 'phase0', status: 'In Progress' },
-  { key: 'phase1', status: 'Planned' },
-  { key: 'phase2', status: 'Planned' },
-  { key: 'phase3', status: 'Planned' },
-  { key: 'phase4', status: 'Planned' },
-  { key: 'phase5', status: 'Planned' },
+  { key: 'phase0', status: 'Launched', priority: 'P0.1' },
+  { key: 'phase1', status: 'Launched', priority: 'P0.2' },
+  { key: 'phase2', status: 'Launched', priority: 'P0.3' },
+  { key: 'phase3', status: 'Launched', priority: 'P1' },
+  { key: 'phase4', status: 'Launched', priority: 'P2' },
+  { key: 'phase5', status: 'Launched', priority: 'P3' },
+  { key: 'phase6', status: 'Launched', priority: 'P4' },
+  { key: 'phase7', status: 'Launched', priority: 'P5' },
 ]
 
 const PRIORITY_COLORS: Record<string, string> = {
-  P0: 'bg-red-500/20 text-red-400',
+  'P0.1': 'bg-red-500/20 text-red-400',
+  'P0.2': 'bg-red-500/20 text-red-400',
+  'P0.3': 'bg-red-500/20 text-red-400',
   P1: 'bg-orange-500/20 text-orange-400',
   P2: 'bg-yellow-500/20 text-yellow-400',
   P3: 'bg-blue-500/20 text-blue-400',
   P4: 'bg-purple-500/20 text-purple-400',
   P5: 'bg-gray-500/20 text-gray-400',
 }
+
+const STATUS_WEIGHTS: Record<string, number> = {
+  Launched: 100,
+  'In Progress': 50,
+  Planned: 0,
+}
+
+const ARCH_ICONS = [Camera, Wifi, Cpu, Server, Layout, HardDrive, Kanban]
+const ARCH_COLORS = ['#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#3b82f6', '#ef4444', '#a855f7']
 
 function formatBytes(bytes: number): string {
   if (!bytes) return '0 B'
@@ -86,6 +101,13 @@ export default function ImageServiceRoadmap() {
     { label: t('imageService.retention.title'), value: String(policiesArr.length), sub: t('imageService.settings.systemInfo'), icon: Shield, color: '#f59e0b' },
   ]
 
+  const progressPct = Math.round(
+    PHASES.reduce((sum, p) => sum + (STATUS_WEIGHTS[p.status] ?? 0), 0) / PHASES.length,
+  )
+  const launchedCount = PHASES.filter((p) => p.status === 'Launched').length
+
+  const archStack = t('imageService.roadmap.archStack', { returnObjects: true }) as { label: string; tech: string; desc: string }[]
+
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -116,7 +138,7 @@ export default function ImageServiceRoadmap() {
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 mb-3">
             {archStats.map((s, i) => {
               const Icon = s.icon
               return (
@@ -130,13 +152,20 @@ export default function ImageServiceRoadmap() {
               )
             })}
           </div>
-          <div className={`mt-3 px-3 py-2 rounded-lg text-xs bg-white/5`}>
-            <div className="flex items-center gap-1.5 text-cyan-400 font-medium mb-0.5">
-              <Server size={11} /> Tech Stack
-            </div>
-            <p className={`text-[11px] ${themeConfig.text.secondary}`}>
-              React 19 · Vite 7 · TypeScript 5.9 · Tailwind · Fastify · Prisma · PostgreSQL 15 · MinIO · Redis 7 · Python · Docker Compose
-            </p>
+          <div className="space-y-1.5">
+            {archStack.map((group, i) => {
+              const Icon = ARCH_ICONS[i]
+              return (
+                <div key={i} className={`px-3 py-2 rounded-lg bg-white/5`}>
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <Icon size={11} style={{ color: ARCH_COLORS[i] }} />
+                    <span className={`text-[11px] font-semibold ${themeConfig.text.primary}`}>{group.label}</span>
+                    <span className="text-[10px] text-cyan-400/70 ml-auto font-mono">{group.tech}</span>
+                  </div>
+                  <p className={`text-[11px] leading-relaxed ${themeConfig.text.secondary}`}>{group.desc}</p>
+                </div>
+              )
+            })}
           </div>
         </div>
 
@@ -188,7 +217,7 @@ export default function ImageServiceRoadmap() {
             <div className="p-2 rounded-lg bg-purple-500/10">
               <ArrowRight size={18} className="text-purple-400" />
             </div>
-            <div>
+            <div className="flex-1">
               <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>
                 {t('imageService.roadmap.phases')}
               </h3>
@@ -197,6 +226,37 @@ export default function ImageServiceRoadmap() {
               </p>
             </div>
           </div>
+
+          {/* Progress Bar */}
+          <div className={`mb-5 px-4 py-3 rounded-lg bg-white/5`}>
+            <div className="flex items-center justify-between mb-2">
+              <span className={`text-xs font-semibold ${themeConfig.text.primary}`}>
+                {t('imageService.roadmap.phasesProgress', { pct: progressPct })}
+              </span>
+              <span className={`text-xs ${themeConfig.text.secondary}`}>
+                {launchedCount}/{PHASES.length} {t('imageService.roadmap.phasesLaunched')}
+              </span>
+            </div>
+            <div className={`h-2 rounded-full ${themeConfig.progressTrack} overflow-hidden`}>
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 transition-all duration-500"
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+            <div className="flex items-center gap-3 mt-2">
+              {PHASES.map((p, i) => {
+                const w = STATUS_WEIGHTS[p.status] ?? 0
+                const dotColor = w === 100 ? 'bg-green-400' : w === 50 ? 'bg-blue-400' : 'bg-gray-500'
+                return (
+                  <div key={i} className="flex items-center gap-1">
+                    <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+                    <span className={`text-[10px] ${themeConfig.text.secondary}`}>{p.priority}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
           <div className="space-y-3">
             {PHASES.map((p, i) => {
               const Icon = PHASE_ICONS[p.key]
@@ -212,8 +272,8 @@ export default function ImageServiceRoadmap() {
                         <p className={`text-sm font-medium ${themeConfig.text.primary}`}>
                           {t(`imageService.roadmap.${p.key}`)}
                         </p>
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${PRIORITY_COLORS[`P${i}`]}`}>
-                          P{i}
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${PRIORITY_COLORS[p.priority]}`}>
+                          {p.priority}
                         </span>
                       </div>
                       <p className={`text-xs ${themeConfig.text.secondary}`}>
@@ -225,7 +285,7 @@ export default function ImageServiceRoadmap() {
                     </span>
                   </div>
                   <div className="mt-2 ml-9 space-y-0.5">
-                    {t(`imageService.roadmap.${p.key}Tasks`, { returnObjects: true }).map((task: string, ti: number) => (
+                    {(t(`imageService.roadmap.${p.key}Tasks`, { returnObjects: true }) as string[]).map((task: string, ti: number) => (
                       <p key={ti} className={`text-xs ${themeConfig.text.secondary} flex items-start gap-1.5`}>
                         <span className="text-cyan-400 mt-0.5">▸</span>
                         {task}
@@ -238,8 +298,6 @@ export default function ImageServiceRoadmap() {
           </div>
         </div>
       </div>
-
-
     </div>
   )
 }

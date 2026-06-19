@@ -33,6 +33,7 @@ export interface ProcessingJobPayload {
   fileSizeBytes: number;
   checksumMd5: string;
   checksumSha256?: string;
+  capturedAt?: string;
 }
 
 export interface JobEnqueueResult {

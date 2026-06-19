@@ -7,6 +7,7 @@ export declare const imageSearchSchema: z.ZodObject<{
     from: z.ZodOptional<z.ZodString>;
     to: z.ZodOptional<z.ZodString>;
     q: z.ZodOptional<z.ZodString>;
+    checksumMd5: z.ZodOptional<z.ZodString>;
     tagKey: z.ZodOptional<z.ZodString>;
     tagValue: z.ZodOptional<z.ZodString>;
     sort: z.ZodDefault<z.ZodEnum<["capturedAt", "fileSizeBytes", "status", "createdAt"]>>;
@@ -18,6 +19,7 @@ export declare const imageSearchSchema: z.ZodObject<{
     order: "asc" | "desc";
     status?: "pending" | "queued" | "processing" | "completed" | "failed" | "deleted" | "archived" | undefined;
     cameraId?: string | undefined;
+    checksumMd5?: string | undefined;
     from?: string | undefined;
     to?: string | undefined;
     q?: string | undefined;
@@ -27,6 +29,7 @@ export declare const imageSearchSchema: z.ZodObject<{
     sort?: "status" | "createdAt" | "fileSizeBytes" | "capturedAt" | undefined;
     status?: "pending" | "queued" | "processing" | "completed" | "failed" | "deleted" | "archived" | undefined;
     cameraId?: string | undefined;
+    checksumMd5?: string | undefined;
     limit?: number | undefined;
     from?: string | undefined;
     page?: number | undefined;
@@ -60,6 +63,125 @@ export declare const updateMetadataSchema: z.ZodObject<{
     compressionType?: string | undefined;
     compressionRatio?: number | undefined;
     tiffMetadata?: Record<string, unknown> | undefined;
+}>;
+export declare const registerImageSchema: z.ZodObject<{
+    cameraId: z.ZodString;
+    originalFilename: z.ZodString;
+    fileSizeBytes: z.ZodNumber;
+    checksumMd5: z.ZodOptional<z.ZodString>;
+    checksumSha256: z.ZodOptional<z.ZodString>;
+    status: z.ZodDefault<z.ZodEnum<["pending", "queued", "processing", "completed", "failed", "deleted", "archived"]>>;
+    capturedAt: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    status: "pending" | "queued" | "processing" | "completed" | "failed" | "deleted" | "archived";
+    cameraId: string;
+    originalFilename: string;
+    fileSizeBytes: number;
+    capturedAt: string;
+    checksumSha256?: string | undefined;
+    checksumMd5?: string | undefined;
+}, {
+    cameraId: string;
+    originalFilename: string;
+    fileSizeBytes: number;
+    capturedAt: string;
+    status?: "pending" | "queued" | "processing" | "completed" | "failed" | "deleted" | "archived" | undefined;
+    checksumSha256?: string | undefined;
+    checksumMd5?: string | undefined;
+}>;
+export declare const processingResultFileSchema: z.ZodObject<{
+    fileType: z.ZodEnum<["raw", "processed", "thumbnail", "metadata_json"]>;
+    fileSizeBytes: z.ZodNumber;
+    mimeType: z.ZodOptional<z.ZodString>;
+    objectKey: z.ZodString;
+    bucket: z.ZodDefault<z.ZodString>;
+    storageClass: z.ZodDefault<z.ZodEnum<["hot", "warm", "cold"]>>;
+}, "strip", z.ZodTypeAny, {
+    fileSizeBytes: number;
+    fileType: "raw" | "processed" | "thumbnail" | "metadata_json";
+    storageClass: "hot" | "warm" | "cold";
+    bucket: string;
+    objectKey: string;
+    mimeType?: string | undefined;
+}, {
+    fileSizeBytes: number;
+    fileType: "raw" | "processed" | "thumbnail" | "metadata_json";
+    objectKey: string;
+    storageClass?: "hot" | "warm" | "cold" | undefined;
+    bucket?: string | undefined;
+    mimeType?: string | undefined;
+}>;
+export declare const processingResultSchema: z.ZodObject<{
+    status: z.ZodDefault<z.ZodEnum<["completed", "failed"]>>;
+    widthPx: z.ZodOptional<z.ZodNumber>;
+    heightPx: z.ZodOptional<z.ZodNumber>;
+    bitDepth: z.ZodOptional<z.ZodNumber>;
+    colorSpace: z.ZodOptional<z.ZodString>;
+    compressionType: z.ZodOptional<z.ZodString>;
+    compressionRatio: z.ZodOptional<z.ZodNumber>;
+    checksumSha256: z.ZodOptional<z.ZodString>;
+    processedAt: z.ZodOptional<z.ZodString>;
+    tiffMetadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    files: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        fileType: z.ZodEnum<["raw", "processed", "thumbnail", "metadata_json"]>;
+        fileSizeBytes: z.ZodNumber;
+        mimeType: z.ZodOptional<z.ZodString>;
+        objectKey: z.ZodString;
+        bucket: z.ZodDefault<z.ZodString>;
+        storageClass: z.ZodDefault<z.ZodEnum<["hot", "warm", "cold"]>>;
+    }, "strip", z.ZodTypeAny, {
+        fileSizeBytes: number;
+        fileType: "raw" | "processed" | "thumbnail" | "metadata_json";
+        storageClass: "hot" | "warm" | "cold";
+        bucket: string;
+        objectKey: string;
+        mimeType?: string | undefined;
+    }, {
+        fileSizeBytes: number;
+        fileType: "raw" | "processed" | "thumbnail" | "metadata_json";
+        objectKey: string;
+        storageClass?: "hot" | "warm" | "cold" | undefined;
+        bucket?: string | undefined;
+        mimeType?: string | undefined;
+    }>, "many">>;
+}, "strip", z.ZodTypeAny, {
+    status: "completed" | "failed";
+    checksumSha256?: string | undefined;
+    widthPx?: number | undefined;
+    heightPx?: number | undefined;
+    bitDepth?: number | undefined;
+    colorSpace?: string | undefined;
+    compressionType?: string | undefined;
+    compressionRatio?: number | undefined;
+    tiffMetadata?: Record<string, unknown> | undefined;
+    processedAt?: string | undefined;
+    files?: {
+        fileSizeBytes: number;
+        fileType: "raw" | "processed" | "thumbnail" | "metadata_json";
+        storageClass: "hot" | "warm" | "cold";
+        bucket: string;
+        objectKey: string;
+        mimeType?: string | undefined;
+    }[] | undefined;
+}, {
+    status?: "completed" | "failed" | undefined;
+    checksumSha256?: string | undefined;
+    widthPx?: number | undefined;
+    heightPx?: number | undefined;
+    bitDepth?: number | undefined;
+    colorSpace?: string | undefined;
+    compressionType?: string | undefined;
+    compressionRatio?: number | undefined;
+    tiffMetadata?: Record<string, unknown> | undefined;
+    processedAt?: string | undefined;
+    files?: {
+        fileSizeBytes: number;
+        fileType: "raw" | "processed" | "thumbnail" | "metadata_json";
+        objectKey: string;
+        storageClass?: "hot" | "warm" | "cold" | undefined;
+        bucket?: string | undefined;
+        mimeType?: string | undefined;
+    }[] | undefined;
 }>;
 export declare const updateTagsSchema: z.ZodRecord<z.ZodString, z.ZodString>;
 export declare const imageResponseSchema: z.ZodObject<{
@@ -201,4 +323,6 @@ export declare const imageSummarySchema: z.ZodObject<{
 }>;
 export type ImageSearchInput = z.infer<typeof imageSearchSchema>;
 export type UpdateMetadataInput = z.infer<typeof updateMetadataSchema>;
+export type RegisterImageInput = z.infer<typeof registerImageSchema>;
+export type ProcessingResultInput = z.infer<typeof processingResultSchema>;
 //# sourceMappingURL=images.schema.d.ts.map

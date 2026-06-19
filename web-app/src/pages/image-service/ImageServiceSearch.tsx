@@ -8,7 +8,7 @@ import { formatDateTime } from '@/utils/dateUtils';
 import { Modal, Button, SearchableSelect, TableSkeleton } from '@/components/ui';
 import {
   Search, ChevronUp, ChevronDown, ChevronsUpDown, Eye, Trash2,
-  Download, Image, FileImage, Tag, Info, X, Filter,
+  Download, Image, FileImage, Tag, Info, X, Filter, Plus,
 } from 'lucide-react';
 
 const IMAGE_STATUS_COLORS: Record<string, string> = {
@@ -36,6 +36,10 @@ export default function ImageServiceSearch() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [detailId, setDetailId] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [tagKey, setTagKey] = useState('');
+  const [tagValue, setTagValue] = useState('');
+  const [newTagKey, setNewTagKey] = useState('');
+  const [newTagValue, setNewTagValue] = useState('');
 
   const { data: cameras = [] } = useQuery({
     queryKey: ['cameras'],
@@ -44,12 +48,13 @@ export default function ImageServiceSearch() {
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: ['images', page, search, cameraId, status, from, to, sortCol, sortDir],
+    queryKey: ['images', page, search, cameraId, status, from, to, tagKey, tagValue, sortCol, sortDir],
     queryFn: async () => {
       const res = await imageServiceApi.getImages({
         page, limit: 20, cameraId: cameraId || undefined,
         status: status || undefined, q: search || undefined,
         from: from || undefined, to: to || undefined,
+        tagKey: tagKey || undefined, tagValue: tagValue || undefined,
         sort: sortCol, order: sortDir,
       });
       return {
@@ -137,6 +142,22 @@ export default function ImageServiceSearch() {
               <input type="date" value={to} onChange={e => { setTo(e.target.value); setPage(1); }}
                 className={`px-3 py-2 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary}`} />
             </div>
+            <div className="w-32">
+              <input value={tagKey} onChange={e => { setTagKey(e.target.value); setPage(1); }}
+                placeholder={t('imageService.search.tagKey')}
+                className={`w-full px-3 py-2 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary}`} />
+            </div>
+            <div className="w-32">
+              <input value={tagValue} onChange={e => { setTagValue(e.target.value); setPage(1); }}
+                placeholder={t('imageService.search.tagValue')}
+                className={`w-full px-3 py-2 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary}`} />
+            </div>
+            {(tagKey || tagValue) && (
+              <button onClick={() => { setTagKey(''); setTagValue(''); setPage(1); }}
+                className="px-2 py-2 rounded-md text-xs text-red-400 hover:bg-red-500/10">
+                <X size={13} />
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -268,20 +289,66 @@ export default function ImageServiceSearch() {
               </div>
             )}
 
-            {detail.imageTags?.length > 0 && (
-              <div>
-                <h4 className={`text-sm font-semibold mb-2 flex items-center gap-1.5 ${themeConfig.text.primary}`}>
-                  <Tag size={14} /> {t('imageService.search.tags')}
-                </h4>
+            <div>
+              <h4 className={`text-sm font-semibold mb-2 flex items-center gap-1.5 ${themeConfig.text.primary}`}>
+                <Tag size={14} /> {t('imageService.search.tags')}
+              </h4>
+              <div className="space-y-2">
                 <div className="flex flex-wrap gap-1.5">
-                  {detail.imageTags.map((t: any) => (
-                    <span key={t.key} className="px-2 py-0.5 rounded-md text-xs bg-cyan-500/10 text-cyan-400">
-                      {t.key}: {t.value}
+                  {(detail.imageTags ?? []).map((tag: any) => (
+                    <span key={tag.key} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs bg-cyan-500/10 text-cyan-400">
+                      {tag.key}: {tag.value}
+                      <button onClick={async () => {
+                        try {
+                          await imageServiceApi.deleteImageTag(detail.id, tag.key);
+                          toast.success(t('imageService.search.tagDeleted'));
+                          queryClient.invalidateQueries({ queryKey: ['image-detail', detailId] });
+                          queryClient.invalidateQueries({ queryKey: ['images'] });
+                        } catch { toast.error(t('common.error')); }
+                      }}
+                        className="hover:text-red-400 transition-colors">
+                        <X size={11} />
+                      </button>
                     </span>
                   ))}
                 </div>
+                <div className="flex items-center gap-2">
+                  <input value={newTagKey} onChange={e => setNewTagKey(e.target.value)}
+                    placeholder={t('imageService.search.tagKeyPlaceholder')}
+                    className={`w-28 px-2 py-1.5 rounded-md text-xs border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-cyan-500/50`} />
+                  <input value={newTagValue} onChange={e => setNewTagValue(e.target.value)}
+                    placeholder={t('imageService.search.tagValuePlaceholder')}
+                    className={`w-32 px-2 py-1.5 rounded-md text-xs border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-cyan-500/50`}
+                    onKeyDown={async (e) => {
+                      if (e.key === 'Enter' && newTagKey && newTagValue) {
+                        try {
+                          await imageServiceApi.upsertImageTags(detail.id, { [newTagKey]: newTagValue });
+                          toast.success(t('imageService.search.tagAdded'));
+                          setNewTagKey('');
+                          setNewTagValue('');
+                          queryClient.invalidateQueries({ queryKey: ['image-detail', detailId] });
+                          queryClient.invalidateQueries({ queryKey: ['images'] });
+                        } catch { toast.error(t('common.error')); }
+                      }
+                    }} />
+                  <button onClick={async () => {
+                    if (!newTagKey || !newTagValue) return;
+                    try {
+                      await imageServiceApi.upsertImageTags(detail.id, { [newTagKey]: newTagValue });
+                      toast.success(t('imageService.search.tagAdded'));
+                      setNewTagKey('');
+                      setNewTagValue('');
+                      queryClient.invalidateQueries({ queryKey: ['image-detail', detailId] });
+                      queryClient.invalidateQueries({ queryKey: ['images'] });
+                    } catch { toast.error(t('common.error')); }
+                  }}
+                    className="p-1.5 rounded-md bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 transition-colors disabled:opacity-30"
+                    disabled={!newTagKey || !newTagValue}>
+                    <Plus size={13} />
+                  </button>
+                </div>
               </div>
-            )}
+            </div>
 
             <div className="flex justify-end gap-2 pt-3 border-t" style={{ borderColor: trackColor }}>
               <Button variant="secondary" onClick={() => setDetailId(null)}>{t('common.close')}</Button>

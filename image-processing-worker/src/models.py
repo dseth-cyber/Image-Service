@@ -11,6 +11,7 @@ class ProcessingJob:
     file_size_bytes: int
     checksum_md5: str
     checksum_sha256: str | None = None
+    captured_at: str | None = None
 
     @classmethod
     def from_dict(cls, data: dict) -> "ProcessingJob":
@@ -22,6 +23,7 @@ class ProcessingJob:
             file_size_bytes=data["fileSizeBytes"],
             checksum_md5=data["checksumMd5"],
             checksum_sha256=data.get("checksumSha256"),
+            captured_at=data.get("capturedAt"),
         )
 
     def to_dict(self) -> dict:
@@ -33,6 +35,7 @@ class ProcessingJob:
             "fileSizeBytes": self.file_size_bytes,
             "checksumMd5": self.checksum_md5,
             "checksumSha256": self.checksum_sha256,
+            "capturedAt": self.captured_at,
         }
 
 

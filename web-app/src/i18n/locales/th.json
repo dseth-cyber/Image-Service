@@ -37,8 +37,14 @@
       "downloadPng": "ดาวน์โหลด PNG",
       "downloadThumb": "ดาวน์โหลด Thumbnail",
       "deleteImage": "ลบภาพ",
-      "deleteConfirm": "คุณแน่ใจหรือไม่ว่าต้องการลบภาพนี้?",
-      "deleteSuccess": "ลบภาพสำเร็จ"
+      "deleteConfirm": "แน่ใจว่าต้องการลบภาพนี้?",
+      "deleteSuccess": "ลบภาพสำเร็จ",
+      "tagKey": "คีย์แท็ก",
+      "tagValue": "ค่าแท็ก",
+      "tagKeyPlaceholder": "คีย์...",
+      "tagValuePlaceholder": "ค่า...",
+      "tagAdded": "เพิ่มแท็กแล้ว",
+      "tagDeleted": "ลบแท็กแล้ว"
     },
     "cameras": {
       "title": "จัดการกล้อง",
@@ -151,6 +157,16 @@
       "resetAll": "รีเซ็ตทั้งหมด",
       "resetSuccess": "รีเซ็ตการตั้งค่าทั้งหมดสำเร็จ"
     },
+    "auth": {
+      "login": "เข้าสู่ระบบ",
+      "subtitle": "ลงชื่อเข้าใช้บัญชีของคุณ",
+      "username": "ชื่อผู้ใช้",
+      "password": "รหัสผ่าน",
+      "required": "กรุณากรอกชื่อผู้ใช้และรหัสผ่าน",
+      "invalid": "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
+      "logout": "ออกจากระบบ",
+      "profile": "โปรไฟล์"
+    },
     "nav": {
       "overview": "ภาพรวม",
       "cameras": "กล้อง",
@@ -160,7 +176,72 @@
       "logs": "บันทึก",
       "retention": "นโยบาย",
       "roadmap": "โรดแมป",
-      "settings": "ตั้งค่า"
+      "settings": "ตั้งค่า",
+      "alerts": "การแจ้งเตือน",
+      "users": "ผู้ใช้",
+      "health": "สถานะ"
+    },
+    "alerts": {
+      "title": "การจัดการแจ้งเตือน",
+      "subtitle": "ตรวจสอบและจัดการการแจ้งเตือนของระบบ",
+      "severity": "ระดับ",
+      "alert": "การแจ้งเตือน",
+      "source": "แหล่งที่มา",
+      "createdAt": "สร้างเมื่อ",
+      "allSeverity": "ทุกระดับ",
+      "status": "สถานะ",
+      "open": "เปิด",
+      "resolved": "แก้ไขแล้ว",
+      "all": "ทั้งหมด",
+      "critical": "วิกฤต",
+      "warning": "เตือน",
+      "info": "ข้อมูล",
+      "noAlerts": "ไม่พบการแจ้งเตือน",
+      "detail": "รายละเอียด",
+      "type": "ประเภท",
+      "acknowledgedAt": "รับทราบเมื่อ",
+      "resolvedAt": "แก้ไขเมื่อ",
+      "acknowledge": "รับทราบ",
+      "resolve": "แก้ไข",
+      "acknowledged": "รับทราบการแจ้งเตือนแล้ว",
+      "resolved": "แก้ไขการแจ้งเตือนแล้ว"
+    },
+    "users": {
+      "title": "จัดการผู้ใช้",
+      "subtitle": "จัดการผู้ใช้และบทบาทในระบบ",
+      "username": "ชื่อผู้ใช้",
+      "email": "อีเมล",
+      "password": "รหัสผ่าน",
+      "role": "บทบาท",
+      "status": "สถานะ",
+      "active": "ใช้งาน",
+      "disabled": "ปิดใช้งาน",
+      "lastLogin": "เข้าสู่ระบบล่าสุด",
+      "newUser": "เพิ่มผู้ใช้",
+      "editUser": "แก้ไขผู้ใช้",
+      "totalUsers": "รวม: {{count}} ผู้ใช้",
+      "noUsers": "ไม่พบผู้ใช้",
+      "leaveBlank": "เว้นว่างไว้ถ้าไม่ต้องการเปลี่ยน",
+      "created": "สร้างผู้ใช้สำเร็จ",
+      "updated": "อัปเดทผู้ใช้สำเร็จ",
+      "deactivated": "ปิดใช้งานผู้ใช้สำเร็จ"
+    },
+    "health": {
+      "title": "สถานะระบบ",
+      "subtitle": "แดชบอร์ดสถานะระบบและบริการ",
+      "systemStatus": "สถานะระบบ",
+      "allOperational": "บริการทั้งหมดทำงานปกติ",
+      "degraded": "บริการบางส่วนมีปัญหา",
+      "healthy": "ปกติ",
+      "database": "ฐานข้อมูล",
+      "storage": "พื้นที่จัดเก็บ",
+      "api": "บริการ API",
+      "uptime": "เวลาทำงาน",
+      "totalImages": "รูปภาพทั้งหมด",
+      "activeCameras": "กล้องที่ใช้งาน",
+      "openAlerts": "การแจ้งเตือนที่เปิด",
+      "version": "เวอร์ชัน",
+      "serviceDetails": "รายละเอียดบริการ"
     },
     "roadmap": {
       "title": "โรดแมป",
@@ -169,6 +250,8 @@
       "architectureDesc": "โครงสร้างพื้นฐานระบบและเทคโนโลยีที่ใช้ในปัจจุบัน",
       "phases": "แผนการพัฒนา",
       "phasesDesc": "เป้าหมายการพัฒนาตามลำดับความสำคัญ",
+      "phasesProgress": "ความคืบหน้าโดยรวม — {{pct}}%",
+      "phasesLaunched": "เปิดใช้งานแล้ว",
       "rules": "กฎหลักที่ต้องไม่หลุด",
       "rulesDesc": "ข้อบังคับของระบบ — ทุกฟีเจอร์ต้องยึดตาม",
       "rulesGroupsLabels": {
@@ -209,63 +292,111 @@
           "Event Rule — emit event เมื่อประมวลผลเสร็จ"
         ]
       },
+      "archStack": [
+        { "label": "อุปกรณ์จับภาพ", "tech": "SMB Share · TIFF", "desc": "Windows PCs จับภาพ TIFF ผ่าน SMB network share เริ่มต้น: 1 กล้อง, ขยาย: 30+ กล้อง, ล้านภาพ/วัน" },
+        { "label": "Sync Worker", "tech": "Node.js 22 · TypeScript", "desc": "สแกนโฟลเดอร์ SMB, ตรวจจับ TIFF ใหม่, คำนวณ checksum, ป้องกัน duplicate, สร้าง processing jobs" },
+        { "label": "Processing Worker", "tech": "Python 3.12 · Pillow", "desc": "แปลง TIFF→PNG, สร้าง thumbnail, คำนวณ SHA256 checksum, เก็บใน MinIO, รายงานผลให้ API ซึ่งเขียน metadata ไปยัง DB" },
+        { "label": "API Service", "tech": "Fastify · Prisma · PostgreSQL 15", "desc": "ค้นหารูปภาพ, จัดการ metadata, นโยบาย retention, ตรวจสอบสุขภาพระบบ, JWT auth + RBAC, OpenAPI docs" },
+        { "label": "Frontend", "tech": "React 18 · Vite 5 · Tailwind", "desc": "Dashboard, ค้นหารูปภาพ, ตรวจสอบกล้อง, จัดการพื้นที่เก็บ, นโยบาย retention, ดู processing logs. TanStack Query, Recharts" },
+        { "label": "โครงสร้างพื้นฐาน", "tech": "Redis 7 · MinIO · Docker Compose", "desc": "Redis สำหรับ BullMQ queues + caching. MinIO ที่เก็บวัตถุแบบ S3. รันบน VM ที่แยกจาก ERP Platform แต่ละ service มี DB ของตัวเอง (DB isolation)" },
+        { "label": "การเชื่อมต่ออนาคต", "tech": "Kafka · AI Vision", "desc": "Event-driven Kafka เมื่อ image.processed. Consumer stubs สำหรับ vision-service, predictive-service, historian-service" }
+      ],
       "microservices": "ไมโครเซอร์วิส",
       "databases": "ฐานข้อมูล",
       "vms": "เครื่องเสมือน",
       "monitoring": "การตรวจสอบ",
-      "phase0": "P0 — Core Pipeline",
+      "phase0": "P0.1 — Core Pipeline",
       "phase0Desc": "Pipeline ครบวงจร: Sync → Process → Store → Serve",
-      "phase0Status": "กำลังดำเนินการ",
+      "phase0Status": "เปิดใช้งานแล้ว",
       "phase0Tasks": [
-        "ตรวจสอบสาเหตุ image_files ไม่ถูกสร้าง",
-        "ยืนยัน PNG upload ไป MinIO ได้",
-        "ยืนยัน Thumbnail ถูกสร้าง",
-        "ตรวจสอบว่า image_files records ถูก insert",
-        "ทดสอบ Download endpoint",
-        "ตรวจสอบ end-to-end: TIFF เข้า → PNG ออก → Download ได้"
+        "image_files records ครบ (7 ภาพ × 3 ไฟล์ = 21 records)",
+        "PNG + Thumbnail อัปโหลดไป MinIO แล้ว (bucket: image-service)",
+        "Download ไฟล์ผ่าน API stream ได้ (GET /api/v1/images/:id/files/:fileType → 200 OK)",
+        "Pipeline ครบวงจร: SMB → Sync → Process → MinIO → Serve → Download",
+        "ป้องกัน duplicate ด้วย checksumMd5 ใน sync-worker",
+        "Processing-logs API หลังบ้าน: CRUD, stats, retry"
       ],
-      "phase1": "P1 — Monitoring & Visibility",
-      "phase1Desc": "เพิ่มความสามารถในการมองเห็นระบบ ก่อนเพิ่ม Auth",
-      "phase1Status": "วางแผน",
+      "phase1": "P0.2 — Sync Scanner",
+      "phase1Desc": "Recursive scan, SHA256 default, ขยายหลายกล้อง",
+      "phase1Status": "เปิดใช้งานแล้ว",
       "phase1Tasks": [
-        "GET /api/v1/overview composite endpoint",
-        "GET /api/v1/processing-logs จาก ProcessingJob model",
-        "POST /api/v1/processing-logs/:id/retry",
-        "ลดการพึ่งพา docker logs ในการ debug"
+        "Recursive folder scanning — scan ลึกไม่จำกัด depth ผ่าน smbclient ls",
+        "SHA256 เป็น checksum default (ปรับได้ผ่าน CHECKSUM_ALGORITHM env)",
+        "Auto-discovery โฟลเดอร์ใหม่ที่ถูกสร้างระหว่าง scan cycle",
+        "รองรับ 30+ กล้องพร้อมกำหนด poll interval แต่ละตัว"
       ],
-      "phase2": "P2 — Authentication",
-      "phase2Desc": "Login, JWT, refresh, logout, profile",
-      "phase2Status": "วางแผน",
+      "phase2": "P0.3 — Scanner Reliability",
+      "phase2Desc": "Watermark, persistent state, ทนทานต่อความผิดพลาด",
+      "phase2Status": "เปิดใช้งานแล้ว",
       "phase2Tasks": [
-        "หน้า Login (POST /api/v1/auth/login)",
-        "Axios JWT interceptor สำหรับทุก request",
-        "Token refresh mechanism",
-        "Logout + แสดง user profile"
+        "Redis watermark — เก็บ lastScanned timestamp ต่อกล้องสำหรับ incremental scan",
+        "Persistent camera scan state ใน Redis (sync:camera:{id}:state hash)",
+        "กู้คืนหลังจาก worker restart — เริ่มจาก watermark ล่าสุด",
+        "File move detection — ติดตาม checksum + path ที่เปลี่ยน"
       ],
-      "phase3": "P3 — Frontend Features",
-      "phase3Desc": "เชื่อมต่อ UI action ที่เหลือกับ backend จริง",
-      "phase3Status": "วางแผน",
+      "phase3": "P1 — Monitoring & Visibility",
+      "phase3Desc": "เพิ่มความสามารถในการมองเห็นระบบ ก่อนเพิ่ม Auth",
+      "phase3Status": "เปิดใช้งานแล้ว",
       "phase3Tasks": [
-        "ปุ่ม Download → GET /api/v1/images/:id/files/:fileType",
-        "Settings Save ไป backend จริง",
-        "จัดการ Tags ใน Image Detail modal"
+        "GET /api/v1/processing-logs/stats dashboard รวมข้อมูล",
+        "GET /api/v1/processing-logs (ค้นหา, กรอง, แบ่งหน้าจาก ProcessingJob model)",
+        "POST /api/v1/processing-logs/:id/retry (เรียกคิวงานที่ล้มเหลวใหม่)",
+        "GET /api/v1/processing-logs/stream SSE real-time push (stats + logs ทุก 5 วิ)",
+        "หน้า Processing Monitor พร้อมสถานะ Live/Disconnected + auto-refresh",
+        "หน้า Processing Logs พร้อมค้นหา, กรองสถานะ/ประเภท, เรียงลำดับ, แบ่งหน้า"
       ],
-      "phase4": "P4 — ERP Integration",
-      "phase4Desc": "เชื่อมต่อกับระบบระดับองค์กรด้วย Event-driven",
-      "phase4Status": "วางแผน",
+      "phase4": "P2 — Authentication",
+      "phase4Desc": "Login, JWT, refresh, logout, profile",
+      "phase4Status": "เปิดใช้งานแล้ว",
       "phase4Tasks": [
-        "Kafka event emission เมื่อ image.processed",
-        "Event model: imageId, cameraId, pngPath, thumbnailPath",
-        "Consumer stubs สำหรับ vision / predictive / historian services"
+        "หน้า Login พร้อมฟอร์ม username/password + validation + error handling",
+        "Axios JWT interceptor: แนบ token อัตโนมัติ, 401 → refresh → retry",
+        "Token refresh ผ่าน POST /api/v1/auth/refresh + queue คำขอที่ล้มเหลวพร้อมกัน",
+        "Logout + dropdown user profile (แสดง username + role)"
       ],
-      "phase5": "P5 — หน้าใหม่",
-      "phase5Desc": "หน้า UI เพิ่มเติมสำหรับ data models ที่มีอยู่",
-      "phase5Status": "วางแผน",
+      "phase5": "P3 — Frontend Features",
+      "phase5Desc": "File move detection, tag management, settings",
+      "phase5Status": "เปิดใช้งานแล้ว",
       "phase5Tasks": [
+        "File move detection — ตรวจจับ checksum + path ที่เปลี่ยนข้ามโฟลเดอร์",
+        "Tag management ใน Image Detail modal (เพิ่ม, ลบ, กรองตาม tag)",
+        "Settings Save ไป backend / localStorage จริง"
+      ],
+      "phase6": "P4 — ERP Integration",
+      "phase6Desc": "เชื่อมต่อกับระบบระดับองค์กรด้วย Event-driven",
+      "phase6Status": "เปิดตัว",
+      "phase6Tasks": [
+        "Kafka event emission เมื่อ image.processed พร้อม event model เต็มรูปแบบ",
+        "Event model: imageId, cameraId, pngPath, thumbnailPath, capturedAt",
+        "Consumer stubs สำหรับ historian-service, production-service"
+      ],
+      "phase7": "P5 — หน้าใหม่",
+      "phase7Desc": "หน้า UI เพิ่มเติมสำหรับ data models ที่มีอยู่",
+      "phase7Status": "เปิดตัว",
+      "phase7Tasks": [
         "หน้า Alert Management (list / acknowledge / resolve)",
         "หน้า User Management (admin CRUD)",
         "Health / Status dashboard"
       ]
     }
+  },
+  "common": {
+    "actions": "การดำเนินการ",
+    "cancel": "ยกเลิก",
+    "close": "ปิด",
+    "save": "บันทึก",
+    "saving": "กำลังบันทึก...",
+    "error": "ข้อผิดพลาด",
+    "prev": "ก่อนหน้า",
+    "next": "ถัดไป",
+    "saveSuccess": "บันทึกสำเร็จ",
+    "requiredFields": "กรุณากรอกข้อมูลที่จำเป็น",
+    "noData": "ไม่มีข้อมูล",
+    "deleteConfirm": "ยืนยันการลบ",
+    "delete": "ลบ",
+    "search": "ค้นหา",
+    "select": "เลือก...",
+    "increasing": "เพิ่มขึ้น",
+    "stable": "คงที่"
   }
 }

@@ -70,9 +70,13 @@ export async function fetchCameraById(id: string): Promise<CameraConfig> {
   return normalizeCamera(camera);
 }
 
-export async function findImageByChecksum(checksumMd5: string): Promise<{ id: string } | null> {
+export async function findImageByChecksum(
+  checksum: string,
+  algorithm: 'md5' | 'sha256' = 'sha256',
+): Promise<{ id: string } | null> {
   try {
-    const result = await request<{ data: Array<{ id: string }> }>('GET', `/images?checksumMd5=${checksumMd5}&limit=1`);
+    const field = algorithm === 'sha256' ? 'checksumSha256' : 'checksumMd5';
+    const result = await request<{ data: Array<{ id: string }> }>('GET', `/images?${field}=${checksum}&limit=1`);
     return result.data.length > 0 ? result.data[0] : null;
   } catch {
     return null;
@@ -83,7 +87,7 @@ export async function registerImage(data: {
   cameraId: string;
   originalFilename: string;
   fileSizeBytes: number;
-  checksumMd5: string;
+  checksumMd5?: string;
   checksumSha256?: string;
 }): Promise<{ id: string }> {
   return request<{ id: string }>('POST', '/images', {

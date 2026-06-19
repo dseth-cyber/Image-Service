@@ -201,6 +201,77 @@ services:
     networks:
       - image-network
 
+  # ── Kafka (Event Streaming for ERP Integration) ─────────────────
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.7.0
+    container_name: image-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - image-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.7.0
+    container_name: image-kafka
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_LOG_RETENTION_HOURS: 168
+    ports:
+      - "9093:9093"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - image-network
+
+  # ── Consumer Stubs (ERP Integration) ────────────────────────────
+
+  historian-consumer:
+    image: python:3.12-slim
+    container_name: image-historian-consumer
+    volumes:
+      - ./consumer-stubs:/stubs:ro
+    depends_on:
+      kafka:
+        condition: service_healthy
+    command: sh -c "pip install aiokafka --quiet && python /stubs/historian_consumer.py"
+    restart: unless-stopped
+    networks:
+      - image-network
+
+  production-consumer:
+    image: python:3.12-slim
+    container_name: image-production-consumer
+    volumes:
+      - ./consumer-stubs:/stubs:ro
+    depends_on:
+      kafka:
+        condition: service_healthy
+    command: sh -c "pip install aiokafka --quiet && python /stubs/production_consumer.py"
+    restart: unless-stopped
+    networks:
+      - image-network
+
   # ── Image Processing Worker (TIFF→PNG converter + MinIO) ───────
 
   image-processing-worker:
@@ -230,6 +301,9 @@ services:
       TIFF_RESOLUTION_DPI: 300
       MAX_RETRIES: 3
       RETRY_DELAY_SECONDS: 5
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC_IMAGE_PROCESSED: image.processed
+      KAFKA_CLIENT_ID: image-processing-worker
       HEALTH_PORT: 9200
     depends_on:
       redis:

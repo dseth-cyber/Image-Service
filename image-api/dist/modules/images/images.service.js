@@ -5,12 +5,29 @@ function mapBigInt(obj) {
         return obj;
     if (typeof obj === 'bigint')
         return Number(obj);
+    if (obj instanceof Date)
+        return obj;
     if (Array.isArray(obj))
         return obj.map(mapBigInt);
     if (typeof obj === 'object') {
         return Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, mapBigInt(v)]));
     }
     return obj;
+}
+export async function registerImage(input) {
+    const prisma = getPrisma();
+    const image = await prisma.image.create({
+        data: {
+            cameraId: input.cameraId,
+            originalFilename: input.originalFilename,
+            fileSizeBytes: BigInt(input.fileSizeBytes),
+            checksumMd5: input.checksumMd5 ?? null,
+            checksumSha256: input.checksumSha256 ?? null,
+            status: input.status,
+            capturedAt: new Date(input.capturedAt),
+        },
+    });
+    return { id: image.id };
 }
 export async function searchImages(params) {
     const prisma = getPrisma();
@@ -20,6 +37,8 @@ export async function searchImages(params) {
     };
     if (filters.cameraId)
         where.cameraId = filters.cameraId;
+    if (filters.checksumMd5)
+        where.checksumMd5 = filters.checksumMd5;
     if (filters.from || filters.to) {
         where.capturedAt = {};
         if (filters.from)
@@ -101,7 +120,7 @@ export async function getImageById(id) {
         include: {
             camera: { select: { id: true, name: true } },
             imageFiles: {
-                select: { id: true, fileType: true, fileSizeBytes: true, mimeType: true, storageClass: true },
+                select: { id: true, fileType: true, fileSizeBytes: true, mimeType: true, storageClass: true, objectKey: true },
             },
             imageTags: {
                 select: { key: true, value: true },
@@ -173,6 +192,58 @@ export async function deleteImageTag(id, key) {
     await prisma.imageTag.deleteMany({
         where: { imageId: id, key },
     });
+}
+export async function submitProcessingResult(id, input) {
+    const prisma = getPrisma();
+    const existing = await prisma.image.findUnique({ where: { id } });
+    if (!existing || existing.status === 'deleted') {
+        throw new NotFoundError('Image', id);
+    }
+    const imageData = {};
+    if (input.status)
+        imageData.status = input.status;
+    if (input.checksumSha256)
+        imageData.checksumSha256 = input.checksumSha256;
+    if (input.processedAt)
+        imageData.processedAt = new Date(input.processedAt);
+    else if (input.status === 'completed')
+        imageData.processedAt = new Date();
+    if (input.widthPx !== undefined)
+        imageData.widthPx = input.widthPx;
+    if (input.heightPx !== undefined)
+        imageData.heightPx = input.heightPx;
+    if (input.bitDepth !== undefined)
+        imageData.bitDepth = input.bitDepth;
+    if (input.colorSpace !== undefined)
+        imageData.colorSpace = input.colorSpace;
+    if (input.compressionType !== undefined)
+        imageData.compressionType = input.compressionType;
+    if (input.compressionRatio !== undefined)
+        imageData.compressionRatio = input.compressionRatio;
+    if (input.tiffMetadata !== undefined)
+        imageData.tiffMetadata = input.tiffMetadata;
+    if (input.files && input.files.length > 0) {
+        await Promise.all(input.files.map(file => prisma.imageFile.create({
+            data: {
+                imageId: id,
+                fileType: file.fileType,
+                bucket: file.bucket ?? 'images',
+                objectKey: file.objectKey,
+                storageClass: file.storageClass ?? 'hot',
+                fileSizeBytes: BigInt(file.fileSizeBytes),
+                mimeType: file.mimeType ?? null,
+            },
+        })));
+    }
+    const updated = await prisma.image.update({
+        where: { id },
+        data: imageData,
+        include: {
+            imageFiles: true,
+            imageTags: { select: { key: true, value: true } },
+        },
+    });
+    return mapBigInt(updated);
 }
 export async function softDeleteImage(id) {
     const prisma = getPrisma();

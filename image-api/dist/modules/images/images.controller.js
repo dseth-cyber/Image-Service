@@ -1,6 +1,13 @@
-import { imageSearchSchema, updateMetadataSchema, updateTagsSchema } from './images.schema.js';
+import { imageSearchSchema, registerImageSchema, updateMetadataSchema, updateTagsSchema, processingResultSchema } from './images.schema.js';
 import * as imagesService from './images.service.js';
 import { requireRole } from '../../middleware/rbac.js';
+import { getMinio } from '../../lib/minio.js';
+import { config } from '../../config/index.js';
+async function registerImageHandler(request, reply) {
+    const input = registerImageSchema.parse(request.body);
+    const result = await imagesService.registerImage(input);
+    return reply.status(201).send(result);
+}
 async function searchHandler(request, reply) {
     const params = imageSearchSchema.parse(request.query);
     const result = await imagesService.searchImages(params);
@@ -28,12 +35,18 @@ async function deleteTagHandler(request, reply) {
     await imagesService.deleteImageTag(id, key);
     return reply.status(204).send();
 }
+async function processingResultHandler(request, reply) {
+    const { id } = request.params;
+    const input = processingResultSchema.parse(request.body);
+    const result = await imagesService.submitProcessingResult(id, input);
+    return reply.status(200).send(result);
+}
 async function deleteImageHandler(request, reply) {
     const { id } = request.params;
     await imagesService.softDeleteImage(id);
     return reply.status(204).send();
 }
-async function getFileUrlHandler(request, reply) {
+async function getFileStreamHandler(request, reply) {
     const { id, fileType } = request.params;
     const image = await imagesService.getImageById(id);
     const files = image?.imageFiles ?? [];
@@ -45,19 +58,31 @@ async function getFileUrlHandler(request, reply) {
             message: `File type '${fileType}' not found for image ${id}`,
         });
     }
-    return reply.status(200).send({
-        url: `/api/v1/images/${id}/files/${fileType}`,
-        mimeType: file.mimeType,
-        fileSizeBytes: file.fileSizeBytes,
-    });
+    try {
+        const minio = getMinio();
+        const stream = await minio.getObject(config.minio.bucket, file.objectKey);
+        reply.header('Content-Type', file.mimeType ?? 'application/octet-stream');
+        reply.header('Content-Length', String(file.fileSizeBytes));
+        reply.header('Cache-Control', 'public, max-age=31536000, immutable');
+        return reply.send(stream);
+    }
+    catch (err) {
+        return reply.status(500).send({
+            statusCode: 500,
+            error: 'InternalServerError',
+            message: 'Failed to retrieve file from storage',
+        });
+    }
 }
 export async function imageRoutes(app) {
+    app.post('/', { preHandler: [app.authenticate] }, registerImageHandler);
     app.get('/', { preHandler: [app.authenticate] }, searchHandler);
     app.get('/:id', { preHandler: [app.authenticate] }, getByIdHandler);
     app.patch('/:id/metadata', { preHandler: [app.authenticate, requireRole('admin', 'operator', 'system')] }, updateMetadataHandler);
     app.post('/:id/tags', { preHandler: [app.authenticate, requireRole('admin', 'operator', 'system')] }, upsertTagsHandler);
     app.delete('/:id/tags/:key', { preHandler: [app.authenticate, requireRole('admin', 'operator')] }, deleteTagHandler);
+    app.post('/:id/result', { preHandler: [app.authenticate, requireRole('admin', 'operator', 'system')] }, processingResultHandler);
     app.delete('/:id', { preHandler: [app.authenticate, requireRole('admin')] }, deleteImageHandler);
-    app.get('/:id/files/:fileType', { preHandler: [app.authenticate] }, getFileUrlHandler);
+    app.get('/:id/files/:fileType', { preHandler: [app.authenticate] }, getFileStreamHandler);
 }
 //# sourceMappingURL=images.controller.js.map

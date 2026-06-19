@@ -10,6 +10,7 @@ from src.models import ProcessingJob
 from src.processor import process_tiff, ProcessingError
 from src.minio_storage import MinioClient
 from src.api_client import ApiClient
+from src.kafka import KafkaEventProducer
 
 
 class ProcessingWorker:
@@ -17,6 +18,7 @@ class ProcessingWorker:
         self._redis: Redis | None = None
         self.minio = MinioClient()
         self.api = ApiClient()
+        self.kafka = KafkaEventProducer()
         self._running = True
 
     @property
@@ -45,6 +47,7 @@ class ProcessingWorker:
         )
 
         await self.minio.ensure_bucket()
+        await self.kafka.start()
 
         semaphore = asyncio.Semaphore(settings.processing_concurrency)
 
@@ -81,6 +84,7 @@ class ProcessingWorker:
     async def stop(self) -> None:
         logger.info("Stopping worker...")
         self._running = False
+        await self.kafka.stop()
         if self._redis is not None:
             await self._redis.aclose()
             self._redis = None
@@ -152,6 +156,15 @@ class ProcessingWorker:
             )
 
             await self.api.report_processing_result(result)
+
+            await self.kafka.emit_image_processed(
+                image_id=job.image_id,
+                camera_id=job.camera_id,
+                filename=job.original_filename,
+                png_object_key=result.png_object_key,
+                thumbnail_object_key=result.thumbnail_object_key,
+                captured_at=job.captured_at or result.processed_at,
+            )
 
             await self._remove_from_progress(job_id)
 

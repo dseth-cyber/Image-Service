@@ -78,18 +78,23 @@ export class CameraPoller {
       await smb.connect();
       logger.info({ camera: camera.name, path: camera.smbSharePath }, 'Connected to SMB share');
 
+      const watermark = await this.tracker.getWatermark(camera.id);
       const files = await scanCameraDirectory(smb, camera);
-      stats.scanned = files.length;
+      const filteredFiles = watermark
+        ? files.filter((f) => f.lastModified.getTime() >= watermark)
+        : files;
+      stats.scanned = filteredFiles.length;
 
-      if (files.length === 0) {
+      if (filteredFiles.length === 0) {
         logger.debug({ camera: camera.name }, 'No new files found');
         await api.updateCameraPoll(camera.id);
+        await this.tracker.setWatermark(camera.id, Date.now());
         return this.buildResult(camera, stats, startTime);
       }
 
       const toProcess: Array<{ file: SyncFile; checksum: string }> = [];
 
-      for (const file of files) {
+      for (const file of filteredFiles) {
         const smbPath = file.originalFilename;
         let checksum: string;
 
@@ -112,6 +117,21 @@ export class CameraPoller {
           continue;
         }
 
+        const moveEvent = await this.tracker.setChecksumPath(
+          camera.id, checksum, file.originalFilename,
+        );
+        if (moveEvent) {
+          logger.warn(
+            {
+              camera: camera.name,
+              checksum: checksum.slice(0, 16),
+              previousPath: moveEvent.previousPath,
+              newPath: moveEvent.newPath,
+            },
+            'File move detected — checksum seen at different path',
+          );
+        }
+
         toProcess.push({ file, checksum });
       }
 
@@ -122,7 +142,7 @@ export class CameraPoller {
 
       for (const { file, checksum } of toProcess) {
         try {
-          const existing = await api.findImageByChecksum(checksum);
+          const existing = await api.findImageByChecksum(checksum, config.checksum.algorithm);
           if (existing) {
             logger.info(
               { camera: camera.name, file: file.originalFilename, imageId: existing.id },
@@ -133,23 +153,35 @@ export class CameraPoller {
             continue;
           }
 
-          const { id: imageId } = await api.registerImage({
+          const isSha256 = config.checksum.algorithm === 'sha256';
+          const registerData: Record<string, unknown> = {
             cameraId: camera.id,
             originalFilename: file.originalFilename,
             fileSizeBytes: file.fileSizeBytes,
-            checksumMd5: checksum,
-          });
+          };
+          if (isSha256) {
+            registerData.checksumSha256 = checksum;
+          } else {
+            registerData.checksumMd5 = checksum;
+          }
+          const { id: imageId } = await api.registerImage(registerData as any);
 
           const jobPath = jobFilePath(camera, file.originalFilename);
 
-          await this.producer.enqueue({
+          const jobPayload: Record<string, unknown> = {
             imageId,
             cameraId: camera.id,
             smbPath: jobPath,
             originalFilename: file.originalFilename,
             fileSizeBytes: file.fileSizeBytes,
-            checksumMd5: checksum,
-          });
+            capturedAt: new Date().toISOString(),
+          };
+          if (isSha256) {
+            jobPayload.checksumSha256 = checksum;
+          } else {
+            jobPayload.checksumMd5 = checksum;
+          }
+          await this.producer.enqueue(jobPayload as any);
 
           await this.tracker.markProcessed(camera.id, checksum, imageId);
 
@@ -173,10 +205,27 @@ export class CameraPoller {
         errors: stats.errors,
       });
 
+      await this.tracker.setWatermark(camera.id, Date.now());
+      await this.tracker.setCameraState(camera.id, {
+        lastPolledAt: new Date().toISOString(),
+        lastScanDuration: Date.now() - startTime,
+        status: stats.errors > 0 ? 'error' : 'ok',
+        lastError: '',
+        scanned: stats.scanned,
+        newFiles: stats.newFiles,
+        duplicates: stats.duplicates,
+        errors: stats.errors,
+      });
+
       updateCameraInterval(camera);
     } catch (err) {
       logger.error({ camera: camera.name, err }, 'SMB connection or scan error');
       stats.errors++;
+      await this.tracker.setCameraState(camera.id, {
+        lastPolledAt: new Date().toISOString(),
+        status: 'error',
+        lastError: (err as Error).message.slice(0, 500),
+      });
       await api.reportError(camera.id, `Scan failed: ${(err as Error).message}`);
     } finally {
       await smb.close();

@@ -38,7 +38,13 @@
       "downloadThumb": "Download Thumbnail",
       "deleteImage": "Delete Image",
       "deleteConfirm": "Are you sure you want to delete this image?",
-      "deleteSuccess": "Image deleted successfully"
+      "deleteSuccess": "Image deleted successfully",
+      "tagKey": "Tag Key",
+      "tagValue": "Tag Value",
+      "tagKeyPlaceholder": "key...",
+      "tagValuePlaceholder": "value...",
+      "tagAdded": "Tag added",
+      "tagDeleted": "Tag deleted"
     },
     "cameras": {
       "title": "Camera Management",
@@ -151,6 +157,16 @@
       "resetAll": "Reset All",
       "resetSuccess": "All settings reset successfully"
     },
+    "auth": {
+      "login": "Sign In",
+      "subtitle": "Sign in to your account",
+      "username": "Username",
+      "password": "Password",
+      "required": "Please enter username and password",
+      "invalid": "Invalid username or password",
+      "logout": "Sign Out",
+      "profile": "Profile"
+    },
     "nav": {
       "overview": "Overview",
       "cameras": "Cameras",
@@ -160,7 +176,72 @@
       "logs": "Logs",
       "retention": "Retention",
       "roadmap": "Roadmap",
-      "settings": "Settings"
+      "settings": "Settings",
+      "alerts": "Alerts",
+      "users": "Users",
+      "health": "Health"
+    },
+    "alerts": {
+      "title": "Alert Management",
+      "subtitle": "Monitor and manage system alerts",
+      "severity": "Severity",
+      "alert": "Alert",
+      "source": "Source",
+      "createdAt": "Created At",
+      "allSeverity": "All Severity",
+      "status": "Status",
+      "open": "Open",
+      "resolved": "Resolved",
+      "all": "All",
+      "critical": "Critical",
+      "warning": "Warning",
+      "info": "Info",
+      "noAlerts": "No alerts found",
+      "detail": "Alert Detail",
+      "type": "Type",
+      "acknowledgedAt": "Acknowledged At",
+      "resolvedAt": "Resolved At",
+      "acknowledge": "Acknowledge",
+      "resolve": "Resolve",
+      "acknowledged": "Alert acknowledged",
+      "resolved": "Alert resolved"
+    },
+    "users": {
+      "title": "User Management",
+      "subtitle": "Manage system users and roles",
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "role": "Role",
+      "status": "Status",
+      "active": "Active",
+      "disabled": "Disabled",
+      "lastLogin": "Last Login",
+      "newUser": "Add User",
+      "editUser": "Edit User",
+      "totalUsers": "Total: {{count}} users",
+      "noUsers": "No users found",
+      "leaveBlank": "Leave blank to keep current",
+      "created": "User created",
+      "updated": "User updated",
+      "deactivated": "User deactivated"
+    },
+    "health": {
+      "title": "Health Status",
+      "subtitle": "System health and service status dashboard",
+      "systemStatus": "System Status",
+      "allOperational": "All services operational",
+      "degraded": "Some services degraded",
+      "healthy": "Healthy",
+      "database": "Database",
+      "storage": "Object Storage",
+      "api": "API Service",
+      "uptime": "Uptime",
+      "totalImages": "Total Images",
+      "activeCameras": "Active Cameras",
+      "openAlerts": "Open Alerts",
+      "version": "Version",
+      "serviceDetails": "Service Details"
     },
     "roadmap": {
       "title": "Roadmap",
@@ -169,6 +250,8 @@
       "architectureDesc": "Current system infrastructure and technology stack",
       "phases": "Development Phases",
       "phasesDesc": "Planned development milestones by priority",
+      "phasesProgress": "Overall Progress — {{pct}}%",
+      "phasesLaunched": "launched",
       "rules": "System Rules",
       "rulesDesc": "Mandatory conventions — must not be violated in any feature",
       "rulesGroupsLabels": {
@@ -209,63 +292,111 @@
           "Event Rule — emit event on processing complete for downstream services"
         ]
       },
+      "archStack": [
+        { "label": "Capture Devices", "tech": "SMB Share · TIFF", "desc": "Windows PCs capture TIFF images via SMB network share. Initial: 1 camera, Scale: 30+ cameras, millions of images/day." },
+        { "label": "Sync Worker", "tech": "Node.js 22 · TypeScript", "desc": "Scans SMB folders, detects new TIFFs, computes checksum, prevents duplicates, creates processing jobs." },
+        { "label": "Processing Worker", "tech": "Python 3.12 · Pillow", "desc": "Converts TIFF→PNG, generates thumbnails, calculates SHA256 checksum, stores in MinIO, reports result to API which writes metadata to DB." },
+        { "label": "API Service", "tech": "Fastify · Prisma · PostgreSQL 15", "desc": "Image search, metadata management, retention policies, health monitoring, JWT auth + RBAC, OpenAPI docs." },
+        { "label": "Frontend", "tech": "React 18 · Vite 5 · Tailwind", "desc": "Dashboard, image search, camera monitoring, storage monitoring, retention policy, processing logs. TanStack Query, Recharts." },
+        { "label": "Infrastructure", "tech": "Redis 7 · MinIO · Docker Compose", "desc": "Redis for BullMQ queues + caching. MinIO S3-compatible object storage. Runs on dedicated VM(s) separate from ERP platform. Each service owns its own DB (DB isolation)." },
+        { "label": "Future Integration", "tech": "Kafka · AI Vision", "desc": "Event-driven Kafka emission on image.processed. Consumer stubs for vision-service, predictive-service, historian-service." }
+      ],
       "microservices": "Microservices",
       "databases": "Databases",
       "vms": "Virtual Machines",
       "monitoring": "Monitoring",
-      "phase0": "P0 — Core Pipeline",
+      "phase0": "P0.1 — Core Pipeline",
       "phase0Desc": "End-to-end pipeline: Sync → Process → Store → Serve",
-      "phase0Status": "In Progress",
+      "phase0Status": "Launched",
       "phase0Tasks": [
-        "Investigate image_files insert failure",
-        "Verify PNG upload to MinIO",
-        "Verify Thumbnail generation",
-        "Verify image_files records created",
-        "Implement Download endpoint testing",
-        "End-to-end validation: TIFF in → PNG out → Download OK"
+        "image_files records created (7 images × 3 files = 21 records)",
+        "PNG + Thumbnail uploaded to MinIO (bucket: image-service)",
+        "File streaming download via GET /api/v1/images/:id/files/:fileType (200 OK)",
+        "Full pipeline verified: SMB → Sync → Process → MinIO → Serve → Download",
+        "Duplicate prevention via checksumMd5 lookup in sync-worker",
+        "Processing-logs API backend: CRUD, stats, retry endpoints"
       ],
-      "phase1": "P1 — Monitoring & Visibility",
-      "phase1Desc": "Operational visibility before adding auth",
-      "phase1Status": "Planned",
+      "phase1": "P0.2 — Sync Scanner",
+      "phase1Desc": "Recursive scan, SHA256 default, multi-camera scale",
+      "phase1Status": "Launched",
       "phase1Tasks": [
-        "GET /api/v1/overview composite endpoint",
-        "GET /api/v1/processing-logs from ProcessingJob model",
-        "POST /api/v1/processing-logs/:id/retry",
-        "Reduce dependency on docker logs for debugging"
+        "Recursive folder scanning — unlimited subfolder depth via smbclient ls recursion",
+        "SHA256 as default checksum algorithm (configurable via CHECKSUM_ALGORITHM env)",
+        "Auto-discovery of newly created folders during scan cycle",
+        "Support 30+ cameras with configurable poll intervals"
       ],
-      "phase2": "P2 — Authentication",
-      "phase2Desc": "Login, JWT, refresh, logout, profile",
-      "phase2Status": "Planned",
+      "phase2": "P0.3 — Scanner Reliability",
+      "phase2Desc": "Watermark, persistent state, fault tolerance",
+      "phase2Status": "Launched",
       "phase2Tasks": [
-        "Login page (POST /api/v1/auth/login)",
-        "Axios JWT interceptor for all requests",
-        "Token refresh mechanism",
-        "Logout + user profile display"
+        "Redis watermark — store lastScanned timestamp per camera for incremental scan",
+        "Persistent camera scan state in Redis (sync:camera:{id}:state hash)",
+        "Graceful recovery after worker restart — resume from last watermark",
+        "File move detection — track checksum + path changes"
       ],
-      "phase3": "P3 — Frontend Features",
-      "phase3Desc": "Wire up remaining interactive UI to real backend",
-      "phase3Status": "Planned",
+      "phase3": "P1 — Monitoring & Visibility",
+      "phase3Desc": "Operational visibility before adding auth",
+      "phase3Status": "Launched",
       "phase3Tasks": [
-        "Download buttons → GET /api/v1/images/:id/files/:fileType",
-        "Settings Save to real backend / localStorage",
-        "Tag management in Image Detail modal"
+        "GET /api/v1/processing-logs/stats aggregated dashboard endpoint",
+        "GET /api/v1/processing-logs (search, filter, paginate from ProcessingJob model)",
+        "POST /api/v1/processing-logs/:id/retry (re-queue failed jobs)",
+        "GET /api/v1/processing-logs/stream SSE real-time push (stats + logs every 5s)",
+        "Processing Monitor dashboard with Live/Disconnected indicator + auto-refresh",
+        "Processing Logs page with search, status/type filter, sort, pagination"
       ],
-      "phase4": "P4 — ERP Integration",
-      "phase4Desc": "Event-driven integration with enterprise systems",
-      "phase4Status": "Planned",
+      "phase4": "P2 — Authentication",
+      "phase4Desc": "Login, JWT, refresh, logout, profile",
+      "phase4Status": "Launched",
       "phase4Tasks": [
-        "Kafka event emission on image.processed",
-        "Event model: imageId, cameraId, pngPath, thumbnailPath",
-        "Consumer stubs for vision / predictive / historian services"
+        "Login page with username/password form + validation + error handling",
+        "Axios JWT interceptor: auto-attach token, 401 → refresh → retry",
+        "Token refresh via POST /api/v1/auth/refresh + queue concurrent failed requests",
+        "Logout + user profile dropdown (username + role display)"
       ],
-      "phase5": "P5 — New Pages",
-      "phase5Desc": "Additional UI pages for existing data models",
-      "phase5Status": "Planned",
+      "phase5": "P3 — Frontend Features",
+      "phase5Desc": "File move detection, tag management, settings",
+      "phase5Status": "Launched",
       "phase5Tasks": [
+        "File move detection — detect checksum + path changes across camera folders",
+        "Tag management in Image Detail modal (add, remove, filter by tag)",
+        "Settings Save to real backend / localStorage persistence"
+      ],
+      "phase6": "P4 — ERP Integration",
+      "phase6Desc": "Event-driven integration with enterprise systems",
+      "phase6Status": "Launched",
+      "phase6Tasks": [
+        "Kafka event emission on image.processed with full event model",
+        "Event model: imageId, cameraId, pngPath, thumbnailPath, capturedAt",
+        "Consumer stubs for historian-service, production-service"
+      ],
+      "phase7": "P5 — New Pages",
+      "phase7Desc": "Additional UI pages for existing data models",
+      "phase7Status": "Launched",
+      "phase7Tasks": [
         "Alert Management page (list / acknowledge / resolve)",
         "User Management page (admin CRUD)",
         "Health / Status dashboard"
       ]
     }
+  },
+  "common": {
+    "actions": "Actions",
+    "cancel": "Cancel",
+    "close": "Close",
+    "save": "Save",
+    "saving": "Saving...",
+    "error": "Error",
+    "prev": "Previous",
+    "next": "Next",
+    "saveSuccess": "Saved successfully",
+    "requiredFields": "Please fill in required fields",
+    "noData": "No data",
+    "deleteConfirm": "Confirm Delete",
+    "delete": "Delete",
+    "search": "Search",
+    "select": "Select...",
+    "increasing": "Increasing",
+    "stable": "Stable"
   }
 }

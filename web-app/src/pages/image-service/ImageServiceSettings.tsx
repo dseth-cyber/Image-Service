@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -10,16 +10,31 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui';
 
+const SETTINGS_KEY = 'image-service-settings';
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch { /* ignore */ }
+  return {};
+}
+
+function saveSettings(settings: Record<string, unknown>) {
+  const existing = loadSettings();
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...existing, ...settings }));
+}
+
 export default function ImageServiceSettings() {
   const { t, i18n } = useTranslation();
   const { themeConfig, theme, setTheme } = useTheme();
   const toast = useToast();
   const queryClient = useQueryClient();
 
-  const [pollInterval, setPollInterval] = useState(30);
-  const [retryMax, setRetryMax] = useState(3);
-  const [alertEmail, setAlertEmail] = useState('');
-  const [webhookUrl, setWebhookUrl] = useState('');
+  const [pollInterval, setPollInterval] = useState(() => loadSettings().pollInterval ?? 30);
+  const [retryMax, setRetryMax] = useState(() => loadSettings().retryMax ?? 3);
+  const [alertEmail, setAlertEmail] = useState(() => loadSettings().alertEmail ?? '');
+  const [webhookUrl, setWebhookUrl] = useState(() => loadSettings().webhookUrl ?? '');
   const [showApiKey, setShowApiKey] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -40,6 +55,7 @@ export default function ImageServiceSettings() {
   const handleSaveGeneral = async () => {
     try {
       setSaving(true);
+      saveSettings({ pollInterval, retryMax, alertEmail, webhookUrl });
       toast.success(t('common.saveSuccess'));
     } catch { toast.error(t('common.error')); }
     finally { setSaving(false); }
@@ -49,6 +65,11 @@ export default function ImageServiceSettings() {
     localStorage.removeItem('image_service_overview_layout_v1');
     localStorage.removeItem('image-service-theme');
     localStorage.removeItem('i18nextLng');
+    localStorage.removeItem(SETTINGS_KEY);
+    setPollInterval(30);
+    setRetryMax(3);
+    setAlertEmail('');
+    setWebhookUrl('');
     setTheme('modern');
     i18n.changeLanguage('th');
     queryClient.invalidateQueries();

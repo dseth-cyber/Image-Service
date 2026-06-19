@@ -1,19 +1,18 @@
-import { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/contexts/ToastContext';
 import { imageServiceApi } from '@/services/imageServiceApi';
 import { formatDateTime } from '@/utils/dateUtils';
 import {
-  ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts';
 import {
-  Activity, Clock, CheckCircle, XCircle, AlertTriangle, RotateCcw, RefreshCw,
-  Play, Pause,
+  Activity, CheckCircle, XCircle, AlertTriangle, RotateCcw, RefreshCw,
+  Play, Pause, Radio,
 } from 'lucide-react';
-import { SearchableSelect, Button } from '@/components/ui';
 
 const PIE_COLORS = ['#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 const BAR_COLORS = ['#06b6d4', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#3b82f6'];
@@ -47,29 +46,56 @@ export default function ImageServiceProcessingMonitor() {
   const toast = useToast();
   const queryClient = useQueryClient();
 
-  const [timeRange, setTimeRange] = useState('30');
+  const [logs, setLogs] = useState<any[]>([]);
+  const [connected, setConnected] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const esRef = useRef<EventSource | null>(null);
 
-  const { data: overview } = useQuery({
-    queryKey: ['image-service-overview'],
-    queryFn: () => imageServiceApi.getOverview(),
-    refetchInterval: autoRefresh ? 1000 * 15 : undefined,
-  });
+  const connect = useCallback(() => {
+    esRef.current?.close();
+    const es = new EventSource('/image-service/api/v1/processing-logs/stream');
+    esRef.current = es;
 
-  const { data: logs = [], isLoading } = useQuery({
-    queryKey: ['processing-logs-monitor', timeRange],
-    queryFn: () => imageServiceApi.getProcessingLogs({ limit: 50 }),
-    refetchInterval: autoRefresh ? 1000 * 15 : undefined,
-  });
+    es.onopen = () => setConnected(true);
 
-  const logsArr = Array.isArray(logs?.data) ? logs.data : (Array.isArray(logs) ? logs : []);
+    es.addEventListener('stats', (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        const el = document.getElementById('stats-total');
+        if (el) el.textContent = String(data.total ?? 0);
+        const elC = document.getElementById('stats-completed');
+        if (elC) elC.textContent = String(data.completed ?? 0);
+        const elF = document.getElementById('stats-failed');
+        if (elF) elF.textContent = String(data.failed ?? 0);
+        const elR = document.getElementById('stats-running');
+        if (elR) elR.textContent = String(data.running ?? 0);
+      } catch { /* ignore parse errors */ }
+    });
+
+    es.addEventListener('logs', (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        if (Array.isArray(data)) setLogs(data);
+      } catch { /* ignore parse errors */ }
+    });
+
+    es.onerror = () => {
+      setConnected(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (autoRefresh) connect();
+    else { esRef.current?.close(); setConnected(false); }
+    return () => esRef.current?.close();
+  }, [autoRefresh, connect]);
 
   const statusCounts = ['completed', 'running', 'queued', 'failed', 'dead_letter'].map((s) => ({
     name: t(`imageService.processingLogs.${s === 'dead_letter' ? 'failed' : s}`),
-    value: logsArr.filter((l: any) => l.status === s).length,
+    value: logs.filter((l) => l.status === s).length,
   }));
 
-  const jobsByType = logsArr.reduce((acc: Record<string, number>, l: any) => {
+  const jobsByType = logs.reduce((acc: Record<string, number>, l: any) => {
     acc[l.jobType] = (acc[l.jobType] || 0) + 1;
     return acc;
   }, {});
@@ -87,6 +113,11 @@ export default function ImageServiceProcessingMonitor() {
     } catch { toast.error(t('common.error')); }
   };
 
+  const totalJobs = logs.length;
+  const completedJobs = logs.filter((l) => l.status === 'completed').length;
+  const failedJobs = logs.filter((l) => l.status === 'failed' || l.status === 'dead_letter').length;
+  const runningJobs = logs.filter((l) => l.status === 'running').length;
+
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -99,10 +130,10 @@ export default function ImageServiceProcessingMonitor() {
 
       <div className="grid grid-cols-4 gap-4 mb-6">
         {[
-          { label: t('imageService.processing.totalJobs'), value: logsArr.length, color: '#06b6d4', icon: Activity },
-          { label: t('imageService.processing.completed'), value: logsArr.filter((l: any) => l.status === 'completed').length, color: '#10b981', icon: CheckCircle },
-          { label: t('imageService.processing.failed'), value: logsArr.filter((l: any) => l.status === 'failed' || l.status === 'dead_letter').length, color: '#ef4444', icon: XCircle },
-          { label: t('imageService.processing.inProgress'), value: logsArr.filter((l: any) => l.status === 'running').length, color: '#f59e0b', icon: AlertTriangle },
+          { id: 'stats-total', label: t('imageService.processing.totalJobs'), value: totalJobs, color: '#06b6d4', icon: Activity },
+          { id: 'stats-completed', label: t('imageService.processing.completed'), value: completedJobs, color: '#10b981', icon: CheckCircle },
+          { id: 'stats-failed', label: t('imageService.processing.failed'), value: failedJobs, color: '#ef4444', icon: XCircle },
+          { id: 'stats-running', label: t('imageService.processing.inProgress'), value: runningJobs, color: '#f59e0b', icon: AlertTriangle },
         ].map((s, i) => {
           const Icon = s.icon;
           return (
@@ -111,7 +142,7 @@ export default function ImageServiceProcessingMonitor() {
                 <Icon size={16} style={{ color: s.color }} />
                 <span className={`text-xs ${themeConfig.text.secondary}`}>{s.label}</span>
               </div>
-              <span className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</span>
+              <span id={s.id} className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</span>
             </div>
           );
         })}
@@ -133,7 +164,7 @@ export default function ImageServiceProcessingMonitor() {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className={`text-2xl font-bold ${themeConfig.text.primary}`}>{logsArr.length}</span>
+              <span className={`text-2xl font-bold ${themeConfig.text.primary}`}>{logs.length}</span>
               <span className={`text-xs ${themeConfig.text.secondary}`}>total</span>
             </div>
           </div>
@@ -161,6 +192,10 @@ export default function ImageServiceProcessingMonitor() {
         <div className="flex items-center justify-between mb-4">
           <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.processing.recentJobs')}</h3>
           <div className="flex items-center gap-2">
+            <span className={`flex items-center gap-1 text-xs ${connected ? 'text-green-400' : 'text-red-400'}`}>
+              <Radio size={10} className={connected ? 'animate-pulse' : ''} />
+              {connected ? 'Live' : 'Disconnected'}
+            </span>
             <button
               onClick={() => setAutoRefresh(!autoRefresh)}
               className={`p-2 rounded-lg text-xs flex items-center gap-1 transition-colors
@@ -170,7 +205,7 @@ export default function ImageServiceProcessingMonitor() {
               Auto
             </button>
             <button
-              onClick={() => queryClient.invalidateQueries({ queryKey: ['processing-logs'] })}
+              onClick={() => { esRef.current?.close(); connect(); }}
               className="p-2 rounded-lg hover:bg-white/5 transition-colors"
             >
               <RefreshCw size={14} className={themeConfig.text.secondary} />
@@ -191,7 +226,7 @@ export default function ImageServiceProcessingMonitor() {
               </tr>
             </thead>
             <tbody className={`divide-y ${themeConfig.tableDivide}`}>
-              {logsArr.slice(0, 20).map((log: any) => (
+              {logs.slice(0, 20).map((log: any) => (
                 <tr key={log.id} className={`border-b ${themeConfig.tableBorder} ${themeConfig.tableRow}`}>
                   <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>
                     <span className="font-mono text-xs">{log.imageId?.slice(0, 8) ?? '—'}...</span>
@@ -205,7 +240,7 @@ export default function ImageServiceProcessingMonitor() {
                     </span>
                   </td>
                   <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>
-                    {log.duration != null ? `${log.duration.toFixed(1)}s` : '—'}
+                    {log.durationMs != null ? `${(log.durationMs / 1000).toFixed(1)}s` : '—'}
                   </td>
                   <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>
                     {formatDateTime(log.queuedAt, i18n.language)}
@@ -232,7 +267,7 @@ export default function ImageServiceProcessingMonitor() {
                   </td>
                 </tr>
               ))}
-              {logsArr.length === 0 && (
+              {logs.length === 0 && (
                 <tr>
                   <td colSpan={6} className={`px-4 py-8 text-center text-sm ${themeConfig.text.secondary}`}>
                     {t('imageService.processingLogs.noLogs')}

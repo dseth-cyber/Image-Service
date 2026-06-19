@@ -1,6 +1,7 @@
 import { SmbClient, smbRelativePath } from './smb.js';
 import type { SmbFileEntry } from './smb.js';
 import { logger } from './logger.js';
+import { config } from '../config/index.js';
 import type { CameraConfig, SyncFile } from '../types/index.js';
 
 const TIFF_EXTENSIONS = new Set(['.tiff', '.tif', '.ptiff', '.ptif']);
@@ -26,20 +27,44 @@ export async function scanCameraDirectory(
   smb: SmbClient,
   camera: CameraConfig,
 ): Promise<SyncFile[]> {
-  const discovered: SyncFile[] = [];
-  const scanPath = camera.smbSubdirectoryPattern
+  const maxDepth = config.scanner.maxDepth;
+  const rootPath = camera.smbSubdirectoryPattern
     ? smbRelativePath(resolveSubdirectoryPattern(camera))
     : '\\';
+  return scanRecursive(smb, camera, rootPath, 0, maxDepth);
+}
 
-  const entries: SmbFileEntry[] = await smb.readdir(scanPath);
+async function scanRecursive(
+  smb: SmbClient,
+  camera: CameraConfig,
+  dirPath: string,
+  depth: number,
+  maxDepth: number,
+): Promise<SyncFile[]> {
+  if (depth > maxDepth) {
+    logger.warn({ camera: camera.name, dirPath, depth }, 'Max scan depth reached');
+    return [];
+  }
+
+  const discovered: SyncFile[] = [];
+  const entries: SmbFileEntry[] = await smb.readdir(dirPath);
 
   for (const entry of entries) {
     const filename = entry.Filename;
-
     if (shouldSkip(filename)) continue;
-    if (!isTiffFile(filename)) continue;
 
-    if (entry.isDirectory) continue;
+    if (entry.isDirectory) {
+      if (depth < maxDepth) {
+        const subPath = dirPath === '\\'
+          ? `\\${filename}`
+          : `${dirPath}\\${filename}`;
+        const subResults = await scanRecursive(smb, camera, subPath, depth + 1, maxDepth);
+        discovered.push(...subResults);
+      }
+      continue;
+    }
+
+    if (!isTiffFile(filename)) continue;
 
     const ageMs = Date.now() - entry.mtime.getTime();
     if (ageMs < STABILITY_WINDOW_MS) {
@@ -47,10 +72,15 @@ export async function scanCameraDirectory(
       continue;
     }
 
+    const relativePath = dirPath === '\\' ? '' : dirPath;
+    const originalFilename = relativePath
+      ? `${relativePath}\\${filename}`
+      : filename;
+
     discovered.push({
       cameraId: camera.id,
-      relativePath: scanPath,
-      originalFilename: filename,
+      relativePath: dirPath,
+      originalFilename,
       fileSizeBytes: entry.size,
       lastModified: entry.mtime,
     });

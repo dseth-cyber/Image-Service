@@ -7,6 +7,7 @@ export const imageSearchSchema = z.object({
     from: z.string().datetime().optional(),
     to: z.string().datetime().optional(),
     q: z.string().max(256).optional(),
+    checksumMd5: z.string().length(32).optional(),
     tagKey: z.string().max(128).optional(),
     tagValue: z.string().max(256).optional(),
     sort: z.enum(['capturedAt', 'fileSizeBytes', 'status', 'createdAt']).default('capturedAt'),
@@ -20,6 +21,36 @@ export const updateMetadataSchema = z.object({
     colorSpace: z.string().max(32).optional(),
     compressionType: z.string().max(64).optional(),
     compressionRatio: z.number().min(0).max(100).optional(),
+});
+export const registerImageSchema = z.object({
+    cameraId: z.string().uuid(),
+    originalFilename: z.string().min(1).max(512),
+    fileSizeBytes: z.number().int().nonnegative(),
+    checksumMd5: z.string().length(32).optional(),
+    checksumSha256: z.string().length(64).optional(),
+    status: z.enum(['pending', 'queued', 'processing', 'completed', 'failed', 'deleted', 'archived']).default('pending'),
+    capturedAt: z.string().datetime(),
+});
+export const processingResultFileSchema = z.object({
+    fileType: z.enum(['raw', 'processed', 'thumbnail', 'metadata_json']),
+    fileSizeBytes: z.number().int().nonnegative(),
+    mimeType: z.string().optional(),
+    objectKey: z.string().min(1),
+    bucket: z.string().default('images'),
+    storageClass: z.enum(['hot', 'warm', 'cold']).default('hot'),
+});
+export const processingResultSchema = z.object({
+    status: z.enum(['completed', 'failed']).default('completed'),
+    widthPx: z.number().int().positive().optional(),
+    heightPx: z.number().int().positive().optional(),
+    bitDepth: z.number().int().positive().optional(),
+    colorSpace: z.string().max(32).optional(),
+    compressionType: z.string().max(64).optional(),
+    compressionRatio: z.number().min(0).max(100).optional(),
+    checksumSha256: z.string().length(64).optional(),
+    processedAt: z.string().datetime().optional(),
+    tiffMetadata: z.record(z.unknown()).optional(),
+    files: z.array(processingResultFileSchema).optional(),
 });
 export const updateTagsSchema = z.record(z.string().min(1).max(256));
 export const imageResponseSchema = z.object({
