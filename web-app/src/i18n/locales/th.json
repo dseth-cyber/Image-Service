@@ -364,7 +364,7 @@
       ],
       "phase6": "P4 — ERP Integration",
       "phase6Desc": "เชื่อมต่อกับระบบระดับองค์กรด้วย Event-driven",
-      "phase6Status": "เปิดตัว",
+      "phase6Status": "เปิดใช้งานแล้ว",
       "phase6Tasks": [
         "Kafka event emission เมื่อ image.processed พร้อม event model เต็มรูปแบบ",
         "Event model: imageId, cameraId, pngPath, thumbnailPath, capturedAt",
@@ -372,7 +372,7 @@
       ],
       "phase7": "P5 — หน้าใหม่",
       "phase7Desc": "หน้า UI เพิ่มเติมสำหรับ data models ที่มีอยู่",
-      "phase7Status": "เปิดตัว",
+      "phase7Status": "เปิดใช้งานแล้ว",
       "phase7Tasks": [
         "หน้า Alert Management (list / acknowledge / resolve)",
         "หน้า User Management (admin CRUD)",

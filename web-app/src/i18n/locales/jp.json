@@ -379,5 +379,24 @@
         "ヘルス/ステータスダッシュボード"
       ]
     }
+  },
+  "common": {
+    "actions": "操作",
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "save": "保存",
+    "saving": "保存中...",
+    "error": "エラー",
+    "prev": "前へ",
+    "next": "次へ",
+    "saveSuccess": "保存しました",
+    "requiredFields": "必須項目を入力してください",
+    "noData": "データがありません",
+    "deleteConfirm": "削除確認",
+    "delete": "削除",
+    "search": "検索",
+    "select": "選択...",
+    "increasing": "増加",
+    "stable": "安定"
   }
 }

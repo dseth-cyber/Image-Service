@@ -379,5 +379,24 @@
         "Health / Status dashboard"
       ]
     }
+  },
+  "common": {
+    "actions": "လုပ်ဆောင်ချက်များ",
+    "cancel": "ပယ်ဖျက်",
+    "close": "ပိတ်",
+    "save": "သိမ်းဆည်း",
+    "saving": "သိမ်းဆည်းနေသည်...",
+    "error": "အမှား",
+    "prev": "ရှေ့",
+    "next": "နောက်",
+    "saveSuccess": "သိမ်းဆည်းပြီး",
+    "requiredFields": "လိုအပ်သောအကွက်များကိုဖြည့်ပါ",
+    "noData": "ဒေတာမရှိပါ",
+    "deleteConfirm": "ဖျက်ကြောင်းအတည်ပြုပါ",
+    "delete": "ဖျက်",
+    "search": "ရှာဖွေ",
+    "select": "ရွေးချယ်...",
+    "increasing": "တိုးလာ",
+    "stable": "တည်ငြိမ်"
   }
 }
