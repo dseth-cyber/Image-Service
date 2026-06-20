@@ -155,7 +155,15 @@
       "totalAlerts": "総アラート数",
       "refreshData": "データ更新",
       "resetAll": "すべてリセット",
-      "resetSuccess": "すべての設定をリセットしました"
+      "resetSuccess": "すべての設定をリセットしました",
+      "alertRules": "アラートルール",
+      "alertRulesDesc": "通知チャンネルに送信するアラートタイプを管理",
+      "addRule": "ルール追加",
+      "alertType": "アラートタイプ",
+      "notificationChannels": "通知チャンネル",
+      "cooldown": "クールダウン",
+      "cooldownMinutes": "クールダウン（分）",
+      "ruleEnabled": "ルールを有効にする"
     },
     "auth": {
       "login": "サインイン",
@@ -179,7 +187,11 @@
       "settings": "設定",
       "alerts": "アラート",
       "users": "ユーザー",
-      "health": "ヘルス"
+      "health": "ヘルス",
+      "apiKeys": "API キー",
+      "telegramBot": "Telegram ボット",
+      "masterdata": "マスタデータ",
+      "systemConfig": "システム設定"
     },
     "alerts": {
       "title": "アラート管理",
@@ -242,6 +254,22 @@
       "openAlerts": "未解決アラート",
       "version": "バージョン",
       "serviceDetails": "サービス詳細"
+    },
+    "apiKeys": {
+      "title": "API キー",
+      "subtitle": "外部システム連携のための API キー管理",
+      "createKey": "新規キー作成",
+      "name": "キー名",
+      "key": "接続キー",
+      "status": "ステータス",
+      "permissions": "権限",
+      "createdAt": "作成日",
+      "expiresAt": "有効期限",
+      "active": "使用中",
+      "inactive": "未使用",
+      "total": "合計 {{count}} キー",
+      "generate": "キー生成",
+      "noKeys": "API キーが見つかりません"
     },
     "roadmap": {
       "title": "ロードマップ",
@@ -377,6 +405,24 @@
         "アラート管理ページ (一覧/確認/解決)",
         "ユーザー管理ページ (管理者 CRUD)",
         "ヘルス/ステータスダッシュボード"
+      ],
+      "phase8": "P6 — 通知・API 連携",
+      "phase8Desc": "マルチチャンネル通知と安全な API キー管理",
+      "phase8Status": "稼働中",
+      "phase8Tasks": [
+        "Telegram / Line 通知チャンネル + アラートルールエンジン",
+        "クールダウン機構による重複通知防止",
+        "API キー管理（トークン生成・権限スコープ）",
+        "Telegram ボット設定ページ",
+        "API キー管理ページ（作成/失効/期限設定）"
+      ],
+      "phase9": "P7 — システム設定",
+      "phase9Desc": "ローコード設定可能なビジネスルールとマスタデータ",
+      "phase9Status": "稼働中",
+      "phase9Tasks": [
+        "管理 UI で業務ルールしきい値設定（保持、圧縮、ポーリング）",
+        "マスタデータ：カメラ種別、画像カテゴリ、欠陥種別、検査種別",
+        "全マスタデータに 5 言語名フィールド"
       ]
     }
   },
@@ -396,6 +442,9 @@
     "delete": "削除",
     "search": "検索",
     "select": "選択...",
+    "active": "有効",
+    "disabled": "無効",
+    "name": "名前",
     "increasing": "増加",
     "stable": "安定"
   }

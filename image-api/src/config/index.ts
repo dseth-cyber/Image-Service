@@ -26,4 +26,14 @@ export const config = {
   encryptionKey: process.env.ENCRYPTION_KEY ?? 'change-me',
 
   serviceApiKey: process.env.SERVICE_API_KEY ?? '',
+
+  notifications: {
+    telegram: {
+      botToken: process.env.TELEGRAM_BOT_TOKEN ?? '',
+      chatId: process.env.TELEGRAM_CHAT_ID ?? '',
+    },
+    line: {
+      accessToken: process.env.LINE_ACCESS_TOKEN ?? '',
+    },
+  },
 } as const;

@@ -323,3 +323,61 @@ model AlertRule {
 
   @@map("alert_rules")
 }
+
+model SystemSetting {
+  key       String   @id @db.VarChar(128)
+  value     String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_settings")
+}
+
+model ApiKey {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @db.VarChar(128)
+  tokenHash   String    @unique @map("token_hash") @db.Text
+  tokenPrefix String    @map("token_prefix") @db.VarChar(16)
+  permissions Json      @default("[]")
+  enabled     Boolean   @default(true)
+  expiresAt   DateTime? @map("expires_at")
+  lastUsedAt  DateTime? @map("last_used_at")
+  createdBy   String?   @map("created_by") @db.VarChar(128)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([tokenHash])
+  @@map("api_keys")
+}
+
+model Masterdata {
+  id          String   @id @default(uuid()) @db.Uuid
+  type        String   @db.VarChar(64)
+  code        String   @db.VarChar(64)
+  nameTh      String?  @map("name_th") @db.VarChar(256)
+  nameEn      String?  @map("name_en") @db.VarChar(256)
+  nameCn      String?  @map("name_cn") @db.VarChar(256)
+  nameMm      String?  @map("name_mm") @db.VarChar(256)
+  nameJp      String?  @map("name_jp") @db.VarChar(256)
+  description String?  @db.Text
+  sortOrder   Int      @default(0) @map("sort_order")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([type, code])
+  @@index([type, sortOrder])
+  @@map("masterdata")
+}
+
+model SystemConfig {
+  key         String   @id @db.VarChar(128)
+  value       String   @db.Text
+  description String?  @db.Text
+  valueType   String   @default("string") @map("value_type") @db.VarChar(32)
+  category    String?  @db.VarChar(64)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("system_configs")
+}

@@ -18,6 +18,11 @@ import { storageRoutes } from './modules/storage/storage.controller.js';
 import { alertRoutes } from './modules/alerts/alerts.controller.js';
 import { userRoutes } from './modules/users/users.controller.js';
 import { processingLogRoutes } from './modules/processing-logs/processing-logs.controller.js';
+import { alertRuleRoutes } from './modules/alert-rules/alert-rules.controller.js';
+import { systemSettingsRoutes } from './modules/system-settings/system-settings.controller.js';
+import { apiKeyRoutes } from './modules/api-keys/api-keys.controller.js';
+import { masterdataRoutes } from './modules/masterdata/masterdata.controller.js';
+import { systemConfigRoutes } from './modules/system-config/system-config.controller.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -83,6 +88,11 @@ export async function buildApp() {
       await api.register(alertRoutes, { prefix: '/api/v1/alerts' });
       await api.register(userRoutes, { prefix: '/api/v1/users' });
       await api.register(processingLogRoutes, { prefix: '/api/v1/processing-logs' });
+      await api.register(alertRuleRoutes, { prefix: '/api/v1/alert-rules' });
+      await api.register(systemSettingsRoutes, { prefix: '/api/v1/settings' });
+      await api.register(apiKeyRoutes, { prefix: '/api/v1/api-keys' });
+      await api.register(masterdataRoutes, { prefix: '/api/v1/masterdata' });
+      await api.register(systemConfigRoutes, { prefix: '/api/v1/system-config' });
     },
   );
 

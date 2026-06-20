@@ -16,9 +16,13 @@ import ImageServiceSettings from '@/pages/image-service/ImageServiceSettings'
 import AlertManagement from '@/pages/image-service/AlertManagement'
 import UserManagement from '@/pages/image-service/UserManagement'
 import HealthStatus from '@/pages/image-service/HealthStatus'
+import TelegramBotSettings from '@/pages/image-service/TelegramBotSettings'
+import ApiKeysManagement from '@/pages/image-service/ApiKeysManagement'
+import MasterdataManagement from '@/pages/image-service/MasterdataManagement'
+import SystemConfigPage from '@/pages/image-service/SystemConfigPage'
 import {
   Camera, LayoutDashboard, Search, Activity, HardDrive, FileText, Shield, Settings, Map,
-  Globe, Palette, User, ChevronDown, LogOut, Bell, Users, HeartPulse,
+  Globe, Palette, User, ChevronDown, LogOut, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders,
 } from 'lucide-react'
 
 const navItems = [
@@ -33,6 +37,10 @@ const navItems = [
   { path: '/image-service/alerts', labelKey: 'nav.alerts', icon: Bell },
   { path: '/image-service/users', labelKey: 'nav.users', icon: Users },
   { path: '/image-service/health', labelKey: 'nav.health', icon: HeartPulse },
+  { path: '/image-service/api-keys', labelKey: 'nav.apiKeys', icon: Key },
+  { path: '/image-service/telegram-bot', labelKey: 'nav.telegramBot', icon: MessageCircle },
+  { path: '/image-service/masterdata', labelKey: 'nav.masterdata', icon: BookText },
+  { path: '/image-service/system-config', labelKey: 'nav.systemConfig', icon: Sliders },
   { path: '/image-service/settings', labelKey: 'nav.settings', icon: Settings },
 ]
 
@@ -215,6 +223,10 @@ export default function App() {
             <Route path="/image-service/alerts" element={<AlertManagement />} />
             <Route path="/image-service/users" element={<UserManagement />} />
             <Route path="/image-service/health" element={<HealthStatus />} />
+            <Route path="/image-service/api-keys" element={<ApiKeysManagement />} />
+            <Route path="/image-service/telegram-bot" element={<TelegramBotSettings />} />
+            <Route path="/image-service/masterdata" element={<MasterdataManagement />} />
+            <Route path="/image-service/system-config" element={<SystemConfigPage />} />
             <Route path="/image-service/settings" element={<ImageServiceSettings />} />
             <Route path="/" element={<Navigate to="/image-service/overview" replace />} />
             <Route path="*" element={<Navigate to="/image-service/overview" replace />} />

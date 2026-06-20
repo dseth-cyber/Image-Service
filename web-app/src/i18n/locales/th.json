@@ -155,7 +155,15 @@
       "totalAlerts": "การแจ้งเตือนทั้งหมด",
       "refreshData": "รีเฟรชข้อมูล",
       "resetAll": "รีเซ็ตทั้งหมด",
-      "resetSuccess": "รีเซ็ตการตั้งค่าทั้งหมดสำเร็จ"
+      "resetSuccess": "รีเซ็ตการตั้งค่าทั้งหมดสำเร็จ",
+      "alertRules": "กฎการแจ้งเตือน",
+      "alertRulesDesc": "จัดการประเภทการแจ้งเตือนที่จะส่งไปยังช่องทางต่างๆ",
+      "addRule": "เพิ่มกฎ",
+      "alertType": "ประเภทการแจ้งเตือน",
+      "notificationChannels": "ช่องทางการแจ้งเตือน",
+      "cooldown": "ระยะพัก",
+      "cooldownMinutes": "ระยะพัก (นาที)",
+      "ruleEnabled": "เปิดใช้กฎ"
     },
     "auth": {
       "login": "เข้าสู่ระบบ",
@@ -179,7 +187,11 @@
       "settings": "ตั้งค่า",
       "alerts": "การแจ้งเตือน",
       "users": "ผู้ใช้",
-      "health": "สถานะ"
+      "health": "สถานะ",
+      "apiKeys": "คีย์ API",
+      "telegramBot": "Telegram Bot",
+      "masterdata": "ข้อมูลหลัก",
+      "systemConfig": "ตั้งค่าระบบ"
     },
     "alerts": {
       "title": "การจัดการแจ้งเตือน",
@@ -242,6 +254,22 @@
       "openAlerts": "การแจ้งเตือนที่เปิด",
       "version": "เวอร์ชัน",
       "serviceDetails": "รายละเอียดบริการ"
+    },
+    "apiKeys": {
+      "title": "คีย์ API",
+      "subtitle": "จัดการคีย์ API สำหรับเชื่อมต่อกับระบบภายนอก",
+      "createKey": "สร้างคีย์ใหม่",
+      "name": "ชื่อคีย์",
+      "key": "คีย์การเชื่อมต่อ",
+      "status": "สถานะ",
+      "permissions": "สิทธิ์",
+      "createdAt": "สร้างเมื่อ",
+      "expiresAt": "หมดอายุ",
+      "active": "กำลังใช้งาน",
+      "inactive": "ไม่ได้ใช้งาน",
+      "total": "ทั้งหมด {{count}} คีย์",
+      "generate": "สร้างคีย์",
+      "noKeys": "ไม่พบคีย์ API"
     },
     "roadmap": {
       "title": "โรดแมป",
@@ -377,6 +405,24 @@
         "หน้า Alert Management (list / acknowledge / resolve)",
         "หน้า User Management (admin CRUD)",
         "Health / Status dashboard"
+      ],
+      "phase8": "P6 — การแจ้งเตือนและเชื่อมต่อ API",
+      "phase8Desc": "การแจ้งเตือนหลายช่องทางและการจัดการคีย์ API",
+      "phase8Status": "เปิดใช้งานแล้ว",
+      "phase8Tasks": [
+        "ช่องแจ้งเตือน Telegram / Line พร้อม Alert Rules Engine",
+        "กลไก Cooldown ป้องกันการแจ้งซ้ำ",
+        "ระบบจัดการคีย์ API พร้อมสร้าง token และกำหนดสิทธิ์",
+        "หน้าตั้งค่า Telegram Bot",
+        "หน้าจัดการคีย์ API (สร้าง / เพิกถอน / กำหนดวันหมดอายุ)"
+      ],
+      "phase9": "P7 — การตั้งค่าระบบ",
+      "phase9Desc": "ตั้งค่า бизнесกฏผ่าน UI และ Masterdata Entities",
+      "phase9Status": "เปิดใช้งานแล้ว",
+      "phase9Tasks": [
+        "Admin UI สำหรับตั้งค่า threshold (retention, compression, polling)",
+        "Masterdata: ประเภทกล้อง, หมวดหมู่ภาพ, ประเภทข้อบกพร่อง, ประเภทตรวจสอบ",
+        "ฟิลด์ชื่อ 5 ภาษาสำหรับ masterdata ทั้งหมด"
       ]
     }
   },
@@ -396,6 +442,9 @@
     "delete": "ลบ",
     "search": "ค้นหา",
     "select": "เลือก...",
+    "active": "ใช้งาน",
+    "disabled": "ปิดใช้งาน",
+    "name": "ชื่อ",
     "increasing": "เพิ่มขึ้น",
     "stable": "คงที่"
   }

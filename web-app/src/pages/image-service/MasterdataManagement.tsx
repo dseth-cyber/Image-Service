@@ -1,0 +1,196 @@
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useToast } from '@/contexts/ToastContext';
+import { imageServiceApi } from '@/services/imageServiceApi';
+import { Plus, Trash2, Pencil, CheckCircle, XCircle } from 'lucide-react';
+import { Button, Modal } from '@/components/ui';
+
+type TabType = 'camera_type' | 'image_category' | 'defect_type' | 'inspection_type';
+
+const TABS: { key: TabType; label: string }[] = [
+  { key: 'camera_type', label: 'Camera Type' },
+  { key: 'image_category', label: 'Image Category' },
+  { key: 'defect_type', label: 'Defect Type' },
+  { key: 'inspection_type', label: 'Inspection Type' },
+];
+
+const LANG_FIELDS = ['nameTh', 'nameEn', 'nameCn', 'nameMm', 'nameJp'] as const;
+
+const LANG_LABELS: Record<string, string> = {
+  nameTh: 'TH', nameEn: 'EN', nameCn: 'CN', nameMm: 'MM', nameJp: 'JP',
+};
+
+export default function MasterdataManagement() {
+  const { t } = useTranslation();
+  const { themeConfig } = useTheme();
+  const toast = useToast();
+  const queryClient = useQueryClient();
+
+  const [activeTab, setActiveTab] = useState<TabType>('camera_type');
+  const [modal, setModal] = useState<{ open: boolean; editing?: any }>({ open: false });
+  const [form, setForm] = useState<Record<string, any>>({ code: '', nameTh: '', nameEn: '', nameCn: '', nameMm: '', nameJp: '', description: '', sortOrder: 0, isActive: true });
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['masterdata', activeTab],
+    queryFn: () => imageServiceApi.getMasterdata({ type: activeTab }),
+    staleTime: 1000 * 30,
+  });
+
+  const items: any[] = (data as any)?.data ?? [];
+
+  const createMutation = useMutation({
+    mutationFn: (d: any) => imageServiceApi.createMasterdata(d),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['masterdata'] }); toast.success('Created'); setModal({ open: false }); },
+    onError: () => toast.error(t('common.error')),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => imageServiceApi.updateMasterdata(id, data),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['masterdata'] }); toast.success('Updated'); setModal({ open: false }); },
+    onError: () => toast.error(t('common.error')),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => imageServiceApi.deleteMasterdata(id),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['masterdata'] }); toast.success('Deleted'); },
+    onError: () => toast.error(t('common.error')),
+  });
+
+  const openNew = () => {
+    setForm({ code: '', nameTh: '', nameEn: '', nameCn: '', nameMm: '', nameJp: '', description: '', sortOrder: 0, isActive: true });
+    setModal({ open: true, editing: undefined });
+  };
+
+  const openEdit = (item: any) => {
+    setForm({ code: item.code, nameTh: item.nameTh ?? '', nameEn: item.nameEn ?? '', nameCn: item.nameCn ?? '', nameMm: item.nameMm ?? '', nameJp: item.nameJp ?? '', description: item.description ?? '', sortOrder: item.sortOrder, isActive: item.isActive });
+    setModal({ open: true, editing: item });
+  };
+
+  const handleSave = () => {
+    const payload = { ...form, type: activeTab, sortOrder: parseInt(form.sortOrder) || 0 };
+    if (modal.editing) {
+      updateMutation.mutate({ id: modal.editing.id, data: payload });
+    } else {
+      createMutation.mutate(payload);
+    }
+  };
+
+  const inputClass = `w-full px-3 py-2 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-cyan-500/50`;
+
+  return (
+    <div className="p-6">
+      <div className="mb-6">
+        <p className={`text-xs font-medium uppercase tracking-widest ${themeConfig.text.secondary}`}>Image Service · Masterdata</p>
+        <h1 className={`text-2xl font-bold ${themeConfig.text.primary}`}>Masterdata Management</h1>
+        <p className={`text-sm mt-1 ${themeConfig.text.secondary}`}>Manage reference data entities for the Image Service</p>
+      </div>
+
+      <div className={`flex gap-1 mb-5 px-1 py-1 rounded-lg ${themeConfig.card}`}>
+        {TABS.map(tab => (
+          <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === tab.key ? 'bg-cyan-500/15 text-cyan-300' : `${themeConfig.text.secondary} hover:text-white`}`}>
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className={`${themeConfig.card} rounded-lg overflow-hidden`}>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+          <span className={`text-sm font-semibold ${themeConfig.text.primary}`}>{TABS.find(t => t.key === activeTab)?.label}</span>
+          <Button onClick={openNew} size="sm"><Plus size={14} className="mr-1" /> Add</Button>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className={themeConfig.tableHeader}>
+              <tr>
+                <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>Code</th>
+                <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>TH</th>
+                <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>EN</th>
+                <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>CN</th>
+                <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>MM</th>
+                <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>JP</th>
+                <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>Sort</th>
+                <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>Active</th>
+                <th className={`px-4 py-3 text-center text-sm font-semibold ${themeConfig.text.primary}`}>{t('common.actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.length === 0 ? (
+                <tr><td colSpan={9} className={`px-4 py-8 text-center text-sm ${themeConfig.text.secondary}`}>{t('common.noData')}</td></tr>
+              ) : items.map((item: any) => (
+                <tr key={item.id} className={`border-t ${themeConfig.tableBorder} hover:bg-white/5 transition-colors`}>
+                  <td className={`px-4 py-3 text-sm font-mono font-medium ${themeConfig.text.primary}`}>{item.code}</td>
+                  <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>{item.nameTh || '—'}</td>
+                  <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>{item.nameEn || '—'}</td>
+                  <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>{item.nameCn || '—'}</td>
+                  <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>{item.nameMm || '—'}</td>
+                  <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>{item.nameJp || '—'}</td>
+                  <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>{item.sortOrder}</td>
+                  <td className="px-4 py-3">
+                    {item.isActive ? <CheckCircle size={15} className="text-green-400" /> : <XCircle size={15} className="text-gray-500" />}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <button onClick={() => openEdit(item)} className="p-1.5 rounded-md hover:bg-cyan-500/10 text-cyan-400 transition-colors">
+                        <Pencil size={14} />
+                      </button>
+                      <button onClick={() => deleteMutation.mutate(item.id)} className="p-1.5 rounded-md hover:bg-red-500/10 text-red-400 transition-colors">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <Modal isOpen={modal.open} onClose={() => setModal({ open: false })}
+        title={modal.editing ? 'Edit' : 'Add'}>
+        <div className="space-y-4">
+          <div>
+            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>Code</label>
+            <input value={form.code} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm(f => ({ ...f, code: e.target.value }))}
+              className={inputClass} placeholder="unique_code" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {LANG_FIELDS.map(field => (
+              <div key={field}>
+                <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>Name ({LANG_LABELS[field]})</label>
+                <input value={form[field]} onChange={e => setForm(f2 => ({ ...f2, [field]: e.target.value }))}
+                  className={inputClass} />
+              </div>
+            ))}
+          </div>
+          <div>
+            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>Description</label>
+            <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+              rows={2} className={inputClass} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>Sort Order</label>
+              <input type="number" value={form.sortOrder} onChange={e => setForm(f => ({ ...f, sortOrder: e.target.value }))}
+                className={inputClass} />
+            </div>
+            <div className="flex items-end pb-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={form.isActive}
+                  onChange={e => setForm(f => ({ ...f, isActive: e.target.checked }))}
+                  className="rounded border-gray-600 text-cyan-500 focus:ring-cyan-500/50" />
+                <span className={`text-sm ${themeConfig.text.primary}`}>Active</span>
+              </label>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="secondary" onClick={() => setModal({ open: false })}>{t('common.cancel')}</Button>
+            <Button onClick={handleSave} disabled={!form.code}>{t('common.save')}</Button>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+}

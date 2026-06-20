@@ -1,0 +1,61 @@
+import { getPrisma } from '../../lib/prisma.js';
+
+const DEFAULT_CONFIGS: Record<string, { value: string; description: string; valueType: string; category: string }> = {
+  retention_days_raw: { value: '30', description: 'Retention days for raw TIFF files', valueType: 'number', category: 'retention' },
+  retention_days_processed: { value: '90', description: 'Retention days for processed PNG files', valueType: 'number', category: 'retention' },
+  retention_days_thumbnail: { value: '365', description: 'Retention days for thumbnail files', valueType: 'number', category: 'retention' },
+  compression_quality: { value: '85', description: 'JPEG/PNG compression quality (0-100)', valueType: 'number', category: 'compression' },
+  thumbnail_width: { value: '256', description: 'Thumbnail max width in pixels', valueType: 'number', category: 'thumbnail' },
+  thumbnail_height: { value: '256', description: 'Thumbnail max height in pixels', valueType: 'number', category: 'thumbnail' },
+  poll_interval_default: { value: '30', description: 'Default poll interval in seconds', valueType: 'number', category: 'polling' },
+  retry_max_count: { value: '3', description: 'Max retry count for failed processing jobs', valueType: 'number', category: 'alert' },
+  alert_critical_threshold: { value: '90', description: 'Disk usage percentage for critical alert', valueType: 'number', category: 'alert' },
+  alert_warning_threshold: { value: '75', description: 'Disk usage percentage for warning alert', valueType: 'number', category: 'alert' },
+};
+
+export async function getAllConfigs(): Promise<Record<string, any>> {
+  const prisma = getPrisma();
+  const rows = await prisma.systemConfig.findMany();
+  const map: Record<string, any> = {};
+
+  for (const [key, def] of Object.entries(DEFAULT_CONFIGS)) {
+    const row = rows.find(r => r.key === key);
+    const raw = row?.value ?? def.value;
+    map[key] = {
+      value: parseValue(raw, row?.valueType ?? def.valueType),
+      description: row?.description ?? def.description,
+      valueType: row?.valueType ?? def.valueType,
+      category: row?.category ?? def.category,
+    };
+  }
+
+  return map;
+}
+
+export async function updateConfigs(inputs: Record<string, string>): Promise<void> {
+  const prisma = getPrisma();
+  for (const [key, value] of Object.entries(inputs)) {
+    if (DEFAULT_CONFIGS[key]) {
+      await prisma.systemConfig.upsert({
+        where: { key },
+        update: { value: String(value) },
+        create: {
+          key,
+          value: String(value),
+          description: DEFAULT_CONFIGS[key].description,
+          valueType: DEFAULT_CONFIGS[key].valueType,
+          category: DEFAULT_CONFIGS[key].category,
+        },
+      });
+    }
+  }
+}
+
+function parseValue(raw: string, valueType: string): any {
+  switch (valueType) {
+    case 'number': return Number(raw);
+    case 'boolean': return raw === 'true';
+    case 'json': try { return JSON.parse(raw); } catch { return raw; }
+    default: return raw;
+  }
+}

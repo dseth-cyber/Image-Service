@@ -155,7 +155,15 @@
       "totalAlerts": "总告警数",
       "refreshData": "刷新数据",
       "resetAll": "全部重置",
-      "resetSuccess": "所有设置已成功重置"
+      "resetSuccess": "所有设置已成功重置",
+      "alertRules": "告警规则",
+      "alertRulesDesc": "管理哪些告警类型发送到通知渠道",
+      "addRule": "添加规则",
+      "alertType": "告警类型",
+      "notificationChannels": "通知渠道",
+      "cooldown": "冷却",
+      "cooldownMinutes": "冷却时间（分钟）",
+      "ruleEnabled": "启用规则"
     },
     "auth": {
       "login": "登录",
@@ -179,7 +187,11 @@
       "settings": "设置",
       "alerts": "告警",
       "users": "用户",
-      "health": "健康"
+      "health": "健康",
+      "apiKeys": "API 密钥",
+      "telegramBot": "Telegram 机器人",
+      "masterdata": "主数据",
+      "systemConfig": "系统配置"
     },
     "alerts": {
       "title": "告警管理",
@@ -242,6 +254,22 @@
       "openAlerts": "未解决告警",
       "version": "版本",
       "serviceDetails": "服务详情"
+    },
+    "apiKeys": {
+      "title": "API 密钥",
+      "subtitle": "管理系统集成的 API 密钥",
+      "createKey": "创建新密钥",
+      "name": "密钥名称",
+      "key": "连接密钥",
+      "status": "状态",
+      "permissions": "权限",
+      "createdAt": "创建时间",
+      "expiresAt": "过期时间",
+      "active": "正在使用",
+      "inactive": "未使用",
+      "total": "共 {{count}} 个密钥",
+      "generate": "生成密钥",
+      "noKeys": "未找到 API 密钥"
     },
     "roadmap": {
       "title": "发展路线图",
@@ -377,6 +405,24 @@
         "告警管理页面 (列表/确认/解决)",
         "用户管理页面 (管理员 CRUD)",
         "健康/状态仪表板"
+      ],
+      "phase8": "P6 — 通知和 API 集成",
+      "phase8Desc": "多渠道通知和安全的 API 密钥管理",
+      "phase8Status": "已启动",
+      "phase8Tasks": [
+        "Telegram / Line 通知渠道与告警规则引擎",
+        "告警冷却机制防止重复通知",
+        "API 密钥管理，支持令牌生成和权限范围",
+        "Telegram 机器人设置配置页面",
+        "API 密钥管理页面（创建/撤销/过期）"
+      ],
+      "phase9": "P7 — 系统配置",
+      "phase9Desc": "低代码可配置业务规则和主数据实体",
+      "phase9Status": "已启动",
+      "phase9Tasks": [
+        "管理员 UI 配置业务规则阈值（保留、压缩、轮询）",
+        "主数据实体：相机类型、图像类别、缺陷类型、检查类型",
+        "所有主数据实体的 5 语言名称字段"
       ]
     }
   },
@@ -396,6 +442,9 @@
     "delete": "删除",
     "search": "搜索",
     "select": "选择...",
+    "active": "启用",
+    "disabled": "禁用",
+    "name": "名称",
     "increasing": "上升",
     "stable": "稳定"
   }

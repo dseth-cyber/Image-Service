@@ -127,6 +127,9 @@ services:
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:-dev-encryption-key-32chars!!}
       SERVICE_API_KEY: ${SERVICE_API_KEY:-dev-service-api-key-change-in-production}
       LOG_LEVEL: info
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      LINE_ACCESS_TOKEN: ${LINE_ACCESS_TOKEN:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -157,6 +160,9 @@ services:
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:-dev-encryption-key-32chars!!}
       SERVICE_API_KEY: ${SERVICE_API_KEY:-dev-service-api-key-change-in-production}
       LOG_LEVEL: info
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      LINE_ACCESS_TOKEN: ${LINE_ACCESS_TOKEN:-}
     depends_on:
       image-api-migrate:
         condition: service_completed_successfully

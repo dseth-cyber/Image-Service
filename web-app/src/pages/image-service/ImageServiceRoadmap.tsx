@@ -5,7 +5,7 @@ import { imageServiceApi } from '@/services/imageServiceApi'
 import {
   Microscope, Camera, Database, Server, Activity, CheckCircle2, Clock, Kanban,
   ArrowRight, HardDrive, Shield, Wifi, Bug, Lock, FileText, Cpu, Palette, Layout,
-  BookText,
+  BookText, MessageCircle, Settings,
 } from 'lucide-react'
 
 const PHASE_STATUS_STYLES: Record<string, string> = {
@@ -23,6 +23,8 @@ const PHASE_ICONS: Record<string, any> = {
   phase5: Palette,
   phase6: Server,
   phase7: Kanban,
+  phase8: MessageCircle,
+  phase9: Settings,
 }
 
 const PHASES = [
@@ -34,6 +36,8 @@ const PHASES = [
   { key: 'phase5', status: 'Launched', priority: 'P3' },
   { key: 'phase6', status: 'Launched', priority: 'P4' },
   { key: 'phase7', status: 'Launched', priority: 'P5' },
+  { key: 'phase8', status: 'Launched', priority: 'P6' },
+  { key: 'phase9', status: 'Launched', priority: 'P7' },
 ]
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -44,7 +48,9 @@ const PRIORITY_COLORS: Record<string, string> = {
   P2: 'bg-yellow-500/20 text-yellow-400',
   P3: 'bg-blue-500/20 text-blue-400',
   P4: 'bg-purple-500/20 text-purple-400',
-  P5: 'bg-gray-500/20 text-gray-400',
+  P5: 'bg-cyan-500/20 text-cyan-400',
+  P6: 'bg-pink-500/20 text-pink-400',
+  P7: 'bg-gray-500/20 text-gray-400',
 }
 
 const STATUS_WEIGHTS: Record<string, number> = {

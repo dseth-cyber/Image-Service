@@ -155,7 +155,15 @@
       "totalAlerts": "Total Alerts",
       "refreshData": "Refresh Data",
       "resetAll": "Reset All",
-      "resetSuccess": "All settings reset successfully"
+      "resetSuccess": "All settings reset successfully",
+      "alertRules": "Alert Rules",
+      "alertRulesDesc": "Manage which alert types are sent to notification channels",
+      "addRule": "Add Rule",
+      "alertType": "Alert Type",
+      "notificationChannels": "Notification Channels",
+      "cooldown": "Cooldown",
+      "cooldownMinutes": "Cooldown (minutes)",
+      "ruleEnabled": "Rule enabled"
     },
     "auth": {
       "login": "Sign In",
@@ -179,7 +187,11 @@
       "settings": "Settings",
       "alerts": "Alerts",
       "users": "Users",
-      "health": "Health"
+      "health": "Health",
+      "apiKeys": "API Keys",
+      "telegramBot": "Telegram Bot",
+      "masterdata": "Masterdata",
+      "systemConfig": "System Config"
     },
     "alerts": {
       "title": "Alert Management",
@@ -242,6 +254,22 @@
       "openAlerts": "Open Alerts",
       "version": "Version",
       "serviceDetails": "Service Details"
+    },
+    "apiKeys": {
+      "title": "API Keys",
+      "subtitle": "Manage API keys for external system integration",
+      "createKey": "Create New Key",
+      "name": "Key Name",
+      "key": "Connection Key",
+      "status": "Status",
+      "permissions": "Permissions",
+      "createdAt": "Created",
+      "expiresAt": "Expires",
+      "active": "Active",
+      "inactive": "Inactive",
+      "total": "Total {{count}} keys",
+      "generate": "Generate Key",
+      "noKeys": "No API keys found"
     },
     "roadmap": {
       "title": "Roadmap",
@@ -377,6 +405,24 @@
         "Alert Management page (list / acknowledge / resolve)",
         "User Management page (admin CRUD)",
         "Health / Status dashboard"
+      ],
+      "phase8": "P6 — Notification & API Integration",
+      "phase8Desc": "Multi-channel notifications and secure API key management",
+      "phase8Status": "Launched",
+      "phase8Tasks": [
+        "Telegram / Line notification channels with Alert Rules engine",
+        "Alert cooldown mechanism to prevent spam",
+        "API Key management with token generation and permission scoping",
+        "Telegram Bot Settings configuration page",
+        "API Keys Management page with create / revoke / expiry"
+      ],
+      "phase9": "P7 — System Configuration",
+      "phase9Desc": "Low-code configurable business rules and masterdata entities",
+      "phase9Status": "Launched",
+      "phase9Tasks": [
+        "Admin UI for business rule thresholds (retention, compression, polling)",
+        "Masterdata entities: Camera Type, Image Category, Defect Type, Inspection Type",
+        "5-language name fields for all masterdata entities"
       ]
     }
   },
@@ -396,6 +442,9 @@
     "delete": "Delete",
     "search": "Search",
     "select": "Select...",
+    "active": "Active",
+    "disabled": "Disabled",
+    "name": "Name",
     "increasing": "Increasing",
     "stable": "Stable"
   }

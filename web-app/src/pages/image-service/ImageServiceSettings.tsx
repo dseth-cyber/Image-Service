@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/contexts/ToastContext';
 import { imageServiceApi } from '@/services/imageServiceApi';
 import {
   Save, RotateCcw, Eye, EyeOff, RefreshCw, Bell,
-  Shield, Database, Server,
+  Shield, Database, Server, Plus, Trash2, MessageCircle,
 } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { Button, Modal, SearchableSelect } from '@/components/ui';
 
 const SETTINGS_KEY = 'image-service-settings';
 
@@ -37,6 +37,8 @@ export default function ImageServiceSettings() {
   const [webhookUrl, setWebhookUrl] = useState(() => loadSettings().webhookUrl ?? '');
   const [showApiKey, setShowApiKey] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [ruleModal, setRuleModal] = useState<{ open: boolean; editing?: any }>({ open: false });
+  const [ruleForm, setRuleForm] = useState({ name: '', alertType: '', channels: [] as string[], cooldown: 60, enabled: true });
 
   const { data: overview } = useQuery({
     queryKey: ['image-service-overview'],
@@ -51,6 +53,66 @@ export default function ImageServiceSettings() {
   });
 
   const alertsArr = Array.isArray(alerts?.data) ? alerts.data : (Array.isArray(alerts) ? alerts : []);
+
+  const { data: alertRules } = useQuery({
+    queryKey: ['alert-rules'],
+    queryFn: () => imageServiceApi.getAlertRules(),
+    staleTime: 1000 * 60,
+  });
+
+  const rulesArr = Array.isArray((alertRules as any)?.data) ? (alertRules as any).data : [];
+
+  const createRuleMutation = useMutation({
+    mutationFn: (data: any) => imageServiceApi.createAlertRule(data),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['alert-rules'] }); toast.success('Rule created'); setRuleModal({ open: false }); },
+    onError: () => toast.error(t('common.error')),
+  });
+
+  const deleteRuleMutation = useMutation({
+    mutationFn: (id: string) => imageServiceApi.deleteAlertRule(id),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['alert-rules'] }); toast.success('Rule deleted'); },
+    onError: () => toast.error(t('common.error')),
+  });
+
+  const handleSaveRule = () => {
+    const data: any = {
+      name: ruleForm.name,
+      alertType: ruleForm.alertType,
+      cooldownMinutes: ruleForm.cooldown,
+      enabled: ruleForm.enabled,
+      notificationChannels: ruleForm.channels,
+    };
+    if (ruleModal.editing) {
+      imageServiceApi.updateAlertRule(ruleModal.editing.id, data).then(() => {
+        queryClient.invalidateQueries({ queryKey: ['alert-rules'] });
+        toast.success('Rule updated');
+        setRuleModal({ open: false });
+      }).catch(() => toast.error(t('common.error')));
+    } else {
+      createRuleMutation.mutate(data);
+    }
+  };
+
+  const openNewRule = () => {
+    setRuleForm({ name: '', alertType: '', channels: [], cooldown: 60, enabled: true });
+    setRuleModal({ open: true, editing: undefined });
+  };
+
+  const CHANNEL_OPTIONS = [
+    { value: 'telegram', label: 'Telegram' },
+    { value: 'line', label: 'Line' },
+  ];
+
+  const ALERT_TYPE_OPTIONS = [
+    { value: 'storage_warning', label: 'Storage Warning' },
+    { value: 'processing_failure', label: 'Processing Failure' },
+    { value: 'camera_offline', label: 'Camera Offline' },
+    { value: 'rate_limit_exceeded', label: 'Rate Limit Exceeded' },
+    { value: 'retention_violation', label: 'Retention Violation' },
+    { value: 'disk_space', label: 'Disk Space' },
+    { value: 'ingest_lag', label: 'Ingest Lag' },
+    { value: 'checksum_mismatch', label: 'Checksum Mismatch' },
+  ];
 
   const handleSaveGeneral = async () => {
     try {
@@ -177,6 +239,101 @@ export default function ImageServiceSettings() {
           </div>
         </div>
       </div>
+
+      {/* Alert Rules */}
+      <div className={`${themeConfig.card} rounded-lg p-6 mb-5`}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-green-500/10">
+              <MessageCircle size={18} className="text-green-400" />
+            </div>
+            <div>
+              <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.settings.alertRules')}</h3>
+              <p className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.settings.alertRulesDesc')}</p>
+            </div>
+          </div>
+          <Button onClick={openNewRule} size="sm">
+            <Plus size={14} className="mr-1" /> {t('imageService.settings.addRule')}
+          </Button>
+        </div>
+        {rulesArr.length === 0 ? (
+          <p className={`text-sm italic ${themeConfig.text.secondary}`}>{t('common.noData')}</p>
+        ) : (
+          <div className="space-y-2">
+            {rulesArr.map((rule: any) => (
+              <div key={rule.id} className={`flex items-center justify-between px-4 py-3 rounded-md ${themeConfig.card}`}>
+                <div className="flex-1">
+                  <div className={`text-sm font-medium ${themeConfig.text.primary}`}>{rule.name}</div>
+                  <div className={`text-xs ${themeConfig.text.secondary}`}>
+                    {rule.alertType} · {(rule.notificationChannels as string[] ?? []).join(', ') || t('common.noData')} · {t('imageService.settings.cooldown')}: {rule.cooldownMinutes}m
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {rule.enabled ? (
+                    <span className={`text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-400`}>{t('common.active')}</span>
+                  ) : (
+                    <span className={`text-xs px-2 py-0.5 rounded-full bg-gray-500/10 text-gray-400`}>{t('common.disabled')}</span>
+                  )}
+                  <button onClick={() => deleteRuleMutation.mutate(rule.id)} className="p-1 rounded hover:bg-red-500/10 text-red-400">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Alert Rule Modal */}
+      <Modal isOpen={ruleModal.open} onClose={() => setRuleModal({ open: false })} title={t('imageService.settings.addRule')}>
+        <div className="space-y-4">
+          <div>
+            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('common.name')}</label>
+            <input value={ruleForm.name} onChange={e => setRuleForm(f => ({ ...f, name: e.target.value }))}
+              className={`w-full px-4 py-2.5 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-cyan-500/50`} />
+          </div>
+          <div>
+            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.settings.alertType')}</label>
+            <SearchableSelect
+              options={ALERT_TYPE_OPTIONS}
+              value={ruleForm.alertType}
+              onChange={(v: string) => setRuleForm(f => ({ ...f, alertType: v }))}
+              placeholder={t('common.select')}
+            />
+          </div>
+          <div>
+            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.settings.notificationChannels')}</label>
+            <div className="space-y-2">
+              {CHANNEL_OPTIONS.map(ch => (
+                <label key={ch.value} className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={ruleForm.channels.includes(ch.value)}
+                    onChange={e => setRuleForm(f => ({
+                      ...f, channels: e.target.checked ? [...f.channels, ch.value] : f.channels.filter(c => c !== ch.value),
+                    }))}
+                    className="rounded border-gray-600 text-cyan-500 focus:ring-cyan-500/50" />
+                  <span className={`text-sm ${themeConfig.text.primary}`}>{ch.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.settings.cooldownMinutes')}</label>
+            <input type="number" value={ruleForm.cooldown} onChange={e => setRuleForm(f => ({ ...f, cooldown: parseInt(e.target.value) || 60 }))}
+              min={0} max={1440}
+              className={`w-full px-4 py-2.5 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-cyan-500/50`} />
+          </div>
+          <div className="flex items-center gap-2">
+            <input type="checkbox" checked={ruleForm.enabled}
+              onChange={e => setRuleForm(f => ({ ...f, enabled: e.target.checked }))}
+              className="rounded border-gray-600 text-cyan-500 focus:ring-cyan-500/50" />
+            <span className={`text-sm ${themeConfig.text.primary}`}>{t('imageService.settings.ruleEnabled')}</span>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="secondary" onClick={() => setRuleModal({ open: false })}>{t('common.cancel')}</Button>
+            <Button onClick={handleSaveRule} disabled={!ruleForm.name || !ruleForm.alertType}>{t('common.save')}</Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Actions */}
       <div className="flex items-center gap-3">

@@ -105,6 +105,67 @@ export function createImageServiceApi(api: any) {
 
     deactivateUser: (id: string) =>
       api.delete(`${BASE}/users/${id}`).then((r: any) => r.data),
+
+    // Alert Rules
+    getAlertRules: (params?: { page?: number; limit?: number }) =>
+      api.get(`${BASE}/alert-rules`, { params }).then((r: any) => r.data),
+
+    getAlertRule: (id: string) =>
+      api.get(`${BASE}/alert-rules/${id}`).then((r: any) => r.data),
+
+    createAlertRule: (data: {
+      name: string; alertType: string; description?: string;
+      enabled?: boolean; cooldownMinutes?: number; notificationChannels?: string[];
+    }) => api.post(`${BASE}/alert-rules`, data).then((r: any) => r.data),
+
+    updateAlertRule: (id: string, data: Record<string, unknown>) =>
+      api.patch(`${BASE}/alert-rules/${id}`, data).then((r: any) => r.data),
+
+    deleteAlertRule: (id: string) =>
+      api.delete(`${BASE}/alert-rules/${id}`),
+
+    // Telegram Settings
+    getTelegramSettings: () =>
+      api.get(`${BASE}/settings/telegram`).then((r: any) => r.data),
+
+    updateTelegramSettings: (data: Record<string, string>) =>
+      api.patch(`${BASE}/settings/telegram`, data).then((r: any) => r.data),
+
+    // API Keys
+    getApiKeys: (params?: { page?: number; limit?: number }) =>
+      api.get(`${BASE}/api-keys`, { params }).then((r: any) => r.data),
+
+    getApiKey: (id: string) =>
+      api.get(`${BASE}/api-keys/${id}`).then((r: any) => r.data),
+
+    createApiKey: (data: { name: string; permissions?: string[]; expiresAt?: string }) =>
+      api.post(`${BASE}/api-keys`, data).then((r: any) => r.data),
+
+    updateApiKey: (id: string, data: Record<string, unknown>) =>
+      api.patch(`${BASE}/api-keys/${id}`, data).then((r: any) => r.data),
+
+    deleteApiKey: (id: string) =>
+      api.delete(`${BASE}/api-keys/${id}`),
+
+    // Masterdata
+    getMasterdata: (params: { type: string; page?: number; limit?: number; isActive?: boolean }) =>
+      api.get(`${BASE}/masterdata`, { params }).then((r: any) => r.data),
+
+    createMasterdata: (data: any) =>
+      api.post(`${BASE}/masterdata`, data).then((r: any) => r.data),
+
+    updateMasterdata: (id: string, data: any) =>
+      api.patch(`${BASE}/masterdata/${id}`, data).then((r: any) => r.data),
+
+    deleteMasterdata: (id: string) =>
+      api.delete(`${BASE}/masterdata/${id}`),
+
+    // System Config
+    getSystemConfigs: () =>
+      api.get(`${BASE}/system-config`).then((r: any) => r.data),
+
+    updateSystemConfigs: (data: Record<string, string>) =>
+      api.patch(`${BASE}/system-config`, data).then((r: any) => r.data),
   };
 }
 
