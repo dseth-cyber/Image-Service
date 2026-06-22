@@ -6,9 +6,9 @@ export declare function listPolicies(): Promise<({
 } & {
     id: string;
     name: string;
+    description: string | null;
     createdAt: Date;
     updatedAt: Date;
-    description: string | null;
     rawRetentionDays: number;
     processedRetentionDays: number;
     thumbnailRetentionDays: number;
@@ -25,9 +25,9 @@ export declare function getPolicyById(id: string): Promise<{
 } & {
     id: string;
     name: string;
+    description: string | null;
     createdAt: Date;
     updatedAt: Date;
-    description: string | null;
     rawRetentionDays: number;
     processedRetentionDays: number;
     thumbnailRetentionDays: number;
@@ -38,9 +38,9 @@ export declare function getPolicyById(id: string): Promise<{
 export declare function createPolicy(input: CreateRetentionPolicyInput): Promise<{
     id: string;
     name: string;
+    description: string | null;
     createdAt: Date;
     updatedAt: Date;
-    description: string | null;
     rawRetentionDays: number;
     processedRetentionDays: number;
     thumbnailRetentionDays: number;
@@ -51,9 +51,9 @@ export declare function createPolicy(input: CreateRetentionPolicyInput): Promise
 export declare function updatePolicy(id: string, input: UpdateRetentionPolicyInput): Promise<{
     id: string;
     name: string;
+    description: string | null;
     createdAt: Date;
     updatedAt: Date;
-    description: string | null;
     rawRetentionDays: number;
     processedRetentionDays: number;
     thumbnailRetentionDays: number;

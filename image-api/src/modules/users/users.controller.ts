@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import * as usersService from './users.service.js';
 import { createUserSchema, updateUserSchema } from './users.schema.js';
+import { requirePermission } from '../../middleware/rbac.js';
 
 async function listHandler(request: FastifyRequest, reply: FastifyReply) {
   const query = request.query as Record<string, string>;
@@ -39,9 +40,9 @@ async function deactivateHandler(request: FastifyRequest, reply: FastifyReply) {
 }
 
 export async function userRoutes(app: FastifyInstance): Promise<void> {
-  app.get('/', { preHandler: [app.authenticate] }, listHandler);
-  app.get('/:id', { preHandler: [app.authenticate] }, getByIdHandler);
-  app.post('/', { preHandler: [app.authenticate] }, createHandler);
-  app.patch('/:id', { preHandler: [app.authenticate] }, updateHandler);
-  app.delete('/:id', { preHandler: [app.authenticate] }, deactivateHandler);
+  app.get('/', { preHandler: [app.authenticate, requirePermission('users:read')] }, listHandler);
+  app.get('/:id', { preHandler: [app.authenticate, requirePermission('users:read')] }, getByIdHandler);
+  app.post('/', { preHandler: [app.authenticate, requirePermission('users:create')] }, createHandler);
+  app.patch('/:id', { preHandler: [app.authenticate, requirePermission('users:update')] }, updateHandler);
+  app.delete('/:id', { preHandler: [app.authenticate, requirePermission('users:delete')] }, deactivateHandler);
 }

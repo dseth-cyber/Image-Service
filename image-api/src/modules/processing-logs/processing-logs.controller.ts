@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { processingLogSearchSchema } from './processing-logs.schema.js';
 import * as processingLogsService from './processing-logs.service.js';
-import { requireRole } from '../../middleware/rbac.js';
+import { requirePermission } from '../../middleware/rbac.js';
 
 async function searchHandler(request: FastifyRequest, reply: FastifyReply) {
   const params = processingLogSearchSchema.parse(request.query);
@@ -84,9 +84,9 @@ export async function processingLogRoutes(app: FastifyInstance): Promise<void> {
   app.get('/', { preHandler: [app.authenticate] }, searchHandler);
   app.get('/stats', { preHandler: [app.authenticate] }, statsHandler);
   app.get('/stream', streamHandler);
-  app.post('/:id/retry', { preHandler: [app.authenticate, requireRole('admin', 'operator')] }, retryHandler);
-  app.post('/:id/reject', { preHandler: [app.authenticate, requireRole('admin', 'operator')] }, rejectHandler);
+  app.post('/:id/retry', { preHandler: [app.authenticate, requirePermission('processing:create')] }, retryHandler);
+  app.post('/:id/reject', { preHandler: [app.authenticate, requirePermission('processing:create')] }, rejectHandler);
   app.get('/dlq/summary', { preHandler: [app.authenticate] }, dlqSummaryHandler);
-  app.post('/dlq/bulk-retry', { preHandler: [app.authenticate, requireRole('admin')] }, bulkRetryHandler);
-  app.post('/dlq/bulk-reject', { preHandler: [app.authenticate, requireRole('admin')] }, bulkRejectHandler);
+  app.post('/dlq/bulk-retry', { preHandler: [app.authenticate, requirePermission('dead-letter:create')] }, bulkRetryHandler);
+  app.post('/dlq/bulk-reject', { preHandler: [app.authenticate, requirePermission('dead-letter:create')] }, bulkRejectHandler);
 }

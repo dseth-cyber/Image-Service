@@ -17,6 +17,7 @@ import { healthRoutes } from './modules/health/health.controller.js';
 import { storageRoutes } from './modules/storage/storage.controller.js';
 import { alertRoutes } from './modules/alerts/alerts.controller.js';
 import { userRoutes } from './modules/users/users.controller.js';
+import { roleRoutes } from './modules/roles/roles.controller.js';
 import { processingLogRoutes } from './modules/processing-logs/processing-logs.controller.js';
 import { alertRuleRoutes } from './modules/alert-rules/alert-rules.controller.js';
 import { systemSettingsRoutes } from './modules/system-settings/system-settings.controller.js';
@@ -92,6 +93,7 @@ export async function buildApp() {
       await api.register(storageRoutes, { prefix: '/api/v1/storage' });
       await api.register(alertRoutes, { prefix: '/api/v1/alerts' });
       await api.register(userRoutes, { prefix: '/api/v1/users' });
+      await api.register(roleRoutes, { prefix: '/api/v1/roles' });
       await api.register(processingLogRoutes, { prefix: '/api/v1/processing-logs' });
       await api.register(alertRuleRoutes, { prefix: '/api/v1/alert-rules' });
       await api.register(systemSettingsRoutes, { prefix: '/api/v1/settings' });

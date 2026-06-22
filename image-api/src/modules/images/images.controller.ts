@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { imageSearchSchema, registerImageSchema, updateMetadataSchema, updateTagsSchema, processingResultSchema } from './images.schema.js';
 import * as imagesService from './images.service.js';
-import { requireRole } from '../../middleware/rbac.js';
+import { requirePermission } from '../../middleware/rbac.js';
 import { getMinio } from '../../lib/minio.js';
 import { config } from '../../config/index.js';
 import { createAuditLog } from '../audit/audit.service.js';
@@ -157,31 +157,31 @@ export async function imageRoutes(app: FastifyInstance): Promise<void> {
 
   app.patch(
     '/:id/metadata',
-    { preHandler: [app.authenticate, requireRole('admin', 'operator', 'system')] },
+    { preHandler: [app.authenticate, requirePermission('search:update')] },
     updateMetadataHandler,
   );
 
   app.post(
     '/:id/tags',
-    { preHandler: [app.authenticate, requireRole('admin', 'operator', 'system')] },
+    { preHandler: [app.authenticate, requirePermission('search:update')] },
     upsertTagsHandler,
   );
 
   app.delete(
     '/:id/tags/:key',
-    { preHandler: [app.authenticate, requireRole('admin', 'operator')] },
+    { preHandler: [app.authenticate, requirePermission('search:update')] },
     deleteTagHandler,
   );
 
   app.post(
     '/:id/result',
-    { preHandler: [app.authenticate, requireRole('admin', 'operator', 'system')] },
+    { preHandler: [app.authenticate, requirePermission('search:update')] },
     processingResultHandler,
   );
 
   app.delete(
     '/:id',
-    { preHandler: [app.authenticate, requireRole('admin')] },
+    { preHandler: [app.authenticate, requirePermission('search:delete')] },
     deleteImageHandler,
   );
 

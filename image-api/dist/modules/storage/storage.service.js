@@ -1,4 +1,5 @@
 import { getPrisma } from '../../lib/prisma.js';
+import { getAllConfigs } from '../system-config/system-config.service.js';
 export async function getStorageSummary() {
     const prisma = getPrisma();
     const [fileStats, , latestSnapshot] = await Promise.all([
@@ -90,6 +91,52 @@ export async function getStorageGrowth(days) {
             imagesAdded: Number(row.images_added),
             bytesAdded: Number(row.bytes_added),
         })),
+    };
+}
+export async function getStorageForecast() {
+    const [summary, growth60, growth90, configs] = await Promise.all([
+        getStorageSummary(),
+        getStorageGrowth(60),
+        getStorageGrowth(90),
+        getAllConfigs(),
+    ]);
+    const maxBytes = (Number(configs.max_storage_gb?.value ?? 1000)) * 1024 * 1024 * 1024;
+    const totalBytes = summary.totalBytes;
+    const usagePercent = maxBytes > 0 ? (totalBytes / maxBytes) * 100 : 0;
+    // Calculate daily growth rate from 90-day data (use 60-day as fallback)
+    const growthData = growth90.data.length >= 30 ? growth90.data : growth60.data;
+    let dailyGrowthRate = 0;
+    if (growthData.length >= 7) {
+        const n = growthData.length;
+        const sumX = (n - 1) * n / 2;
+        const sumY = growthData.reduce((s, d) => s + d.bytesAdded, 0);
+        let sumXY = 0;
+        let sumX2 = 0;
+        for (let i = 0; i < n; i++) {
+            sumXY += i * growthData[i].bytesAdded;
+            sumX2 += i * i;
+        }
+        const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        dailyGrowthRate = Math.max(0, slope);
+    }
+    const daysUntilFull = dailyGrowthRate > 0
+        ? Math.ceil((maxBytes - totalBytes) / dailyGrowthRate)
+        : null;
+    const projections = [120, 240, 360].map((days) => {
+        const projectedBytes = totalBytes + dailyGrowthRate * days;
+        return {
+            days,
+            projectedBytes: Math.round(projectedBytes),
+            usagePercent: maxBytes > 0 ? Math.min(100, (projectedBytes / maxBytes) * 100) : 0,
+        };
+    });
+    return {
+        totalBytes,
+        maxBytes,
+        usagePercent,
+        dailyGrowthRate: Math.round(dailyGrowthRate),
+        daysUntilFull,
+        projections,
     };
 }
 //# sourceMappingURL=storage.service.js.map

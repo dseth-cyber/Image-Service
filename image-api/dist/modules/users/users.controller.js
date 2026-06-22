@@ -1,5 +1,6 @@
 import * as usersService from './users.service.js';
 import { createUserSchema, updateUserSchema } from './users.schema.js';
+import { requirePermission } from '../../middleware/rbac.js';
 async function listHandler(request, reply) {
     const query = request.query;
     const result = await usersService.listUsers({
@@ -33,10 +34,10 @@ async function deactivateHandler(request, reply) {
     return reply.send(user);
 }
 export async function userRoutes(app) {
-    app.get('/', { preHandler: [app.authenticate] }, listHandler);
-    app.get('/:id', { preHandler: [app.authenticate] }, getByIdHandler);
-    app.post('/', { preHandler: [app.authenticate] }, createHandler);
-    app.patch('/:id', { preHandler: [app.authenticate] }, updateHandler);
-    app.delete('/:id', { preHandler: [app.authenticate] }, deactivateHandler);
+    app.get('/', { preHandler: [app.authenticate, requirePermission('users:read')] }, listHandler);
+    app.get('/:id', { preHandler: [app.authenticate, requirePermission('users:read')] }, getByIdHandler);
+    app.post('/', { preHandler: [app.authenticate, requirePermission('users:create')] }, createHandler);
+    app.patch('/:id', { preHandler: [app.authenticate, requirePermission('users:update')] }, updateHandler);
+    app.delete('/:id', { preHandler: [app.authenticate, requirePermission('users:delete')] }, deactivateHandler);
 }
 //# sourceMappingURL=users.controller.js.map

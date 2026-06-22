@@ -1,0 +1,1 @@
+{"version":3,"file":"api-token-auth.d.ts","sourceRoot":"","sources":["../../src/middleware/api-token-auth.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,YAAY,EAAE,cAAc,EAAE,MAAM,SAAS,CAAC;AAG5D,wBAAsB,YAAY,CAAC,OAAO,EAAE,cAAc,EAAE,KAAK,EAAE,YAAY,GAAG,OAAO,CAAC,IAAI,CAAC,CAY9F"}

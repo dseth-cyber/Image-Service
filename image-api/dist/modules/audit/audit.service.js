@@ -1,0 +1,61 @@
+import { getPrisma } from '../../lib/prisma.js';
+export async function createAuditLog(input) {
+    const prisma = getPrisma();
+    return prisma.auditLog.create({
+        data: {
+            userId: input.userId ?? null,
+            action: input.action,
+            entity: input.entity,
+            entityId: input.entityId ?? null,
+            description: input.description ?? null,
+            metadata: (input.metadata ?? {}),
+            ipAddress: input.ipAddress ?? null,
+        },
+    });
+}
+export async function searchAuditLogs(params) {
+    const prisma = getPrisma();
+    const { page = 1, limit = 50, action, entity, entityId, userId, from, to } = params;
+    const where = {};
+    if (action)
+        where.action = action;
+    if (entity)
+        where.entity = entity;
+    if (entityId)
+        where.entityId = entityId;
+    if (userId)
+        where.userId = userId;
+    if (from || to) {
+        where.createdAt = {};
+        if (from)
+            where.createdAt.gte = new Date(from);
+        if (to)
+            where.createdAt.lte = new Date(to);
+    }
+    const [total, rows] = await Promise.all([
+        prisma.auditLog.count({ where }),
+        prisma.auditLog.findMany({
+            where,
+            orderBy: { createdAt: 'desc' },
+            skip: (page - 1) * limit,
+            take: limit,
+            include: { user: { select: { username: true } } },
+        }),
+    ]);
+    return {
+        data: rows.map((r) => ({
+            id: r.id,
+            userId: r.userId,
+            username: r.user?.username ?? null,
+            action: r.action,
+            entity: r.entity,
+            entityId: r.entityId,
+            description: r.description,
+            metadata: r.metadata,
+            ipAddress: r.ipAddress,
+            createdAt: r.createdAt.toISOString(),
+        })),
+        pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    };
+}
+//# sourceMappingURL=audit.service.js.map

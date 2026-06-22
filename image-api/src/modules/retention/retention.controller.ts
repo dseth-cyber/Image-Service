@@ -3,7 +3,7 @@ import { createRetentionPolicySchema, updateRetentionPolicySchema } from './rete
 import * as retentionService from './retention.service.js';
 import { sweepExpiredImages } from '../retention-sweeper/retention-sweeper.service.js';
 import { createAuditLog } from '../audit/audit.service.js';
-import { requireRole } from '../../middleware/rbac.js';
+import { requirePermission } from '../../middleware/rbac.js';
 
 async function listHandler(_request: FastifyRequest, reply: FastifyReply) {
   const policies = await retentionService.listPolicies();
@@ -66,10 +66,10 @@ async function deleteHandler(request: FastifyRequest, reply: FastifyReply) {
 export async function retentionRoutes(app: FastifyInstance): Promise<void> {
   app.get('/', { preHandler: [app.authenticate] }, listHandler);
   app.get('/:id', { preHandler: [app.authenticate] }, getByIdHandler);
-  app.post('/', { preHandler: [app.authenticate, requireRole('admin')] }, createHandler);
-  app.patch('/:id', { preHandler: [app.authenticate, requireRole('admin')] }, updateHandler);
-  app.delete('/:id', { preHandler: [app.authenticate, requireRole('admin')] }, deleteHandler);
-  app.post('/sweep', { preHandler: [app.authenticate, requireRole('admin')] }, async (_req, reply) => {
+  app.post('/', { preHandler: [app.authenticate, requirePermission('retention:create')] }, createHandler);
+  app.patch('/:id', { preHandler: [app.authenticate, requirePermission('retention:update')] }, updateHandler);
+  app.delete('/:id', { preHandler: [app.authenticate, requirePermission('retention:delete')] }, deleteHandler);
+  app.post('/sweep', { preHandler: [app.authenticate, requirePermission('retention:update')] }, async (_req, reply) => {
     const result = await sweepExpiredImages();
     return reply.send(result);
   });

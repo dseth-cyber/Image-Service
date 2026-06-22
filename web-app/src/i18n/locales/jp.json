@@ -424,7 +424,22 @@
       "deactivated": "ユーザーを無効にしました",
       "roleAdmin": "管理者",
       "roleOperator": "オペレーター",
-      "roleViewer": "閲覧者"
+      "roleViewer": "閲覧者",
+      "tabs": {
+        "roles": "役割と権限"
+      },
+      "totalRoles": "合計: {{count}} 役割",
+      "roles": {
+        "newRole": "新規役割の追加",
+        "editRole": "役割の編集",
+        "roleCode": "役割コード",
+        "assignedUsers": "割り当てられたユーザー",
+        "extraPermissions": "追加・オーバーライド権限",
+        "fromRole": "役割から継承",
+        "permissions": "デフォルト権限",
+        "adminBypass": "管理者役割は自動的にすべての権限（*）を保持し、RBACアクセス制御をバイパスします。特定の権限オーバーライドは不要です。",
+        "optionalLanguages": "その他の言語（任意）"
+      }
     },
     "health": {
       "title": "ヘルスステータス",
@@ -698,6 +713,70 @@
         "毎月の自動復元テスト",
         "バックアップステータスダッシュボード"
       ]
+    },
+    "permissions": {
+      "modules": {
+        "overview": "ダッシュボード / 概要",
+        "cameras": "カメラ",
+        "search": "画像検索とメタデータ",
+        "processing": "処理ジョブ",
+        "dead-letter": "デッドレターキュー (DLQ)",
+        "storage": "ストレージ分析",
+        "logs": "システムログ",
+        "audit-log": "監査ログ",
+        "backup": "バックアップと復元",
+        "retention": "保存ポリシー",
+        "alerts": "アラートとルール",
+        "masterdata": "マスタデータ管理",
+        "api-keys": "APIキー管理",
+        "telegram-bot": "Telegramボット設定",
+        "system-config": "システム設定",
+        "users": "ユーザーと役割の管理",
+        "health": "システムヘルス＆サービス"
+      },
+      "actions": {
+        "overview:read": "ダッシュボードを表示",
+        "cameras:read": "カメラを表示",
+        "cameras:create": "カメラを作成",
+        "cameras:update": "カメラを更新",
+        "cameras:delete": "カメラを削除/無効化",
+        "search:read": "画像を検索・ダウンロード",
+        "search:update": "タグ・メタデータを更新",
+        "search:delete": "画像を削除",
+        "processing:read": "処理ステータスを表示",
+        "processing:create": "ジョブの再試行・拒否",
+        "dead-letter:read": "DLQを表示",
+        "dead-letter:create": "DLQの再試行・クリア",
+        "storage:read": "ストレージ統計・予測を表示",
+        "logs:read": "ログを表示",
+        "audit-log:read": "監査ログを表示",
+        "backup:read": "バックアップ履歴を表示",
+        "backup:create": "バックアップの実行・復元テスト",
+        "retention:read": "ポリシーを表示",
+        "retention:create": "ポリシーを作成",
+        "retention:update": "ポリシーを更新",
+        "retention:delete": "ポリシーを削除",
+        "alerts:read": "アラートとルールを表示",
+        "alerts:create": "アラートルールを作成",
+        "alerts:update": "アラートの確認・解決",
+        "masterdata:read": "マスタデータを表示",
+        "masterdata:create": "マスタデータを作成",
+        "masterdata:update": "マスタデータを更新",
+        "masterdata:delete": "マスタデータを削除",
+        "api-keys:read": "APIキーを表示",
+        "api-keys:create": "APIキーを作成",
+        "api-keys:update": "APIキーを更新",
+        "api-keys:delete": "APIキーを削除",
+        "telegram-bot:read": "Telegramボットを表示",
+        "telegram-bot:update": "Telegramボットを更新",
+        "system-config:read": "システム設定を表示",
+        "system-config:update": "システム設定を更新",
+        "users:read": "ユーザーと役割を表示",
+        "users:create": "ユーザーと役割を作成",
+        "users:update": "ユーザーと役割を更新",
+        "users:delete": "ユーザーと役割を削除",
+        "health:read": "システムヘルスを表示"
+      }
     }
   },
   "common": {

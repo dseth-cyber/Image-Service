@@ -112,7 +112,7 @@ export function createImageServiceApi(api: any) {
     getUser: (id: string) =>
       api.get(`${BASE}/users/${id}`).then((r: any) => r.data),
 
-    createUser: (data: { username: string; email: string; password: string; role: string }) =>
+    createUser: (data: { username: string; email: string; password: string; role: string; customPermissions?: string[] }) =>
       api.post(`${BASE}/users`, data).then((r: any) => r.data),
 
     updateUser: (id: string, data: Record<string, unknown>) =>
@@ -120,6 +120,22 @@ export function createImageServiceApi(api: any) {
 
     deactivateUser: (id: string) =>
       api.delete(`${BASE}/users/${id}`).then((r: any) => r.data),
+
+    // Roles
+    getRoles: () =>
+      api.get(`${BASE}/roles`).then((r: any) => r.data),
+
+    getRole: (id: string) =>
+      api.get(`${BASE}/roles/${id}`).then((r: any) => r.data),
+
+    createRole: (data: Record<string, unknown>) =>
+      api.post(`${BASE}/roles`, data).then((r: any) => r.data),
+
+    updateRole: (id: string, data: Record<string, unknown>) =>
+      api.patch(`${BASE}/roles/${id}`, data).then((r: any) => r.data),
+
+    deleteRole: (id: string) =>
+      api.delete(`${BASE}/roles/${id}`).then((r: any) => r.data),
 
     // Alert Rules
     getAlertRules: (params?: { page?: number; limit?: number }) =>

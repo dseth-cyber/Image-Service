@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { requireRole } from '../../middleware/rbac.js';
+import { requirePermission } from '../../middleware/rbac.js';
 import * as backupService from './backup.service.js';
 
 async function getStatusHandler(_request: FastifyRequest, reply: FastifyReply) {
@@ -36,7 +36,7 @@ async function restoreTestHandler(request: FastifyRequest, reply: FastifyReply) 
 export async function backupRoutes(app: FastifyInstance): Promise<void> {
   app.get('/status', { preHandler: [app.authenticate] }, getStatusHandler);
   app.get('/', { preHandler: [app.authenticate] }, listHandler);
-  app.post('/run/database', { preHandler: [app.authenticate, requireRole('admin')] }, runDbBackupHandler);
-  app.post('/run/minio', { preHandler: [app.authenticate, requireRole('admin')] }, runMinioBackupHandler);
-  app.post('/:id/restore-test', { preHandler: [app.authenticate, requireRole('admin')] }, restoreTestHandler);
+  app.post('/run/database', { preHandler: [app.authenticate, requirePermission('backup:create')] }, runDbBackupHandler);
+  app.post('/run/minio', { preHandler: [app.authenticate, requirePermission('backup:create')] }, runMinioBackupHandler);
+  app.post('/:id/restore-test', { preHandler: [app.authenticate, requirePermission('backup:create')] }, restoreTestHandler);
 }

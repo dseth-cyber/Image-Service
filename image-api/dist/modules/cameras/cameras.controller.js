@@ -1,6 +1,6 @@
 import { createCameraSchema, updateCameraSchema, cameraQuerySchema } from './cameras.schema.js';
 import * as camerasService from './cameras.service.js';
-import { requireRole } from '../../middleware/rbac.js';
+import { requirePermission } from '../../middleware/rbac.js';
 async function listHandler(request, reply) {
     const filters = cameraQuerySchema.parse(request.query);
     const cameras = await camerasService.listCameras(filters);
@@ -30,8 +30,8 @@ async function deactivateHandler(request, reply) {
 export async function cameraRoutes(app) {
     app.get('/', { preHandler: [app.authenticate] }, listHandler);
     app.get('/:id', { preHandler: [app.authenticate] }, getByIdHandler);
-    app.post('/', { preHandler: [app.authenticate, requireRole('admin', 'operator')] }, createHandler);
-    app.patch('/:id', { preHandler: [app.authenticate, requireRole('admin', 'operator')] }, updateHandler);
-    app.delete('/:id', { preHandler: [app.authenticate, requireRole('admin')] }, deactivateHandler);
+    app.post('/', { preHandler: [app.authenticate, requirePermission('cameras:create')] }, createHandler);
+    app.patch('/:id', { preHandler: [app.authenticate, requirePermission('cameras:update')] }, updateHandler);
+    app.delete('/:id', { preHandler: [app.authenticate, requirePermission('cameras:delete')] }, deactivateHandler);
 }
 //# sourceMappingURL=cameras.controller.js.map

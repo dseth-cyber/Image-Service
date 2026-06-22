@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { createCameraSchema, updateCameraSchema, cameraQuerySchema } from './cameras.schema.js';
 import * as camerasService from './cameras.service.js';
-import { requireRole } from '../../middleware/rbac.js';
+import { requirePermission } from '../../middleware/rbac.js';
 
 async function listHandler(request: FastifyRequest, reply: FastifyReply) {
   const filters = cameraQuerySchema.parse(request.query);
@@ -47,17 +47,17 @@ export async function cameraRoutes(app: FastifyInstance): Promise<void> {
   );
   app.post(
     '/',
-    { preHandler: [app.authenticate, requireRole('admin', 'operator')] },
+    { preHandler: [app.authenticate, requirePermission('cameras:create')] },
     createHandler,
   );
   app.patch(
     '/:id',
-    { preHandler: [app.authenticate, requireRole('admin', 'operator')] },
+    { preHandler: [app.authenticate, requirePermission('cameras:update')] },
     updateHandler,
   );
   app.delete(
     '/:id',
-    { preHandler: [app.authenticate, requireRole('admin')] },
+    { preHandler: [app.authenticate, requirePermission('cameras:delete')] },
     deactivateHandler,
   );
 }

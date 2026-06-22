@@ -15,13 +15,13 @@ export declare const createCameraSchema: z.ZodObject<{
     metadata: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
 }, "strip", z.ZodTypeAny, {
     name: string;
+    metadata: Record<string, unknown>;
     ipAddress: string;
     smbSharePath: string;
     smbUsername: string;
     smbPasswordEncrypted: string;
     pollIntervalSeconds: number;
     timezone: string;
-    metadata: Record<string, unknown>;
     captureMode: "on_demand" | "periodic" | "continuous";
     retentionPolicyId: string;
     description?: string | undefined;
@@ -35,11 +35,11 @@ export declare const createCameraSchema: z.ZodObject<{
     smbPasswordEncrypted: string;
     retentionPolicyId: string;
     description?: string | undefined;
+    metadata?: Record<string, unknown> | undefined;
     smbDomain?: string | undefined;
     smbSubdirectoryPattern?: string | undefined;
     pollIntervalSeconds?: number | undefined;
     timezone?: string | undefined;
-    metadata?: Record<string, unknown> | undefined;
     captureMode?: "on_demand" | "periodic" | "continuous" | undefined;
 }>;
 export declare const updateCameraSchema: z.ZodObject<{
@@ -59,8 +59,9 @@ export declare const updateCameraSchema: z.ZodObject<{
     metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
 }, "strip", z.ZodTypeAny, {
     name?: string | undefined;
-    enabled?: boolean | undefined;
     description?: string | undefined;
+    enabled?: boolean | undefined;
+    metadata?: Record<string, unknown> | undefined;
     ipAddress?: string | undefined;
     smbSharePath?: string | undefined;
     smbDomain?: string | undefined;
@@ -69,13 +70,13 @@ export declare const updateCameraSchema: z.ZodObject<{
     smbSubdirectoryPattern?: string | undefined;
     pollIntervalSeconds?: number | undefined;
     timezone?: string | undefined;
-    metadata?: Record<string, unknown> | undefined;
     captureMode?: "on_demand" | "periodic" | "continuous" | undefined;
     retentionPolicyId?: string | undefined;
 }, {
     name?: string | undefined;
-    enabled?: boolean | undefined;
     description?: string | undefined;
+    enabled?: boolean | undefined;
+    metadata?: Record<string, unknown> | undefined;
     ipAddress?: string | undefined;
     smbSharePath?: string | undefined;
     smbDomain?: string | undefined;
@@ -84,7 +85,6 @@ export declare const updateCameraSchema: z.ZodObject<{
     smbSubdirectoryPattern?: string | undefined;
     pollIntervalSeconds?: number | undefined;
     timezone?: string | undefined;
-    metadata?: Record<string, unknown> | undefined;
     captureMode?: "on_demand" | "periodic" | "continuous" | undefined;
     retentionPolicyId?: string | undefined;
 }>;

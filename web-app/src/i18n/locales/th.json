@@ -424,7 +424,22 @@
       "deactivated": "ปิดใช้งานผู้ใช้สำเร็จ",
       "roleAdmin": "ผู้ดูแลระบบ",
       "roleOperator": "ผู้ปฏิบัติการ",
-      "roleViewer": "ผู้ดู"
+      "roleViewer": "ผู้ดู",
+      "tabs": {
+        "roles": "บทบาทและสิทธิ์"
+      },
+      "totalRoles": "รวม: {{count}} บทบาท",
+      "roles": {
+        "newRole": "เพิ่มบทบาทใหม่",
+        "editRole": "แก้ไขบทบาท",
+        "roleCode": "รหัสบทบาท",
+        "assignedUsers": "ผู้ใช้ที่ได้รับบทบาท",
+        "extraPermissions": "สิทธิ์เพิ่มเติม / ปรับแต่งเฉพาะตัว",
+        "fromRole": "สิทธิ์จากบทบาท",
+        "permissions": "สิทธิ์เริ่มต้นของบทบาท",
+        "adminBypass": "บทบาทผู้ดูแลระบบ (Admin) จะได้รับสิทธิ์ทั้งหมด (*) โดยอัตโนมัติ และข้ามการตรวจสอบ RBAC จึงไม่จำเป็นต้องปรับแต่งสิทธิ์เฉพาะทาง",
+        "optionalLanguages": "ภาษาอื่นๆ (ไม่บังคับ)"
+      }
     },
     "health": {
       "title": "สถานะระบบ",
@@ -698,6 +713,70 @@
         "ทดสอบ Restore อัตโนมัติทุกเดือน",
         "Dashboard สถานะ Backup"
       ]
+    },
+    "permissions": {
+      "modules": {
+        "overview": "แดชบอร์ด / ภาพรวม",
+        "cameras": "กล้องวงจรปิด",
+        "search": "ค้นหาและจัดการรูปภาพ",
+        "processing": "ประมวลผลงาน",
+        "dead-letter": "คิวงานที่ล้มเหลว (DLQ)",
+        "storage": "ข้อมูลพื้นที่จัดเก็บ",
+        "logs": "บันทึกการทำงานของระบบ (Logs)",
+        "audit-log": "บันทึกการเข้าใช้งานระบบ (Audit Log)",
+        "backup": "สำรองและกู้คืนข้อมูล",
+        "retention": "นโยบายการจัดเก็บรักษาข้อมูล",
+        "alerts": "การแจ้งเตือนและการจัดการกฎ",
+        "masterdata": "ข้อมูลหลักระบบ (Masterdata)",
+        "api-keys": "จัดการ API Keys",
+        "telegram-bot": "ตั้งค่า Telegram Bot",
+        "system-config": "ตั้งค่าระบบทั่วไป",
+        "users": "จัดการผู้ใช้งานและบทบาท",
+        "health": "สถานะระบบและบริการ"
+      },
+      "actions": {
+        "overview:read": "ดูหน้าแดชบอร์ด",
+        "cameras:read": "ดูรายการกล้อง",
+        "cameras:create": "เพิ่มกล้องใหม่",
+        "cameras:update": "แก้ไขกล้อง",
+        "cameras:delete": "ลบกล้อง (Deactivate)",
+        "search:read": "ค้นหารูปภาพ / ดาวน์โหลด",
+        "search:update": "แก้ไขแท็ก / เมทาดาตา",
+        "search:delete": "ลบรูปภาพ",
+        "processing:read": "ดูสถานะการประมวลผล",
+        "processing:create": "สั่งประมวลผลซ้ำ / ปฏิเสธงาน",
+        "dead-letter:read": "ดูรายการ DLQ",
+        "dead-letter:create": "สั่งประมวลผลซ้ำ / ล้างคิว",
+        "storage:read": "ดูสถิติและพยากรณ์พื้นที่",
+        "logs:read": "ดูรายการ Logs",
+        "audit-log:read": "ดู Audit Logs",
+        "backup:read": "ดูประวัติสำรองข้อมูล",
+        "backup:create": "สั่งสำรองข้อมูล / ทดสอบกู้คืน",
+        "retention:read": "ดูนโยบาย",
+        "retention:create": "สร้างนโยบายใหม่",
+        "retention:update": "แก้ไขนโยบาย",
+        "retention:delete": "ลบนโยบาย",
+        "alerts:read": "ดูการแจ้งเตือน",
+        "alerts:create": "เพิ่มกฎแจ้งเตือนใหม่",
+        "alerts:update": "รับทราบ / เคลียร์การแจ้งเตือน",
+        "masterdata:read": "ดูข้อมูลหลัก",
+        "masterdata:create": "เพิ่มข้อมูลหลัก",
+        "masterdata:update": "แก้ไขข้อมูลหลัก",
+        "masterdata:delete": "ลบข้อมูลหลัก",
+        "api-keys:read": "ดูรายการ API Keys",
+        "api-keys:create": "สร้าง API Key",
+        "api-keys:update": "แก้ไข API Key",
+        "api-keys:delete": "ลบ API Key",
+        "telegram-bot:read": "ดูการตั้งค่าบอท",
+        "telegram-bot:update": "แก้ไขการตั้งค่าบอท",
+        "system-config:read": "ดูการตั้งค่าระบบ",
+        "system-config:update": "แก้ไขการตั้งค่าระบบ",
+        "users:read": "ดูรายชื่อผู้ใช้งานและบทบาท",
+        "users:create": "สร้างผู้ใช้งานและบทบาทใหม่",
+        "users:update": "แก้ไขผู้ใช้งานและบทบาท",
+        "users:delete": "ลบผู้ใช้งานและบทบาท",
+        "health:read": "ดูสถานะเซิร์ฟเวอร์"
+      }
     }
   },
   "common": {

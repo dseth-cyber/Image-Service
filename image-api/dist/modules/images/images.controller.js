@@ -1,8 +1,9 @@
 import { imageSearchSchema, registerImageSchema, updateMetadataSchema, updateTagsSchema, processingResultSchema } from './images.schema.js';
 import * as imagesService from './images.service.js';
-import { requireRole } from '../../middleware/rbac.js';
+import { requirePermission } from '../../middleware/rbac.js';
 import { getMinio } from '../../lib/minio.js';
 import { config } from '../../config/index.js';
+import { createAuditLog } from '../audit/audit.service.js';
 async function registerImageHandler(request, reply) {
     const input = registerImageSchema.parse(request.body);
     const result = await imagesService.registerImage(input);
@@ -22,17 +23,47 @@ async function updateMetadataHandler(request, reply) {
     const { id } = request.params;
     const input = updateMetadataSchema.parse(request.body);
     const updated = await imagesService.updateImageMetadata(id, input);
+    const user = request.user;
+    createAuditLog({
+        userId: user?.id,
+        action: 'metadata_update',
+        entity: 'image',
+        entityId: id,
+        description: `Metadata updated for image ${id}`,
+        metadata: { changes: input },
+        ipAddress: request.ip,
+    }).catch(() => { });
     return reply.status(200).send(updated);
 }
 async function upsertTagsHandler(request, reply) {
     const { id } = request.params;
     const tags = updateTagsSchema.parse(request.body);
     const result = await imagesService.upsertImageTags(id, tags);
+    const user = request.user;
+    createAuditLog({
+        userId: user?.id,
+        action: 'tags_update',
+        entity: 'image',
+        entityId: id,
+        description: `Tags updated for image ${id}`,
+        metadata: { tags },
+        ipAddress: request.ip,
+    }).catch(() => { });
     return reply.status(200).send(result);
 }
 async function deleteTagHandler(request, reply) {
     const { id, key } = request.params;
     await imagesService.deleteImageTag(id, key);
+    const user = request.user;
+    createAuditLog({
+        userId: user?.id,
+        action: 'tag_delete',
+        entity: 'image',
+        entityId: id,
+        description: `Tag '${key}' deleted from image ${id}`,
+        metadata: { key },
+        ipAddress: request.ip,
+    }).catch(() => { });
     return reply.status(204).send();
 }
 async function processingResultHandler(request, reply) {
@@ -44,6 +75,15 @@ async function processingResultHandler(request, reply) {
 async function deleteImageHandler(request, reply) {
     const { id } = request.params;
     await imagesService.softDeleteImage(id);
+    const user = request.user;
+    createAuditLog({
+        userId: user?.id,
+        action: 'image_delete',
+        entity: 'image',
+        entityId: id,
+        description: `Image ${id} soft-deleted`,
+        ipAddress: request.ip,
+    }).catch(() => { });
     return reply.status(204).send();
 }
 async function getFileStreamHandler(request, reply) {
@@ -64,6 +104,15 @@ async function getFileStreamHandler(request, reply) {
         reply.header('Content-Type', file.mimeType ?? 'application/octet-stream');
         reply.header('Content-Length', String(file.fileSizeBytes));
         reply.header('Cache-Control', 'public, max-age=31536000, immutable');
+        const user = request.user;
+        createAuditLog({
+            userId: user?.id,
+            action: 'file_download',
+            entity: 'image_file',
+            entityId: `${id}/${fileType}`,
+            description: `File '${fileType}' downloaded for image ${id}`,
+            ipAddress: request.ip,
+        }).catch(() => { });
         return reply.send(stream);
     }
     catch (err) {
@@ -78,11 +127,11 @@ export async function imageRoutes(app) {
     app.post('/', { preHandler: [app.authenticate] }, registerImageHandler);
     app.get('/', { preHandler: [app.authenticate] }, searchHandler);
     app.get('/:id', { preHandler: [app.authenticate] }, getByIdHandler);
-    app.patch('/:id/metadata', { preHandler: [app.authenticate, requireRole('admin', 'operator', 'system')] }, updateMetadataHandler);
-    app.post('/:id/tags', { preHandler: [app.authenticate, requireRole('admin', 'operator', 'system')] }, upsertTagsHandler);
-    app.delete('/:id/tags/:key', { preHandler: [app.authenticate, requireRole('admin', 'operator')] }, deleteTagHandler);
-    app.post('/:id/result', { preHandler: [app.authenticate, requireRole('admin', 'operator', 'system')] }, processingResultHandler);
-    app.delete('/:id', { preHandler: [app.authenticate, requireRole('admin')] }, deleteImageHandler);
+    app.patch('/:id/metadata', { preHandler: [app.authenticate, requirePermission('search:update')] }, updateMetadataHandler);
+    app.post('/:id/tags', { preHandler: [app.authenticate, requirePermission('search:update')] }, upsertTagsHandler);
+    app.delete('/:id/tags/:key', { preHandler: [app.authenticate, requirePermission('search:update')] }, deleteTagHandler);
+    app.post('/:id/result', { preHandler: [app.authenticate, requirePermission('search:update')] }, processingResultHandler);
+    app.delete('/:id', { preHandler: [app.authenticate, requirePermission('search:delete')] }, deleteImageHandler);
     app.get('/:id/files/:fileType', { preHandler: [app.authenticate] }, getFileStreamHandler);
 }
 //# sourceMappingURL=images.controller.js.map

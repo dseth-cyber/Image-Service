@@ -8,11 +8,12 @@ export declare function listUsers(params: {
         username: string;
         id: string;
         email: string;
-        role: import("@prisma/client").$Enums.Role;
+        role: string;
         lastLogin: Date | null;
-        enabled: boolean;
         createdAt: Date;
         updatedAt: Date;
+        customPermissions: import("@prisma/client/runtime/library").JsonValue;
+        enabled: boolean;
     }[];
     pagination: {
         page: number;
@@ -25,40 +26,44 @@ export declare function getUserById(id: string): Promise<{
     username: string;
     id: string;
     email: string;
-    role: import("@prisma/client").$Enums.Role;
+    role: string;
     lastLogin: Date | null;
-    enabled: boolean;
     createdAt: Date;
     updatedAt: Date;
+    customPermissions: import("@prisma/client/runtime/library").JsonValue;
+    enabled: boolean;
 } | null>;
 export declare function createUser(input: CreateUserInput): Promise<{
     username: string;
     id: string;
     email: string;
-    role: import("@prisma/client").$Enums.Role;
+    role: string;
     lastLogin: Date | null;
-    enabled: boolean;
     createdAt: Date;
     updatedAt: Date;
+    customPermissions: import("@prisma/client/runtime/library").JsonValue;
+    enabled: boolean;
 }>;
 export declare function updateUser(id: string, input: UpdateUserInput): Promise<{
     username: string;
     id: string;
     email: string;
-    role: import("@prisma/client").$Enums.Role;
+    role: string;
     lastLogin: Date | null;
-    enabled: boolean;
     createdAt: Date;
     updatedAt: Date;
+    customPermissions: import("@prisma/client/runtime/library").JsonValue;
+    enabled: boolean;
 }>;
 export declare function deactivateUser(id: string): Promise<{
     username: string;
     id: string;
     email: string;
-    role: import("@prisma/client").$Enums.Role;
+    role: string;
     lastLogin: Date | null;
-    enabled: boolean;
     createdAt: Date;
     updatedAt: Date;
+    customPermissions: import("@prisma/client/runtime/library").JsonValue;
+    enabled: boolean;
 }>;
 //# sourceMappingURL=users.service.d.ts.map

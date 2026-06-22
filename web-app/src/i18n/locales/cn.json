@@ -424,7 +424,22 @@
       "deactivated": "用户已禁用",
       "roleAdmin": "管理员",
       "roleOperator": "操作员",
-      "roleViewer": "查看者"
+      "roleViewer": "查看者",
+      "tabs": {
+        "roles": "角色与权限"
+      },
+      "totalRoles": "总计: {{count}} 个角色",
+      "roles": {
+        "newRole": "添加新角色",
+        "editRole": "编辑角色",
+        "roleCode": "角色代码",
+        "assignedUsers": "分配的用户",
+        "extraPermissions": "附加 / 覆盖权限",
+        "fromRole": "继承自角色",
+        "permissions": "默认权限",
+        "adminBypass": "管理员角色自动拥有所有权限（*）并绕过RBAC访问控制，不需要特定的权限覆盖。",
+        "optionalLanguages": "其他语言 (非必填)"
+      }
     },
     "health": {
       "title": "健康状态",
@@ -698,6 +713,70 @@
         "每月自动恢复测试",
         "备份状态仪表板"
       ]
+    },
+    "permissions": {
+      "modules": {
+        "overview": "仪表板 / 概览",
+        "cameras": "摄像头",
+        "search": "图像搜索与元数据",
+        "processing": "处理任务",
+        "dead-letter": "死信队列 (DLQ)",
+        "storage": "存储分析",
+        "logs": "系统日志",
+        "audit-log": "审计日志",
+        "backup": "备份与恢复",
+        "retention": "保留策略",
+        "alerts": "警报与规则",
+        "masterdata": "主数据管理",
+        "api-keys": "API 密钥管理",
+        "telegram-bot": "Telegram 机器人设置",
+        "system-config": "系统配置",
+        "users": "用户与角色管理",
+        "health": "系统健康与服务"
+      },
+      "actions": {
+        "overview:read": "查看仪表板",
+        "cameras:read": "查看摄像头",
+        "cameras:create": "创建摄像头",
+        "cameras:update": "更新摄像头",
+        "cameras:delete": "删除/停用摄像头",
+        "search:read": "搜索和下载图像",
+        "search:update": "更新标签/元数据",
+        "search:delete": "删除图像",
+        "processing:read": "查看处理状态",
+        "processing:create": "重试/拒绝任务",
+        "dead-letter:read": "查看 DLQ",
+        "dead-letter:create": "重试/清理 DLQ",
+        "storage:read": "查看存储统计与预测",
+        "logs:read": "查看日志",
+        "audit-log:read": "查看审计日志",
+        "backup:read": "查看备份历史",
+        "backup:create": "运行备份/恢复测试",
+        "retention:read": "查看策略",
+        "retention:create": "创建策略",
+        "retention:update": "更新策略",
+        "retention:delete": "删除策略",
+        "alerts:read": "查看警报与规则",
+        "alerts:create": "创建警报规则",
+        "alerts:update": "确认/解决警报",
+        "masterdata:read": "查看主数据",
+        "masterdata:create": "创建主数据",
+        "masterdata:update": "更新主数据",
+        "masterdata:delete": "删除主数据",
+        "api-keys:read": "查看 API 密钥",
+        "api-keys:create": "创建 API 密钥",
+        "api-keys:update": "更新 API 密钥",
+        "api-keys:delete": "删除 API 密钥",
+        "telegram-bot:read": "查看 Telegram 机器人",
+        "telegram-bot:update": "更新 Telegram 机器人",
+        "system-config:read": "查看系统配置",
+        "system-config:update": "更新系统配置",
+        "users:read": "查看用户与角色",
+        "users:create": "创建用户与角色",
+        "users:update": "更新用户与角色",
+        "users:delete": "删除用户与角色",
+        "health:read": "查看系统健康状况"
+      }
     }
   },
   "common": {

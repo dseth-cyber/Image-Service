@@ -1,6 +1,6 @@
 import { processingLogSearchSchema } from './processing-logs.schema.js';
 import * as processingLogsService from './processing-logs.service.js';
-import { requireRole } from '../../middleware/rbac.js';
+import { requirePermission } from '../../middleware/rbac.js';
 async function searchHandler(request, reply) {
     const params = processingLogSearchSchema.parse(request.query);
     const result = await processingLogsService.searchProcessingLogs(params);
@@ -13,6 +13,25 @@ async function statsHandler(_request, reply) {
 async function retryHandler(request, reply) {
     const { id } = request.params;
     const result = await processingLogsService.retryJob(id);
+    return reply.status(200).send(result);
+}
+async function rejectHandler(request, reply) {
+    const { id } = request.params;
+    const result = await processingLogsService.rejectJob(id);
+    return reply.status(200).send(result);
+}
+async function dlqSummaryHandler(_request, reply) {
+    const result = await processingLogsService.getDlqSummary();
+    return reply.status(200).send(result);
+}
+async function bulkRetryHandler(request, reply) {
+    const { jobType } = request.query;
+    const result = await processingLogsService.bulkRetryDlq(jobType || undefined);
+    return reply.status(200).send(result);
+}
+async function bulkRejectHandler(request, reply) {
+    const { jobType } = request.query;
+    const result = await processingLogsService.bulkRejectDlq(jobType || undefined);
     return reply.status(200).send(result);
 }
 async function streamHandler(_request, reply) {
@@ -51,6 +70,10 @@ export async function processingLogRoutes(app) {
     app.get('/', { preHandler: [app.authenticate] }, searchHandler);
     app.get('/stats', { preHandler: [app.authenticate] }, statsHandler);
     app.get('/stream', streamHandler);
-    app.post('/:id/retry', { preHandler: [app.authenticate, requireRole('admin', 'operator')] }, retryHandler);
+    app.post('/:id/retry', { preHandler: [app.authenticate, requirePermission('processing:create')] }, retryHandler);
+    app.post('/:id/reject', { preHandler: [app.authenticate, requirePermission('processing:create')] }, rejectHandler);
+    app.get('/dlq/summary', { preHandler: [app.authenticate] }, dlqSummaryHandler);
+    app.post('/dlq/bulk-retry', { preHandler: [app.authenticate, requirePermission('dead-letter:create')] }, bulkRetryHandler);
+    app.post('/dlq/bulk-reject', { preHandler: [app.authenticate, requirePermission('dead-letter:create')] }, bulkRejectHandler);
 }
 //# sourceMappingURL=processing-logs.controller.js.map

@@ -3,6 +3,7 @@ import { loginSchema, refreshSchema } from './auth.schema.js';
 import * as authService from './auth.service.js';
 import { config } from '../../config/index.js';
 import type { AuthenticatedUser } from '../../types/index.js';
+import { getUserPermissions } from '../../middleware/rbac.js';
 
 async function loginHandler(request: FastifyRequest, reply: FastifyReply) {
   const input = loginSchema.parse(request.body);
@@ -15,11 +16,12 @@ async function loginHandler(request: FastifyRequest, reply: FastifyReply) {
   );
 
   const refreshToken = await authService.createRefreshToken(user.id);
+  const permissions = await getUserPermissions(user.id);
 
   return reply.status(200).send({
     accessToken,
     refreshToken,
-    user: { ...user, lastLogin: new Date().toISOString() },
+    user: { ...user, permissions, lastLogin: new Date().toISOString() },
   });
 }
 
@@ -41,11 +43,13 @@ async function meHandler(request: FastifyRequest, reply: FastifyReply) {
   if (!user) {
     return reply.status(401).send({ statusCode: 401, error: 'Unauthorized', message: 'Not authenticated' });
   }
+  const permissions = await getUserPermissions(user.id);
   return reply.status(200).send({
     id: user.id,
     username: user.username,
     email: user.email,
     role: user.role,
+    permissions,
     lastLogin: null,
   });
 }

@@ -151,4 +151,85 @@ export async function retryJob(jobId) {
     });
     return { id: updated.id, status: updated.status };
 }
+export async function rejectJob(jobId) {
+    const prisma = getPrisma();
+    const job = await prisma.processingJob.findUnique({ where: { id: jobId } });
+    if (!job) {
+        throw new NotFoundError('ProcessingJob', jobId);
+    }
+    if (job.status !== 'dead_letter') {
+        throw new Error(`Cannot reject job with status '${job.status}'`);
+    }
+    const updated = await prisma.processingJob.update({
+        where: { id: jobId },
+        data: { status: 'rejected' },
+    });
+    return { id: updated.id, status: updated.status };
+}
+export async function getDlqSummary() {
+    const prisma = getPrisma();
+    const deadLetters = await prisma.processingJob.findMany({
+        where: { status: 'dead_letter' },
+        orderBy: { queuedAt: 'desc' },
+        take: 500,
+        include: {
+            image: { select: { originalFilename: true, cameraId: true } },
+        },
+    });
+    const byJobType = {};
+    let total = 0;
+    const mapped = deadLetters.map((j) => {
+        byJobType[j.jobType] = (byJobType[j.jobType] ?? 0) + 1;
+        total++;
+        return {
+            id: j.id,
+            imageId: j.imageId,
+            jobType: j.jobType,
+            workerId: j.workerId,
+            queueName: j.queueName,
+            errorMessage: j.errorMessage,
+            retryCount: j.retryCount,
+            maxRetries: j.maxRetries,
+            queuedAt: j.queuedAt.toISOString(),
+            startedAt: j.startedAt?.toISOString() ?? null,
+            completedAt: j.completedAt?.toISOString() ?? null,
+            imageFilename: j.image?.originalFilename ?? null,
+            cameraId: j.image?.cameraId ?? null,
+        };
+    });
+    return {
+        total,
+        byJobType,
+        jobs: mapped,
+    };
+}
+export async function bulkRetryDlq(jobType) {
+    const prisma = getPrisma();
+    const where = { status: 'dead_letter' };
+    if (jobType)
+        where.jobType = jobType;
+    const result = await prisma.processingJob.updateMany({
+        where,
+        data: {
+            status: 'queued',
+            retryCount: { increment: 1 },
+            errorMessage: null,
+            errorDetails: Prisma.JsonNull,
+            startedAt: null,
+            completedAt: null,
+        },
+    });
+    return { updated: result.count };
+}
+export async function bulkRejectDlq(jobType) {
+    const prisma = getPrisma();
+    const where = { status: 'dead_letter' };
+    if (jobType)
+        where.jobType = jobType;
+    const result = await prisma.processingJob.updateMany({
+        where,
+        data: { status: 'rejected' },
+    });
+    return { updated: result.count };
+}
 //# sourceMappingURL=processing-logs.service.js.map

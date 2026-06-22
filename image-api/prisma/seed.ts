@@ -7,18 +7,91 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Seeding database...');
 
+  console.log('Seeding custom roles...');
+  const roles = [
+    {
+      code: 'admin',
+      nameTh: 'ผู้ดูแลระบบ',
+      nameEn: 'Administrator',
+      nameCn: '管理员',
+      nameMm: 'အက်ဒမင်',
+      nameJp: '管理者',
+      description: 'Full system access',
+      permissions: ['*'],
+      sortOrder: 1,
+    },
+    {
+      code: 'operator',
+      nameTh: 'ผู้ปฏิบัติการ',
+      nameEn: 'Operator',
+      nameCn: '操作员',
+      nameMm: 'အော်ပရေတာ',
+      nameJp: 'オペレーター',
+      description: 'Standard operational read/write access',
+      permissions: [
+        'overview:read',
+        'cameras:read', 'cameras:create', 'cameras:update',
+        'search:read', 'search:update',
+        'processing:read', 'processing:create',
+        'storage:read',
+        'logs:read',
+        'dead-letter:read', 'dead-letter:create',
+        'retention:read', 'retention:create', 'retention:update',
+        'alerts:read', 'alerts:update'
+      ],
+      sortOrder: 2,
+    },
+    {
+      code: 'viewer',
+      nameTh: 'ผู้เข้าชม',
+      nameEn: 'Viewer',
+      nameCn: '观察员',
+      nameMm: 'ကြည့်ရှုသူ',
+      nameJp: 'ビューアー',
+      description: 'Read-only access',
+      permissions: [
+        'overview:read',
+        'cameras:read',
+        'search:read',
+        'processing:read',
+        'storage:read',
+        'logs:read',
+        'alerts:read'
+      ],
+      sortOrder: 3,
+    },
+  ];
+
+  for (const r of roles) {
+    const createdRole = await prisma.customRole.upsert({
+      where: { code: r.code },
+      update: {
+        nameTh: r.nameTh,
+        nameEn: r.nameEn,
+        nameCn: r.nameCn,
+        nameMm: r.nameMm,
+        nameJp: r.nameJp,
+        description: r.description,
+        permissions: r.permissions,
+        sortOrder: r.sortOrder,
+      },
+      create: r,
+    });
+    console.log(`  Role: ${createdRole.code} (${createdRole.nameEn})`);
+  }
+
   const adminPassword = await bcrypt.hash('admin123', 10);
   const operatorPassword = await bcrypt.hash('operator123', 10);
   const viewerPassword = await bcrypt.hash('viewer123', 10);
 
   const adminUser = await prisma.user.upsert({
     where: { username: 'admin' },
-    update: {},
+    update: { role: 'admin' },
     create: {
       username: 'admin',
       email: 'admin@image-service.local',
       password: adminPassword,
-      role: 'admin' as Role,
+      role: 'admin',
       enabled: true,
     },
   });
@@ -26,12 +99,12 @@ async function main() {
 
   const operatorUser = await prisma.user.upsert({
     where: { username: 'operator' },
-    update: {},
+    update: { role: 'operator' },
     create: {
       username: 'operator',
       email: 'operator@image-service.local',
       password: operatorPassword,
-      role: 'operator' as Role,
+      role: 'operator',
       enabled: true,
     },
   });
@@ -39,12 +112,12 @@ async function main() {
 
   const viewerUser = await prisma.user.upsert({
     where: { username: 'viewer' },
-    update: {},
+    update: { role: 'viewer' },
     create: {
       username: 'viewer',
       email: 'viewer@image-service.local',
       password: viewerPassword,
-      role: 'viewer' as Role,
+      role: 'viewer',
       enabled: true,
     },
   });

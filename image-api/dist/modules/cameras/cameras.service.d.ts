@@ -11,10 +11,11 @@ export declare function listCameras(filters?: {
     status: import("@prisma/client").$Enums.CameraStatus;
     id: string;
     name: string;
-    enabled: boolean;
+    description: string | null;
     createdAt: Date;
     updatedAt: Date;
-    description: string | null;
+    enabled: boolean;
+    metadata: import("@prisma/client/runtime/library").JsonValue;
     ipAddress: string;
     smbSharePath: string;
     smbDomain: string | null;
@@ -23,7 +24,6 @@ export declare function listCameras(filters?: {
     smbSubdirectoryPattern: string | null;
     pollIntervalSeconds: number;
     timezone: string | null;
-    metadata: import("@prisma/client/runtime/library").JsonValue;
     captureMode: string;
     retentionPolicyId: string;
     lastPolledAt: Date | null;
@@ -34,9 +34,9 @@ export declare function getCameraById(id: string): Promise<{
     retentionPolicy: {
         id: string;
         name: string;
+        description: string | null;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
         rawRetentionDays: number;
         processedRetentionDays: number;
         thumbnailRetentionDays: number;
@@ -48,10 +48,11 @@ export declare function getCameraById(id: string): Promise<{
     status: import("@prisma/client").$Enums.CameraStatus;
     id: string;
     name: string;
-    enabled: boolean;
+    description: string | null;
     createdAt: Date;
     updatedAt: Date;
-    description: string | null;
+    enabled: boolean;
+    metadata: import("@prisma/client/runtime/library").JsonValue;
     ipAddress: string;
     smbSharePath: string;
     smbDomain: string | null;
@@ -60,7 +61,6 @@ export declare function getCameraById(id: string): Promise<{
     smbSubdirectoryPattern: string | null;
     pollIntervalSeconds: number;
     timezone: string | null;
-    metadata: import("@prisma/client/runtime/library").JsonValue;
     captureMode: string;
     retentionPolicyId: string;
     lastPolledAt: Date | null;
@@ -71,9 +71,9 @@ export declare function createCamera(input: CreateCameraInput): Promise<{
     retentionPolicy: {
         id: string;
         name: string;
+        description: string | null;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
         rawRetentionDays: number;
         processedRetentionDays: number;
         thumbnailRetentionDays: number;
@@ -85,10 +85,11 @@ export declare function createCamera(input: CreateCameraInput): Promise<{
     status: import("@prisma/client").$Enums.CameraStatus;
     id: string;
     name: string;
-    enabled: boolean;
+    description: string | null;
     createdAt: Date;
     updatedAt: Date;
-    description: string | null;
+    enabled: boolean;
+    metadata: import("@prisma/client/runtime/library").JsonValue;
     ipAddress: string;
     smbSharePath: string;
     smbDomain: string | null;
@@ -97,7 +98,6 @@ export declare function createCamera(input: CreateCameraInput): Promise<{
     smbSubdirectoryPattern: string | null;
     pollIntervalSeconds: number;
     timezone: string | null;
-    metadata: import("@prisma/client/runtime/library").JsonValue;
     captureMode: string;
     retentionPolicyId: string;
     lastPolledAt: Date | null;
@@ -108,9 +108,9 @@ export declare function updateCamera(id: string, input: UpdateCameraInput): Prom
     retentionPolicy: {
         id: string;
         name: string;
+        description: string | null;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
         rawRetentionDays: number;
         processedRetentionDays: number;
         thumbnailRetentionDays: number;
@@ -122,10 +122,11 @@ export declare function updateCamera(id: string, input: UpdateCameraInput): Prom
     status: import("@prisma/client").$Enums.CameraStatus;
     id: string;
     name: string;
-    enabled: boolean;
+    description: string | null;
     createdAt: Date;
     updatedAt: Date;
-    description: string | null;
+    enabled: boolean;
+    metadata: import("@prisma/client/runtime/library").JsonValue;
     ipAddress: string;
     smbSharePath: string;
     smbDomain: string | null;
@@ -134,7 +135,6 @@ export declare function updateCamera(id: string, input: UpdateCameraInput): Prom
     smbSubdirectoryPattern: string | null;
     pollIntervalSeconds: number;
     timezone: string | null;
-    metadata: import("@prisma/client/runtime/library").JsonValue;
     captureMode: string;
     retentionPolicyId: string;
     lastPolledAt: Date | null;

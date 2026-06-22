@@ -1,1 +1,1 @@
-{"version":3,"file":"storage.controller.d.ts","sourceRoot":"","sources":["../../../src/modules/storage/storage.controller.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,eAAe,EAAgC,MAAM,SAAS,CAAC;AAqB7E,wBAAsB,aAAa,CAAC,GAAG,EAAE,eAAe,GAAG,OAAO,CAAC,IAAI,CAAC,CAIvE"}
+{"version":3,"file":"storage.controller.d.ts","sourceRoot":"","sources":["../../../src/modules/storage/storage.controller.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,eAAe,EAAgC,MAAM,SAAS,CAAC;AA0B7E,wBAAsB,aAAa,CAAC,GAAG,EAAE,eAAe,GAAG,OAAO,CAAC,IAAI,CAAC,CAKvE"}

@@ -29,4 +29,16 @@ export declare function getStorageGrowth(days: number): Promise<{
         bytesAdded: number;
     }[];
 }>;
+export declare function getStorageForecast(): Promise<{
+    totalBytes: number;
+    maxBytes: number;
+    usagePercent: number;
+    dailyGrowthRate: number;
+    daysUntilFull: number | null;
+    projections: {
+        days: number;
+        projectedBytes: number;
+        usagePercent: number;
+    }[];
+}>;
 //# sourceMappingURL=storage.service.d.ts.map

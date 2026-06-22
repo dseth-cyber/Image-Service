@@ -1,15 +1,17 @@
 import { loginSchema, refreshSchema } from './auth.schema.js';
 import * as authService from './auth.service.js';
 import { config } from '../../config/index.js';
+import { getUserPermissions } from '../../middleware/rbac.js';
 async function loginHandler(request, reply) {
     const input = loginSchema.parse(request.body);
     const user = await authService.login(input);
     const accessToken = await reply.jwtSign({ id: user.id, username: user.username, email: user.email, role: user.role }, { expiresIn: config.jwt.accessExpiresIn });
     const refreshToken = await authService.createRefreshToken(user.id);
+    const permissions = await getUserPermissions(user.id);
     return reply.status(200).send({
         accessToken,
         refreshToken,
-        user: { ...user, lastLogin: new Date().toISOString() },
+        user: { ...user, permissions, lastLogin: new Date().toISOString() },
     });
 }
 async function refreshHandler(request, reply) {
@@ -23,11 +25,13 @@ async function meHandler(request, reply) {
     if (!user) {
         return reply.status(401).send({ statusCode: 401, error: 'Unauthorized', message: 'Not authenticated' });
     }
+    const permissions = await getUserPermissions(user.id);
     return reply.status(200).send({
         id: user.id,
         username: user.username,
         email: user.email,
         role: user.role,
+        permissions,
         lastLogin: null,
     });
 }

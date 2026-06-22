@@ -1,5 +1,7 @@
 import { getPrisma } from '../../lib/prisma.js';
+import { logger } from '../../lib/logger.js';
 import { NotFoundError } from '../../lib/errors.js';
+import { setRetentionUntil } from '../retention-sweeper/retention-sweeper.service.js';
 function mapBigInt(obj) {
     if (obj === null || obj === undefined)
         return obj;
@@ -27,6 +29,7 @@ export async function registerImage(input) {
             capturedAt: new Date(input.capturedAt),
         },
     });
+    setRetentionUntil(image.id, input.cameraId).catch((err) => logger.error({ err, imageId: image.id }, 'Failed to set retentionUntil'));
     return { id: image.id };
 }
 export async function searchImages(params) {

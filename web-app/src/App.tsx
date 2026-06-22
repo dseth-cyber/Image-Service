@@ -32,29 +32,52 @@ import {
   Globe, Palette, User, ChevronDown, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info,
 } from 'lucide-react'
 
+export function hasPermission(user: any, permission: string): boolean {
+  if (!user) return false
+  if (user.role === 'admin' || user.role === 'system') return true
+  if (!user.permissions) return false
+  return user.permissions.includes(permission) || user.permissions.includes('*')
+}
+
+function UnauthorizedPage() {
+  const { t } = useTranslation()
+  const { themeConfig } = useTheme()
+  return (
+    <div className="flex flex-col items-center justify-center h-full p-8 text-center min-h-[50vh]">
+      <AlertTriangle size={56} className="text-red-400 mb-4 animate-pulse" />
+      <h3 className={`text-xl font-bold ${themeConfig.text.primary}`}>
+        {t('imageService.auth.unauthorized') || 'Access Denied'}
+      </h3>
+      <p className={`text-sm mt-2 max-w-md ${themeConfig.text.secondary}`}>
+        {t('imageService.auth.unauthorizedDesc') || 'You do not have permission to view this resource. Please contact system administrator.'}
+      </p>
+    </div>
+  )
+}
+
 const navItems = [
-  { path: '/image-service/overview', labelKey: 'nav.overview', icon: LayoutDashboard },
-  { path: '/image-service/cameras', labelKey: 'nav.cameras', icon: Camera },
-  { path: '/image-service/search', labelKey: 'nav.search', icon: Search },
-  { path: '/image-service/processing', labelKey: 'nav.processing', icon: Activity },
-  { path: '/image-service/storage', labelKey: 'nav.storage', icon: HardDrive },
-  { path: '/image-service/logs', labelKey: 'nav.logs', icon: FileText },
-  { path: '/image-service/dead-letter', labelKey: 'nav.deadLetter', icon: AlertTriangle },
-  { path: '/image-service/audit-log', labelKey: 'nav.auditLog', icon: History },
-  { path: '/image-service/backup', labelKey: 'nav.backup', icon: Shield },
-  { path: '/image-service/retention', labelKey: 'nav.retention', icon: Shield },
-  { path: '/image-service/alerts', labelKey: 'nav.alerts', icon: Bell },
-  { path: '/image-service/masterdata', labelKey: 'nav.masterdata', icon: BookText },
+  { path: '/image-service/overview', labelKey: 'nav.overview', icon: LayoutDashboard, permission: 'overview:read' },
+  { path: '/image-service/cameras', labelKey: 'nav.cameras', icon: Camera, permission: 'cameras:read' },
+  { path: '/image-service/search', labelKey: 'nav.search', icon: Search, permission: 'search:read' },
+  { path: '/image-service/processing', labelKey: 'nav.processing', icon: Activity, permission: 'processing:read' },
+  { path: '/image-service/storage', labelKey: 'nav.storage', icon: HardDrive, permission: 'storage:read' },
+  { path: '/image-service/logs', labelKey: 'nav.logs', icon: FileText, permission: 'logs:read' },
+  { path: '/image-service/dead-letter', labelKey: 'nav.deadLetter', icon: AlertTriangle, permission: 'dead-letter:read' },
+  { path: '/image-service/audit-log', labelKey: 'nav.auditLog', icon: History, permission: 'audit-log:read' },
+  { path: '/image-service/backup', labelKey: 'nav.backup', icon: Shield, permission: 'backup:read' },
+  { path: '/image-service/retention', labelKey: 'nav.retention', icon: Shield, permission: 'retention:read' },
+  { path: '/image-service/alerts', labelKey: 'nav.alerts', icon: Bell, permission: 'alerts:read' },
+  { path: '/image-service/masterdata', labelKey: 'nav.masterdata', icon: BookText, permission: 'masterdata:read' },
 ]
 
 const settingsSubItems = [
-  { path: '/image-service/settings', labelKey: 'nav.settings', icon: Settings },
-  { path: '/image-service/roadmap', labelKey: 'nav.roadmap', icon: Map },
-  { path: '/image-service/api-keys', labelKey: 'nav.apiKeys', icon: Key },
-  { path: '/image-service/telegram-bot', labelKey: 'nav.telegramBot', icon: MessageCircle },
-  { path: '/image-service/system-config', labelKey: 'nav.systemConfig', icon: Sliders },
-  { path: '/image-service/users', labelKey: 'nav.users', icon: Users },
-  { path: '/image-service/health', labelKey: 'nav.health', icon: HeartPulse },
+  { path: '/image-service/settings', labelKey: 'nav.settings', icon: Settings, permission: 'settings:read' },
+  { path: '/image-service/roadmap', labelKey: 'nav.roadmap', icon: Map, permission: 'roadmap:read' },
+  { path: '/image-service/api-keys', labelKey: 'nav.apiKeys', icon: Key, permission: 'api-keys:read' },
+  { path: '/image-service/telegram-bot', labelKey: 'nav.telegramBot', icon: MessageCircle, permission: 'telegram-bot:read' },
+  { path: '/image-service/system-config', labelKey: 'nav.systemConfig', icon: Sliders, permission: 'system-config:read' },
+  { path: '/image-service/users', labelKey: 'nav.users', icon: Users, permission: 'users:read' },
+  { path: '/image-service/health', labelKey: 'nav.health', icon: HeartPulse, permission: 'health:read' },
 ]
 
 const LANG_OPTIONS = [
@@ -163,12 +186,17 @@ function ProfileMenu({ username, role, onLogout, onChangePassword, onAbout }: { 
 }
 
 function SettingsNavGroup({ settingsSubItems, locationPath, t }: {
-  settingsSubItems: { path: string; labelKey: string; icon: any }[]
+  settingsSubItems: { path: string; labelKey: string; icon: any; permission: string }[]
   locationPath: string
   t: (key: string) => string
 }) {
+  const { user } = useAuth()
   const [open, setOpen] = useState(true)
-  const isInSettings = settingsSubItems.some(item => locationPath === item.path)
+  
+  const visibleItems = settingsSubItems.filter(item => hasPermission(user, item.permission))
+  if (visibleItems.length === 0) return null
+
+  const isInSettings = visibleItems.some(item => locationPath === item.path)
   const SettingsIcon = settingsSubItems[0].icon
 
   return (
@@ -185,7 +213,7 @@ function SettingsNavGroup({ settingsSubItems, locationPath, t }: {
       </button>
       {open && (
         <div className="ml-3 mt-0.5 space-y-0.5 border-l border-white/10 pl-2">
-          {settingsSubItems.map(item => {
+          {visibleItems.map(item => {
             const Icon = item.icon
             const isActive = locationPath === item.path
             return (
@@ -397,7 +425,7 @@ export default function App() {
         {/* Sidebar */}
         <aside className={`w-56 flex-shrink-0 ${themeConfig.sidebar} flex flex-col overflow-y-auto`}>
           <nav className="flex-1 px-3 py-4 space-y-1">
-            {navItems.map(item => {
+            {navItems.filter(item => hasPermission(user, item.permission)).map(item => {
               const Icon = item.icon
               const isActive = location.pathname === item.path
               return (
@@ -426,25 +454,63 @@ export default function App() {
         {/* Main Content */}
         <main className="flex-1 overflow-auto">
           <Routes>
-            <Route path="/image-service/overview" element={<ImageServiceOverview />} />
-            <Route path="/image-service/cameras" element={<ImageServiceCameras />} />
-            <Route path="/image-service/search" element={<ImageServiceSearch />} />
-            <Route path="/image-service/processing" element={<ImageServiceProcessingMonitor />} />
-            <Route path="/image-service/storage" element={<ImageServiceStorage />} />
-            <Route path="/image-service/logs" element={<ImageServiceProcessingLogs />} />
-            <Route path="/image-service/dead-letter" element={<DeadLetterQueue />} />
-            <Route path="/image-service/audit-log" element={<AuditLogViewer />} />
-            <Route path="/image-service/backup" element={<BackupDashboard />} />
-            <Route path="/image-service/retention" element={<ImageServiceRetention />} />
-            <Route path="/image-service/roadmap" element={<ImageServiceRoadmap />} />
-            <Route path="/image-service/alerts" element={<AlertManagement />} />
-            <Route path="/image-service/users" element={<UserManagement />} />
-            <Route path="/image-service/health" element={<HealthStatus />} />
-            <Route path="/image-service/api-keys" element={<ApiKeysManagement />} />
-            <Route path="/image-service/telegram-bot" element={<TelegramBotSettings />} />
-            <Route path="/image-service/masterdata" element={<MasterdataManagement />} />
-            <Route path="/image-service/system-config" element={<SystemConfigPage />} />
-            <Route path="/image-service/settings" element={<ImageServiceSettings />} />
+            <Route path="/image-service/overview" element={
+              hasPermission(user, 'overview:read') ? <ImageServiceOverview /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/cameras" element={
+              hasPermission(user, 'cameras:read') ? <ImageServiceCameras /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/search" element={
+              hasPermission(user, 'search:read') ? <ImageServiceSearch /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/processing" element={
+              hasPermission(user, 'processing:read') ? <ImageServiceProcessingMonitor /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/storage" element={
+              hasPermission(user, 'storage:read') ? <ImageServiceStorage /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/logs" element={
+              hasPermission(user, 'logs:read') ? <ImageServiceProcessingLogs /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/dead-letter" element={
+              hasPermission(user, 'dead-letter:read') ? <DeadLetterQueue /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/audit-log" element={
+              hasPermission(user, 'audit-log:read') ? <AuditLogViewer /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/backup" element={
+              hasPermission(user, 'backup:read') ? <BackupDashboard /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/retention" element={
+              hasPermission(user, 'retention:read') ? <ImageServiceRetention /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/roadmap" element={
+              hasPermission(user, 'roadmap:read') ? <ImageServiceRoadmap /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/alerts" element={
+              hasPermission(user, 'alerts:read') ? <AlertManagement /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/users" element={
+              hasPermission(user, 'users:read') ? <UserManagement /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/health" element={
+              hasPermission(user, 'health:read') ? <HealthStatus /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/api-keys" element={
+              hasPermission(user, 'api-keys:read') ? <ApiKeysManagement /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/telegram-bot" element={
+              hasPermission(user, 'telegram-bot:read') ? <TelegramBotSettings /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/masterdata" element={
+              hasPermission(user, 'masterdata:read') ? <MasterdataManagement /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/system-config" element={
+              hasPermission(user, 'system-config:read') ? <SystemConfigPage /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/settings" element={
+              hasPermission(user, 'settings:read') ? <ImageServiceSettings /> : <UnauthorizedPage />
+            } />
             <Route path="/" element={<Navigate to="/image-service/overview" replace />} />
             <Route path="*" element={<Navigate to="/image-service/overview" replace />} />
           </Routes>
