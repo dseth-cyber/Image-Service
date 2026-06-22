@@ -20,6 +20,29 @@ async function retryHandler(request: FastifyRequest, reply: FastifyReply) {
   return reply.status(200).send(result);
 }
 
+async function rejectHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as { id: string };
+  const result = await processingLogsService.rejectJob(id);
+  return reply.status(200).send(result);
+}
+
+async function dlqSummaryHandler(_request: FastifyRequest, reply: FastifyReply) {
+  const result = await processingLogsService.getDlqSummary();
+  return reply.status(200).send(result);
+}
+
+async function bulkRetryHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { jobType } = request.query as { jobType?: string };
+  const result = await processingLogsService.bulkRetryDlq(jobType || undefined);
+  return reply.status(200).send(result);
+}
+
+async function bulkRejectHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { jobType } = request.query as { jobType?: string };
+  const result = await processingLogsService.bulkRejectDlq(jobType || undefined);
+  return reply.status(200).send(result);
+}
+
 async function streamHandler(_request: FastifyRequest, reply: FastifyReply) {
   reply.raw.writeHead(200, {
     'Content-Type': 'text/event-stream',
@@ -62,4 +85,8 @@ export async function processingLogRoutes(app: FastifyInstance): Promise<void> {
   app.get('/stats', { preHandler: [app.authenticate] }, statsHandler);
   app.get('/stream', streamHandler);
   app.post('/:id/retry', { preHandler: [app.authenticate, requireRole('admin', 'operator')] }, retryHandler);
+  app.post('/:id/reject', { preHandler: [app.authenticate, requireRole('admin', 'operator')] }, rejectHandler);
+  app.get('/dlq/summary', { preHandler: [app.authenticate] }, dlqSummaryHandler);
+  app.post('/dlq/bulk-retry', { preHandler: [app.authenticate, requireRole('admin')] }, bulkRetryHandler);
+  app.post('/dlq/bulk-reject', { preHandler: [app.authenticate, requireRole('admin')] }, bulkRejectHandler);
 }

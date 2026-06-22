@@ -83,11 +83,11 @@ export default function TelegramBotSettings() {
     <div className="p-6 max-w-3xl">
       <div className="mb-6">
         <p className={`text-xs font-medium uppercase tracking-widest ${themeConfig.text.secondary}`}>
-          Image Service · Telegram Bot
+          Image Service · {t('imageService.telegramBot.title')}
         </p>
-        <h1 className={`text-2xl font-bold ${themeConfig.text.primary}`}>Telegram Bot Settings</h1>
+        <h1 className={`text-2xl font-bold ${themeConfig.text.primary}`}>{t('imageService.telegramBot.title')}</h1>
         <p className={`text-sm mt-1 ${themeConfig.text.secondary}`}>
-          Configure your Telegram bot integration. Notifications will be sent to the configured group chat.
+          {t('imageService.telegramBot.subtitle')}
         </p>
       </div>
 
@@ -97,13 +97,13 @@ export default function TelegramBotSettings() {
             <MessageCircle size={18} className="text-sky-400" />
           </div>
           <div>
-            <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>Bot Configuration</h3>
+            <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.telegramBot.botConfiguration')}</h3>
           </div>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>Bot Token</label>
+            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.telegramBot.botToken')}</label>
             <div className="relative">
               <input value={botToken} onChange={e => setBotToken(e.target.value)}
                 type={showToken ? 'text' : 'password'}
@@ -116,30 +116,30 @@ export default function TelegramBotSettings() {
           </div>
 
           <div>
-            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>Group Chat ID</label>
+            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.telegramBot.groupChatId')}</label>
             <input value={chatId} onChange={e => setChatId(e.target.value)}
               placeholder="-1003722831807"
               className={`w-full px-4 py-2.5 rounded-md text-sm border font-mono ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-cyan-500/50`} />
             <p className={`text-xs mt-1 ${themeConfig.text.secondary}`}>
-              Use @userinfobot on Telegram to find your group ID
+              {t('imageService.telegramBot.groupIdHint')}
             </p>
           </div>
 
           <div className="border-t border-gray-700/30 pt-4 mt-6">
-            <h4 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>Callback Settings</h4>
+            <h4 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>{t('imageService.telegramBot.callbackSettings')}</h4>
 
             <div className="mb-4">
-              <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>API Base URL</label>
+              <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.telegramBot.apiBaseUrl')}</label>
               <input value={apiBaseUrl} onChange={e => setApiBaseUrl(e.target.value)}
                 placeholder="http://backend:3000"
                 className={`w-full px-4 py-2.5 rounded-md text-sm border font-mono ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-cyan-500/50`} />
               <p className={`text-xs mt-1 ${themeConfig.text.secondary}`}>
-                Bot internal URL to reach the backend API (e.g. http://backend:3000)
+                {t('imageService.telegramBot.apiBaseUrlHint')}
               </p>
             </div>
 
             <div>
-              <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>API Token</label>
+              <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.telegramBot.apiToken')}</label>
               <div className="relative">
                 <input value={apiToken} onChange={e => setApiToken(e.target.value)}
                   type={showToken ? 'text' : 'password'}
@@ -150,7 +150,7 @@ export default function TelegramBotSettings() {
                 </button>
               </div>
               <p className={`text-xs mt-1 ${themeConfig.text.secondary}`}>
-                API Key for backend authentication (from backend/.env)
+                {t('imageService.telegramBot.apiTokenHint')}
               </p>
             </div>
           </div>
@@ -158,13 +158,13 @@ export default function TelegramBotSettings() {
       </div>
 
       <div className={`${themeConfig.card} rounded-lg p-6 mb-5`}>
-        <h4 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>How to get your Bot Token</h4>
+        <h4 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>{t('imageService.telegramBot.howToGetToken')}</h4>
         <ol className={`text-sm space-y-2 ${themeConfig.text.secondary} list-decimal list-inside`}>
-          <li>Open Telegram and search for <span className="font-mono text-cyan-400">@BotFather</span></li>
-          <li>Send <span className="font-mono text-cyan-400">/newbot</span> and follow the instructions</li>
-          <li>Copy the token BotFather gives you</li>
-          <li>Add the bot to your group chat</li>
-          <li>Send <span className="font-mono text-cyan-400">/id</span> in the group to get the Group ID (or use @userinfobot)</li>
+          <li>{t('imageService.telegramBot.step1')}</li>
+          <li>{t('imageService.telegramBot.step2')}</li>
+          <li>{t('imageService.telegramBot.step3')}</li>
+          <li>{t('imageService.telegramBot.step4')}</li>
+          <li>{t('imageService.telegramBot.step5')}</li>
         </ol>
       </div>
 
@@ -182,7 +182,7 @@ export default function TelegramBotSettings() {
         </Button>
         <Button variant="secondary" onClick={handleTestConnection} disabled={testing || !botToken || !chatId}>
           <Send size={16} className="mr-1.5" />
-          {testing ? 'Testing...' : 'Test Connection'}
+          {testing ? t('imageService.telegramBot.testing') : t('imageService.telegramBot.testConnection')}
         </Button>
       </div>
     </div>

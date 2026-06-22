@@ -81,7 +81,15 @@
       "rawImages": "ภาพต้นฉบับ",
       "processedImages": "ภาพประมวลผล",
       "thumbnails": "รูปขนาดย่อ",
-      "noData": "ไม่มีข้อมูลพื้นที่เก็บข้อมูล"
+      "noData": "ไม่มีข้อมูลพื้นที่เก็บข้อมูล",
+      "daysUntilFull": "วันเต็มที่",
+      "forecast": "พยากรณ์พื้นที่",
+      "usage": "การใช้งาน",
+      "dailyGrowth": "เพิ่มขึ้นต่อวัน",
+      "today": "วันนี้",
+      "projectionTable": "ประมาณการ",
+      "inDays": "ใน {{days}} วัน",
+      "full": "เต็ม"
     },
     "retention": {
       "title": "นโยบายการจัดเก็บ",
@@ -132,7 +140,76 @@
       "retrySuccess": "ส่งงานเข้าคิวอีกครั้งสำเร็จ",
       "noLogs": "ไม่พบ Log การประมวลผล",
       "allTypes": "ทุกประเภท",
-      "allStatuses": "ทุกสถานะ"
+      "allStatuses": "ทุกสถานะ",
+      "statusQueued": "อยู่ในคิว",
+      "statusRunning": "กำลังทำงาน",
+      "statusCompleted": "สำเร็จ",
+      "statusFailed": "ล้มเหลว",
+      "statusRetrying": "กำลังลองใหม่",
+      "statusDeadLetter": "คิวเสีย",
+      "typeSync": "ซิงค์",
+      "typeConvert": "แปลง",
+      "typeThumbnail": "รูปขนาดย่อ",
+      "typeChecksum": "เช็คซัม",
+      "typeArchive": "เก็บถาวร",
+      "typeDelete": "ลบ"
+    },
+    "deadLetter": {
+      "title": "คิวงานเสีย",
+      "subtitle": "ตรวจสอบและจัดการงานประมวลผลที่ล้มเหลว",
+      "total": "งานเสียทั้งหมด",
+      "byJobType": "ประเภทงาน",
+      "oldest": "เก่าสุด",
+      "maxRetries": "ลองสูงสุด",
+      "jobTypeBreakdown": "แยกตามประเภทงาน",
+      "allTypes": "ทุกประเภท",
+      "retryAll": "ลองใหม่ทั้งหมด",
+      "rejectAll": "ปฏิเสธทั้งหมด",
+      "jobType": "ประเภทงาน",
+      "image": "ภาพ",
+      "error": "ข้อผิดพลาด",
+      "retries": "ลองแล้ว",
+      "queuedAt": "เข้าคิวเมื่อ",
+      "retry": "ลองใหม่",
+      "reject": "ปฏิเสธ",
+      "noDeadLetters": "ไม่มีงานเสีย — งานทั้งหมดประมวลผลสำเร็จ"
+    },
+    "auditLog": {
+      "title": "บันทึกการตรวจสอบ",
+      "subtitle": "ติดตามการกระทำของผู้ใช้และการเปลี่ยนแปลงข้อมูล",
+      "allActions": "ทุกการกระทำ",
+      "allEntities": "ทุกเอนทิตี",
+      "time": "เวลา",
+      "user": "ผู้ใช้",
+      "action": "การกระทำ",
+      "entity": "เอนทิตี",
+      "entityId": "ID เอนทิตี",
+      "description": "คำอธิบาย",
+      "ip": "ที่อยู่ IP",
+      "noLogs": "ไม่พบบันทึกการตรวจสอบ",
+      "actionImageDelete": "ลบภาพ",
+      "actionMetadataUpdate": "อัปเดต Metadata",
+      "actionTagsUpdate": "อัปเดตแท็ก",
+      "actionTagDelete": "ลบแท็ก",
+      "actionFileDownload": "ดาวน์โหลดไฟล์",
+      "actionPolicyCreate": "สร้างนโยบาย",
+      "actionPolicyUpdate": "อัปเดตนโยบาย",
+      "actionPolicyDelete": "ลบนโยบาย",
+      "entityImage": "ภาพ",
+      "entityImageFile": "ไฟล์ภาพ",
+      "entityRetentionPolicy": "นโยบายการจัดเก็บ"
+    },
+    "backup": {
+      "title": "การสำรองและกู้คืนข้อมูล",
+      "subtitle": "จัดการการสำรองฐานข้อมูลและพื้นที่จัดเก็บ",
+      "databaseBackup": "สำรองฐานข้อมูล",
+      "minioBackup": "สำรอง MinIO",
+      "runNow": "ดำเนินการ",
+      "status": "สถานะ",
+      "fileSize": "ขนาดไฟล์",
+      "lastBackup": "สำรองล่าสุด",
+      "noBackups": "ยังไม่มีข้อมูลสำรอง",
+      "recentBackups": "รายการสำรองล่าสุด"
     },
     "settings": {
       "title": "ตั้งค่า",
@@ -191,7 +268,61 @@
       "apiKeys": "คีย์ API",
       "telegramBot": "Telegram Bot",
       "masterdata": "ข้อมูลหลัก",
-      "systemConfig": "ตั้งค่าระบบ"
+      "systemConfig": "ตั้งค่าระบบ",
+      "deadLetter": "คิวงานเสีย",
+      "auditLog": "บันทึกการตรวจสอบ",
+      "backup": "สำรองข้อมูล"
+    },
+    "masterdataManagement": {
+      "title": "จัดการข้อมูลหลัก",
+      "subtitle": "จัดการเอนทิตีข้อมูลอ้างอิงสำหรับ Image Service",
+      "tabCameraType": "ประเภทกล้อง",
+      "tabImageCategory": "หมวดหมู่ภาพ",
+      "tabDefectType": "ประเภทข้อบกพร่อง",
+      "tabInspectionType": "ประเภทตรวจสอบ",
+      "add": "เพิ่ม",
+      "edit": "แก้ไข",
+      "tableCode": "รหัส",
+      "tableSort": "ลำดับ",
+      "tableActive": "ใช้งาน",
+      "formCode": "รหัส",
+      "formDescription": "คำอธิบาย",
+      "formSortOrder": "ลำดับการจัดเรียง",
+      "formActive": "ใช้งาน",
+      "nameLabel": "ชื่อ ({{lang}})"
+    },
+    "telegramBot": {
+      "title": "ตั้งค่า Telegram Bot",
+      "subtitle": "กำหนดการเชื่อมต่อ Telegram Bot การแจ้งเตือนจะถูกส่งไปยังกลุ่มแชทที่กำหนด",
+      "botConfiguration": "การตั้งค่า Bot",
+      "botToken": "Token ของ Bot",
+      "groupChatId": "ID กลุ่มแชท",
+      "groupIdHint": "ใช้ @userinfobot บน Telegram เพื่อค้นหา Group ID ของคุณ",
+      "callbackSettings": "การตั้งค่า Callback",
+      "apiBaseUrl": "URL ฐานของ API",
+      "apiBaseUrlHint": "URL ภายในของ Bot เพื่อเข้าถึง API Backend (เช่น http://backend:3000)",
+      "apiToken": "Token ของ API",
+      "apiTokenHint": "คีย์ API สำหรับการยืนยันตัวตน Backend (จาก backend/.env)",
+      "howToGetToken": "วิธีรับ Bot Token",
+      "step1": "เปิด Telegram และค้นหา @BotFather",
+      "step2": "ส่ง /newbot และทำตามคำแนะนำ",
+      "step3": "คัดลอก Token ที่ BotFather ให้คุณ",
+      "step4": "เพิ่ม Bot ไปยังกลุ่มแชทของคุณ",
+      "step5": "ส่ง /id ในกลุ่มเพื่อรับ Group ID (หรือใช้ @userinfobot)",
+      "testConnection": "ทดสอบการเชื่อมต่อ",
+      "testing": "กำลังทดสอบ..."
+    },
+    "systemConfig": {
+      "title": "ตั้งค่าระบบ",
+      "subtitle": "กำหนดค่าขีดจำกัดกฎธุรกิจและพารามิเตอร์ของระบบ",
+      "categoryRetention": "การเก็บรักษา",
+      "categoryCompression": "การบีบอัด",
+      "categoryThumbnail": "รูปขนาดย่อ",
+      "categoryPolling": "การตรวจสอบ",
+      "categoryAlert": "การแจ้งเตือน",
+      "categoryStorageLimit": "ขีดจำกัดพื้นที่",
+      "reset": "รีเซ็ต",
+      "refresh": "รีเฟรช"
     },
     "alerts": {
       "title": "การจัดการแจ้งเตือน",
@@ -236,7 +367,10 @@
       "leaveBlank": "เว้นว่างไว้ถ้าไม่ต้องการเปลี่ยน",
       "created": "สร้างผู้ใช้สำเร็จ",
       "updated": "อัปเดทผู้ใช้สำเร็จ",
-      "deactivated": "ปิดใช้งานผู้ใช้สำเร็จ"
+      "deactivated": "ปิดใช้งานผู้ใช้สำเร็จ",
+      "roleAdmin": "ผู้ดูแลระบบ",
+      "roleOperator": "ผู้ปฏิบัติการ",
+      "roleViewer": "ผู้ดู"
     },
     "health": {
       "title": "สถานะระบบ",
@@ -423,6 +557,46 @@
         "Admin UI สำหรับตั้งค่า threshold (retention, compression, polling)",
         "Masterdata: ประเภทกล้อง, หมวดหมู่ภาพ, ประเภทข้อบกพร่อง, ประเภทตรวจสอบ",
         "ฟิลด์ชื่อ 5 ภาษาสำหรับ masterdata ทั้งหมด"
+      ],
+      "phase10": "P8.1 — Storage Lifecycle",
+      "phase10Desc": "ระบบลบรูปที่หมดอายุอัตโนมัติ (TIFF/PNG/Thumbnail)",
+      "phase10Status": "เปิดตัวแล้ว",
+      "phase10Tasks": [
+        "กำหนด retentionUntil ตอนรับภาพเข้าระบบตามนโยบายของกล้อง",
+        "Cron job รายวัน ค้นหาและลบรูปที่หมดอายุจาก MinIO + DB",
+        "บันทึกประวัติ cleanup ลง CameraEvent"
+      ],
+      "phase11": "P8.2 — Storage Forecast",
+      "phase11Desc": "Dashboard พยากรณ์วันที่พื้นที่เต็ม เพื่อวางแผน HDD",
+      "phase11Status": "เปิดตัวแล้ว",
+      "phase11Tasks": [
+        "กำหนดขีดจำกัดพื้นที่เก็บ (ต่อกล้องหรือรวม)",
+        "คำนวณพยากรณ์จากแนวโน้มการเติบโต",
+        "Widget: อีก X วันเต็ม ที่ 120/240/360 วัน"
+      ],
+      "phase12": "P8.3 — Dead Letter Queue",
+      "phase12Desc": "Dashboard จัดการ DLQ และสั่งประมวลผลซ้ำ",
+      "phase12Status": "เปิดตัวแล้ว",
+      "phase12Tasks": [
+        "DLQ dashboard แสดงรายการ failed jobs + สั่ง retry/reject",
+        "กำหนดเวลาประมวลผล DLQ ซ้ำอัตโนมัติ",
+        "แจ้งเตือนเมื่อ DLQ เกินเกณฑ์"
+      ],
+      "phase13": "P8.4 — Audit Trail",
+      "phase13Desc": "บันทึกการกระทำทั้งหมดของผู้ใช้และการเปลี่ยนแปลงข้อมูล",
+      "phase13Status": "เปิดตัวแล้ว",
+      "phase13Tasks": [
+        "ตาราง audit_logs ใน Prisma schema",
+        "บันทึก audit เมื่อลบรูป, แก้ Tag, เปลี่ยน Policy, ดาวน์โหลด",
+        "เชื่อมต่อกับ audit-service ผ่าน Kafka"
+      ],
+      "phase14": "P8.5 — Backup Verification",
+      "phase14Desc": "ทดสอบ Restore อัตโนมัติและตรวจสอบความถูกต้องของ Backup",
+      "phase14Status": "เปิดตัวแล้ว",
+      "phase14Tasks": [
+        "Script backup pg_dump และ MinIO",
+        "ทดสอบ Restore อัตโนมัติทุกเดือน",
+        "Dashboard สถานะ Backup"
       ]
     }
   },
@@ -446,6 +620,17 @@
     "disabled": "ปิดใช้งาน",
     "name": "ชื่อ",
     "increasing": "เพิ่มขึ้น",
-    "stable": "คงที่"
+    "stable": "คงที่",
+    "loading": "กำลังโหลด...",
+    "pending": "รอดำเนินการ",
+    "queued": "อยู่ในคิว",
+    "running": "กำลังทำงาน",
+    "retrying": "กำลังลองใหม่",
+    "dead_letter": "คิวเสีย",
+    "processing": "กำลังประมวลผล",
+    "completed": "เสร็จสมบูรณ์",
+    "failed": "ล้มเหลว",
+    "deleted": "ลบแล้ว",
+    "archived": "เก็บถาวรแล้ว"
   }
 }

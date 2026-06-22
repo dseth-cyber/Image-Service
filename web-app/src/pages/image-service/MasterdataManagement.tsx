@@ -9,11 +9,11 @@ import { Button, Modal } from '@/components/ui';
 
 type TabType = 'camera_type' | 'image_category' | 'defect_type' | 'inspection_type';
 
-const TABS: { key: TabType; label: string }[] = [
-  { key: 'camera_type', label: 'Camera Type' },
-  { key: 'image_category', label: 'Image Category' },
-  { key: 'defect_type', label: 'Defect Type' },
-  { key: 'inspection_type', label: 'Inspection Type' },
+const TABS: { key: TabType; labelKey: string }[] = [
+  { key: 'camera_type', labelKey: 'imageService.masterdataManagement.tabCameraType' },
+  { key: 'image_category', labelKey: 'imageService.masterdataManagement.tabImageCategory' },
+  { key: 'defect_type', labelKey: 'imageService.masterdataManagement.tabDefectType' },
+  { key: 'inspection_type', labelKey: 'imageService.masterdataManagement.tabInspectionType' },
 ];
 
 const LANG_FIELDS = ['nameTh', 'nameEn', 'nameCn', 'nameMm', 'nameJp'] as const;
@@ -42,19 +42,19 @@ export default function MasterdataManagement() {
 
   const createMutation = useMutation({
     mutationFn: (d: any) => imageServiceApi.createMasterdata(d),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['masterdata'] }); toast.success('Created'); setModal({ open: false }); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['masterdata'] }); toast.success(t('common.saveSuccess')); setModal({ open: false }); },
     onError: () => toast.error(t('common.error')),
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => imageServiceApi.updateMasterdata(id, data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['masterdata'] }); toast.success('Updated'); setModal({ open: false }); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['masterdata'] }); toast.success(t('common.saveSuccess')); setModal({ open: false }); },
     onError: () => toast.error(t('common.error')),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => imageServiceApi.deleteMasterdata(id),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['masterdata'] }); toast.success('Deleted'); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['masterdata'] }); toast.success(t('common.saveSuccess')); },
     onError: () => toast.error(t('common.error')),
   });
 
@@ -82,37 +82,37 @@ export default function MasterdataManagement() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <p className={`text-xs font-medium uppercase tracking-widest ${themeConfig.text.secondary}`}>Image Service · Masterdata</p>
-        <h1 className={`text-2xl font-bold ${themeConfig.text.primary}`}>Masterdata Management</h1>
-        <p className={`text-sm mt-1 ${themeConfig.text.secondary}`}>Manage reference data entities for the Image Service</p>
+        <p className={`text-xs font-medium uppercase tracking-widest ${themeConfig.text.secondary}`}>Image Service · {t('imageService.masterdataManagement.title')}</p>
+        <h1 className={`text-2xl font-bold ${themeConfig.text.primary}`}>{t('imageService.masterdataManagement.title')}</h1>
+        <p className={`text-sm mt-1 ${themeConfig.text.secondary}`}>{t('imageService.masterdataManagement.subtitle')}</p>
       </div>
 
       <div className={`flex gap-1 mb-5 px-1 py-1 rounded-lg ${themeConfig.card}`}>
         {TABS.map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === tab.key ? 'bg-cyan-500/15 text-cyan-300' : `${themeConfig.text.secondary} hover:text-white`}`}>
-            {tab.label}
+            {t(tab.labelKey)}
           </button>
         ))}
       </div>
 
       <div className={`${themeConfig.card} rounded-lg overflow-hidden`}>
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-          <span className={`text-sm font-semibold ${themeConfig.text.primary}`}>{TABS.find(t => t.key === activeTab)?.label}</span>
-          <Button onClick={openNew} size="sm"><Plus size={14} className="mr-1" /> Add</Button>
+          <span className={`text-sm font-semibold ${themeConfig.text.primary}`}>{t(TABS.find(t => t.key === activeTab)?.labelKey ?? 'imageService.masterdataManagement.tabCameraType')}</span>
+          <Button onClick={openNew} size="sm"><Plus size={14} className="mr-1" /> {t('imageService.masterdataManagement.add')}</Button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className={themeConfig.tableHeader}>
               <tr>
-                <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>Code</th>
+                <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.masterdataManagement.tableCode')}</th>
                 <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>TH</th>
                 <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>EN</th>
                 <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>CN</th>
                 <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>MM</th>
                 <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>JP</th>
-                <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>Sort</th>
-                <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>Active</th>
+                <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.masterdataManagement.tableSort')}</th>
+                <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.masterdataManagement.tableActive')}</th>
                 <th className={`px-4 py-3 text-center text-sm font-semibold ${themeConfig.text.primary}`}>{t('common.actions')}</th>
               </tr>
             </thead>
@@ -149,30 +149,30 @@ export default function MasterdataManagement() {
       </div>
 
       <Modal isOpen={modal.open} onClose={() => setModal({ open: false })}
-        title={modal.editing ? 'Edit' : 'Add'}>
+        title={modal.editing ? t('imageService.masterdataManagement.edit') : t('imageService.masterdataManagement.add')}>
         <div className="space-y-4">
           <div>
-            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>Code</label>
+            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.masterdataManagement.formCode')}</label>
             <input value={form.code} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm(f => ({ ...f, code: e.target.value }))}
               className={inputClass} placeholder="unique_code" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             {LANG_FIELDS.map(field => (
               <div key={field}>
-                <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>Name ({LANG_LABELS[field]})</label>
+                <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.masterdataManagement.nameLabel', { lang: LANG_LABELS[field] })}</label>
                 <input value={form[field]} onChange={e => setForm(f2 => ({ ...f2, [field]: e.target.value }))}
                   className={inputClass} />
               </div>
             ))}
           </div>
           <div>
-            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>Description</label>
+            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.masterdataManagement.formDescription')}</label>
             <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
               rows={2} className={inputClass} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>Sort Order</label>
+              <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.masterdataManagement.formSortOrder')}</label>
               <input type="number" value={form.sortOrder} onChange={e => setForm(f => ({ ...f, sortOrder: e.target.value }))}
                 className={inputClass} />
             </div>
@@ -181,7 +181,7 @@ export default function MasterdataManagement() {
                 <input type="checkbox" checked={form.isActive}
                   onChange={e => setForm(f => ({ ...f, isActive: e.target.checked }))}
                   className="rounded border-gray-600 text-cyan-500 focus:ring-cyan-500/50" />
-                <span className={`text-sm ${themeConfig.text.primary}`}>Active</span>
+                <span className={`text-sm ${themeConfig.text.primary}`}>{t('imageService.masterdataManagement.formActive')}</span>
               </label>
             </div>
           </div>

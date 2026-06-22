@@ -20,9 +20,12 @@ import TelegramBotSettings from '@/pages/image-service/TelegramBotSettings'
 import ApiKeysManagement from '@/pages/image-service/ApiKeysManagement'
 import MasterdataManagement from '@/pages/image-service/MasterdataManagement'
 import SystemConfigPage from '@/pages/image-service/SystemConfigPage'
+import DeadLetterQueue from '@/pages/image-service/DeadLetterQueue'
+import AuditLogViewer from '@/pages/image-service/AuditLogViewer'
+import BackupDashboard from '@/pages/image-service/BackupDashboard'
 import {
   Camera, LayoutDashboard, Search, Activity, HardDrive, FileText, Shield, Settings, Map,
-  Globe, Palette, User, ChevronDown, LogOut, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders,
+  Globe, Palette, User, ChevronDown, LogOut, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History,
 } from 'lucide-react'
 
 const navItems = [
@@ -32,16 +35,22 @@ const navItems = [
   { path: '/image-service/processing', labelKey: 'nav.processing', icon: Activity },
   { path: '/image-service/storage', labelKey: 'nav.storage', icon: HardDrive },
   { path: '/image-service/logs', labelKey: 'nav.logs', icon: FileText },
+  { path: '/image-service/dead-letter', labelKey: 'nav.deadLetter', icon: AlertTriangle },
+  { path: '/image-service/audit-log', labelKey: 'nav.auditLog', icon: History },
+  { path: '/image-service/backup', labelKey: 'nav.backup', icon: Shield },
   { path: '/image-service/retention', labelKey: 'nav.retention', icon: Shield },
-  { path: '/image-service/roadmap', labelKey: 'nav.roadmap', icon: Map },
   { path: '/image-service/alerts', labelKey: 'nav.alerts', icon: Bell },
-  { path: '/image-service/users', labelKey: 'nav.users', icon: Users },
-  { path: '/image-service/health', labelKey: 'nav.health', icon: HeartPulse },
+  { path: '/image-service/masterdata', labelKey: 'nav.masterdata', icon: BookText },
+]
+
+const settingsSubItems = [
+  { path: '/image-service/settings', labelKey: 'nav.settings', icon: Settings },
+  { path: '/image-service/roadmap', labelKey: 'nav.roadmap', icon: Map },
   { path: '/image-service/api-keys', labelKey: 'nav.apiKeys', icon: Key },
   { path: '/image-service/telegram-bot', labelKey: 'nav.telegramBot', icon: MessageCircle },
-  { path: '/image-service/masterdata', labelKey: 'nav.masterdata', icon: BookText },
   { path: '/image-service/system-config', labelKey: 'nav.systemConfig', icon: Sliders },
-  { path: '/image-service/settings', labelKey: 'nav.settings', icon: Settings },
+  { path: '/image-service/users', labelKey: 'nav.users', icon: Users },
+  { path: '/image-service/health', labelKey: 'nav.health', icon: HeartPulse },
 ]
 
 const LANG_OPTIONS = [
@@ -138,6 +147,53 @@ function ProfileMenu({ username, role, onLogout }: { username: string; role: str
   )
 }
 
+function SettingsNavGroup({ settingsSubItems, locationPath, t }: {
+  settingsSubItems: { path: string; labelKey: string; icon: any }[]
+  locationPath: string
+  t: (key: string) => string
+}) {
+  const [open, setOpen] = useState(true)
+  const isInSettings = settingsSubItems.some(item => locationPath === item.path)
+  const SettingsIcon = settingsSubItems[0].icon
+
+  return (
+    <div>
+      <button
+        onClick={() => setOpen(!open)}
+        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+          isInSettings ? 'bg-cyan-500/15 text-cyan-300' : 'text-gray-300 hover:bg-white/5 hover:text-white'
+        }`}
+      >
+        <SettingsIcon size={16} />
+        <span className="flex-1 text-left">{t(`imageService.${settingsSubItems[0].labelKey}`)}</span>
+        <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="ml-3 mt-0.5 space-y-0.5 border-l border-white/10 pl-2">
+          {settingsSubItems.map(item => {
+            const Icon = item.icon
+            const isActive = locationPath === item.path
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center gap-3 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-cyan-500/15 text-cyan-300'
+                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                <Icon size={14} />
+                {t(`imageService.${item.labelKey}`)}
+              </Link>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function App() {
   const { t, i18n } = useTranslation()
   const { themeConfig, theme, setTheme } = useTheme()
@@ -206,6 +262,11 @@ export default function App() {
                 </Link>
               )
             })}
+            <SettingsNavGroup
+              settingsSubItems={settingsSubItems}
+              locationPath={location.pathname}
+              t={t}
+            />
           </nav>
         </aside>
 
@@ -218,6 +279,9 @@ export default function App() {
             <Route path="/image-service/processing" element={<ImageServiceProcessingMonitor />} />
             <Route path="/image-service/storage" element={<ImageServiceStorage />} />
             <Route path="/image-service/logs" element={<ImageServiceProcessingLogs />} />
+            <Route path="/image-service/dead-letter" element={<DeadLetterQueue />} />
+            <Route path="/image-service/audit-log" element={<AuditLogViewer />} />
+            <Route path="/image-service/backup" element={<BackupDashboard />} />
             <Route path="/image-service/retention" element={<ImageServiceRetention />} />
             <Route path="/image-service/roadmap" element={<ImageServiceRoadmap />} />
             <Route path="/image-service/alerts" element={<AlertManagement />} />

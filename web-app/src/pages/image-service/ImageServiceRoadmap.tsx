@@ -25,6 +25,11 @@ const PHASE_ICONS: Record<string, any> = {
   phase7: Kanban,
   phase8: MessageCircle,
   phase9: Settings,
+  phase10: Clock,
+  phase11: Activity,
+  phase12: Server,
+  phase13: Shield,
+  phase14: FileText,
 }
 
 const PHASES = [
@@ -38,6 +43,11 @@ const PHASES = [
   { key: 'phase7', status: 'Launched', priority: 'P5' },
   { key: 'phase8', status: 'Launched', priority: 'P6' },
   { key: 'phase9', status: 'Launched', priority: 'P7' },
+  { key: 'phase10', status: 'Launched', priority: 'P8.1' },
+  { key: 'phase11', status: 'Launched', priority: 'P8.2' },
+  { key: 'phase12', status: 'Launched', priority: 'P8.3' },
+  { key: 'phase13', status: 'Launched', priority: 'P8.4' },
+  { key: 'phase14', status: 'Launched', priority: 'P8.5' },
 ]
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -51,6 +61,11 @@ const PRIORITY_COLORS: Record<string, string> = {
   P5: 'bg-cyan-500/20 text-cyan-400',
   P6: 'bg-pink-500/20 text-pink-400',
   P7: 'bg-gray-500/20 text-gray-400',
+  'P8.1': 'bg-teal-500/20 text-teal-400',
+  'P8.2': 'bg-teal-500/20 text-teal-400',
+  'P8.3': 'bg-teal-500/20 text-teal-400',
+  'P8.4': 'bg-teal-500/20 text-teal-400',
+  'P8.5': 'bg-teal-500/20 text-teal-400',
 }
 
 const STATUS_WEIGHTS: Record<string, number> = {

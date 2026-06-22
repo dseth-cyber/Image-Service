@@ -7,12 +7,13 @@ import { imageServiceApi } from '@/services/imageServiceApi';
 import { Save, RotateCcw, RefreshCw, Settings, Database, HardDrive, Server, Bell, Image } from 'lucide-react';
 import { Button } from '@/components/ui';
 
-const CATEGORIES = [
-  { key: 'retention', icon: Database, label: 'Retention', color: 'text-blue-400 bg-blue-500/10' },
-  { key: 'compression', icon: Image, label: 'Compression', color: 'text-purple-400 bg-purple-500/10' },
-  { key: 'thumbnail', icon: HardDrive, label: 'Thumbnail', color: 'text-amber-400 bg-amber-500/10' },
-  { key: 'polling', icon: RefreshCw, label: 'Polling', color: 'text-green-400 bg-green-500/10' },
-  { key: 'alert', icon: Bell, label: 'Alert', color: 'text-red-400 bg-red-500/10' },
+const CATEGORIES: { key: string; icon: any; labelKey: string; color: string }[] = [
+  { key: 'retention', icon: Database, labelKey: 'imageService.systemConfig.categoryRetention', color: 'text-blue-400 bg-blue-500/10' },
+  { key: 'compression', icon: Image, labelKey: 'imageService.systemConfig.categoryCompression', color: 'text-purple-400 bg-purple-500/10' },
+  { key: 'thumbnail', icon: HardDrive, labelKey: 'imageService.systemConfig.categoryThumbnail', color: 'text-amber-400 bg-amber-500/10' },
+  { key: 'polling', icon: RefreshCw, labelKey: 'imageService.systemConfig.categoryPolling', color: 'text-green-400 bg-green-500/10' },
+  { key: 'alert', icon: Bell, labelKey: 'imageService.systemConfig.categoryAlert', color: 'text-red-400 bg-red-500/10' },
+  { key: 'storage', icon: Server, labelKey: 'imageService.systemConfig.categoryStorageLimit', color: 'text-teal-400 bg-teal-500/10' },
 ];
 
 export default function SystemConfigPage() {
@@ -77,16 +78,16 @@ export default function SystemConfigPage() {
     <div className="p-6 max-w-4xl">
       <div className="mb-6">
         <p className={`text-xs font-medium uppercase tracking-widest ${themeConfig.text.secondary}`}>
-          Image Service · System Config
+          Image Service · {t('imageService.systemConfig.title')}
         </p>
-        <h1 className={`text-2xl font-bold ${themeConfig.text.primary}`}>System Configuration</h1>
+        <h1 className={`text-2xl font-bold ${themeConfig.text.primary}`}>{t('imageService.systemConfig.title')}</h1>
         <p className={`text-sm mt-1 ${themeConfig.text.secondary}`}>
-          Configure business rule thresholds and system parameters
+          {t('imageService.systemConfig.subtitle')}
         </p>
       </div>
 
       {isLoading ? (
-        <div className={`${themeConfig.card} rounded-lg p-8 text-center text-sm ${themeConfig.text.secondary}`}>Loading...</div>
+        <div className={`${themeConfig.card} rounded-lg p-8 text-center text-sm ${themeConfig.text.secondary}`}>{t('common.loading')}</div>
       ) : (
         <>
           {CATEGORIES.map(cat => {
@@ -99,7 +100,7 @@ export default function SystemConfigPage() {
                   <div className={`p-2 rounded-lg ${cat.color}`}>
                     <Icon size={18} />
                   </div>
-                  <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>{cat.label}</h3>
+                  <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>{t(cat.labelKey)}</h3>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   {items.map(([key, cfg]) => (
@@ -126,11 +127,11 @@ export default function SystemConfigPage() {
             </Button>
             <Button variant="secondary" onClick={handleReset}>
               <RotateCcw size={16} className="mr-1.5" />
-              Reset
+              {t('imageService.systemConfig.reset')}
             </Button>
             <Button variant="secondary" onClick={() => queryClient.invalidateQueries({ queryKey: ['system-config'] })}>
               <RefreshCw size={16} className="mr-1.5" />
-              Refresh
+              {t('imageService.systemConfig.refresh')}
             </Button>
           </div>
         </>

@@ -5,7 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { useToast } from '@/contexts/ToastContext'
 import { imageServiceApi } from '@/services/imageServiceApi'
 import { formatDateTime } from '@/utils/dateUtils'
-import { Modal, Button, TableSkeleton } from '@/components/ui'
+import { Modal, Button, SearchableSelect, TableSkeleton } from '@/components/ui'
 import { Users, Plus, Edit, Trash2, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 
 const ROLE_COLORS: Record<string, string> = {
@@ -143,7 +143,7 @@ export default function UserManagement() {
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>{item.email}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[item.role] ?? 'bg-gray-500/20 text-gray-400'}`}>
-                        {item.role}
+                        {t(`imageService.users.role${item.role.charAt(0).toUpperCase() + item.role.slice(1)}`)}
                       </span>
                     </td>
                     <td className="px-4 py-3">
@@ -214,12 +214,12 @@ export default function UserManagement() {
           </div>
           <div>
             <label className={`block text-sm font-medium mb-1 ${themeConfig.text.primary}`}>{t('imageService.users.role')}</label>
-            <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
-              className={`w-full px-3 py-2 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-cyan-500/50`}>
-              <option value="admin">admin</option>
-              <option value="operator">operator</option>
-              <option value="viewer">viewer</option>
-            </select>
+            <SearchableSelect value={form.role} onChange={v => setForm(f => ({ ...f, role: v }))}
+              options={[
+                { value: 'admin', label: t('imageService.users.roleAdmin') },
+                { value: 'operator', label: t('imageService.users.roleOperator') },
+                { value: 'viewer', label: t('imageService.users.roleViewer') },
+              ]} />
           </div>
           <div className="flex justify-end gap-2 pt-3">
             <Button variant="secondary" onClick={() => setModal({ open: false })}>{t('common.cancel')}</Button>

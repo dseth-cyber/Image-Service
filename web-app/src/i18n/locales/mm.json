@@ -81,7 +81,15 @@
       "rawImages": "မူရင်းပုံများ",
       "processedImages": "လုပ်ဆောင်ပြီးပုံများ",
       "thumbnails": "Thumbnail များ",
-      "noData": "သိုလှောင်မှုဒေတာမရှိပါ"
+      "noData": "သိုလှောင်မှုဒေတာမရှိပါ",
+      "daysUntilFull": "ပြည့်ရန်ရက်များ",
+      "forecast": "သိုလှောင်မှုခန့်မှန်းချက်",
+      "usage": "အသုံးပြုမှု",
+      "dailyGrowth": "နေ့စဉ်တိုးနှုန်း",
+      "today": "ယနေ့",
+      "projectionTable": "ခန့်မှန်းဇယား",
+      "inDays": "{{days}} ရက်အတွင်း",
+      "full": "ပြည့်ပြီ"
     },
     "retention": {
       "title": "ထိန်းသိမ်းမှုမူဝါဒများ",
@@ -132,7 +140,76 @@
       "retrySuccess": "အလုပ်ကိုပြန်လည်တန်းစီခြင်းအောင်မြင်ပါသည်",
       "noLogs": "လုပ်ဆောင်မှု Logs မတွေ့ပါ",
       "allTypes": "အမျိုးအစားအားလုံး",
-      "allStatuses": "အခြေအနေအားလုံး"
+      "allStatuses": "အခြေအနေအားလုံး",
+      "statusQueued": "တန်းစီထား",
+      "statusRunning": "လုပ်ဆောင်နေ",
+      "statusCompleted": "ပြီးဆုံး",
+      "statusFailed": "မအောင်မြင်",
+      "statusRetrying": "ပြန်ကြိုးစားနေ",
+      "statusDeadLetter": "Dead Letter",
+      "typeSync": "Sync",
+      "typeConvert": "Convert",
+      "typeThumbnail": "Thumbnail",
+      "typeChecksum": "Checksum",
+      "typeArchive": "Archive",
+      "typeDelete": "ဖျက်ရန်"
+    },
+    "deadLetter": {
+      "title": "Dead Letter Queue",
+      "subtitle": "မအောင်မြင်သော လုပ်ဆောင်မှုအလုပ်များကို စောင့်ကြည့်စီမံရန်",
+      "total": "Dead Letter စုစုပေါင်း",
+      "byJobType": "အလုပ်အမျိုးအစားများ",
+      "oldest": "အရှေးဆုံး",
+      "maxRetries": "အများဆုံးပြန်ကြိုးစားမှု",
+      "jobTypeBreakdown": "အလုပ်အမျိုးအစားအလိုက်",
+      "allTypes": "အမျိုးအစားအားလုံး",
+      "retryAll": "အားလုံးပြန်ကြိုးစားရန်",
+      "rejectAll": "အားလုံးငြင်းပယ်ရန်",
+      "jobType": "အလုပ်အမျိုးအစား",
+      "image": "ပုံ",
+      "error": "အမှား",
+      "retries": "ပြန်ကြိုးစားမှုများ",
+      "queuedAt": "တန်းစီချိန်",
+      "retry": "ပြန်ကြိုးစားရန်",
+      "reject": "ငြင်းပယ်ရန်",
+      "noDeadLetters": "Dead Letter မရှိပါ — အလုပ်အားလုံးအောင်မြင်စွာလုပ်ဆောင်ပြီးပါပြီ"
+    },
+    "auditLog": {
+      "title": "စစ်ဆေးမှတ်တမ်း",
+      "subtitle": "အသုံးပြုသူလုပ်ဆောင်ချက်များနှင့် ဒေတာပြောင်းလဲမှုအားလုံးကို ခြေရာခံရန်",
+      "allActions": "လုပ်ဆောင်ချက်အားလုံး",
+      "allEntities": "Entity အားလုံး",
+      "time": "အချိန်",
+      "user": "အသုံးပြုသူ",
+      "action": "လုပ်ဆောင်ချက်",
+      "entity": "Entity",
+      "entityId": "Entity ID",
+      "description": "ဖော်ပြချက်",
+      "ip": "IP လိပ်စာ",
+      "noLogs": "စစ်ဆေးမှတ်တမ်းမတွေ့ပါ",
+      "actionImageDelete": "ပုံဖျက်ခြင်း",
+      "actionMetadataUpdate": "Metadata အပ်ဒိတ်",
+      "actionTagsUpdate": "တဂ်များအပ်ဒိတ်",
+      "actionTagDelete": "တဂ်ဖျက်ခြင်း",
+      "actionFileDownload": "ဖိုင်ဒေါင်းလုတ်",
+      "actionPolicyCreate": "မူဝါဒဖန်တီးခြင်း",
+      "actionPolicyUpdate": "မူဝါဒအပ်ဒိတ်",
+      "actionPolicyDelete": "မူဝါဒဖျက်ခြင်း",
+      "entityImage": "ပုံ",
+      "entityImageFile": "ပုံဖိုင်",
+      "entityRetentionPolicy": "ထိန်းသိမ်းမှုမူဝါဒ"
+    },
+    "backup": {
+      "title": "Backup နှင့် Restore",
+      "subtitle": "ဒေတာဘေ့စ်နှင့် object storage backup စီမံခန့်ခွဲမှု",
+      "databaseBackup": "ဒေတာဘေ့စ် Backup",
+      "minioBackup": "MinIO Backup",
+      "runNow": "ချက်ချင်းလုပ်ဆောင်ရန်",
+      "status": "အခြေအနေ",
+      "fileSize": "ဖိုင်အရွယ်",
+      "lastBackup": "နောက်ဆုံး Backup",
+      "noBackups": "Backup မရှိသေးပါ",
+      "recentBackups": "မကြာသေးမီက Backup များ"
     },
     "settings": {
       "title": "ဆက်တင်များ",
@@ -191,7 +268,61 @@
       "apiKeys": "API သော့များ",
       "telegramBot": "Telegram ဘော့",
       "masterdata": "မာစတာဒေတာ",
-      "systemConfig": "စနစ်ဖွဲ့စည်းမှု"
+      "systemConfig": "စနစ်ဖွဲ့စည်းမှု",
+      "deadLetter": "Dead Letter Queue",
+      "auditLog": "စစ်ဆေးမှတ်တမ်း",
+      "backup": "Backup"
+    },
+    "masterdataManagement": {
+      "title": "မာစတာဒေတာစီမံခန့်ခွဲမှု",
+      "subtitle": "Image Service အတွက် ရည်ညွှန်းဒေတာ entities များကို စီမံပါ",
+      "tabCameraType": "ကင်မရာအမျိုးအစား",
+      "tabImageCategory": "ပုံအမျိုးအစား",
+      "tabDefectType": "ချွတ်ယွင်းချက်အမျိုးအစား",
+      "tabInspectionType": "စစ်ဆေးမှုအမျိုးအစား",
+      "add": "ထည့်",
+      "edit": "ပြင်ဆင်",
+      "tableCode": "ကုဒ်",
+      "tableSort": "စီရန်",
+      "tableActive": "အသက်ဝင်",
+      "formCode": "ကုဒ်",
+      "formDescription": "ဖော်ပြချက်",
+      "formSortOrder": "စီအစဉ်",
+      "formActive": "အသက်ဝင်",
+      "nameLabel": "အမည် ({{lang}})"
+    },
+    "telegramBot": {
+      "title": "Telegram ဘော့ဆက်တင်များ",
+      "subtitle": "Telegram ဘော့ချိတ်ဆက်မှုကို ပြင်ဆင်ပါ။ အကြောင်းကြားချက်များကို သတ်မှတ်ထားသော group chat သို့ ပို့ပေးပါမည်။",
+      "botConfiguration": "ဘော့ဖွဲ့စည်းမှု",
+      "botToken": "ဘော့တိုကင်",
+      "groupChatId": "Group Chat ID",
+      "groupIdHint": "သင့် Group ID ကိုရှာရန် Telegram တွင် @userinfobot ကိုသုံးပါ",
+      "callbackSettings": "Callback ဆက်တင်များ",
+      "apiBaseUrl": "API အခြေခံ URL",
+      "apiBaseUrlHint": "Backend API သို့ရောက်ရှိရန် ဘော့၏အတွင်းပိုင်း URL (ဥပမာ http://backend:3000)",
+      "apiToken": "API တိုကင်",
+      "apiTokenHint": "Backend authentication အတွက် API သော့ (backend/.env မှ)",
+      "howToGetToken": "ဘော့တိုကင်ရယူနည်း",
+      "step1": "Telegram ကိုဖွင့်ပြီး @BotFather ကိုရှာပါ",
+      "step2": "/newbot ကိုပို့ပြီး ညွှန်ကြားချက်များကိုလိုက်နာပါ",
+      "step3": "BotFather ပေးသော တိုကင်ကို ကူးယူပါ",
+      "step4": "သင့် group chat သို့ ဘော့ကိုထည့်ပါ",
+      "step5": "Group ID ရရှိရန် group တွင် /id ကိုပို့ပါ (သို့မဟုတ် @userinfobot ကိုသုံးပါ)",
+      "testConnection": "ချိတ်ဆက်မှုစမ်းသပ်ရန်",
+      "testing": "စမ်းသပ်နေသည်..."
+    },
+    "systemConfig": {
+      "title": "စနစ်ဖွဲ့စည်းမှု",
+      "subtitle": "လုပ်ငန်းစည်းမျဉ်း threshold များနှင့် စနစ် parameters များကို ပြင်ဆင်ပါ",
+      "categoryRetention": "ထိန်းသိမ်းမှု",
+      "categoryCompression": "ချုံ့မှု",
+      "categoryThumbnail": "Thumbnail",
+      "categoryPolling": "စစ်ဆေးမှု",
+      "categoryAlert": "သတိပေးချက်",
+      "categoryStorageLimit": "သိုလှောင်မှုကန့်သတ်ချက်",
+      "reset": "ပြန်သတ်မှတ်",
+      "refresh": "ပြန်လည်ဆန်းသစ်"
     },
     "alerts": {
       "title": "သတိပေးချက်စီမံခန့်ခွဲမှု",
@@ -236,7 +367,10 @@
       "leaveBlank": "မပြောင်းလဲလိုပါက ဗလာထားပါ",
       "created": "အသုံးပြုသူဖန်တီးပြီး",
       "updated": "အသုံးပြုသူပြင်ဆင်ပြီး",
-      "deactivated": "အသုံးပြုသူပိတ်ထားပြီး"
+      "deactivated": "အသုံးပြုသူပိတ်ထားပြီး",
+      "roleAdmin": "စီမံခန့်ခွဲသူ",
+      "roleOperator": "လုပ်ဆောင်သူ",
+      "roleViewer": "ကြည့်ရှုသူ"
     },
     "health": {
       "title": "ကျန်းမာရေးအခြေအနေ",
@@ -423,6 +557,46 @@
         "Admin UI မှ လုပ်ငန်းစည်းမျဉ်း threshold များသတ်မှတ်ခြင်း (retention, compression, polling)",
         "Masterdata: ကင်မရာအမျိုးအစား, ပုံအမျိုးအစား, ချွတ်ယွင်းချက်အမျိုးအစား, စစ်ဆေးမှုအမျိုးအစား",
         "Masterdata အားလုံးအတွက် 5 ဘာသာစကားအမည်ကွက်"
+      ],
+      "phase10": "P8.1 — သိုလှောင်မှုဘဝစက်ဝန်း",
+      "phase10Desc": "သက်တမ်းကုန် TIFF/PNG/Thumbnail များကို အလိုအလျောက်ရှင်းလင်းခြင်း",
+      "phase10Status": "ထုတ်ပြီးပြီ",
+      "phase10Tasks": [
+        "ကင်မရာ၏ ထိန်းသိမ်းမှုမူဝါဒအရ ပုံလက်ခံချိန်တွင် retentionUntil သတ်မှတ်ခြင်း",
+        "နေ့စဉ် cron job ဖြင့် သက်တမ်းကုန်ပုံများကို MinIO + DB မှ ရှာဖွေဖျက်ခြင်း",
+        "ရှင်းလင်းမှုမှတ်တမ်းကို CameraEvent သို့ သိမ်းဆည်းခြင်း"
+      ],
+      "phase11": "P8.2 — သိုလှောင်မှုခန့်မှန်းချက်",
+      "phase11Desc": "ဒစ်ခ်ပြည့်မည့်ရက်ကို ခန့်မှန်းသည့် ဒက်ရှ်ဘုတ်",
+      "phase11Status": "ထုတ်ပြီးပြီ",
+      "phase11Tasks": [
+        "သိုလှောင်မှုပမာဏကန့်သတ်ချက်သတ်မှတ်ခြင်း (ကင်မရာအလိုက် သို့မဟုတ် ခြုံငုံ)",
+        "ကြီးထွားနှုန်းဒေတာမှ ခန့်မှန်းချက်တွက်ချက်ခြင်း",
+        "ဝစ်ဂျက်: 120/240/360 ရက်အကြာတွင် ပြည့်မည်"
+      ],
+      "phase12": "P8.3 — Dead Letter Queue",
+      "phase12Desc": "DLQ စောင့်ကြည့်ဒက်ရှ်ဘုတ်နှင့် အလိုအလျောက်ပြန်လည်လုပ်ဆောင်ခြင်း",
+      "phase12Status": "ထုတ်ပြီးပြီ",
+      "phase12Tasks": [
+        "DLQ ဒက်ရှ်ဘုတ် (မအောင်မြင်သောအလုပ်များပြသခြင်း + ပြန်ကြိုးစား/ငြင်းပယ်)",
+        "အလိုအလျောက်ပြန်လည်လုပ်ဆောင်ရန် အချိန်ဇယားဆွဲခြင်း",
+        "DLQ သတ်မှတ်ချက်ထက်ကျော်လွန်ပါက သတိပေးချက်"
+      ],
+      "phase13": "P8.4 — စစ်ဆေးမှတ်တမ်း",
+      "phase13Desc": "အသုံးပြုသူလုပ်ဆောင်ချက်များနှင့် ဒေတာပြောင်းလဲမှုအားလုံးအတွက် ပြည့်စုံသော စစ်ဆေးမှတ်တမ်း",
+      "phase13Status": "ထုတ်ပြီးပြီ",
+      "phase13Tasks": [
+        "Prisma schema တွင် audit_logs ဇယား",
+        "ပုံဖျက်ခြင်း၊ Tag ပြောင်းခြင်း၊ Policy ပြောင်းခြင်း၊ ဒေါင်းလုဒ်လုပ်ခြင်းတို့ကို မှတ်တမ်းတင်ခြင်း",
+        "Kafka မှတစ်ဆင့် audit-service နှင့်ချိတ်ဆက်ခြင်း"
+      ],
+      "phase14": "P8.5 — Backup အတည်ပြုခြင်း",
+      "phase14Desc": "အလိုအလျောက် Restore စမ်းသပ်ခြင်းနှင့် Backup ခိုင်မာမှုစစ်ဆေးခြင်း",
+      "phase14Status": "ထုတ်ပြီးပြီ",
+      "phase14Tasks": [
+        "pg_dump နှင့် MinIO backup scripts များ",
+        "လစဉ် အလိုအလျောက် Restore စမ်းသပ်ခြင်း",
+        "Backup အခြေအနေ ဒက်ရှ်ဘုတ်"
       ]
     }
   },
@@ -446,6 +620,17 @@
     "disabled": "ပိတ်ထား",
     "name": "အမည်",
     "increasing": "တိုးလာ",
-    "stable": "တည်ငြိမ်"
+    "stable": "တည်ငြိမ်",
+    "loading": "ဝန်တင်နေသည်...",
+    "pending": "ဆောင်ရွက်ဆဲ",
+    "queued": "တန်းစီထား",
+    "running": "လုပ်ဆောင်နေ",
+    "retrying": "ပြန်ကြိုးစားနေ",
+    "dead_letter": "Dead Letter",
+    "processing": "လုပ်ဆောင်နေသည်",
+    "completed": "ပြီးဆုံး",
+    "failed": "မအောင်မြင်",
+    "deleted": "ဖျက်ပြီး",
+    "archived": "သိမ်းဆည်းပြီး"
   }
 }

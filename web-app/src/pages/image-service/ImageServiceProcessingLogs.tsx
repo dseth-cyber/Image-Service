@@ -94,12 +94,24 @@ export default function ImageServiceProcessingLogs() {
   const thCls = (col: string) =>
     `px-4 py-3 text-left text-sm font-semibold cursor-pointer select-none hover:text-cyan-300 ${themeConfig.text.primary}`;
 
-  const statusOptions = ['queued', 'running', 'completed', 'failed', 'retrying', 'dead_letter'].map(s => ({
-    value: s, label: s,
-  }));
-  const typeOptions = ['sync', 'convert', 'thumbnail', 'checksum', 'archive', 'delete'].map(s => ({
-    value: s, label: s,
-  }));
+  const STATUS_LABEL_KEY: Record<string, string> = {
+    queued: 'imageService.processingLogs.statusQueued',
+    running: 'imageService.processingLogs.statusRunning',
+    completed: 'imageService.processingLogs.statusCompleted',
+    failed: 'imageService.processingLogs.statusFailed',
+    retrying: 'imageService.processingLogs.statusRetrying',
+    dead_letter: 'imageService.processingLogs.statusDeadLetter',
+  };
+  const TYPE_LABEL_KEY: Record<string, string> = {
+    sync: 'imageService.processingLogs.typeSync',
+    convert: 'imageService.processingLogs.typeConvert',
+    thumbnail: 'imageService.processingLogs.typeThumbnail',
+    checksum: 'imageService.processingLogs.typeChecksum',
+    archive: 'imageService.processingLogs.typeArchive',
+    delete: 'imageService.processingLogs.typeDelete',
+  };
+  const statusOptions = Object.keys(STATUS_LABEL_KEY).map(s => ({ value: s, label: t(STATUS_LABEL_KEY[s]) }));
+  const typeOptions = Object.keys(TYPE_LABEL_KEY).map(s => ({ value: s, label: t(TYPE_LABEL_KEY[s]) }));
 
   return (
     <div className="p-6">

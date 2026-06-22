@@ -81,7 +81,15 @@
       "rawImages": "Raw画像",
       "processedImages": "処理済み画像",
       "thumbnails": "サムネイル",
-      "noData": "ストレージデータがありません"
+      "noData": "ストレージデータがありません",
+      "daysUntilFull": "満杯までの日数",
+      "forecast": "ストレージ予測",
+      "usage": "使用率",
+      "dailyGrowth": "1日あたりの増加",
+      "today": "今日",
+      "projectionTable": "予測",
+      "inDays": "{{days}} 日後",
+      "full": "満杯"
     },
     "retention": {
       "title": "保存ポリシー",
@@ -132,7 +140,76 @@
       "retrySuccess": "ジョブを再キューイングしました",
       "noLogs": "処理ログが見つかりません",
       "allTypes": "すべてのタイプ",
-      "allStatuses": "すべてのステータス"
+      "allStatuses": "すべてのステータス",
+      "statusQueued": "キュー中",
+      "statusRunning": "実行中",
+      "statusCompleted": "完了",
+      "statusFailed": "失敗",
+      "statusRetrying": "リトライ中",
+      "statusDeadLetter": "デッドレター",
+      "typeSync": "同期",
+      "typeConvert": "変換",
+      "typeThumbnail": "サムネイル",
+      "typeChecksum": "チェックサム",
+      "typeArchive": "アーカイブ",
+      "typeDelete": "削除"
+    },
+    "deadLetter": {
+      "title": "デッドレターキュー",
+      "subtitle": "失敗した処理ジョブの監視と管理",
+      "total": "デッドレター数",
+      "byJobType": "ジョブタイプ数",
+      "oldest": "最古",
+      "maxRetries": "最大リトライ",
+      "jobTypeBreakdown": "ジョブタイプ別",
+      "allTypes": "すべてのタイプ",
+      "retryAll": "すべてリトライ",
+      "rejectAll": "すべて拒否",
+      "jobType": "ジョブタイプ",
+      "image": "画像",
+      "error": "エラー",
+      "retries": "リトライ回数",
+      "queuedAt": "キューイング時刻",
+      "retry": "リトライ",
+      "reject": "拒否",
+      "noDeadLetters": "デッドレターなし — すべてのジョブが正常処理されました"
+    },
+    "auditLog": {
+      "title": "監査ログ",
+      "subtitle": "全ユーザー操作とデータ変更の追跡",
+      "allActions": "すべての操作",
+      "allEntities": "すべてのエンティティ",
+      "time": "時刻",
+      "user": "ユーザー",
+      "action": "操作",
+      "entity": "エンティティ",
+      "entityId": "エンティティID",
+      "description": "説明",
+      "ip": "IPアドレス",
+      "noLogs": "監査ログが見つかりません",
+      "actionImageDelete": "画像削除",
+      "actionMetadataUpdate": "メタデータ更新",
+      "actionTagsUpdate": "タグ更新",
+      "actionTagDelete": "タグ削除",
+      "actionFileDownload": "ファイルダウンロード",
+      "actionPolicyCreate": "ポリシー作成",
+      "actionPolicyUpdate": "ポリシー更新",
+      "actionPolicyDelete": "ポリシー削除",
+      "entityImage": "画像",
+      "entityImageFile": "画像ファイル",
+      "entityRetentionPolicy": "保存ポリシー"
+    },
+    "backup": {
+      "title": "バックアップと復元",
+      "subtitle": "データベースとオブジェクトストレージのバックアップ管理",
+      "databaseBackup": "データベースバックアップ",
+      "minioBackup": "MinIOバックアップ",
+      "runNow": "今すぐ実行",
+      "status": "ステータス",
+      "fileSize": "ファイルサイズ",
+      "lastBackup": "最終バックアップ",
+      "noBackups": "バックアップなし",
+      "recentBackups": "最近のバックアップ"
     },
     "settings": {
       "title": "設定",
@@ -191,7 +268,61 @@
       "apiKeys": "API キー",
       "telegramBot": "Telegram ボット",
       "masterdata": "マスタデータ",
-      "systemConfig": "システム設定"
+      "systemConfig": "システム設定",
+      "deadLetter": "デッドレターキュー",
+      "auditLog": "監査ログ",
+      "backup": "バックアップ"
+    },
+    "masterdataManagement": {
+      "title": "マスタデータ管理",
+      "subtitle": "Image Service の参照データエンティティを管理",
+      "tabCameraType": "カメラ種別",
+      "tabImageCategory": "画像カテゴリ",
+      "tabDefectType": "欠陥種別",
+      "tabInspectionType": "検査種別",
+      "add": "追加",
+      "edit": "編集",
+      "tableCode": "コード",
+      "tableSort": "並び順",
+      "tableActive": "有効",
+      "formCode": "コード",
+      "formDescription": "説明",
+      "formSortOrder": "並び順",
+      "formActive": "有効",
+      "nameLabel": "名前 ({{lang}})"
+    },
+    "telegramBot": {
+      "title": "Telegram ボット設定",
+      "subtitle": "Telegram ボット連携の設定。通知は設定されたグループチャットに送信されます。",
+      "botConfiguration": "ボット設定",
+      "botToken": "ボットトークン",
+      "groupChatId": "グループチャット ID",
+      "groupIdHint": "Telegram で @userinfobot を使用してグループ ID を確認してください",
+      "callbackSettings": "コールバック設定",
+      "apiBaseUrl": "API ベース URL",
+      "apiBaseUrlHint": "ボットがバックエンド API にアクセスするための内部 URL（例：http://backend:3000）",
+      "apiToken": "API トークン",
+      "apiTokenHint": "バックエンド認証用の API キー（backend/.env から）",
+      "howToGetToken": "ボットトークンの取得方法",
+      "step1": "Telegram を開いて @BotFather を検索",
+      "step2": "/newbot を送信し、指示に従う",
+      "step3": "BotFather から提供されたトークンをコピー",
+      "step4": "ボットをグループチャットに追加",
+      "step5": "グループで /id を送信してグループ ID を取得（または @userinfobot を使用）",
+      "testConnection": "接続テスト",
+      "testing": "テスト中..."
+    },
+    "systemConfig": {
+      "title": "システム設定",
+      "subtitle": "ビジネスルールのしきい値とシステムパラメータの設定",
+      "categoryRetention": "保持",
+      "categoryCompression": "圧縮",
+      "categoryThumbnail": "サムネイル",
+      "categoryPolling": "ポーリング",
+      "categoryAlert": "アラート",
+      "categoryStorageLimit": "ストレージ制限",
+      "reset": "リセット",
+      "refresh": "更新"
     },
     "alerts": {
       "title": "アラート管理",
@@ -236,7 +367,10 @@
       "leaveBlank": "変更しない場合は空白のまま",
       "created": "ユーザーを作成しました",
       "updated": "ユーザーを更新しました",
-      "deactivated": "ユーザーを無効にしました"
+      "deactivated": "ユーザーを無効にしました",
+      "roleAdmin": "管理者",
+      "roleOperator": "オペレーター",
+      "roleViewer": "閲覧者"
     },
     "health": {
       "title": "ヘルスステータス",
@@ -423,6 +557,46 @@
         "管理 UI で業務ルールしきい値設定（保持、圧縮、ポーリング）",
         "マスタデータ：カメラ種別、画像カテゴリ、欠陥種別、検査種別",
         "全マスタデータに 5 言語名フィールド"
+      ],
+      "phase10": "P8.1 — ストレージライフサイクル",
+      "phase10Desc": "期限切れ TIFF/PNG/Thumbnail を自動削除",
+      "phase10Status": "リリース済み",
+      "phase10Tasks": [
+        "カメラの保持ポリシーに基づき取り込み時に retentionUntil を設定",
+        "日次 cron ジョブで期限切れ画像を MinIO + DB から削除",
+        "クリーンアップを CameraEvent に記録"
+      ],
+      "phase11": "P8.2 — ストレージ予測",
+      "phase11Desc": "ディスク満杯予測ダッシュボード",
+      "phase11Status": "リリース済み",
+      "phase11Tasks": [
+        "容量制限設定（カメラ単位またはグローバル）",
+        "成長トレンドから予測計算",
+        "ウィジェット：120/240/360 日後に満杯"
+      ],
+      "phase12": "P8.3 — デッドレターキュー",
+      "phase12Desc": "DLQ 監視ダッシュボードと自動再処理",
+      "phase12Status": "リリース済み",
+      "phase12Tasks": [
+        "DLQ ダッシュボード（失敗ジョブ表示 + リトライ/拒否）",
+        "自動再処理スケジューリング",
+        "DLQ しきい値超過時のアラート"
+      ],
+      "phase13": "P8.4 — 監査証跡",
+      "phase13Desc": "全ユーザー操作とデータ変更の完全監査ログ",
+      "phase13Status": "リリース済み",
+      "phase13Tasks": [
+        "Prisma schema の audit_logs テーブル",
+        "画像削除、タグ変更、ポリシー変更、ダウンロードを記録",
+        "Kafka 経由で audit-service と連携"
+      ],
+      "phase14": "P8.5 — バックアップ検証",
+      "phase14Desc": "自動復元テストとバックアップ整合性チェック",
+      "phase14Status": "リリース済み",
+      "phase14Tasks": [
+        "pg_dump と MinIO のバックアップスクリプト",
+        "毎月の自動復元テスト",
+        "バックアップステータスダッシュボード"
       ]
     }
   },
@@ -446,6 +620,17 @@
     "disabled": "無効",
     "name": "名前",
     "increasing": "増加",
-    "stable": "安定"
+    "stable": "安定",
+    "loading": "読み込み中...",
+    "pending": "保留中",
+    "queued": "キュー中",
+    "running": "実行中",
+    "retrying": "リトライ中",
+    "dead_letter": "デッドレター",
+    "processing": "処理中",
+    "completed": "完了",
+    "failed": "失敗",
+    "deleted": "削除済み",
+    "archived": "アーカイブ済み"
   }
 }

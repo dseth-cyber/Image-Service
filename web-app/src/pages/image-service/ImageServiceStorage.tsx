@@ -5,9 +5,9 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { imageServiceApi } from '@/services/imageServiceApi';
 import {
   ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line,
 } from 'recharts';
-import { HardDrive, FileImage, Image, Archive, BarChart3, TrendingUp, Calendar } from 'lucide-react';
+import { HardDrive, FileImage, Image, Archive, BarChart3, TrendingUp, Calendar, AlertTriangle, Clock } from 'lucide-react';
 import { SearchableSelect } from '@/components/ui';
 
 const PIE_COLORS = ['#06b6d4', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444'];
@@ -51,6 +51,12 @@ export default function ImageServiceStorage() {
     staleTime: 1000 * 60 * 2,
   });
 
+  const { data: forecast } = useQuery({
+    queryKey: ['storage-forecast'],
+    queryFn: () => imageServiceApi.getStorageForecast(),
+    staleTime: 1000 * 60 * 5,
+  });
+
   const { data: cameras = [] } = useQuery({
     queryKey: ['cameras'],
     queryFn: () => imageServiceApi.getCameras(),
@@ -84,6 +90,14 @@ export default function ImageServiceStorage() {
     { label: t('imageService.storage.growthTrend'), value: growthData.length > 1
       ? growthData[growthData.length - 1].value > growthData[0].value ? t('common.increasing') : t('common.stable')
       : '—', icon: TrendingUp, color: '#10b981' },
+    {
+      label: t('imageService.storage.daysUntilFull'),
+      value: forecast?.daysUntilFull != null
+        ? `${forecast.daysUntilFull.toLocaleString()} ${t('imageService.storage.days')}`
+        : '—',
+      icon: Clock,
+      color: forecast?.daysUntilFull != null && forecast.daysUntilFull < 120 ? '#ef4444' : '#10b981',
+    },
   ];
 
   return (
@@ -96,7 +110,7 @@ export default function ImageServiceStorage() {
         <p className={`text-sm mt-1 ${themeConfig.text.secondary}`}>{t('imageService.storage.subtitle')}</p>
       </div>
 
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-5 gap-4 mb-6">
         {statsCards.map((s, i) => (
           <div key={i} className={`${themeConfig.card} rounded-lg p-5`}>
             <div className="flex items-center gap-2 mb-2">
@@ -175,6 +189,92 @@ export default function ImageServiceStorage() {
                 fill="url(#growthGrad)" dot={false} name="MB" />
             </AreaChart>
           </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-5 mb-6">
+        <div className={`${themeConfig.card} rounded-lg p-5`}>
+          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+            {t('imageService.storage.forecast')}
+          </h3>
+          {forecast ? (
+            <>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex-1">
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className={themeConfig.text.secondary}>{t('imageService.storage.usage')}</span>
+                    <span className={themeConfig.text.primary}>{forecast.usagePercent.toFixed(1)}%</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(100, forecast.usagePercent)}%`, backgroundColor: forecast.usagePercent > 85 ? '#ef4444' : forecast.usagePercent > 70 ? '#f59e0b' : '#06b6d4' }} />
+                  </div>
+                  <div className="flex justify-between text-xs mt-1">
+                    <span className={themeConfig.text.secondary}>{formatBytes(forecast.totalBytes)}</span>
+                    <span className={themeConfig.text.secondary}>{formatBytes(forecast.maxBytes)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className={`text-xs ${themeConfig.text.secondary} mb-3`}>
+                {t('imageService.storage.dailyGrowth')}: {formatBytes(forecast.dailyGrowthRate)}/day
+              </div>
+
+              <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={[
+                  { label: t('imageService.storage.today'), value: forecast.usagePercent },
+                  ...forecast.projections.map((p: any) => ({ label: `${p.days}d`, value: p.usagePercent })),
+                ]}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                  <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis domain={[0, 100]} tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} unit="%" />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Line type="monotone" dataKey="value" stroke="#8b5cf6" strokeWidth={2}
+                    dot={{ r: 4, fill: '#8b5cf6' }} name="Usage %" />
+                </LineChart>
+              </ResponsiveContainer>
+            </>
+          ) : (
+            <div className={`text-center py-8 ${themeConfig.text.secondary} text-sm`}>
+              {t('imageService.storage.noData')}
+            </div>
+          )}
+        </div>
+
+        <div className={`${themeConfig.card} rounded-lg p-5`}>
+          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+            {t('imageService.storage.projectionTable')}
+          </h3>
+          {forecast?.projections ? (
+            <div className="space-y-3">
+              {forecast.projections.map((p: any) => {
+                const isFull = p.usagePercent >= 100;
+                return (
+                  <div key={p.days} className={`rounded-lg p-3 ${isFull ? 'bg-red-500/10 border border-red-500/20' : 'bg-white/5'}`}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className={`text-sm font-semibold ${themeConfig.text.primary}`}>
+                        {t('imageService.storage.inDays', { days: p.days })}
+                      </span>
+                      <span className={`text-xs font-semibold ${isFull ? 'text-red-400' : themeConfig.text.secondary}`}>
+                        {isFull ? t('imageService.storage.full') : `${p.usagePercent.toFixed(1)}%`}
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-500"
+                        style={{ width: `${Math.min(100, p.usagePercent)}%`, backgroundColor: isFull ? '#ef4444' : '#8b5cf6' }} />
+                    </div>
+                    <div className={`text-xs mt-1 ${themeConfig.text.secondary}`}>
+                      {formatBytes(p.projectedBytes)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className={`text-center py-8 ${themeConfig.text.secondary} text-sm`}>
+              {t('imageService.storage.noData')}
+            </div>
+          )}
         </div>
       </div>
 

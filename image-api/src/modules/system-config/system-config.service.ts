@@ -11,6 +11,9 @@ const DEFAULT_CONFIGS: Record<string, { value: string; description: string; valu
   retry_max_count: { value: '3', description: 'Max retry count for failed processing jobs', valueType: 'number', category: 'alert' },
   alert_critical_threshold: { value: '90', description: 'Disk usage percentage for critical alert', valueType: 'number', category: 'alert' },
   alert_warning_threshold: { value: '75', description: 'Disk usage percentage for warning alert', valueType: 'number', category: 'alert' },
+  max_storage_gb: { value: '1000', description: 'Global max storage capacity in GB for forecast', valueType: 'number', category: 'storage' },
+  max_storage_per_camera_gb: { value: '100', description: 'Per-camera max storage capacity in GB for forecast', valueType: 'number', category: 'storage' },
+  dlq_alert_threshold: { value: '10', description: 'Dead letter queue count threshold for alert', valueType: 'number', category: 'alert' },
 };
 
 export async function getAllConfigs(): Promise<Record<string, any>> {

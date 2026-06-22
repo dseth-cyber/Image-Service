@@ -61,6 +61,9 @@ export function createImageServiceApi(api: any) {
     getStorageGrowth: (days?: number) =>
       api.get(`${BASE}/storage/growth`, { params: { days } }).then((r: any) => r.data),
 
+    getStorageForecast: () =>
+      api.get(`${BASE}/storage/forecast`).then((r: any) => r.data),
+
     // Processing Logs
     getProcessingLogs: (params: {
       page?: number; limit?: number; status?: string; jobType?: string;
@@ -69,6 +72,18 @@ export function createImageServiceApi(api: any) {
 
     retryJob: (jobId: string) =>
       api.post(`${BASE}/processing-logs/${jobId}/retry`).then((r: any) => r.data),
+
+    rejectJob: (jobId: string) =>
+      api.post(`${BASE}/processing-logs/${jobId}/reject`).then((r: any) => r.data),
+
+    getDlqSummary: () =>
+      api.get(`${BASE}/processing-logs/dlq/summary`).then((r: any) => r.data),
+
+    bulkRetryDlq: (jobType?: string) =>
+      api.post(`${BASE}/processing-logs/dlq/bulk-retry`, null, { params: { jobType } }).then((r: any) => r.data),
+
+    bulkRejectDlq: (jobType?: string) =>
+      api.post(`${BASE}/processing-logs/dlq/bulk-reject`, null, { params: { jobType } }).then((r: any) => r.data),
 
     // Image Tags
     upsertImageTags: (id: string, tags: Record<string, string>) =>
@@ -166,6 +181,28 @@ export function createImageServiceApi(api: any) {
 
     updateSystemConfigs: (data: Record<string, string>) =>
       api.patch(`${BASE}/system-config`, data).then((r: any) => r.data),
+
+    // Audit Logs
+    getAuditLogs: (params: {
+      page?: number; limit?: number; action?: string; entity?: string;
+      entityId?: string; userId?: string; from?: string; to?: string;
+    }) => api.get(`${BASE}/audit-logs`, { params }).then((r: any) => r.data),
+
+    // Backup
+    getBackupStatus: () =>
+      api.get(`${BASE}/backup/status`).then((r: any) => r.data),
+
+    getBackupRecords: (params?: { page?: number; limit?: number; type?: string }) =>
+      api.get(`${BASE}/backup`, { params }).then((r: any) => r.data),
+
+    runDatabaseBackup: () =>
+      api.post(`${BASE}/backup/run/database`).then((r: any) => r.data),
+
+    runMinioBackup: () =>
+      api.post(`${BASE}/backup/run/minio`).then((r: any) => r.data),
+
+    runRestoreTest: (id: string) =>
+      api.post(`${BASE}/backup/${id}/restore-test`).then((r: any) => r.data),
   };
 }
 

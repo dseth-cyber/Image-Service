@@ -23,6 +23,11 @@ import { systemSettingsRoutes } from './modules/system-settings/system-settings.
 import { apiKeyRoutes } from './modules/api-keys/api-keys.controller.js';
 import { masterdataRoutes } from './modules/masterdata/masterdata.controller.js';
 import { systemConfigRoutes } from './modules/system-config/system-config.controller.js';
+import { auditRoutes } from './modules/audit/audit.controller.js';
+import { backupRoutes } from './modules/backup/backup.controller.js';
+import { startBackupScheduler, stopBackupScheduler } from './modules/backup/backup-scheduler.js';
+import { startRetentionSweeper, stopRetentionSweeper } from './modules/retention-sweeper/retention-sweeper.controller.js';
+import { startDlqReprocessor, stopDlqReprocessor } from './modules/processing-logs/dlq-reprocessor.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -93,6 +98,8 @@ export async function buildApp() {
       await api.register(apiKeyRoutes, { prefix: '/api/v1/api-keys' });
       await api.register(masterdataRoutes, { prefix: '/api/v1/masterdata' });
       await api.register(systemConfigRoutes, { prefix: '/api/v1/system-config' });
+      await api.register(auditRoutes, { prefix: '/api/v1/audit-logs' });
+      await api.register(backupRoutes, { prefix: '/api/v1/backup' });
     },
   );
 
@@ -110,6 +117,10 @@ export async function buildApp() {
 export async function startApp() {
   const app = await buildApp();
 
+  startRetentionSweeper();
+  startDlqReprocessor();
+  startBackupScheduler();
+
   try {
     await app.listen({ host: config.host, port: config.port });
     logger.info({ port: config.port, env: config.nodeEnv }, 'Server started');
@@ -121,6 +132,9 @@ export async function startApp() {
 
   const gracefulShutdown = async (signal: string) => {
     logger.info({ signal }, 'Shutdown signal received');
+    stopRetentionSweeper();
+    stopDlqReprocessor();
+    stopBackupScheduler();
     await app.close();
     process.exit(0);
   };

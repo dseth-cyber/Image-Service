@@ -4,6 +4,7 @@ import * as imagesService from './images.service.js';
 import { requireRole } from '../../middleware/rbac.js';
 import { getMinio } from '../../lib/minio.js';
 import { config } from '../../config/index.js';
+import { createAuditLog } from '../audit/audit.service.js';
 
 async function registerImageHandler(request: FastifyRequest, reply: FastifyReply) {
   const input = registerImageSchema.parse(request.body);
@@ -27,6 +28,16 @@ async function updateMetadataHandler(request: FastifyRequest, reply: FastifyRepl
   const { id } = request.params as { id: string };
   const input = updateMetadataSchema.parse(request.body);
   const updated = await imagesService.updateImageMetadata(id, input);
+  const user = (request as any).user;
+  createAuditLog({
+    userId: user?.id,
+    action: 'metadata_update',
+    entity: 'image',
+    entityId: id,
+    description: `Metadata updated for image ${id}`,
+    metadata: { changes: input },
+    ipAddress: request.ip,
+  }).catch(() => {});
   return reply.status(200).send(updated);
 }
 
@@ -34,12 +45,32 @@ async function upsertTagsHandler(request: FastifyRequest, reply: FastifyReply) {
   const { id } = request.params as { id: string };
   const tags = updateTagsSchema.parse(request.body);
   const result = await imagesService.upsertImageTags(id, tags);
+  const user = (request as any).user;
+  createAuditLog({
+    userId: user?.id,
+    action: 'tags_update',
+    entity: 'image',
+    entityId: id,
+    description: `Tags updated for image ${id}`,
+    metadata: { tags },
+    ipAddress: request.ip,
+  }).catch(() => {});
   return reply.status(200).send(result);
 }
 
 async function deleteTagHandler(request: FastifyRequest, reply: FastifyReply) {
   const { id, key } = request.params as { id: string; key: string };
   await imagesService.deleteImageTag(id, key);
+  const user = (request as any).user;
+  createAuditLog({
+    userId: user?.id,
+    action: 'tag_delete',
+    entity: 'image',
+    entityId: id,
+    description: `Tag '${key}' deleted from image ${id}`,
+    metadata: { key },
+    ipAddress: request.ip,
+  }).catch(() => {});
   return reply.status(204).send();
 }
 
@@ -53,6 +84,15 @@ async function processingResultHandler(request: FastifyRequest, reply: FastifyRe
 async function deleteImageHandler(request: FastifyRequest, reply: FastifyReply) {
   const { id } = request.params as { id: string };
   await imagesService.softDeleteImage(id);
+  const user = (request as any).user;
+  createAuditLog({
+    userId: user?.id,
+    action: 'image_delete',
+    entity: 'image',
+    entityId: id,
+    description: `Image ${id} soft-deleted`,
+    ipAddress: request.ip,
+  }).catch(() => {});
   return reply.status(204).send();
 }
 
@@ -77,6 +117,15 @@ async function getFileStreamHandler(request: FastifyRequest, reply: FastifyReply
     reply.header('Content-Type', (file.mimeType as string) ?? 'application/octet-stream');
     reply.header('Content-Length', String(file.fileSizeBytes));
     reply.header('Cache-Control', 'public, max-age=31536000, immutable');
+    const user = (request as any).user;
+    createAuditLog({
+      userId: user?.id,
+      action: 'file_download',
+      entity: 'image_file',
+      entityId: `${id}/${fileType}`,
+      description: `File '${fileType}' downloaded for image ${id}`,
+      ipAddress: request.ip,
+    }).catch(() => {});
     return reply.send(stream);
   } catch (err) {
     return reply.status(500).send({

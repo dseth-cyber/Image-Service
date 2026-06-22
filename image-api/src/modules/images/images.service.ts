@@ -1,6 +1,8 @@
 import { Prisma } from '@prisma/client';
 import { getPrisma } from '../../lib/prisma.js';
+import { logger } from '../../lib/logger.js';
 import { NotFoundError } from '../../lib/errors.js';
+import { setRetentionUntil } from '../retention-sweeper/retention-sweeper.service.js';
 import type { ImageSearchInput, UpdateMetadataInput, RegisterImageInput, ProcessingResultInput } from './images.schema.js';
 import type { PaginatedResult } from '../../types/index.js';
 
@@ -31,6 +33,10 @@ export async function registerImage(input: RegisterImageInput) {
       capturedAt: new Date(input.capturedAt),
     },
   });
+
+  setRetentionUntil(image.id, input.cameraId).catch((err) =>
+    logger.error({ err, imageId: image.id }, 'Failed to set retentionUntil'),
+  );
 
   return { id: image.id };
 }

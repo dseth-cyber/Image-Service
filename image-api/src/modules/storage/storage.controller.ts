@@ -19,8 +19,14 @@ async function growthHandler(request: FastifyRequest, reply: FastifyReply) {
   return reply.status(200).send(result);
 }
 
+async function forecastHandler(_request: FastifyRequest, reply: FastifyReply) {
+  const forecast = await storageService.getStorageForecast();
+  return reply.status(200).send(forecast);
+}
+
 export async function storageRoutes(app: FastifyInstance): Promise<void> {
   app.get('/summary', { preHandler: [app.authenticate] }, summaryHandler);
   app.get('/cameras/:cameraId', { preHandler: [app.authenticate] }, cameraStorageHandler);
   app.get('/growth', { preHandler: [app.authenticate] }, growthHandler);
+  app.get('/forecast', { preHandler: [app.authenticate] }, forecastHandler);
 }
