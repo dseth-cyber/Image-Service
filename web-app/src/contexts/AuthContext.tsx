@@ -16,6 +16,7 @@ interface AuthContextType {
   isAuthenticated: boolean
   login: (username: string, password: string) => Promise<void>
   logout: () => Promise<void>
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -52,8 +53,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
   }, [])
 
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+    await api.post('/image-service/api/v1/auth/change-password', { currentPassword, newPassword })
+  }, [])
+
   return (
-    <AuthContext.Provider value={{ user, accessToken, isAuthenticated: !!user, login, logout }}>
+    <AuthContext.Provider value={{ user, accessToken, isAuthenticated: !!user, login, logout, changePassword }}>
       {children}
     </AuthContext.Provider>
   )

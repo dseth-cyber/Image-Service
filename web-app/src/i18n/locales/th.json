@@ -250,7 +250,14 @@
       "required": "กรุณากรอกชื่อผู้ใช้และรหัสผ่าน",
       "invalid": "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
       "logout": "ออกจากระบบ",
-      "profile": "โปรไฟล์"
+      "profile": "โปรไฟล์",
+      "changePassword": "เปลี่ยนรหัสผ่าน",
+      "currentPassword": "รหัสผ่านปัจจุบัน",
+      "newPassword": "รหัสผ่านใหม่",
+      "confirmPassword": "ยืนยันรหัสผ่านใหม่",
+      "passwordChanged": "เปลี่ยนรหัสผ่านสำเร็จ",
+      "passwordMismatch": "รหัสผ่านไม่ตรงกัน",
+      "passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"
     },
     "nav": {
       "overview": "ภาพรวม",
@@ -315,14 +322,31 @@
     "systemConfig": {
       "title": "ตั้งค่าระบบ",
       "subtitle": "กำหนดค่าขีดจำกัดกฎธุรกิจและพารามิเตอร์ของระบบ",
-      "categoryRetention": "การเก็บรักษา",
-      "categoryCompression": "การบีบอัด",
-      "categoryThumbnail": "รูปขนาดย่อ",
-      "categoryPolling": "การตรวจสอบ",
       "categoryAlert": "การแจ้งเตือน",
+      "categoryCompression": "การบีบอัด",
+      "categoryGeneral": "ทั่วไป",
+      "categoryPolling": "การตรวจสอบ",
+      "categoryRetention": "การเก็บรักษา",
       "categoryStorageLimit": "ขีดจำกัดพื้นที่",
+      "categoryThumbnail": "รูปขนาดย่อ",
+      "changeLogo": "เปลี่ยนโลโก้",
+      "developer": "ผู้พัฒนา",
+      "logo": "โลโก้ระบบ",
+      "logoHint": "รองรับ PNG, JPG, SVG ขนาดแนะนำ: 64×64px",
+      "refresh": "รีเฟรช",
       "reset": "รีเซ็ต",
-      "refresh": "รีเฟรช"
+      "uploadLogo": "อัปโหลดโลโก้",
+      "version": "เวอร์ชัน",
+      "categoryAbout": "ตั้งค่าเกี่ยวกับระบบ",
+      "programName": "ชื่อโปรแกรม",
+      "programDescription": "คำอธิบาย / รายละเอียดโปรแกรม",
+      "programVersion": "เวอร์ชันโปรแกรม",
+      "copyright": "ลิขสิทธิ์ / ลิขสิทธิ์ถูกต้อง"
+    },
+    "about": {
+      "title": "เกี่ยวกับโปรแกรม",
+      "version": "เวอร์ชัน",
+      "developer": "ผู้พัฒนา"
     },
     "alerts": {
       "title": "การจัดการแจ้งเตือน",
@@ -334,7 +358,7 @@
       "allSeverity": "ทุกระดับ",
       "status": "สถานะ",
       "open": "เปิด",
-      "resolved": "แก้ไขแล้ว",
+      "resolved": "แก้ไขการแจ้งเตือนแล้ว",
       "all": "ทั้งหมด",
       "critical": "วิกฤต",
       "warning": "เตือน",
@@ -346,8 +370,7 @@
       "resolvedAt": "แก้ไขเมื่อ",
       "acknowledge": "รับทราบ",
       "resolve": "แก้ไข",
-      "acknowledged": "รับทราบการแจ้งเตือนแล้ว",
-      "resolved": "แก้ไขการแจ้งเตือนแล้ว"
+      "acknowledged": "รับทราบการแจ้งเตือนแล้ว"
     },
     "users": {
       "title": "จัดการผู้ใช้",
@@ -417,12 +440,30 @@
       "rules": "กฎหลักที่ต้องไม่หลุด",
       "rulesDesc": "ข้อบังคับของระบบ — ทุกฟีเจอร์ต้องยึดตาม",
       "rulesGroupsLabels": {
-        "priority1": { "label": "Priority 1 — ใช้ทันที 100%", "color": "#ef4444" },
-        "priority2": { "label": "Priority 2 — เมื่อมี CRUD / Auth", "color": "#f59e0b" },
-        "priority3": { "label": "Priority 3 — Phase 2+", "color": "#eab308" },
-        "priority4": { "label": "Priority 4 — Masterdata Entity", "color": "#3b82f6" },
-        "priority5": { "label": "Priority 5 — ERP Integration", "color": "#8b5cf6" },
-        "imageService": { "label": "Image Service เฉพาะ", "color": "#06b6d4" }
+        "priority1": {
+          "label": "Priority 1 — ใช้ทันที 100%",
+          "color": "#ef4444"
+        },
+        "priority2": {
+          "label": "Priority 2 — เมื่อมี CRUD / Auth",
+          "color": "#f59e0b"
+        },
+        "priority3": {
+          "label": "Priority 3 — Phase 2+",
+          "color": "#eab308"
+        },
+        "priority4": {
+          "label": "Priority 4 — Masterdata Entity",
+          "color": "#3b82f6"
+        },
+        "priority5": {
+          "label": "Priority 5 — ERP Integration",
+          "color": "#8b5cf6"
+        },
+        "imageService": {
+          "label": "Image Service เฉพาะ",
+          "color": "#06b6d4"
+        }
       },
       "rulesGroups": {
         "priority1": [
@@ -455,13 +496,41 @@
         ]
       },
       "archStack": [
-        { "label": "อุปกรณ์จับภาพ", "tech": "SMB Share · TIFF", "desc": "Windows PCs จับภาพ TIFF ผ่าน SMB network share เริ่มต้น: 1 กล้อง, ขยาย: 30+ กล้อง, ล้านภาพ/วัน" },
-        { "label": "Sync Worker", "tech": "Node.js 22 · TypeScript", "desc": "สแกนโฟลเดอร์ SMB, ตรวจจับ TIFF ใหม่, คำนวณ checksum, ป้องกัน duplicate, สร้าง processing jobs" },
-        { "label": "Processing Worker", "tech": "Python 3.12 · Pillow", "desc": "แปลง TIFF→PNG, สร้าง thumbnail, คำนวณ SHA256 checksum, เก็บใน MinIO, รายงานผลให้ API ซึ่งเขียน metadata ไปยัง DB" },
-        { "label": "API Service", "tech": "Fastify · Prisma · PostgreSQL 15", "desc": "ค้นหารูปภาพ, จัดการ metadata, นโยบาย retention, ตรวจสอบสุขภาพระบบ, JWT auth + RBAC, OpenAPI docs" },
-        { "label": "Frontend", "tech": "React 18 · Vite 5 · Tailwind", "desc": "Dashboard, ค้นหารูปภาพ, ตรวจสอบกล้อง, จัดการพื้นที่เก็บ, นโยบาย retention, ดู processing logs. TanStack Query, Recharts" },
-        { "label": "โครงสร้างพื้นฐาน", "tech": "Redis 7 · MinIO · Docker Compose", "desc": "Redis สำหรับ BullMQ queues + caching. MinIO ที่เก็บวัตถุแบบ S3. รันบน VM ที่แยกจาก ERP Platform แต่ละ service มี DB ของตัวเอง (DB isolation)" },
-        { "label": "การเชื่อมต่ออนาคต", "tech": "Kafka · AI Vision", "desc": "Event-driven Kafka เมื่อ image.processed. Consumer stubs สำหรับ vision-service, predictive-service, historian-service" }
+        {
+          "label": "อุปกรณ์จับภาพ",
+          "tech": "SMB Share · TIFF",
+          "desc": "Windows PCs จับภาพ TIFF ผ่าน SMB network share เริ่มต้น: 1 กล้อง, ขยาย: 30+ กล้อง, ล้านภาพ/วัน"
+        },
+        {
+          "label": "Sync Worker",
+          "tech": "Node.js 22 · TypeScript",
+          "desc": "สแกนโฟลเดอร์ SMB, ตรวจจับ TIFF ใหม่, คำนวณ checksum, ป้องกัน duplicate, สร้าง processing jobs"
+        },
+        {
+          "label": "Processing Worker",
+          "tech": "Python 3.12 · Pillow",
+          "desc": "แปลง TIFF→PNG, สร้าง thumbnail, คำนวณ SHA256 checksum, เก็บใน MinIO, รายงานผลให้ API ซึ่งเขียน metadata ไปยัง DB"
+        },
+        {
+          "label": "API Service",
+          "tech": "Fastify · Prisma · PostgreSQL 15",
+          "desc": "ค้นหารูปภาพ, จัดการ metadata, นโยบาย retention, ตรวจสอบสุขภาพระบบ, JWT auth + RBAC, OpenAPI docs"
+        },
+        {
+          "label": "Frontend",
+          "tech": "React 18 · Vite 5 · Tailwind",
+          "desc": "Dashboard, ค้นหารูปภาพ, ตรวจสอบกล้อง, จัดการพื้นที่เก็บ, นโยบาย retention, ดู processing logs. TanStack Query, Recharts"
+        },
+        {
+          "label": "โครงสร้างพื้นฐาน",
+          "tech": "Redis 7 · MinIO · Docker Compose",
+          "desc": "Redis สำหรับ BullMQ queues + caching. MinIO ที่เก็บวัตถุแบบ S3. รันบน VM ที่แยกจาก ERP Platform แต่ละ service มี DB ของตัวเอง (DB isolation)"
+        },
+        {
+          "label": "การเชื่อมต่ออนาคต",
+          "tech": "Kafka · AI Vision",
+          "desc": "Event-driven Kafka เมื่อ image.processed. Consumer stubs สำหรับ vision-service, predictive-service, historian-service"
+        }
       ],
       "microservices": "ไมโครเซอร์วิส",
       "databases": "ฐานข้อมูล",
@@ -604,6 +673,7 @@
     "actions": "การดำเนินการ",
     "cancel": "ยกเลิก",
     "close": "ปิด",
+    "remove": "ลบ",
     "save": "บันทึก",
     "saving": "กำลังบันทึก...",
     "error": "ข้อผิดพลาด",

@@ -13,6 +13,8 @@ async function updateHandler(request: FastifyRequest, reply: FastifyReply) {
 }
 
 export async function systemConfigRoutes(app: FastifyInstance): Promise<void> {
-  app.get('/', { preHandler: [app.authenticate] }, getAllHandler);
+  app.get('/', getAllHandler);
+  app.post('/bulk-update', { preHandler: [app.authenticate] }, updateHandler);
+  // legacy PATCH kept for backward compatibility
   app.patch('/', { preHandler: [app.authenticate] }, updateHandler);
 }

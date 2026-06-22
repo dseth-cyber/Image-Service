@@ -180,7 +180,7 @@ export function createImageServiceApi(api: any) {
       api.get(`${BASE}/system-config`).then((r: any) => r.data),
 
     updateSystemConfigs: (data: Record<string, string>) =>
-      api.patch(`${BASE}/system-config`, data).then((r: any) => r.data),
+      api.post(`${BASE}/system-config/bulk-update`, data).then((r: any) => r.data),
 
     // Audit Logs
     getAuditLogs: (params: {

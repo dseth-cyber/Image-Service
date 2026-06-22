@@ -250,7 +250,14 @@
       "required": "请输入用户名和密码",
       "invalid": "用户名或密码无效",
       "logout": "退出登录",
-      "profile": "个人资料"
+      "profile": "个人资料",
+      "changePassword": "修改密码",
+      "currentPassword": "当前密码",
+      "newPassword": "新密码",
+      "confirmPassword": "确认新密码",
+      "passwordChanged": "密码修改成功",
+      "passwordMismatch": "密码不匹配",
+      "passwordTooShort": "密码至少需要6个字符"
     },
     "nav": {
       "overview": "概览",
@@ -315,14 +322,31 @@
     "systemConfig": {
       "title": "系统配置",
       "subtitle": "配置业务规则阈值和系统参数",
-      "categoryRetention": "保留",
-      "categoryCompression": "压缩",
-      "categoryThumbnail": "缩略图",
-      "categoryPolling": "轮询",
       "categoryAlert": "告警",
+      "categoryCompression": "压缩",
+      "categoryGeneral": "通用",
+      "categoryPolling": "轮询",
+      "categoryRetention": "保留",
       "categoryStorageLimit": "存储限制",
+      "categoryThumbnail": "缩略图",
+      "changeLogo": "更换徽标",
+      "developer": "开发者",
+      "logo": "系统徽标",
+      "logoHint": "支持 PNG、JPG、SVG。推荐大小：64×64px",
+      "refresh": "刷新",
       "reset": "重置",
-      "refresh": "刷新"
+      "uploadLogo": "上传徽标",
+      "version": "版本",
+      "categoryAbout": "关于系统设置",
+      "programName": "程序名称",
+      "programDescription": "程序描述 / 详情",
+      "programVersion": "程序版本",
+      "copyright": "版权 / 合法版权"
+    },
+    "about": {
+      "title": "关于程序",
+      "version": "版本",
+      "developer": "开发者"
     },
     "alerts": {
       "title": "告警管理",
@@ -334,7 +358,7 @@
       "allSeverity": "全部级别",
       "status": "状态",
       "open": "未解决",
-      "resolved": "已解决",
+      "resolved": "告警已解决",
       "all": "全部",
       "critical": "严重",
       "warning": "警告",
@@ -346,8 +370,7 @@
       "resolvedAt": "解决时间",
       "acknowledge": "确认",
       "resolve": "解决",
-      "acknowledged": "告警已确认",
-      "resolved": "告警已解决"
+      "acknowledged": "告警已确认"
     },
     "users": {
       "title": "用户管理",
@@ -417,12 +440,30 @@
       "rules": "系统规则",
       "rulesDesc": "强制性约定 — 任何功能都不得违反",
       "rulesGroupsLabels": {
-        "priority1": { "label": "Priority 1 — 必须100%使用", "color": "#ef4444" },
-        "priority2": { "label": "Priority 2 — 有CRUD/Auth时使用", "color": "#f59e0b" },
-        "priority3": { "label": "Priority 3 — Phase 2+", "color": "#eab308" },
-        "priority4": { "label": "Priority 4 — 主数据实体", "color": "#3b82f6" },
-        "priority5": { "label": "Priority 5 — ERP集成", "color": "#8b5cf6" },
-        "imageService": { "label": "Image Service专用", "color": "#06b6d4" }
+        "priority1": {
+          "label": "Priority 1 — 必须100%使用",
+          "color": "#ef4444"
+        },
+        "priority2": {
+          "label": "Priority 2 — 有CRUD/Auth时使用",
+          "color": "#f59e0b"
+        },
+        "priority3": {
+          "label": "Priority 3 — Phase 2+",
+          "color": "#eab308"
+        },
+        "priority4": {
+          "label": "Priority 4 — 主数据实体",
+          "color": "#3b82f6"
+        },
+        "priority5": {
+          "label": "Priority 5 — ERP集成",
+          "color": "#8b5cf6"
+        },
+        "imageService": {
+          "label": "Image Service专用",
+          "color": "#06b6d4"
+        }
       },
       "rulesGroups": {
         "priority1": [
@@ -455,13 +496,41 @@
         ]
       },
       "archStack": [
-        { "label": "采集设备", "tech": "SMB Share · TIFF", "desc": "Windows PC 通过 SMB 网络共享采集 TIFF 图像。初始：1 台相机，规模：30+ 台相机，每天数百万张图像" },
-        { "label": "同步 Worker", "tech": "Node.js 22 · TypeScript", "desc": "扫描 SMB 文件夹，检测新 TIFF，计算校验和，防止重复，创建处理任务" },
-        { "label": "处理 Worker", "tech": "Python 3.12 · Pillow", "desc": "转换 TIFF→PNG，生成缩略图，计算 SHA256 校验和，存储到 MinIO，将结果报告给 API，由 API 写入数据库元数据" },
-        { "label": "API 服务", "tech": "Fastify · Prisma · PostgreSQL 15", "desc": "图像搜索、元数据管理、保留策略、健康监控、JWT 认证 + RBAC、OpenAPI 文档" },
-        { "label": "前端", "tech": "React 18 · Vite 5 · Tailwind", "desc": "仪表板、图像搜索、相机监控、存储监控、保留策略、处理日志。TanStack Query、Recharts" },
-        { "label": "基础设施", "tech": "Redis 7 · MinIO · Docker Compose", "desc": "Redis 用于 BullMQ 队列 + 缓存。MinIO S3 兼容对象存储。运行在与 ERP 平台分离的专用 VM 上。每个服务拥有自己的数据库（数据库隔离）" },
-        { "label": "未来集成", "tech": "Kafka · AI Vision", "desc": "image.processed 时触发事件驱动 Kafka。vision-service、predictive-service、historian-service 的消费者存根" }
+        {
+          "label": "采集设备",
+          "tech": "SMB Share · TIFF",
+          "desc": "Windows PC 通过 SMB 网络共享采集 TIFF 图像。初始：1 台相机，规模：30+ 台相机，每天数百万张图像"
+        },
+        {
+          "label": "同步 Worker",
+          "tech": "Node.js 22 · TypeScript",
+          "desc": "扫描 SMB 文件夹，检测新 TIFF，计算校验和，防止重复，创建处理任务"
+        },
+        {
+          "label": "处理 Worker",
+          "tech": "Python 3.12 · Pillow",
+          "desc": "转换 TIFF→PNG，生成缩略图，计算 SHA256 校验和，存储到 MinIO，将结果报告给 API，由 API 写入数据库元数据"
+        },
+        {
+          "label": "API 服务",
+          "tech": "Fastify · Prisma · PostgreSQL 15",
+          "desc": "图像搜索、元数据管理、保留策略、健康监控、JWT 认证 + RBAC、OpenAPI 文档"
+        },
+        {
+          "label": "前端",
+          "tech": "React 18 · Vite 5 · Tailwind",
+          "desc": "仪表板、图像搜索、相机监控、存储监控、保留策略、处理日志。TanStack Query、Recharts"
+        },
+        {
+          "label": "基础设施",
+          "tech": "Redis 7 · MinIO · Docker Compose",
+          "desc": "Redis 用于 BullMQ 队列 + 缓存。MinIO S3 兼容对象存储。运行在与 ERP 平台分离的专用 VM 上。每个服务拥有自己的数据库（数据库隔离）"
+        },
+        {
+          "label": "未来集成",
+          "tech": "Kafka · AI Vision",
+          "desc": "image.processed 时触发事件驱动 Kafka。vision-service、predictive-service、historian-service 的消费者存根"
+        }
       ],
       "microservices": "微服务",
       "databases": "数据库",
@@ -604,6 +673,7 @@
     "actions": "操作",
     "cancel": "取消",
     "close": "关闭",
+    "remove": "移除",
     "save": "保存",
     "saving": "保存中...",
     "error": "错误",

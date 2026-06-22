@@ -3,6 +3,10 @@ import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useTheme, themes } from '@/contexts/ThemeContext'
 import { useAuth } from '@/contexts/AuthContext'
+import { useToast } from '@/contexts/ToastContext'
+import { useQuery } from '@tanstack/react-query'
+import { imageServiceApi } from '@/services/imageServiceApi'
+import { Button, Modal } from '@/components/ui'
 import LoginPage from '@/pages/auth/LoginPage'
 import ImageServiceOverview from '@/pages/image-service/ImageServiceOverview'
 import ImageServiceCameras from '@/pages/image-service/ImageServiceCameras'
@@ -25,7 +29,7 @@ import AuditLogViewer from '@/pages/image-service/AuditLogViewer'
 import BackupDashboard from '@/pages/image-service/BackupDashboard'
 import {
   Camera, LayoutDashboard, Search, Activity, HardDrive, FileText, Shield, Settings, Map,
-  Globe, Palette, User, ChevronDown, LogOut, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History,
+  Globe, Palette, User, ChevronDown, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info,
 } from 'lucide-react'
 
 const navItems = [
@@ -113,9 +117,10 @@ function Dropdown({ icon: Icon, options, value, onChange }: {
   )
 }
 
-function ProfileMenu({ username, role, onLogout }: { username: string; role: string; onLogout: () => void }) {
+function ProfileMenu({ username, role, onLogout, onChangePassword, onAbout }: { username: string; role: string; onLogout: () => void; onChangePassword: () => void; onAbout: () => void }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const { t } = useTranslation()
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -134,12 +139,22 @@ function ProfileMenu({ username, role, onLogout }: { username: string; role: str
         <ChevronDown size={11} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute right-0 mt-1 w-40 rounded-md border border-white/20 bg-slate-800 shadow-xl z-50 overflow-hidden">
+        <div className="absolute right-0 mt-1 w-44 rounded-md border border-white/20 bg-slate-800 shadow-xl z-50 overflow-hidden">
           <div className="px-3 py-2 text-[11px] text-gray-400 border-b border-white/10">{role}</div>
+          <button onClick={() => { onAbout(); setOpen(false) }}
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-300 hover:bg-white/10 transition-colors">
+            <Info size={13} />
+            {t('imageService.about.title')}
+          </button>
+          <button onClick={() => { onChangePassword(); setOpen(false) }}
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-300 hover:bg-white/10 transition-colors">
+            <Lock size={13} />
+            {t('imageService.auth.changePassword')}
+          </button>
           <button onClick={() => { onLogout(); setOpen(false) }}
             className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-400 hover:bg-white/10 transition-colors">
             <LogOut size={13} />
-            Sign Out
+            {t('imageService.auth.logout')}
           </button>
         </div>
       )}
@@ -194,13 +209,131 @@ function SettingsNavGroup({ settingsSubItems, locationPath, t }: {
   )
 }
 
+function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const { t } = useTranslation()
+  const { themeConfig } = useTheme()
+  const { data: configs } = useQuery({
+    queryKey: ['system-config'],
+    queryFn: () => imageServiceApi.getSystemConfigs(),
+    enabled: isOpen,
+  })
+  const configMap: Record<string, any> = configs ?? {}
+  const version = configMap.system_version?.value ?? '1.0.0'
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={
+        <div className="flex items-center gap-2">
+          <Info size={16} className="text-cyan-400" />
+          <span>{t('imageService.about.title')}</span>
+        </div>
+      }
+    >
+      <div className="flex flex-col items-center pt-2">
+        {/* Logo */}
+        {configMap.system_logo?.value ? (
+          <img src={configMap.system_logo.value} alt="Logo" className="h-16 w-auto object-contain mb-4" />
+        ) : (
+          <Camera size={48} className="text-cyan-400 mb-4" />
+        )}
+
+        {/* Title */}
+        <h3 className={`text-xl font-bold text-center tracking-wide ${themeConfig.text.primary}`}>
+          {configMap.system_name?.value ?? 'Image Service'}
+        </h3>
+
+        {/* Subtitle */}
+        <p className="text-[10px] font-bold tracking-wider text-center text-gray-400 uppercase mt-1">
+          {configMap.system_description?.value ?? 'Enterprise Image Management System'}
+        </p>
+
+        {/* Version Pill */}
+        <div className="mt-4">
+          <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-semibold bg-white/5 border border-white/10 text-gray-300">
+            Version {version}
+          </span>
+        </div>
+
+        {/* Divider */}
+        <div className="w-full border-t border-white/10 my-6"></div>
+
+        {/* Footer / Developer Copyright */}
+        <p className="text-xs text-center text-gray-400">
+          {configMap.system_copyright?.value ?? `© ${new Date().getFullYear()} Image Service. All rights reserved.`}
+        </p>
+      </div>
+    </Modal>
+  )
+}
+
+function ChangePasswordModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const { t } = useTranslation()
+  const { changePassword } = useAuth()
+  const toast = useToast()
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  const handleSubmit = async () => {
+    if (newPassword !== confirmPassword) { toast.error(t('imageService.auth.passwordMismatch')); return }
+    if (newPassword.length < 6) { toast.error(t('imageService.auth.passwordTooShort')); return }
+    setSubmitting(true)
+    try {
+      await changePassword(currentPassword, newPassword)
+      toast.success(t('imageService.auth.passwordChanged'))
+      onClose()
+      setCurrentPassword(''); setNewPassword(''); setConfirmPassword('')
+    } catch { toast.error(t('common.error')) }
+    finally { setSubmitting(false) }
+  }
+
+  const inputClass = `w-full px-3 py-2 rounded-md text-sm border border-white/30 bg-white/10 backdrop-blur-md text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50`
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={t('imageService.auth.changePassword')}>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-white mb-1">{t('imageService.auth.currentPassword')}</label>
+          <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} className={inputClass} />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-white mb-1">{t('imageService.auth.newPassword')}</label>
+          <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className={inputClass} />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-white mb-1">{t('imageService.auth.confirmPassword')}</label>
+          <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className={inputClass} />
+        </div>
+        <div className="flex justify-end gap-2 pt-2">
+          <Button variant="secondary" onClick={onClose}>{t('common.cancel')}</Button>
+          <Button onClick={handleSubmit} disabled={submitting || !currentPassword || !newPassword || !confirmPassword}>
+            {submitting ? t('common.saving') : t('common.save')}
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
 export default function App() {
   const { t, i18n } = useTranslation()
   const { themeConfig, theme, setTheme } = useTheme()
   const { isAuthenticated, user, logout } = useAuth()
+  const toast = useToast()
   const location = useLocation()
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false)
+  const [aboutModalOpen, setAboutModalOpen] = useState(false)
+  const { data: sysConfig } = useQuery({
+    queryKey: ['system-config'],
+    queryFn: () => imageServiceApi.getSystemConfigs(),
+  })
+  const configMap: Record<string, any> = sysConfig ?? {}
+  const logoBase64 = configMap.system_logo?.value
 
-  if (!isAuthenticated) return <LoginPage />
+  if (!isAuthenticated) return <LoginPage logoBase64={logoBase64} />
 
   return (
     <div className={`min-h-screen flex flex-col ${themeConfig.background} ${themeConfig.text.primary}`}>
@@ -208,7 +341,11 @@ export default function App() {
       <header className={`${themeConfig.navBar} px-5 py-2.5 flex items-center justify-between flex-shrink-0 z-40`}>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <Camera size={22} className="text-cyan-400" />
+            {logoBase64 ? (
+              <img src={logoBase64} alt="Logo" className="h-7 w-7 rounded object-contain" />
+            ) : (
+              <Camera size={22} className="text-cyan-400" />
+            )}
             <span className="text-sm font-bold tracking-tight">Image Service</span>
           </div>
         </div>
@@ -236,6 +373,8 @@ export default function App() {
             username={user?.username ?? 'admin'}
             role={user?.role ?? 'viewer'}
             onLogout={logout}
+            onChangePassword={() => setPasswordModalOpen(true)}
+            onAbout={() => setAboutModalOpen(true)}
           />
         </div>
       </header>
@@ -297,6 +436,8 @@ export default function App() {
           </Routes>
         </main>
       </div>
+      <ChangePasswordModal isOpen={passwordModalOpen} onClose={() => setPasswordModalOpen(false)} />
+      <AboutModal isOpen={aboutModalOpen} onClose={() => setAboutModalOpen(false)} />
     </div>
   )
 }

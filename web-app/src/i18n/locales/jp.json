@@ -250,7 +250,14 @@
       "required": "ユーザー名とパスワードを入力してください",
       "invalid": "ユーザー名またはパスワードが無効です",
       "logout": "サインアウト",
-      "profile": "プロフィール"
+      "profile": "プロフィール",
+      "changePassword": "パスワード変更",
+      "currentPassword": "現在のパスワード",
+      "newPassword": "新しいパスワード",
+      "confirmPassword": "新しいパスワード（確認）",
+      "passwordChanged": "パスワードを変更しました",
+      "passwordMismatch": "パスワードが一致しません",
+      "passwordTooShort": "パスワードは6文字以上必要です"
     },
     "nav": {
       "overview": "概要",
@@ -315,14 +322,31 @@
     "systemConfig": {
       "title": "システム設定",
       "subtitle": "ビジネスルールのしきい値とシステムパラメータの設定",
-      "categoryRetention": "保持",
-      "categoryCompression": "圧縮",
-      "categoryThumbnail": "サムネイル",
-      "categoryPolling": "ポーリング",
       "categoryAlert": "アラート",
+      "categoryCompression": "圧縮",
+      "categoryGeneral": "一般",
+      "categoryPolling": "ポーリング",
+      "categoryRetention": "保持",
       "categoryStorageLimit": "ストレージ制限",
+      "categoryThumbnail": "サムネイル",
+      "changeLogo": "ロゴを変更",
+      "developer": "開発者",
+      "logo": "システムロゴ",
+      "logoHint": "PNG、JPG、SVGに対応。推奨サイズ：64×64px",
+      "refresh": "更新",
       "reset": "リセット",
-      "refresh": "更新"
+      "uploadLogo": "ロゴをアップロード",
+      "version": "バージョン",
+      "categoryAbout": "システム情報設定",
+      "programName": "プログラム名",
+      "programDescription": "プログラム説明 / 詳細",
+      "programVersion": "プログラムバージョン",
+      "copyright": "著作権 / 正当な著作権"
+    },
+    "about": {
+      "title": "プログラムについて",
+      "version": "バージョン",
+      "developer": "開発者"
     },
     "alerts": {
       "title": "アラート管理",
@@ -334,7 +358,7 @@
       "allSeverity": "すべての重要度",
       "status": "ステータス",
       "open": "未解決",
-      "resolved": "解決済み",
+      "resolved": "アラートを解決しました",
       "all": "すべて",
       "critical": "重大",
       "warning": "警告",
@@ -346,8 +370,7 @@
       "resolvedAt": "解決日時",
       "acknowledge": "確認",
       "resolve": "解決",
-      "acknowledged": "アラートを確認しました",
-      "resolved": "アラートを解決しました"
+      "acknowledged": "アラートを確認しました"
     },
     "users": {
       "title": "ユーザー管理",
@@ -417,12 +440,30 @@
       "rules": "システムルール",
       "rulesDesc": "必須の規約 — いかなる機能でも違反してはならない",
       "rulesGroupsLabels": {
-        "priority1": { "label": "Priority 1 — 100%必須", "color": "#ef4444" },
-        "priority2": { "label": "Priority 2 — CRUD/Auth時", "color": "#f59e0b" },
-        "priority3": { "label": "Priority 3 — Phase 2+", "color": "#eab308" },
-        "priority4": { "label": "Priority 4 — マスタデータエンティティ", "color": "#3b82f6" },
-        "priority5": { "label": "Priority 5 — ERP統合", "color": "#8b5cf6" },
-        "imageService": { "label": "Image Service固有", "color": "#06b6d4" }
+        "priority1": {
+          "label": "Priority 1 — 100%必須",
+          "color": "#ef4444"
+        },
+        "priority2": {
+          "label": "Priority 2 — CRUD/Auth時",
+          "color": "#f59e0b"
+        },
+        "priority3": {
+          "label": "Priority 3 — Phase 2+",
+          "color": "#eab308"
+        },
+        "priority4": {
+          "label": "Priority 4 — マスタデータエンティティ",
+          "color": "#3b82f6"
+        },
+        "priority5": {
+          "label": "Priority 5 — ERP統合",
+          "color": "#8b5cf6"
+        },
+        "imageService": {
+          "label": "Image Service固有",
+          "color": "#06b6d4"
+        }
       },
       "rulesGroups": {
         "priority1": [
@@ -455,13 +496,41 @@
         ]
       },
       "archStack": [
-        { "label": "キャプチャデバイス", "tech": "SMB Share · TIFF", "desc": "Windows PC が SMB ネットワーク共有を介して TIFF 画像をキャプチャ。初期: 1台、規模: 30+台、数百万画像/日" },
-        { "label": "同期 Worker", "tech": "Node.js 22 · TypeScript", "desc": "SMB フォルダをスキャン、新規 TIFF を検出、チェックサム計算、重複防止、処理ジョブ作成" },
-        { "label": "処理 Worker", "tech": "Python 3.12 · Pillow", "desc": "TIFF→PNG 変換、サムネイル生成、SHA256 チェックサム計算、MinIO 保存、結果を API に報告、API が DB メタデータを書き込み" },
-        { "label": "API サービス", "tech": "Fastify · Prisma · PostgreSQL 15", "desc": "画像検索、メタデータ管理、保持ポリシー、ヘルス監視、JWT認証+RBAC、OpenAPI ドキュメント" },
-        { "label": "フロントエンド", "tech": "React 18 · Vite 5 · Tailwind", "desc": "ダッシュボード、画像検索、カメラ監視、ストレージ監視、保持ポリシー、処理ログ。TanStack Query、Recharts" },
-        { "label": "インフラストラクチャ", "tech": "Redis 7 · MinIO · Docker Compose", "desc": "Redis は BullMQ キュー + キャッシング用。MinIO S3 互換オブジェクトストレージ。ERP プラットフォームから分離された専用 VM 上で動作。各サービスが独自の DB を所有（DB 分離）" },
-        { "label": "将来の統合", "tech": "Kafka · AI Vision", "desc": "image.processed 時に Kafka イベント駆動。vision-service、predictive-service、historian-service のコンシューマスタブ" }
+        {
+          "label": "キャプチャデバイス",
+          "tech": "SMB Share · TIFF",
+          "desc": "Windows PC が SMB ネットワーク共有を介して TIFF 画像をキャプチャ。初期: 1台、規模: 30+台、数百万画像/日"
+        },
+        {
+          "label": "同期 Worker",
+          "tech": "Node.js 22 · TypeScript",
+          "desc": "SMB フォルダをスキャン、新規 TIFF を検出、チェックサム計算、重複防止、処理ジョブ作成"
+        },
+        {
+          "label": "処理 Worker",
+          "tech": "Python 3.12 · Pillow",
+          "desc": "TIFF→PNG 変換、サムネイル生成、SHA256 チェックサム計算、MinIO 保存、結果を API に報告、API が DB メタデータを書き込み"
+        },
+        {
+          "label": "API サービス",
+          "tech": "Fastify · Prisma · PostgreSQL 15",
+          "desc": "画像検索、メタデータ管理、保持ポリシー、ヘルス監視、JWT認証+RBAC、OpenAPI ドキュメント"
+        },
+        {
+          "label": "フロントエンド",
+          "tech": "React 18 · Vite 5 · Tailwind",
+          "desc": "ダッシュボード、画像検索、カメラ監視、ストレージ監視、保持ポリシー、処理ログ。TanStack Query、Recharts"
+        },
+        {
+          "label": "インフラストラクチャ",
+          "tech": "Redis 7 · MinIO · Docker Compose",
+          "desc": "Redis は BullMQ キュー + キャッシング用。MinIO S3 互換オブジェクトストレージ。ERP プラットフォームから分離された専用 VM 上で動作。各サービスが独自の DB を所有（DB 分離）"
+        },
+        {
+          "label": "将来の統合",
+          "tech": "Kafka · AI Vision",
+          "desc": "image.processed 時に Kafka イベント駆動。vision-service、predictive-service、historian-service のコンシューマスタブ"
+        }
       ],
       "microservices": "マイクロサービス",
       "databases": "データベース",
@@ -604,6 +673,7 @@
     "actions": "操作",
     "cancel": "キャンセル",
     "close": "閉じる",
+    "remove": "削除",
     "save": "保存",
     "saving": "保存中...",
     "error": "エラー",

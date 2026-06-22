@@ -250,7 +250,14 @@
       "required": "Please enter username and password",
       "invalid": "Invalid username or password",
       "logout": "Sign Out",
-      "profile": "Profile"
+      "profile": "Profile",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "passwordChanged": "Password changed successfully",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 6 characters"
     },
     "nav": {
       "overview": "Overview",
@@ -315,14 +322,31 @@
     "systemConfig": {
       "title": "System Configuration",
       "subtitle": "Configure business rule thresholds and system parameters",
-      "categoryRetention": "Retention",
-      "categoryCompression": "Compression",
-      "categoryThumbnail": "Thumbnail",
-      "categoryPolling": "Polling",
       "categoryAlert": "Alert",
+      "categoryCompression": "Compression",
+      "categoryGeneral": "General",
+      "categoryPolling": "Polling",
+      "categoryRetention": "Retention",
       "categoryStorageLimit": "Storage Limit",
+      "categoryThumbnail": "Thumbnail",
+      "changeLogo": "Change Logo",
+      "developer": "Developer",
+      "logo": "System Logo",
+      "logoHint": "Supports PNG, JPG, SVG. Recommended size: 64×64px",
+      "refresh": "Refresh",
       "reset": "Reset",
-      "refresh": "Refresh"
+      "uploadLogo": "Upload Logo",
+      "version": "Version",
+      "categoryAbout": "About System Settings",
+      "programName": "Program Name",
+      "programDescription": "Program Description / Details",
+      "programVersion": "Program Version",
+      "copyright": "Copyright / Valid Copyright"
+    },
+    "about": {
+      "title": "About Program",
+      "version": "Version",
+      "developer": "Developer"
     },
     "alerts": {
       "title": "Alert Management",
@@ -334,7 +358,7 @@
       "allSeverity": "All Severity",
       "status": "Status",
       "open": "Open",
-      "resolved": "Resolved",
+      "resolved": "Alert resolved",
       "all": "All",
       "critical": "Critical",
       "warning": "Warning",
@@ -346,8 +370,7 @@
       "resolvedAt": "Resolved At",
       "acknowledge": "Acknowledge",
       "resolve": "Resolve",
-      "acknowledged": "Alert acknowledged",
-      "resolved": "Alert resolved"
+      "acknowledged": "Alert acknowledged"
     },
     "users": {
       "title": "User Management",
@@ -417,12 +440,30 @@
       "rules": "System Rules",
       "rulesDesc": "Mandatory conventions — must not be violated in any feature",
       "rulesGroupsLabels": {
-        "priority1": { "label": "Priority 1 — Must Use 100%", "color": "#ef4444" },
-        "priority2": { "label": "Priority 2 — On CRUD / Auth", "color": "#f59e0b" },
-        "priority3": { "label": "Priority 3 — Phase 2+", "color": "#eab308" },
-        "priority4": { "label": "Priority 4 — Masterdata Entity", "color": "#3b82f6" },
-        "priority5": { "label": "Priority 5 — ERP Integration", "color": "#8b5cf6" },
-        "imageService": { "label": "Image Service Specific", "color": "#06b6d4" }
+        "priority1": {
+          "label": "Priority 1 — Must Use 100%",
+          "color": "#ef4444"
+        },
+        "priority2": {
+          "label": "Priority 2 — On CRUD / Auth",
+          "color": "#f59e0b"
+        },
+        "priority3": {
+          "label": "Priority 3 — Phase 2+",
+          "color": "#eab308"
+        },
+        "priority4": {
+          "label": "Priority 4 — Masterdata Entity",
+          "color": "#3b82f6"
+        },
+        "priority5": {
+          "label": "Priority 5 — ERP Integration",
+          "color": "#8b5cf6"
+        },
+        "imageService": {
+          "label": "Image Service Specific",
+          "color": "#06b6d4"
+        }
       },
       "rulesGroups": {
         "priority1": [
@@ -455,13 +496,41 @@
         ]
       },
       "archStack": [
-        { "label": "Capture Devices", "tech": "SMB Share · TIFF", "desc": "Windows PCs capture TIFF images via SMB network share. Initial: 1 camera, Scale: 30+ cameras, millions of images/day." },
-        { "label": "Sync Worker", "tech": "Node.js 22 · TypeScript", "desc": "Scans SMB folders, detects new TIFFs, computes checksum, prevents duplicates, creates processing jobs." },
-        { "label": "Processing Worker", "tech": "Python 3.12 · Pillow", "desc": "Converts TIFF→PNG, generates thumbnails, calculates SHA256 checksum, stores in MinIO, reports result to API which writes metadata to DB." },
-        { "label": "API Service", "tech": "Fastify · Prisma · PostgreSQL 15", "desc": "Image search, metadata management, retention policies, health monitoring, JWT auth + RBAC, OpenAPI docs." },
-        { "label": "Frontend", "tech": "React 18 · Vite 5 · Tailwind", "desc": "Dashboard, image search, camera monitoring, storage monitoring, retention policy, processing logs. TanStack Query, Recharts." },
-        { "label": "Infrastructure", "tech": "Redis 7 · MinIO · Docker Compose", "desc": "Redis for BullMQ queues + caching. MinIO S3-compatible object storage. Runs on dedicated VM(s) separate from ERP platform. Each service owns its own DB (DB isolation)." },
-        { "label": "Future Integration", "tech": "Kafka · AI Vision", "desc": "Event-driven Kafka emission on image.processed. Consumer stubs for vision-service, predictive-service, historian-service." }
+        {
+          "label": "Capture Devices",
+          "tech": "SMB Share · TIFF",
+          "desc": "Windows PCs capture TIFF images via SMB network share. Initial: 1 camera, Scale: 30+ cameras, millions of images/day."
+        },
+        {
+          "label": "Sync Worker",
+          "tech": "Node.js 22 · TypeScript",
+          "desc": "Scans SMB folders, detects new TIFFs, computes checksum, prevents duplicates, creates processing jobs."
+        },
+        {
+          "label": "Processing Worker",
+          "tech": "Python 3.12 · Pillow",
+          "desc": "Converts TIFF→PNG, generates thumbnails, calculates SHA256 checksum, stores in MinIO, reports result to API which writes metadata to DB."
+        },
+        {
+          "label": "API Service",
+          "tech": "Fastify · Prisma · PostgreSQL 15",
+          "desc": "Image search, metadata management, retention policies, health monitoring, JWT auth + RBAC, OpenAPI docs."
+        },
+        {
+          "label": "Frontend",
+          "tech": "React 18 · Vite 5 · Tailwind",
+          "desc": "Dashboard, image search, camera monitoring, storage monitoring, retention policy, processing logs. TanStack Query, Recharts."
+        },
+        {
+          "label": "Infrastructure",
+          "tech": "Redis 7 · MinIO · Docker Compose",
+          "desc": "Redis for BullMQ queues + caching. MinIO S3-compatible object storage. Runs on dedicated VM(s) separate from ERP platform. Each service owns its own DB (DB isolation)."
+        },
+        {
+          "label": "Future Integration",
+          "tech": "Kafka · AI Vision",
+          "desc": "Event-driven Kafka emission on image.processed. Consumer stubs for vision-service, predictive-service, historian-service."
+        }
       ],
       "microservices": "Microservices",
       "databases": "Databases",
@@ -604,6 +673,7 @@
     "actions": "Actions",
     "cancel": "Cancel",
     "close": "Close",
+    "remove": "Remove",
     "save": "Save",
     "saving": "Saving...",
     "error": "Error",

@@ -250,7 +250,14 @@
       "required": "ကျေးဇူးပြု၍ အသုံးပြုသူအမည်နှင့် စကားဝှက်ကို ထည့်သွင်းပါ",
       "invalid": "အသုံးပြုသူအမည် သို့မဟုတ် စကားဝှက် မှားယွင်းနေပါသည်",
       "logout": "ထွက်ရန်",
-      "profile": "ပရိုဖိုင်"
+      "profile": "ပရိုဖိုင်",
+      "changePassword": "စကားဝှက်ပြောင်းရန်",
+      "currentPassword": "လက်ရှိစကားဝှက်",
+      "newPassword": "စကားဝှက်အသစ်",
+      "confirmPassword": "စကားဝှက်အသစ်အတည်ပြုရန်",
+      "passwordChanged": "စကားဝှက်ပြောင်းလဲခြင်းအောင်မြင်ပါသည်",
+      "passwordMismatch": "စကားဝှက်များမတူပါ",
+      "passwordTooShort": "စကားဝှက်သည် အနည်းဆုံး 6 လုံးရှိရမည်"
     },
     "nav": {
       "overview": "ခြုံငုံ",
@@ -315,14 +322,31 @@
     "systemConfig": {
       "title": "စနစ်ဖွဲ့စည်းမှု",
       "subtitle": "လုပ်ငန်းစည်းမျဉ်း threshold များနှင့် စနစ် parameters များကို ပြင်ဆင်ပါ",
-      "categoryRetention": "ထိန်းသိမ်းမှု",
-      "categoryCompression": "ချုံ့မှု",
-      "categoryThumbnail": "Thumbnail",
-      "categoryPolling": "စစ်ဆေးမှု",
       "categoryAlert": "သတိပေးချက်",
+      "categoryCompression": "ချုံ့မှု",
+      "categoryGeneral": "အထွေထွေ",
+      "categoryPolling": "စစ်ဆေးမှု",
+      "categoryRetention": "ထိန်းသိမ်းမှု",
       "categoryStorageLimit": "သိုလှောင်မှုကန့်သတ်ချက်",
+      "categoryThumbnail": "Thumbnail",
+      "changeLogo": "လိုဂိုပြောင်းရန်",
+      "developer": "တီထွင်သူ",
+      "logo": "စနစ်လိုဂို",
+      "logoHint": "PNG, JPG, SVG ကိုထောက်ပံ့သည်။ အကြံပြုအရွယ်: 64×64px",
+      "refresh": "ပြန်လည်ဆန်းသစ်",
       "reset": "ပြန်သတ်မှတ်",
-      "refresh": "ပြန်လည်ဆန်းသစ်"
+      "uploadLogo": "လိုဂိုတင်ရန်",
+      "version": "ဗားရှင်း",
+      "categoryAbout": "စနစ်ဆက်တင်များအကြောင်း",
+      "programName": "ပရိုဂရမ်အမည်",
+      "programDescription": "ပရိုဂရမ်အကြောင်းအရာ / အသေးစိတ်",
+      "programVersion": "ပရိုဂရမ်ဗားရှင်း",
+      "copyright": "မူပိုင်ခွင့် / တရားဝင်မူပိုင်ခွင့်"
+    },
+    "about": {
+      "title": "ပရိုဂရမ်အကြောင်း",
+      "version": "ဗားရှင်း",
+      "developer": "တီထွင်သူ"
     },
     "alerts": {
       "title": "သတိပေးချက်စီမံခန့်ခွဲမှု",
@@ -334,7 +358,7 @@
       "allSeverity": "အဆင့်အားလုံး",
       "status": "အခြေအနေ",
       "open": "ဖွင့်ထား",
-      "resolved": "ဖြေရှင်းပြီး",
+      "resolved": "သတိပေးချက်ဖြေရှင်းပြီး",
       "all": "အားလုံး",
       "critical": "အရေးကြီး",
       "warning": "သတိပေး",
@@ -346,8 +370,7 @@
       "resolvedAt": "ဖြေရှင်းချိန်",
       "acknowledge": "လက်ခံ",
       "resolve": "ဖြေရှင်း",
-      "acknowledged": "သတိပေးချက်လက်ခံပြီး",
-      "resolved": "သတိပေးချက်ဖြေရှင်းပြီး"
+      "acknowledged": "သတိပေးချက်လက်ခံပြီး"
     },
     "users": {
       "title": "အသုံးပြုသူစီမံခန့်ခွဲမှု",
@@ -417,12 +440,30 @@
       "rules": "စနစ်စည်းမျဉ်းများ",
       "rulesDesc": "မဖြစ်မနေလိုက်နာရန် — မည်သည့် feature မဆို ဤစည်းမျဉ်းများကို မချိုးဖောက်ရ",
       "rulesGroupsLabels": {
-        "priority1": { "label": "Priority 1 — 100% သုံးရမည်", "color": "#ef4444" },
-        "priority2": { "label": "Priority 2 — CRUD/Auth ရှိလျှင်", "color": "#f59e0b" },
-        "priority3": { "label": "Priority 3 — Phase 2+", "color": "#eab308" },
-        "priority4": { "label": "Priority 4 — Masterdata Entity", "color": "#3b82f6" },
-        "priority5": { "label": "Priority 5 — ERP Integration", "color": "#8b5cf6" },
-        "imageService": { "label": "Image Service သီးသန့်", "color": "#06b6d4" }
+        "priority1": {
+          "label": "Priority 1 — 100% သုံးရမည်",
+          "color": "#ef4444"
+        },
+        "priority2": {
+          "label": "Priority 2 — CRUD/Auth ရှိလျှင်",
+          "color": "#f59e0b"
+        },
+        "priority3": {
+          "label": "Priority 3 — Phase 2+",
+          "color": "#eab308"
+        },
+        "priority4": {
+          "label": "Priority 4 — Masterdata Entity",
+          "color": "#3b82f6"
+        },
+        "priority5": {
+          "label": "Priority 5 — ERP Integration",
+          "color": "#8b5cf6"
+        },
+        "imageService": {
+          "label": "Image Service သီးသန့်",
+          "color": "#06b6d4"
+        }
       },
       "rulesGroups": {
         "priority1": [
@@ -455,13 +496,41 @@
         ]
       },
       "archStack": [
-        { "label": "ဖမ်းယူကိရိယာများ", "tech": "SMB Share · TIFF", "desc": "Windows PC များသည် SMB network share မှ TIFF ပုံများကို ဖမ်းယူသည်။ အစ: 1 ကင်မရာ၊ ချဲ့: 30+ ကင်မရာ၊ တစ်နေ့လျှင် ပုံသန်းပေါင်းများစွာ" },
-        { "label": "Sync Worker", "tech": "Node.js 22 · TypeScript", "desc": "SBM ဖိုင်တွဲများကို စကင်ဖတ်၊ TIFF အသစ်များကို ရှာဖွေ၊ checksum တွက်ချက်၊ duplicate ကာကွယ်၊ processing jobs ဖန်တီး" },
-        { "label": "Processing Worker", "tech": "Python 3.12 · Pillow", "desc": "TIFF→PNG ပြောင်း၊ thumbnail ထုတ်၊ SHA256 checksum တွက်၊ MinIO တွင် သိမ်း၊ API သို့ ရလဒ်တင်ပြ၊ API က DB metadata ရေးသည်" },
-        { "label": "API Service", "tech": "Fastify · Prisma · PostgreSQL 15", "desc": "ပုံရှာဖွေ၊ metadata စီမံ၊ retention မူဝါဒ၊ ကျန်းမာရေးစောင့်ကြည့်၊ JWT auth + RBAC၊ OpenAPI docs" },
-        { "label": "Frontend", "tech": "React 18 · Vite 5 · Tailwind", "desc": "Dashboard, ပုံရှာဖွေ, ကင်မရာစောင့်ကြည့်, သိုလှောင်မှုစောင့်ကြည့်, retention မူဝါဒ, processing logs. TanStack Query, Recharts" },
-        { "label": "အခြေခံအဆောက်အအုံ", "tech": "Redis 7 · MinIO · Docker Compose", "desc": "Redis for BullMQ queues + caching. MinIO S3 လိုက်ဖက်သော object storage. ERP Platform မှ သီးခြား VM ပေါ်တွင် လည်ပတ်သည်။ ဝန်ဆောင်မှုတစ်ခုစီတွင် ၎င်း၏ DB ရှိသည် (DB isolation)" },
-        { "label": "အနာဂတ်ချိတ်ဆက်မှု", "tech": "Kafka · AI Vision", "desc": "image.processed ပေါ် Event-driven Kafka. vision-service, predictive-service, historian-service အတွက် consumer stubs" }
+        {
+          "label": "ဖမ်းယူကိရိယာများ",
+          "tech": "SMB Share · TIFF",
+          "desc": "Windows PC များသည် SMB network share မှ TIFF ပုံများကို ဖမ်းယူသည်။ အစ: 1 ကင်မရာ၊ ချဲ့: 30+ ကင်မရာ၊ တစ်နေ့လျှင် ပုံသန်းပေါင်းများစွာ"
+        },
+        {
+          "label": "Sync Worker",
+          "tech": "Node.js 22 · TypeScript",
+          "desc": "SBM ဖိုင်တွဲများကို စကင်ဖတ်၊ TIFF အသစ်များကို ရှာဖွေ၊ checksum တွက်ချက်၊ duplicate ကာကွယ်၊ processing jobs ဖန်တီး"
+        },
+        {
+          "label": "Processing Worker",
+          "tech": "Python 3.12 · Pillow",
+          "desc": "TIFF→PNG ပြောင်း၊ thumbnail ထုတ်၊ SHA256 checksum တွက်၊ MinIO တွင် သိမ်း၊ API သို့ ရလဒ်တင်ပြ၊ API က DB metadata ရေးသည်"
+        },
+        {
+          "label": "API Service",
+          "tech": "Fastify · Prisma · PostgreSQL 15",
+          "desc": "ပုံရှာဖွေ၊ metadata စီမံ၊ retention မူဝါဒ၊ ကျန်းမာရေးစောင့်ကြည့်၊ JWT auth + RBAC၊ OpenAPI docs"
+        },
+        {
+          "label": "Frontend",
+          "tech": "React 18 · Vite 5 · Tailwind",
+          "desc": "Dashboard, ပုံရှာဖွေ, ကင်မရာစောင့်ကြည့်, သိုလှောင်မှုစောင့်ကြည့်, retention မူဝါဒ, processing logs. TanStack Query, Recharts"
+        },
+        {
+          "label": "အခြေခံအဆောက်အအုံ",
+          "tech": "Redis 7 · MinIO · Docker Compose",
+          "desc": "Redis for BullMQ queues + caching. MinIO S3 လိုက်ဖက်သော object storage. ERP Platform မှ သီးခြား VM ပေါ်တွင် လည်ပတ်သည်။ ဝန်ဆောင်မှုတစ်ခုစီတွင် ၎င်း၏ DB ရှိသည် (DB isolation)"
+        },
+        {
+          "label": "အနာဂတ်ချိတ်ဆက်မှု",
+          "tech": "Kafka · AI Vision",
+          "desc": "image.processed ပေါ် Event-driven Kafka. vision-service, predictive-service, historian-service အတွက် consumer stubs"
+        }
       ],
       "microservices": "မိုက်ခရိုဆာဗစ်များ",
       "databases": "ဒေတာဘေ့စ်များ",
@@ -604,6 +673,7 @@
     "actions": "လုပ်ဆောင်ချက်များ",
     "cancel": "ပယ်ဖျက်",
     "close": "ပိတ်",
+    "remove": "ဖယ်ရှားရန်",
     "save": "သိမ်းဆည်း",
     "saving": "သိမ်းဆည်းနေသည်...",
     "error": "အမှား",

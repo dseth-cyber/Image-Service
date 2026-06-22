@@ -1,11 +1,11 @@
 export const config = {
   nodeEnv: process.env.NODE_ENV ?? 'development',
   host: process.env.HOST ?? '0.0.0.0',
-  port: parseInt(process.env.PORT ?? '3001', 10),
+  port: parseInt(process.env.PORT ?? '3002', 10),
   logLevel: process.env.LOG_LEVEL ?? 'info',
 
   database: {
-    url: process.env.DATABASE_URL ?? 'postgresql://image_user:image_pass@localhost:5432/image_db',
+    url: 'postgresql://image_user:image_pass@localhost:5432/image_db',
   },
 
   jwt: {

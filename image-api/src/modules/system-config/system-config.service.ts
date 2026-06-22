@@ -14,6 +14,14 @@ const DEFAULT_CONFIGS: Record<string, { value: string; description: string; valu
   max_storage_gb: { value: '1000', description: 'Global max storage capacity in GB for forecast', valueType: 'number', category: 'storage' },
   max_storage_per_camera_gb: { value: '100', description: 'Per-camera max storage capacity in GB for forecast', valueType: 'number', category: 'storage' },
   dlq_alert_threshold: { value: '10', description: 'Dead letter queue count threshold for alert', valueType: 'number', category: 'alert' },
+
+  // General settings — managed via UI
+  system_logo: { value: '', description: 'System logo (base64 data URL)', valueType: 'string', category: 'general' },
+  system_name: { value: 'Image Service', description: 'Application name', valueType: 'string', category: 'general' },
+  system_description: { value: 'Enterprise Image Management System', description: 'Application description', valueType: 'string', category: 'general' },
+  system_version: { value: '1.0.0', description: 'System version label', valueType: 'string', category: 'general' },
+  system_developer: { value: 'Chiotron', description: 'Developer / company name', valueType: 'string', category: 'general' },
+  system_copyright: { value: '© 2026 Chiotron. All rights reserved.', description: 'Copyright notice text', valueType: 'string', category: 'general' },
 };
 
 export async function getAllConfigs(): Promise<Record<string, any>> {
@@ -38,19 +46,18 @@ export async function getAllConfigs(): Promise<Record<string, any>> {
 export async function updateConfigs(inputs: Record<string, string>): Promise<void> {
   const prisma = getPrisma();
   for (const [key, value] of Object.entries(inputs)) {
-    if (DEFAULT_CONFIGS[key]) {
-      await prisma.systemConfig.upsert({
-        where: { key },
-        update: { value: String(value) },
-        create: {
-          key,
-          value: String(value),
-          description: DEFAULT_CONFIGS[key].description,
-          valueType: DEFAULT_CONFIGS[key].valueType,
-          category: DEFAULT_CONFIGS[key].category,
-        },
-      });
-    }
+    const def = DEFAULT_CONFIGS[key];
+    await prisma.systemConfig.upsert({
+      where: { key },
+      update: { value: String(value) },
+      create: {
+        key,
+        value: String(value),
+        description: def?.description ?? '',
+        valueType: def?.valueType ?? 'string',
+        category: def?.category ?? 'general',
+      },
+    });
   }
 }
 

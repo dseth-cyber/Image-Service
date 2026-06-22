@@ -13,6 +13,10 @@ function processQueue(error: unknown, token: string | null) {
   failedQueue = []
 }
 
+function isLoginPage() {
+  return window.location.pathname === '/login'
+}
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken')
   if (token) config.headers.Authorization = `Bearer ${token}`
@@ -26,6 +30,11 @@ api.interceptors.response.use(
     if (error.response?.status !== 401 || originalRequest._retry) return Promise.reject(error)
     if (originalRequest.url?.includes('/auth/')) return Promise.reject(error)
 
+    const refreshToken = localStorage.getItem('refreshToken')
+    if (!refreshToken) {
+      return Promise.reject(error)
+    }
+
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject })
@@ -37,14 +46,6 @@ api.interceptors.response.use(
 
     originalRequest._retry = true
     isRefreshing = true
-
-    const refreshToken = localStorage.getItem('refreshToken')
-    if (!refreshToken) {
-      isRefreshing = false
-      localStorage.clear()
-      window.location.href = '/login'
-      return Promise.reject(error)
-    }
 
     try {
       const { data } = await axios.post('/image-service/api/v1/auth/refresh', { refreshToken })

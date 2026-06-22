@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/contexts/ToastContext';
 import { imageServiceApi } from '@/services/imageServiceApi';
-import { Save, RotateCcw, RefreshCw, Settings, Database, HardDrive, Server, Bell, Image } from 'lucide-react';
+import { Save, RotateCcw, RefreshCw, Settings, Database, HardDrive, Server, Bell, Image, Upload, Info } from 'lucide-react';
 import { Button } from '@/components/ui';
 
 const CATEGORIES: { key: string; icon: any; labelKey: string; color: string }[] = [
+  { key: 'general', icon: Settings, labelKey: 'imageService.systemConfig.categoryGeneral', color: 'text-gray-400 bg-gray-500/10' },
   { key: 'retention', icon: Database, labelKey: 'imageService.systemConfig.categoryRetention', color: 'text-blue-400 bg-blue-500/10' },
   { key: 'compression', icon: Image, labelKey: 'imageService.systemConfig.categoryCompression', color: 'text-purple-400 bg-purple-500/10' },
   { key: 'thumbnail', icon: HardDrive, labelKey: 'imageService.systemConfig.categoryThumbnail', color: 'text-amber-400 bg-amber-500/10' },
@@ -90,7 +91,76 @@ export default function SystemConfigPage() {
         <div className={`${themeConfig.card} rounded-lg p-8 text-center text-sm ${themeConfig.text.secondary}`}>{t('common.loading')}</div>
       ) : (
         <>
-          {CATEGORIES.map(cat => {
+          {/* General category — always rendered */}
+          <div className={`${themeConfig.card} rounded-lg p-6 mb-5`}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg text-cyan-400 bg-cyan-500/10">
+                <Info size={18} />
+              </div>
+              <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.systemConfig.categoryAbout')}</h3>
+            </div>
+            <div className="space-y-4">
+              {/* Logo */}
+              <div>
+                <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.systemConfig.logo')}</label>
+                <div className="flex items-center gap-4">
+                  {values.system_logo && (
+                    <img src={values.system_logo} alt="Logo" className="h-14 w-14 rounded-lg object-contain border border-white/20 bg-white/10" />
+                  )}
+                  <label className="cursor-pointer">
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-md text-sm border border-white/30 bg-white/10 text-white hover:bg-white/20 transition-colors">
+                      <Upload size={14} />
+                      {values.system_logo ? t('imageService.systemConfig.changeLogo') : t('imageService.systemConfig.uploadLogo')}
+                    </div>
+                    <input type="file" accept="image/png,image/jpeg,image/svg+xml" className="hidden"
+                      onChange={e => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = () => setValues(v => ({ ...v, system_logo: reader.result as string }));
+                        reader.readAsDataURL(file);
+                      }} />
+                  </label>
+                  {values.system_logo && (
+                    <button onClick={() => setValues(v => ({ ...v, system_logo: '' }))}
+                      className="text-xs text-red-400 hover:text-red-300">{t('common.remove')}</button>
+                  )}
+                </div>
+                <p className={`text-xs mt-1 ${themeConfig.text.secondary}`}>{t('imageService.systemConfig.logoHint')}</p>
+              </div>
+
+              {/* Program Name */}
+              <div>
+                <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.systemConfig.programName')}</label>
+                <input value={values.system_name ?? ''} onChange={e => setValues(v => ({ ...v, system_name: e.target.value }))}
+                  className={inputClass} placeholder="Image Service" />
+              </div>
+
+              {/* Program Description */}
+              <div>
+                <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.systemConfig.programDescription')}</label>
+                <input value={values.system_description ?? ''} onChange={e => setValues(v => ({ ...v, system_description: e.target.value }))}
+                  className={inputClass} placeholder="Enterprise Image Management System" />
+              </div>
+
+              {/* Program Version */}
+              <div>
+                <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.systemConfig.programVersion')}</label>
+                <input value={values.system_version ?? ''} onChange={e => setValues(v => ({ ...v, system_version: e.target.value }))}
+                  className={inputClass} placeholder="1.0.0" />
+              </div>
+
+              {/* Copyright */}
+              <div>
+                <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.systemConfig.copyright')}</label>
+                <textarea value={values.system_copyright ?? ''} onChange={e => setValues(v => ({ ...v, system_copyright: e.target.value }))}
+                  className={`${inputClass} min-h-[60px]`} placeholder="© 2026 Chiotron. All rights reserved." rows={2} />
+              </div>
+
+            </div>
+          </div>
+
+          {CATEGORIES.filter(c => c.key !== 'general').map(cat => {
             const items = grouped[cat.key];
             if (!items || items.length === 0) return null;
             const Icon = cat.icon;

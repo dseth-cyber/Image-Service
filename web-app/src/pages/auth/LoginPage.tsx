@@ -5,7 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { Camera, Eye, EyeOff, LogIn } from 'lucide-react'
 
-export default function LoginPage() {
+export default function LoginPage({ logoBase64 }: { logoBase64?: string }) {
   const { t } = useTranslation()
   const { themeConfig } = useTheme()
   const { login } = useAuth()
@@ -35,8 +35,12 @@ export default function LoginPage() {
     <div className={`min-h-screen flex items-center justify-center ${themeConfig.background}`}>
       <div className={`w-full max-w-sm p-8 rounded-xl ${themeConfig.card}`}>
         <div className="flex items-center justify-center gap-2 mb-2">
-          <Camera size={28} className="text-cyan-400" />
-          <span className="text-lg font-bold">Image Service</span>
+          {logoBase64 ? (
+            <img src={logoBase64} alt="Logo" className="h-9 w-9 rounded object-contain" />
+          ) : (
+            <Camera size={28} className="text-cyan-400" />
+          )}
+          <span className={`text-lg font-bold ${themeConfig.text.primary}`}>Image Service</span>
         </div>
         <p className={`text-center text-xs mb-6 ${themeConfig.text.secondary}`}>{t('imageService.auth.subtitle')}</p>
 
