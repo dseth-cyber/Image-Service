@@ -141,15 +141,15 @@ function ProfileMenu({ username, role, onLogout, onChangePassword, onAbout }: { 
       {open && (
         <div className="absolute right-0 mt-1 w-44 rounded-md border border-white/20 bg-slate-800 shadow-xl z-50 overflow-hidden">
           <div className="px-3 py-2 text-[11px] text-gray-400 border-b border-white/10">{role}</div>
-          <button onClick={() => { onAbout(); setOpen(false) }}
-            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-300 hover:bg-white/10 transition-colors">
-            <Info size={13} />
-            {t('imageService.about.title')}
-          </button>
           <button onClick={() => { onChangePassword(); setOpen(false) }}
             className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-300 hover:bg-white/10 transition-colors">
             <Lock size={13} />
             {t('imageService.auth.changePassword')}
+          </button>
+          <button onClick={() => { onAbout(); setOpen(false) }}
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-300 hover:bg-white/10 transition-colors">
+            <Info size={13} />
+            {t('imageService.about.title')}
           </button>
           <button onClick={() => { onLogout(); setOpen(false) }}
             className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-400 hover:bg-white/10 transition-colors">
@@ -326,6 +326,20 @@ export default function App() {
   const location = useLocation()
   const [passwordModalOpen, setPasswordModalOpen] = useState(false)
   const [aboutModalOpen, setAboutModalOpen] = useState(false)
+
+  // Synchronize theme based on login status and user preference
+  useEffect(() => {
+    if (isAuthenticated && user?.username) {
+      const userTheme = localStorage.getItem(`image-service-theme:${user.username}`) || 'modern'
+      if (userTheme !== theme) {
+        setTheme(userTheme)
+      }
+    } else if (!isAuthenticated) {
+      if (theme !== 'modern') {
+        setTheme('modern')
+      }
+    }
+  }, [isAuthenticated, user?.username, theme, setTheme])
   const { data: sysConfig } = useQuery({
     queryKey: ['system-config'],
     queryFn: () => imageServiceApi.getSystemConfigs(),

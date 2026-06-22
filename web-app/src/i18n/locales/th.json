@@ -257,7 +257,8 @@
       "confirmPassword": "ยืนยันรหัสผ่านใหม่",
       "passwordChanged": "เปลี่ยนรหัสผ่านสำเร็จ",
       "passwordMismatch": "รหัสผ่านไม่ตรงกัน",
-      "passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"
+      "passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร",
+      "noAccount": "ยังไม่มีบัญชี? ลงทะเบียนที่นี่"
     },
     "nav": {
       "overview": "ภาพรวม",
@@ -341,7 +342,37 @@
       "programName": "ชื่อโปรแกรม",
       "programDescription": "คำอธิบาย / รายละเอียดโปรแกรม",
       "programVersion": "เวอร์ชันโปรแกรม",
-      "copyright": "ลิขสิทธิ์ / ลิขสิทธิ์ถูกต้อง"
+      "copyright": "ลิขสิทธิ์ / ลิขสิทธิ์ถูกต้อง",
+      "labels": {
+        "retention_days_raw": "จำนวนวันเก็บภาพดิบ (Raw)",
+        "retention_days_processed": "จำนวนวันเก็บภาพประมวลผล (Processed)",
+        "retention_days_thumbnail": "จำนวนวันเก็บภาพขนาดเล็ก (Thumbnail)",
+        "compression_quality": "คุณภาพการบีบอัด",
+        "thumbnail_width": "ความกว้างภาพขนาดเล็ก",
+        "thumbnail_height": "ความสูงภาพขนาดเล็ก",
+        "poll_interval_default": "ช่วงเวลาตรวจสอบเริ่มต้น",
+        "retry_max_count": "จำนวนครั้งพยายามซ้ำสูงสุด",
+        "alert_critical_threshold": "ขีดจำกัดเตือนขั้นวิกฤต",
+        "alert_warning_threshold": "ขีดจำกัดเตือนขั้นเฝ้าระวัง",
+        "dlq_alert_threshold": "ขีดจำกัดเตือนคิวส่งไม่ผ่าน",
+        "max_storage_gb": "ขนาดความจุพื้นที่เก็บข้อมูลรวม (GB)",
+        "max_storage_per_camera_gb": "ขนาดความจุพื้นที่ต่อกล้อง (GB)"
+      },
+      "descriptions": {
+        "retention_days_raw": "ระยะเวลาการเก็บไฟล์ภาพต้นฉบับ TIFF (วัน)",
+        "retention_days_processed": "ระยะเวลาการเก็บไฟล์ภาพประมวลผล PNG (วัน)",
+        "retention_days_thumbnail": "ระยะเวลาการเก็บไฟล์ภาพตัวอย่างขนาดเล็ก (วัน)",
+        "compression_quality": "คุณภาพการบีบอัดไฟล์ JPEG/PNG (0-100)",
+        "thumbnail_width": "ความกว้างสูงสุดของรูปขนาดย่อในหน่วยพิกเซล",
+        "thumbnail_height": "ความสูงสูงสุดของรูปขนาดย่อในหน่วยพิกเซล",
+        "poll_interval_default": "ระยะเวลาการตรวจสอบข้อมูลเริ่มต้น (วินาที)",
+        "retry_max_count": "จำนวนการพยายามทำงานอีกครั้งสูงสุดเมื่อประมวลผลภาพล้มเหลว",
+        "alert_critical_threshold": "เปอร์เซ็นต์การใช้งานพื้นที่จัดเก็บข้อมูลสำหรับแจ้งเตือนระดับวิกฤต",
+        "alert_warning_threshold": "เปอร์เซ็นต์การใช้งานพื้นที่จัดเก็บข้อมูลสำหรับแจ้งเตือนระดับเตือนภัย",
+        "dlq_alert_threshold": "จำนวนคิวของภาพที่ไม่สามารถจัดส่งได้สูงสุดก่อนเริ่มทำการแจ้งเตือน",
+        "max_storage_gb": "ความจุพื้นที่จัดเก็บข้อมูลรวมทั้งหมดในระบบเพื่อนำไปใช้คำนวณคาดการณ์ (GB)",
+        "max_storage_per_camera_gb": "ความจุพื้นที่จัดเก็บข้อมูลสูงสุดต่อหนึ่งกล้องเพื่อนำไปใช้คำนวณคาดการณ์ (GB)"
+      }
     },
     "about": {
       "title": "เกี่ยวกับโปรแกรม",

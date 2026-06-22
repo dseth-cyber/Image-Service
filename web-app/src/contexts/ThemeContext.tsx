@@ -140,6 +140,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     themeConfig,
     setTheme: (t: string) => {
       localStorage.setItem('image-service-theme', t)
+      
+      const userJson = localStorage.getItem('user')
+      if (userJson) {
+        try {
+          const user = JSON.parse(userJson)
+          if (user && user.username) {
+            localStorage.setItem(`image-service-theme:${user.username}`, t)
+          }
+        } catch { /* ignore */ }
+      }
+      
       setThemeState(t)
     },
   }

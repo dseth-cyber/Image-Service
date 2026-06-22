@@ -173,18 +173,24 @@ export default function SystemConfigPage() {
                   <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>{t(cat.labelKey)}</h3>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  {items.map(([key, cfg]) => (
-                    <div key={key}>
-                      <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                        {key.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-                      </label>
-                      <input type={(cfg as any).valueType === 'number' ? 'number' : 'text'}
-                        value={values[key] ?? ''}
-                        onChange={e => setValues(v => ({ ...v, [key]: e.target.value }))}
-                        className={inputClass} />
-                      <p className={`text-xs mt-0.5 ${themeConfig.text.secondary}`}>{(cfg as any).description}</p>
-                    </div>
-                  ))}
+                  {items.map(([key, cfg]) => {
+                    const labelKey = `imageService.systemConfig.labels.${key}`;
+                    const descKey = `imageService.systemConfig.descriptions.${key}`;
+                    const translatedLabel = t(labelKey) !== labelKey ? t(labelKey) : key.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                    const translatedDesc = t(descKey) !== descKey ? t(descKey) : (cfg as any).description;
+                    return (
+                      <div key={key}>
+                        <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                          {translatedLabel}
+                        </label>
+                        <input type={(cfg as any).valueType === 'number' ? 'number' : 'text'}
+                          value={values[key] ?? ''}
+                          onChange={e => setValues(v => ({ ...v, [key]: e.target.value }))}
+                          className={inputClass} />
+                        <p className={`text-xs mt-0.5 ${themeConfig.text.secondary}`}>{translatedDesc}</p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );

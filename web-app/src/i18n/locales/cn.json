@@ -257,7 +257,8 @@
       "confirmPassword": "确认新密码",
       "passwordChanged": "密码修改成功",
       "passwordMismatch": "密码不匹配",
-      "passwordTooShort": "密码至少需要6个字符"
+      "passwordTooShort": "密码至少需要6个字符",
+      "noAccount": "还没有账户？在此注册"
     },
     "nav": {
       "overview": "概览",
@@ -341,7 +342,37 @@
       "programName": "程序名称",
       "programDescription": "程序描述 / 详情",
       "programVersion": "程序版本",
-      "copyright": "版权 / 合法版权"
+      "copyright": "版权 / 合法版权",
+      "labels": {
+        "retention_days_raw": "原始图像保留天数",
+        "retention_days_processed": "处理图像保留天数",
+        "retention_days_thumbnail": "缩略图保留天数",
+        "compression_quality": "压缩质量",
+        "thumbnail_width": "缩略图宽度",
+        "thumbnail_height": "缩略图高度",
+        "poll_interval_default": "默认轮询间隔",
+        "retry_max_count": "最大重试次数",
+        "alert_critical_threshold": "严重告警阈值",
+        "alert_warning_threshold": "警告告警阈值",
+        "dlq_alert_threshold": "死信队列告警阈值",
+        "max_storage_gb": "最大总存储量 (GB)",
+        "max_storage_per_camera_gb": "单相机最大存储量 (GB)"
+      },
+      "descriptions": {
+        "retention_days_raw": "原始 TIFF 文件的保留时间（天）",
+        "retention_days_processed": "已处理 PNG 文件的保留时间（天）",
+        "retention_days_thumbnail": "缩略图文件的保留时间（天）",
+        "compression_quality": "JPEG/PNG 压缩质量（0-100）",
+        "thumbnail_width": "缩略图的最大宽度（像素）",
+        "thumbnail_height": "缩略图的最大高度（像素）",
+        "poll_interval_default": "默认轮询间隔时间（秒）",
+        "retry_max_count": "处理任务失败后的最大重试次数",
+        "alert_critical_threshold": "用于严重告警的磁盘空间使用百分比",
+        "alert_warning_threshold": "用于警告告警 of 磁盘空间使用百分比",
+        "dlq_alert_threshold": "触发告警的死信队列数量阈值",
+        "max_storage_gb": "用于预测的全局最大存储容量 (GB)",
+        "max_storage_per_camera_gb": "用于预测的每台相机最大存储容量 (GB)"
+      }
     },
     "about": {
       "title": "关于程序",

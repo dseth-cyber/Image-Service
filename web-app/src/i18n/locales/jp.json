@@ -257,7 +257,8 @@
       "confirmPassword": "新しいパスワード（確認）",
       "passwordChanged": "パスワードを変更しました",
       "passwordMismatch": "パスワードが一致しません",
-      "passwordTooShort": "パスワードは6文字以上必要です"
+      "passwordTooShort": "パスワードは6文字以上必要です",
+      "noAccount": "アカウントをお持ちでないですか？こちらで登録"
     },
     "nav": {
       "overview": "概要",
@@ -341,7 +342,37 @@
       "programName": "プログラム名",
       "programDescription": "プログラム説明 / 詳細",
       "programVersion": "プログラムバージョン",
-      "copyright": "著作権 / 正当な著作権"
+      "copyright": "著作権 / 正当な著作権",
+      "labels": {
+        "retention_days_raw": "生画像保持日数",
+        "retention_days_processed": "処理済み画像保持日数",
+        "retention_days_thumbnail": "サムネイル保持日数",
+        "compression_quality": "圧縮品質",
+        "thumbnail_width": "サムネイル幅",
+        "thumbnail_height": "サムネイル高",
+        "poll_interval_default": "デフォルト監視間隔",
+        "retry_max_count": "最大再試行回数",
+        "alert_critical_threshold": "致命的アラートしきい値",
+        "alert_warning_threshold": "警告アラートしきい値",
+        "dlq_alert_threshold": "未送信キューアラートしきい値",
+        "max_storage_gb": "最大総ストレージ容量 (GB)",
+        "max_storage_per_camera_gb": "カメラ別最大容量 (GB)"
+      },
+      "descriptions": {
+        "retention_days_raw": "元の TIFF ファイルの保存期間（日）",
+        "retention_days_processed": "処理された PNG ファイルの保存期間（日）",
+        "retention_days_thumbnail": "サムネイルファイルの保存期間（日）",
+        "compression_quality": "JPEG/PNG 圧縮品質（0〜100）",
+        "thumbnail_width": "サムネイルの最大幅（ピクセル）",
+        "thumbnail_height": "サムネイルの最大高さ（ピクセル）",
+        "poll_interval_default": "デフォルトのポーリング間隔（秒）",
+        "retry_max_count": "処理失敗時の最大再試行回数",
+        "alert_critical_threshold": "致命的なアラートを発信するためのディスク使用率",
+        "alert_warning_threshold": "警告アラートを発信するためのディスク使用率",
+        "dlq_alert_threshold": "アラートを発生させる未送信キューのしきい値",
+        "max_storage_gb": "予測のための全体の最大ストレージ容量 (GB)",
+        "max_storage_per_camera_gb": "予測のためのカメラあたりの最大ストレージ容量 (GB)"
+      }
     },
     "about": {
       "title": "プログラムについて",

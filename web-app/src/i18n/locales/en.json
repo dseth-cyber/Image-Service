@@ -257,7 +257,8 @@
       "confirmPassword": "Confirm Password",
       "passwordChanged": "Password changed successfully",
       "passwordMismatch": "Passwords do not match",
-      "passwordTooShort": "Password must be at least 6 characters"
+      "passwordTooShort": "Password must be at least 6 characters",
+      "noAccount": "Don't have an account? Register here"
     },
     "nav": {
       "overview": "Overview",
@@ -341,7 +342,37 @@
       "programName": "Program Name",
       "programDescription": "Program Description / Details",
       "programVersion": "Program Version",
-      "copyright": "Copyright / Valid Copyright"
+      "copyright": "Copyright / Valid Copyright",
+      "labels": {
+        "retention_days_raw": "Retention Days Raw",
+        "retention_days_processed": "Retention Days Processed",
+        "retention_days_thumbnail": "Retention Days Thumbnail",
+        "compression_quality": "Compression Quality",
+        "thumbnail_width": "Thumbnail Width",
+        "thumbnail_height": "Thumbnail Height",
+        "poll_interval_default": "Poll Interval Default",
+        "retry_max_count": "Retry Max Count",
+        "alert_critical_threshold": "Alert Critical Threshold",
+        "alert_warning_threshold": "Alert Warning Threshold",
+        "dlq_alert_threshold": "Dlq Alert Threshold",
+        "max_storage_gb": "Max Storage Gb",
+        "max_storage_per_camera_gb": "Max Storage Per Camera Gb"
+      },
+      "descriptions": {
+        "retention_days_raw": "Retention days for raw TIFF files",
+        "retention_days_processed": "Retention days for processed PNG files",
+        "retention_days_thumbnail": "Retention days for thumbnail files",
+        "compression_quality": "JPEG/PNG compression quality (0-100)",
+        "thumbnail_width": "Thumbnail max width in pixels",
+        "thumbnail_height": "Thumbnail max height in pixels",
+        "poll_interval_default": "Default poll interval in seconds",
+        "retry_max_count": "Max retry count for failed processing jobs",
+        "alert_critical_threshold": "Disk usage percentage for critical alert",
+        "alert_warning_threshold": "Disk usage percentage for warning alert",
+        "dlq_alert_threshold": "Dead letter queue count threshold for alert",
+        "max_storage_gb": "Global max storage capacity in GB for forecast",
+        "max_storage_per_camera_gb": "Per-camera max storage capacity in GB for forecast"
+      }
     },
     "about": {
       "title": "About Program",
