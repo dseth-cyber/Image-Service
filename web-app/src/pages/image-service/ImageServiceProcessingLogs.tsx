@@ -180,12 +180,12 @@ export default function ImageServiceProcessingLogs() {
                     </td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-0.5 rounded-md text-xs bg-cyan-500/10 text-cyan-400">
-                        {job.jobType}
+                        {t(TYPE_LABEL_KEY[job.jobType] ?? job.jobType)}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${JOB_STATUS_STYLES[job.status] ?? 'bg-gray-500/20 text-gray-400'}`}>
-                        {job.status}
+                        {t(STATUS_LABEL_KEY[job.status] ?? job.status)}
                       </span>
                     </td>
                     <td className={`px-4 py-3 text-xs ${themeConfig.text.secondary}`}>
@@ -195,7 +195,7 @@ export default function ImageServiceProcessingLogs() {
                       {job.queuedAt ? formatDateTime(job.queuedAt, i18n.language) : '—'}
                     </td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>
-                      {job.durationMs ? `${(job.durationMs / 1000).toFixed(1)}s` : '—'}
+                      {job.durationMs ? `${(job.durationMs / 1000).toFixed(1)}${t('imageService.processingLogs.seconds')}` : '—'}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-center">

@@ -59,7 +59,18 @@
       "tagKeyPlaceholder": "သော့...",
       "tagValuePlaceholder": "တန်ဖိုး...",
       "tagAdded": "တက်ဂ်ထည့်ပြီး",
-      "tagDeleted": "တက်ဂ်ဖျက်ပြီး"
+      "tagDeleted": "တက်ဂ်ဖျက်ပြီး",
+      "dimensions": "အတိုင်းအတာ (အကျယ်×အမြင့်)",
+      "bitDepth": "ဘစ်အနက်",
+      "colorSpace": "အရောင်နေရာ",
+      "compression": "ချုံ့မှု",
+      "fileSize": "ဖိုင်အရွယ်အစား",
+      "sha256": "SHA-256",
+      "captured": "ရိုက်ကူးသည့်နေ့",
+      "processed": "လုပ်ဆောင်သည့်နေ့",
+      "fileTypeRaw": "မူရင်း",
+      "fileTypeProcessed": "လုပ်ဆောင်ပြီး",
+      "fileTypeThumbnail": "သေးငယ်သည့်ပုံ"
     },
     "cameras": {
       "title": "ကင်မရာစီမံခန့်ခွဲမှု",
@@ -82,7 +93,13 @@
       "created": "ကင်မရာထည့်သွင်းခြင်းအောင်မြင်ပါသည်",
       "updated": "ကင်မရာမွမ်းမံခြင်းအောင်မြင်ပါသည်",
       "deactivated": "ကင်မရာပိတ်ခြင်းအောင်မြင်ပါသည်",
-      "viewLogs": "Logs ကြည့်ရန်"
+      "viewLogs": "Logs ကြည့်ရန်",
+      "captureMode": "ရိုက်ကူးမှုပုံစံ",
+      "smbUsername": "SMB သုံးစွဲသူအမည်",
+      "retentionPolicy": "သိမ်းဆည်းမှုမူဝါဒ",
+      "captureModePeriodic": "အချိန်အလိုက်",
+      "captureModeOnDemand": "လိုအပ်သလို",
+      "captureModeContinuous": "ဆက်တိုက်"
     },
     "storage": {
       "title": "သိုလှောင်မှုစောင့်ကြည့်ခြင်း",
@@ -124,7 +141,13 @@
       "deleteDisabled": "ကင်မရာများအသုံးပြုနေသော မူဝါဒကိုမဖျက်နိုင်ပါ",
       "created": "မူဝါဒဖန်တီးခြင်းအောင်မြင်ပါသည်",
       "updated": "မူဝါဒမွမ်းမံခြင်းအောင်မြင်ပါသည်",
-      "deleted": "မူဝါဒဖျက်ခြင်းအောင်မြင်ပါသည်"
+      "deleted": "မူဝါဒဖျက်ခြင်းအောင်မြင်ပါသည်",
+      "on": "ဖွင့်",
+      "off": "ပိတ်",
+      "days": "ရက်",
+      "hot": "ပူ",
+      "warm": "နွေး",
+      "cold": "အေး"
     },
     "processing": {
       "title": "လုပ်ဆောင်မှုစောင့်ကြည့်ရန်",
@@ -167,7 +190,8 @@
       "typeThumbnail": "Thumbnail",
       "typeChecksum": "Checksum",
       "typeArchive": "Archive",
-      "typeDelete": "ဖျက်ရန်"
+      "typeDelete": "ဖျက်ရန်",
+      "seconds": "စက္ကန့်"
     },
     "deadLetter": {
       "title": "Dead Letter Queue",
@@ -212,7 +236,31 @@
       "actionPolicyDelete": "မူဝါဒဖျက်ခြင်း",
       "entityImage": "ပုံ",
       "entityImageFile": "ပုံဖိုင်",
-      "entityRetentionPolicy": "ထိန်းသိမ်းမှုမူဝါဒ"
+      "entityRetentionPolicy": "ထိန်းသိမ်းမှုမူဝါဒ",
+      "actionImageCreate": "ပုံဖန်တီးမှု",
+      "actionImageRegister": "ပုံမှတ်ပုံတင်မှု",
+      "actionCameraCreate": "ကင်မရာဖန်တီးမှု",
+      "actionCameraUpdate": "ကင်မရာပြင်ဆင်မှု",
+      "actionCameraDeactivate": "ကင်မရာပိတ်မှု",
+      "actionUserCreate": "သုံးစွဲသူဖန်တီးမှု",
+      "actionUserUpdate": "သုံးစွဲသူပြင်ဆင်မှု",
+      "actionUserDeactivate": "သုံးစွဲသူပိတ်မှု",
+      "actionApiKeyCreate": "API သော့ဖန်တီးမှု",
+      "actionApiKeyUpdate": "API သော့ပြင်ဆင်မှု",
+      "actionApiKeyDelete": "API သော့ဖျက်မှု",
+      "actionSystemConfigUpdate": "စနစ်ဖွဲ့စည်းမှုပြင်ဆင်ချက်",
+      "actionAlertCreate": "သတိပေးချက်ဖန်တီးမှု",
+      "actionAlertAcknowledge": "သတိပေးချက်လက်ခံမှု",
+      "actionLogin": "အကောင့်ဝင်ရန်",
+      "actionLogout": "အကောင့်ထွက်ရန်",
+      "entityCamera": "ကင်မရာ",
+      "entityUser": "သုံးစွဲသူ",
+      "entityProcessingJob": "လုပ်ဆောင်မှုအလုပ်",
+      "entitySystemConfig": "စနစ်ဖွဲ့စည်းမှု",
+      "entityApiKey": "API သော့",
+      "entityAlert": "သတိပေးချက်",
+      "entityAuditLog": "စစ်ဆေးမှတ်တမ်း",
+      "entityBackupRecord": "မိတ္တူမှတ်တမ်း"
     },
     "backup": {
       "title": "Backup နှင့် Restore",
@@ -224,7 +272,29 @@
       "fileSize": "ဖိုင်အရွယ်",
       "lastBackup": "နောက်ဆုံး Backup",
       "noBackups": "Backup မရှိသေးပါ",
-      "recentBackups": "မကြာသေးမီက Backup များ"
+      "recentBackups": "မကြာသေးမီက Backup များ",
+      "tableType": "အမျိုးအစား",
+      "tableStatus": "အခြေအနေ",
+      "tableStarted": "စတင်ချိန်",
+      "tableSize": "အရွယ်အစား",
+      "tablePath": "လမ်းကြောင်း",
+      "tableActions": "လုပ်ဆောင်မှုများ",
+      "loading": "ဖွင့်နေသည်...",
+      "noRecords": "မိတ္တူမှတ်တမ်းမရှိပါ",
+      "typeDatabase": "ဒေတာဘေ့စ်",
+      "typeMinio": "MinIO",
+      "testRestore": "ပြန်လည်ရယူခြင်းစမ်းသပ်မှု",
+      "statusCompleted": "ပြီးစီး",
+      "statusFailed": "မအောင်မြင်",
+      "statusRunning": "လုပ်ဆောင်နေသည်",
+      "statusPending": "စောင့်ဆိုင်းနေသည်",
+      "dbBackupCompleted": "ဒေတာဘေ့စ် မိတ္တူကူးခြင်းပြီးစီး",
+      "dbBackupFailed": "ဒေတာဘေ့စ် မိတ္တူကူးခြင်းမအောင်မြင်",
+      "minioBackupCompleted": "MinIO မိတ္တူကူးခြင်းပြီးစီး",
+      "minioBackupFailed": "MinIO မိတ္တူကူးခြင်းမအောင်မြင်",
+      "restoreTestSuccess": "ပြန်လည်ရယူခြင်းစမ်းသပ်မှု: {{message}}",
+      "restoreTestFailed": "ပြန်လည်ရယူခြင်းစမ်းသပ်မှုမအောင်မြင်: {{message}}",
+      "restoreTestError": "ပြန်လည်ရယူခြင်းစမ်းသပ်မှုအမှား"
     },
     "settings": {
       "title": "ဆက်တင်များ",
@@ -826,6 +896,11 @@
     "completed": "ပြီးဆုံး",
     "failed": "မအောင်မြင်",
     "deleted": "ဖျက်ပြီး",
-    "archived": "သိမ်းဆည်းပြီး"
+    "archived": "သိမ်းဆည်းပြီး",
+    "records": "မှတ်တမ်းများ",
+    "page": "စာမျက်နှာ",
+    "of": "မှ",
+    "system": "စနစ်",
+    "mb": "MB"
   }
 }

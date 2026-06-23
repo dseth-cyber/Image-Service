@@ -59,7 +59,18 @@
       "tagKeyPlaceholder": "คีย์...",
       "tagValuePlaceholder": "ค่า...",
       "tagAdded": "เพิ่มแท็กแล้ว",
-      "tagDeleted": "ลบแท็กแล้ว"
+      "tagDeleted": "ลบแท็กแล้ว",
+      "dimensions": "ขนาด (กว้าง×สูง)",
+      "bitDepth": "ความลึกสี",
+      "colorSpace": "พื้นที่สี",
+      "compression": "การบีบอัด",
+      "fileSize": "ขนาดไฟล์",
+      "sha256": "SHA-256",
+      "captured": "วันที่ถ่ายภาพ",
+      "processed": "วันที่ประมวลผล",
+      "fileTypeRaw": "ต้นฉบับ",
+      "fileTypeProcessed": "ประมวลผลแล้ว",
+      "fileTypeThumbnail": "รูปขนาดเล็ก"
     },
     "cameras": {
       "title": "จัดการกล้อง",
@@ -82,7 +93,13 @@
       "created": "เพิ่มกล้องสำเร็จ",
       "updated": "อัปเดตกล้องสำเร็จ",
       "deactivated": "ปิดการใช้งานกล้องสำเร็จ",
-      "viewLogs": "ดู Log"
+      "viewLogs": "ดู Log",
+      "captureMode": "โหมดการจับภาพ",
+      "smbUsername": "ชื่อผู้ใช้ SMB",
+      "retentionPolicy": "นโยบายการจัดเก็บ",
+      "captureModePeriodic": "ตามระยะเวลา",
+      "captureModeOnDemand": "ตามความต้องการ",
+      "captureModeContinuous": "ต่อเนื่อง"
     },
     "storage": {
       "title": "พื้นที่เก็บข้อมูล",
@@ -124,7 +141,13 @@
       "deleteDisabled": "ไม่สามารถลบนโยบายที่มีกล้องใช้งานอยู่",
       "created": "เพิ่มนโยบายสำเร็จ",
       "updated": "อัปเดตนโยบายสำเร็จ",
-      "deleted": "ลบนโยบายสำเร็จ"
+      "deleted": "ลบนโยบายสำเร็จ",
+      "on": "เปิด",
+      "off": "ปิด",
+      "days": "วัน",
+      "hot": "ร้อน",
+      "warm": "อุ่น",
+      "cold": "เย็น"
     },
     "processing": {
       "title": "จอภาพการประมวลผล",
@@ -167,7 +190,8 @@
       "typeThumbnail": "รูปขนาดย่อ",
       "typeChecksum": "เช็คซัม",
       "typeArchive": "เก็บถาวร",
-      "typeDelete": "ลบ"
+      "typeDelete": "ลบ",
+      "seconds": "วินาที"
     },
     "deadLetter": {
       "title": "คิวงานเสีย",
@@ -212,7 +236,31 @@
       "actionPolicyDelete": "ลบนโยบาย",
       "entityImage": "ภาพ",
       "entityImageFile": "ไฟล์ภาพ",
-      "entityRetentionPolicy": "นโยบายการจัดเก็บ"
+      "entityRetentionPolicy": "นโยบายการจัดเก็บ",
+      "actionImageCreate": "สร้างภาพ",
+      "actionImageRegister": "ลงทะเบียนภาพ",
+      "actionCameraCreate": "สร้างกล้อง",
+      "actionCameraUpdate": "แก้ไขกล้อง",
+      "actionCameraDeactivate": "ปิดการใช้งานกล้อง",
+      "actionUserCreate": "สร้างผู้ใช้",
+      "actionUserUpdate": "แก้ไขผู้ใช้",
+      "actionUserDeactivate": "ปิดการใช้งานผู้ใช้",
+      "actionApiKeyCreate": "สร้างคีย์ API",
+      "actionApiKeyUpdate": "แก้ไขคีย์ API",
+      "actionApiKeyDelete": "ลบคีย์ API",
+      "actionSystemConfigUpdate": "อัปเดตค่าระบบ",
+      "actionAlertCreate": "สร้างการแจ้งเตือน",
+      "actionAlertAcknowledge": "รับทราบการแจ้งเตือน",
+      "actionLogin": "เข้าสู่ระบบ",
+      "actionLogout": "ออกจากระบบ",
+      "entityCamera": "กล้อง",
+      "entityUser": "ผู้ใช้",
+      "entityProcessingJob": "งานประมวลผล",
+      "entitySystemConfig": "ค่าระบบ",
+      "entityApiKey": "คีย์ API",
+      "entityAlert": "การแจ้งเตือน",
+      "entityAuditLog": "บันทึกการตรวจสอบ",
+      "entityBackupRecord": "บันทึกสำรองข้อมูล"
     },
     "backup": {
       "title": "การสำรองและกู้คืนข้อมูล",
@@ -224,7 +272,29 @@
       "fileSize": "ขนาดไฟล์",
       "lastBackup": "สำรองล่าสุด",
       "noBackups": "ยังไม่มีข้อมูลสำรอง",
-      "recentBackups": "รายการสำรองล่าสุด"
+      "recentBackups": "รายการสำรองล่าสุด",
+      "tableType": "ประเภท",
+      "tableStatus": "สถานะ",
+      "tableStarted": "เริ่มต้น",
+      "tableSize": "ขนาด",
+      "tablePath": "พาธ",
+      "tableActions": "การดำเนินการ",
+      "loading": "กำลังโหลด...",
+      "noRecords": "ไม่มีบันทึกสำรองข้อมูล",
+      "typeDatabase": "ฐานข้อมูล",
+      "typeMinio": "MinIO",
+      "testRestore": "ทดสอบกู้คืน",
+      "statusCompleted": "สำเร็จ",
+      "statusFailed": "ล้มเหลว",
+      "statusRunning": "กำลังดำเนินการ",
+      "statusPending": "รอดำเนินการ",
+      "dbBackupCompleted": "สำรองฐานข้อมูลสำเร็จ",
+      "dbBackupFailed": "สำรองฐานข้อมูลล้มเหลว",
+      "minioBackupCompleted": "สำรอง MinIO สำเร็จ",
+      "minioBackupFailed": "สำรอง MinIO ล้มเหลว",
+      "restoreTestSuccess": "ทดสอบกู้คืน: {{message}}",
+      "restoreTestFailed": "ทดสอบกู้คืนล้มเหลว: {{message}}",
+      "restoreTestError": "ข้อผิดพลาดการทดสอบกู้คืน"
     },
     "settings": {
       "title": "ตั้งค่า",
@@ -826,6 +896,11 @@
     "completed": "เสร็จสมบูรณ์",
     "failed": "ล้มเหลว",
     "deleted": "ลบแล้ว",
-    "archived": "เก็บถาวรแล้ว"
+    "archived": "เก็บถาวรแล้ว",
+    "records": "รายการ",
+    "page": "หน้า",
+    "of": "จาก",
+    "system": "ระบบ",
+    "mb": "MB"
   }
 }

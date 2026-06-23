@@ -59,7 +59,18 @@
       "tagKeyPlaceholder": "key...",
       "tagValuePlaceholder": "value...",
       "tagAdded": "Tag added",
-      "tagDeleted": "Tag deleted"
+      "tagDeleted": "Tag deleted",
+      "dimensions": "Dimensions",
+      "bitDepth": "Bit Depth",
+      "colorSpace": "Color Space",
+      "compression": "Compression",
+      "fileSize": "File Size",
+      "sha256": "SHA-256",
+      "captured": "Captured",
+      "processed": "Processed",
+      "fileTypeRaw": "Raw",
+      "fileTypeProcessed": "Processed",
+      "fileTypeThumbnail": "Thumbnail"
     },
     "cameras": {
       "title": "Camera Management",
@@ -82,7 +93,13 @@
       "created": "Camera created successfully",
       "updated": "Camera updated successfully",
       "deactivated": "Camera deactivated successfully",
-      "viewLogs": "View Logs"
+      "viewLogs": "View Logs",
+      "captureMode": "Capture Mode",
+      "smbUsername": "SMB Username",
+      "retentionPolicy": "Retention Policy",
+      "captureModePeriodic": "Periodic",
+      "captureModeOnDemand": "On Demand",
+      "captureModeContinuous": "Continuous"
     },
     "storage": {
       "title": "Storage Monitoring",
@@ -124,7 +141,13 @@
       "deleteDisabled": "Cannot delete a policy that is in use by cameras",
       "created": "Policy created successfully",
       "updated": "Policy updated successfully",
-      "deleted": "Policy deleted successfully"
+      "deleted": "Policy deleted successfully",
+      "on": "ON",
+      "off": "OFF",
+      "days": "d",
+      "hot": "Hot",
+      "warm": "Warm",
+      "cold": "Cold"
     },
     "processing": {
       "title": "Processing Monitor",
@@ -167,7 +190,8 @@
       "typeThumbnail": "Thumbnail",
       "typeChecksum": "Checksum",
       "typeArchive": "Archive",
-      "typeDelete": "Delete"
+      "typeDelete": "Delete",
+      "seconds": "s"
     },
     "deadLetter": {
       "title": "Dead Letter Queue",
@@ -212,7 +236,31 @@
       "actionPolicyDelete": "Policy Delete",
       "entityImage": "Image",
       "entityImageFile": "Image File",
-      "entityRetentionPolicy": "Retention Policy"
+      "entityRetentionPolicy": "Retention Policy",
+      "actionImageCreate": "Image Create",
+      "actionImageRegister": "Image Register",
+      "actionCameraCreate": "Camera Create",
+      "actionCameraUpdate": "Camera Update",
+      "actionCameraDeactivate": "Camera Deactivate",
+      "actionUserCreate": "User Create",
+      "actionUserUpdate": "User Update",
+      "actionUserDeactivate": "User Deactivate",
+      "actionApiKeyCreate": "API Key Create",
+      "actionApiKeyUpdate": "API Key Update",
+      "actionApiKeyDelete": "API Key Delete",
+      "actionSystemConfigUpdate": "System Config Update",
+      "actionAlertCreate": "Alert Create",
+      "actionAlertAcknowledge": "Alert Acknowledge",
+      "actionLogin": "Login",
+      "actionLogout": "Logout",
+      "entityCamera": "Camera",
+      "entityUser": "User",
+      "entityProcessingJob": "Processing Job",
+      "entitySystemConfig": "System Config",
+      "entityApiKey": "API Key",
+      "entityAlert": "Alert",
+      "entityAuditLog": "Audit Log",
+      "entityBackupRecord": "Backup Record"
     },
     "backup": {
       "title": "Backup & Restore",
@@ -224,7 +272,29 @@
       "fileSize": "File Size",
       "lastBackup": "Last Backup",
       "noBackups": "No backups yet",
-      "recentBackups": "Recent Backups"
+      "recentBackups": "Recent Backups",
+      "tableType": "Type",
+      "tableStatus": "Status",
+      "tableStarted": "Started",
+      "tableSize": "Size",
+      "tablePath": "Path",
+      "tableActions": "Actions",
+      "loading": "Loading...",
+      "noRecords": "No backup records",
+      "typeDatabase": "Database",
+      "typeMinio": "MinIO",
+      "testRestore": "Test restore",
+      "statusCompleted": "Completed",
+      "statusFailed": "Failed",
+      "statusRunning": "Running",
+      "statusPending": "Pending",
+      "dbBackupCompleted": "Database backup completed",
+      "dbBackupFailed": "Database backup failed",
+      "minioBackupCompleted": "MinIO backup completed",
+      "minioBackupFailed": "MinIO backup failed",
+      "restoreTestSuccess": "Restore test: {{message}}",
+      "restoreTestFailed": "Restore test failed: {{message}}",
+      "restoreTestError": "Restore test error"
     },
     "settings": {
       "title": "Settings",
@@ -826,6 +896,11 @@
     "completed": "Completed",
     "failed": "Failed",
     "deleted": "Deleted",
-    "archived": "Archived"
+    "archived": "Archived",
+    "records": "records",
+    "page": "Page",
+    "of": "of",
+    "system": "System",
+    "mb": "MB"
   }
 }

@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/contexts/ToastContext';
 import { imageServiceApi } from '@/services/imageServiceApi';
-import { Plus, Edit, Trash2, Shield, Clock, Archive, HardDrive } from 'lucide-react';
-import { Modal, Button, TableSkeleton } from '@/components/ui';
+import { Plus, Edit, Trash2, Shield, Clock, Archive, HardDrive, ImageIcon } from 'lucide-react';
+import { Modal, Button, TableSkeleton, SearchableSelect } from '@/components/ui';
 
 const emptyForm = () => ({
   name: '', description: '', rawRetentionDays: 7,
@@ -124,21 +124,21 @@ export default function ImageServiceRetention() {
                     <Clock size={13} className="text-cyan-400" />
                     <span className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.retention.rawRetentionDays')}</span>
                   </div>
-                  <span className="text-lg font-bold text-cyan-400">{policy.rawRetentionDays}<span className="text-xs ml-0.5">d</span></span>
+                  <span className="text-lg font-bold text-cyan-400">{policy.rawRetentionDays}<span className="text-xs ml-0.5">{t('imageService.retention.days')}</span></span>
                 </div>
                 <div className={`px-3 py-2.5 rounded-lg ${themeConfig.progressTrack} bg-opacity-50`}>
                   <div className="flex items-center gap-1.5 mb-1">
                     <ImageIcon size={13} className="text-violet-400" />
                     <span className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.retention.processedRetentionDays')}</span>
                   </div>
-                  <span className="text-lg font-bold text-violet-400">{policy.processedRetentionDays}<span className="text-xs ml-0.5">d</span></span>
+                  <span className="text-lg font-bold text-violet-400">{policy.processedRetentionDays}<span className="text-xs ml-0.5">{t('imageService.retention.days')}</span></span>
                 </div>
                 <div className={`px-3 py-2.5 rounded-lg ${themeConfig.progressTrack} bg-opacity-50`}>
                   <div className="flex items-center gap-1.5 mb-1">
                     <ImageIcon size={13} className="text-amber-400" />
                     <span className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.retention.thumbnailRetentionDays')}</span>
                   </div>
-                  <span className="text-lg font-bold text-amber-400">{policy.thumbnailRetentionDays}<span className="text-xs ml-0.5">d</span></span>
+                  <span className="text-lg font-bold text-amber-400">{policy.thumbnailRetentionDays}<span className="text-xs ml-0.5">{t('imageService.retention.days')}</span></span>
                 </div>
                 <div className={`px-3 py-2.5 rounded-lg ${themeConfig.progressTrack} bg-opacity-50`}>
                   <div className="flex items-center gap-1.5 mb-1">
@@ -146,7 +146,7 @@ export default function ImageServiceRetention() {
                     <span className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.retention.archiveEnabled')}</span>
                   </div>
                   <span className={`text-lg font-bold ${policy.archiveEnabled ? 'text-emerald-400' : themeConfig.text.secondary}`}>
-                    {policy.archiveEnabled ? 'ON' : 'OFF'}
+                    {policy.archiveEnabled ? t('imageService.retention.on') : t('imageService.retention.off')}
                   </span>
                 </div>
               </div>
@@ -233,13 +233,13 @@ export default function ImageServiceRetention() {
                 <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
                   {t('imageService.retention.coldStorageClass')}
                 </label>
-                <select value={form.coldStorageClass}
-                  onChange={e => setForm(p => ({ ...p, coldStorageClass: e.target.value }))}
-                  className={`w-full px-4 py-2.5 rounded-md ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`}>
-                  <option value="hot">Hot</option>
-                  <option value="warm">Warm</option>
-                  <option value="cold">Cold</option>
-                </select>
+                <SearchableSelect value={form.coldStorageClass} onChange={v => setForm(p => ({ ...p, coldStorageClass: v }))}
+                  placeholder={t('common.select')}
+                  options={[
+                    { value: 'hot', label: t('imageService.retention.hot') },
+                    { value: 'warm', label: t('imageService.retention.warm') },
+                    { value: 'cold', label: t('imageService.retention.cold') },
+                  ]} />
               </div>
             </div>
           )}
@@ -268,5 +268,3 @@ export default function ImageServiceRetention() {
     </div>
   );
 }
-
-import { ImageIcon } from 'lucide-react';

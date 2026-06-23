@@ -59,7 +59,18 @@
       "tagKeyPlaceholder": "キー...",
       "tagValuePlaceholder": "値...",
       "tagAdded": "タグを追加しました",
-      "tagDeleted": "タグを削除しました"
+      "tagDeleted": "タグを削除しました",
+      "dimensions": "寸法 (幅×高さ)",
+      "bitDepth": "ビット深度",
+      "colorSpace": "色空間",
+      "compression": "圧縮",
+      "fileSize": "ファイルサイズ",
+      "sha256": "SHA-256",
+      "captured": "撮影日",
+      "processed": "処理日",
+      "fileTypeRaw": "生データ",
+      "fileTypeProcessed": "処理済み",
+      "fileTypeThumbnail": "サムネイル"
     },
     "cameras": {
       "title": "カメラ管理",
@@ -82,7 +93,13 @@
       "created": "カメラを作成しました",
       "updated": "カメラを更新しました",
       "deactivated": "カメラを無効にしました",
-      "viewLogs": "ログを表示"
+      "viewLogs": "ログを表示",
+      "captureMode": "キャプチャモード",
+      "smbUsername": "SMB ユーザー名",
+      "retentionPolicy": "保持ポリシー",
+      "captureModePeriodic": "定期",
+      "captureModeOnDemand": "オンデマンド",
+      "captureModeContinuous": "連続"
     },
     "storage": {
       "title": "ストレージ監視",
@@ -124,7 +141,13 @@
       "deleteDisabled": "カメラが使用中のポリシーは削除できません",
       "created": "ポリシーを作成しました",
       "updated": "ポリシーを更新しました",
-      "deleted": "ポリシーを削除しました"
+      "deleted": "ポリシーを削除しました",
+      "on": "オン",
+      "off": "オフ",
+      "days": "日",
+      "hot": "ホット",
+      "warm": "ウォーム",
+      "cold": "コールド"
     },
     "processing": {
       "title": "処理モニター",
@@ -167,7 +190,8 @@
       "typeThumbnail": "サムネイル",
       "typeChecksum": "チェックサム",
       "typeArchive": "アーカイブ",
-      "typeDelete": "削除"
+      "typeDelete": "削除",
+      "seconds": "秒"
     },
     "deadLetter": {
       "title": "デッドレターキュー",
@@ -212,7 +236,31 @@
       "actionPolicyDelete": "ポリシー削除",
       "entityImage": "画像",
       "entityImageFile": "画像ファイル",
-      "entityRetentionPolicy": "保存ポリシー"
+      "entityRetentionPolicy": "保存ポリシー",
+      "actionImageCreate": "画像作成",
+      "actionImageRegister": "画像登録",
+      "actionCameraCreate": "カメラ作成",
+      "actionCameraUpdate": "カメラ更新",
+      "actionCameraDeactivate": "カメラ無効化",
+      "actionUserCreate": "ユーザー作成",
+      "actionUserUpdate": "ユーザー更新",
+      "actionUserDeactivate": "ユーザー無効化",
+      "actionApiKeyCreate": "APIキー作成",
+      "actionApiKeyUpdate": "APIキー更新",
+      "actionApiKeyDelete": "APIキー削除",
+      "actionSystemConfigUpdate": "システム設定更新",
+      "actionAlertCreate": "アラート作成",
+      "actionAlertAcknowledge": "アラート確認",
+      "actionLogin": "ログイン",
+      "actionLogout": "ログアウト",
+      "entityCamera": "カメラ",
+      "entityUser": "ユーザー",
+      "entityProcessingJob": "処理ジョブ",
+      "entitySystemConfig": "システム設定",
+      "entityApiKey": "APIキー",
+      "entityAlert": "アラート",
+      "entityAuditLog": "監査ログ",
+      "entityBackupRecord": "バックアップ記録"
     },
     "backup": {
       "title": "バックアップと復元",
@@ -224,7 +272,29 @@
       "fileSize": "ファイルサイズ",
       "lastBackup": "最終バックアップ",
       "noBackups": "バックアップなし",
-      "recentBackups": "最近のバックアップ"
+      "recentBackups": "最近のバックアップ",
+      "tableType": "タイプ",
+      "tableStatus": "ステータス",
+      "tableStarted": "開始日時",
+      "tableSize": "サイズ",
+      "tablePath": "パス",
+      "tableActions": "アクション",
+      "loading": "読み込み中...",
+      "noRecords": "バックアップ記録なし",
+      "typeDatabase": "データベース",
+      "typeMinio": "MinIO",
+      "testRestore": "復元テスト",
+      "statusCompleted": "完了",
+      "statusFailed": "失敗",
+      "statusRunning": "実行中",
+      "statusPending": "保留中",
+      "dbBackupCompleted": "データベースのバックアップが完了しました",
+      "dbBackupFailed": "データベースのバックアップに失敗しました",
+      "minioBackupCompleted": "MinIOのバックアップが完了しました",
+      "minioBackupFailed": "MinIOのバックアップに失敗しました",
+      "restoreTestSuccess": "復元テスト: {{message}}",
+      "restoreTestFailed": "復元テスト失敗: {{message}}",
+      "restoreTestError": "復元テストエラー"
     },
     "settings": {
       "title": "設定",
@@ -826,6 +896,11 @@
     "completed": "完了",
     "failed": "失敗",
     "deleted": "削除済み",
-    "archived": "アーカイブ済み"
+    "archived": "アーカイブ済み",
+    "records": "件",
+    "page": "ページ",
+    "of": "/",
+    "system": "システム",
+    "mb": "MB"
   }
 }

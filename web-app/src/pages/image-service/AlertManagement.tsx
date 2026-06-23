@@ -132,7 +132,7 @@ export default function AlertManagement() {
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>{(page - 1) * 20 + idx + 1}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${SEVERITY_COLORS[item.severity] ?? 'bg-gray-500/20 text-gray-400'}`}>
-                        {item.severity}
+                        {t(`imageService.alerts.${item.severity}`)}
                       </span>
                     </td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.primary} max-w-[250px] truncate`}>{item.title}</td>

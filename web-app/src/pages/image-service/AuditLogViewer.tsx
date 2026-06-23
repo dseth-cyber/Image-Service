@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
 import { imageServiceApi } from '@/services/imageServiceApi';
+import { formatDateTime } from '@/utils/dateUtils';
 import { History, Search, Filter, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import { Button, SearchableSelect } from '@/components/ui';
 
@@ -24,7 +25,7 @@ const ENTITY_LABEL_KEY: Record<string, string> = {
 };
 
 export default function AuditLogViewer() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { themeConfig } = useTheme();
   const [page, setPage] = useState(1);
   const [action, setAction] = useState('');
@@ -69,7 +70,7 @@ export default function AuditLogViewer() {
             ]} />
         </div>
         <span className={`text-xs ${themeConfig.text.secondary} ml-auto`}>
-          {pagination.total} records
+          {pagination.total} {t('common.records')}
         </span>
       </div>
 
@@ -97,10 +98,10 @@ export default function AuditLogViewer() {
               ) : logs.map((log: any) => (
                 <tr key={log.id} className="hover:bg-white/[0.02] transition-colors">
                   <td className={`${tableCellClass} text-xs whitespace-nowrap`}>
-                    {new Date(log.createdAt).toLocaleString()}
+                    {formatDateTime(log.createdAt, i18n.language)}
                   </td>
                   <td className={tableCellClass}>
-                    <span className="text-xs font-medium">{log.username || log.userId?.slice(0, 8) || 'system'}</span>
+                    <span className="text-xs font-medium">{log.username || log.userId?.slice(0, 8) || t('common.system')}</span>
                   </td>
                   <td className={tableCellClass}>
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${
@@ -108,10 +109,10 @@ export default function AuditLogViewer() {
                       log.action.includes('create') ? 'bg-green-500/10 text-green-400' :
                       'bg-blue-500/10 text-blue-400'
                     }`}>
-                      {log.action.replace(/_/g, ' ')}
+                      {t(ACTION_LABEL_KEY[log.action] ?? log.action.replace(/_/g, ' '))}
                     </span>
                   </td>
-                  <td className={`${tableCellClass} text-xs text-gray-400`}>{log.entity}</td>
+                  <td className={`${tableCellClass} text-xs text-gray-400`}>{t(ENTITY_LABEL_KEY[log.entity] ?? log.entity)}</td>
                   <td className={`${tableCellClass} text-xs text-gray-400 font-mono max-w-[120px] truncate`}>
                     {log.entityId || '—'}
                   </td>
@@ -128,7 +129,7 @@ export default function AuditLogViewer() {
         {pagination.totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-white/5">
             <span className={`text-xs ${themeConfig.text.secondary}`}>
-              Page {pagination.page} of {pagination.totalPages}
+              {t('common.page')} {pagination.page} {t('common.of')} {pagination.totalPages}
             </span>
             <div className="flex items-center gap-2">
               <Button size="sm" variant="ghost" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>

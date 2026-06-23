@@ -192,7 +192,7 @@ export default function ImageServiceSearch() {
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>{item.originalFilename}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${IMAGE_STATUS_COLORS[item.status] ?? 'bg-gray-500/20 text-gray-400'}`}>
-                        {item.status}
+                        {t('common.' + item.status) ?? item.status}
                       </span>
                     </td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>
@@ -247,7 +247,7 @@ export default function ImageServiceSearch() {
               <div className="flex-1">
                 <h3 className={`text-lg font-semibold ${themeConfig.text.primary}`}>{detail.originalFilename}</h3>
                 <p className={`text-xs ${themeConfig.text.secondary}`}>ID: {detail.id}</p>
-                <span className={`mt-1 inline-block px-2 py-0.5 rounded-full text-xs font-medium ${IMAGE_STATUS_COLORS[detail.status]}`}>{detail.status}</span>
+                <span className={`mt-1 inline-block px-2 py-0.5 rounded-full text-xs font-medium ${IMAGE_STATUS_COLORS[detail.status]}`}>{t('common.' + detail.status) ?? detail.status}</span>
               </div>
             </div>
 
@@ -257,14 +257,14 @@ export default function ImageServiceSearch() {
               </h4>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 {[
-                  ['Dimensions', detail.widthPx && detail.heightPx ? `${detail.widthPx} × ${detail.heightPx}` : '—'],
-                  ['Bit Depth', detail.bitDepth ?? '—'],
-                  ['Color Space', detail.colorSpace ?? '—'],
-                  ['Compression', detail.compressionType ?? '—'],
-                  ['File Size', detail.fileSizeBytes ? (detail.fileSizeBytes / 1024 / 1024).toFixed(2) + ' MB' : '—'],
-                  ['SHA-256', detail.checksumSha256 ? detail.checksumSha256.slice(0, 16) + '...' : '—'],
-                  ['Captured', detail.capturedAt ? formatDateTime(detail.capturedAt, i18n.language) : '—'],
-                  ['Processed', detail.processedAt ? formatDateTime(detail.processedAt, i18n.language) : '—'],
+                  [t('imageService.search.dimensions'), detail.widthPx && detail.heightPx ? `${detail.widthPx} × ${detail.heightPx}` : '—'],
+                  [t('imageService.search.bitDepth'), detail.bitDepth ?? '—'],
+                  [t('imageService.search.colorSpace'), detail.colorSpace ?? '—'],
+                  [t('imageService.search.compression'), detail.compressionType ?? '—'],
+                  [t('imageService.search.fileSize'), detail.fileSizeBytes ? (detail.fileSizeBytes / 1024 / 1024).toFixed(2) + ` ${t('common.mb')}` : '—'],
+                  [t('imageService.search.sha256'), detail.checksumSha256 ? detail.checksumSha256.slice(0, 16) + '...' : '—'],
+                  [t('imageService.search.captured'), detail.capturedAt ? formatDateTime(detail.capturedAt, i18n.language) : '—'],
+                  [t('imageService.search.processed'), detail.processedAt ? formatDateTime(detail.processedAt, i18n.language) : '—'],
                 ].map(([k, v], i) => (
                   <div key={i} className={`px-3 py-2 rounded-lg ${themeConfig.card}`}>
                     <span className={themeConfig.text.secondary}>{k}</span>
@@ -282,7 +282,7 @@ export default function ImageServiceSearch() {
                 <div className="flex gap-2">
                   {detail.imageFiles.map((f: any) => (
                     <button key={f.id} className={`px-3 py-2 rounded-md text-xs flex items-center gap-1.5 border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5 transition-colors`}>
-                      <Download size={12} /> {f.fileType}
+                      <Download size={12} /> {t(`imageService.search.fileType${f.fileType.charAt(0).toUpperCase() + f.fileType.slice(1)}`)}
                     </button>
                   ))}
                 </div>

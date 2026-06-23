@@ -227,11 +227,11 @@ export default function ImageServiceCameras() {
             </div>
             <div>
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                {t('imageService.cameras.status')}
+                {t('imageService.cameras.captureMode')}
               </label>
               <SearchableSelect value={form.captureMode} onChange={v => setForm(p => ({ ...p, captureMode: v }))}
                 placeholder={t('common.select')}
-                options={['periodic', 'on_demand', 'continuous'].map(m => ({ value: m, label: m }))} />
+                options={['periodic', 'on_demand', 'continuous'].map(m => ({ value: m, label: t(`imageService.cameras.captureMode${m.charAt(0).toUpperCase() + m.slice(1)}`) }))} />
             </div>
             <div>
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
@@ -243,14 +243,14 @@ export default function ImageServiceCameras() {
             </div>
             <div className="col-span-2">
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                {t('imageService.cameras.smbPath')} Username <span className="text-red-400">*</span>
+                {t('imageService.cameras.smbUsername')} <span className="text-red-400">*</span>
               </label>
               <input value={form.smbUsername} onChange={e => setForm(p => ({ ...p, smbUsername: e.target.value }))}
                 className={`w-full px-4 py-2.5 rounded-md ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`} required />
             </div>
             <div className="col-span-2">
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                Retention Policy <span className="text-red-400">*</span>
+                {t('imageService.cameras.retentionPolicy')} <span className="text-red-400">*</span>
               </label>
               <SearchableSelect value={form.retentionPolicyId} onChange={v => setForm(p => ({ ...p, retentionPolicyId: v }))}
                 placeholder={t('common.select')}

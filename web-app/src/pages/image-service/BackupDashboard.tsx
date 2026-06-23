@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/contexts/ToastContext';
 import { imageServiceApi } from '@/services/imageServiceApi';
+import { formatDateTime } from '@/utils/dateUtils';
 import { Database, HardDrive, RefreshCw, CheckCircle, XCircle, Clock, Play, Shield, FileText } from 'lucide-react';
 import { Button } from '@/components/ui';
 
@@ -13,7 +14,7 @@ function formatBytes(bytes: number | null): string {
   return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + units[i];
 }
 
-function statusBadge(status: string, themeConfig: any) {
+function statusBadge(status: string, themeConfig: any, t: (key: string) => string) {
   const colors: Record<string, string> = {
     completed: 'bg-green-500/20 text-green-400',
     failed: 'bg-red-500/20 text-red-400',
@@ -26,11 +27,17 @@ function statusBadge(status: string, themeConfig: any) {
     running: Clock,
     pending: Clock,
   };
+  const statusKey: Record<string, string> = {
+    completed: 'imageService.backup.statusCompleted',
+    failed: 'imageService.backup.statusFailed',
+    running: 'imageService.backup.statusRunning',
+    pending: 'imageService.backup.statusPending',
+  };
   const Icon = icons[status] || Clock;
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${colors[status] || colors.pending}`}>
       <Icon size={12} />
-      {status}
+      {t(statusKey[status] ?? status)}
     </span>
   );
 }
@@ -50,27 +57,27 @@ export default function BackupDashboard() {
   const dbMutation = useMutation({
     mutationFn: () => imageServiceApi.runDatabaseBackup(),
     onSuccess: (res: any) => {
-      toast.success(res.status === 'completed' ? 'Database backup completed' : 'Database backup failed');
+      toast.success(res.status === 'completed' ? t('imageService.backup.dbBackupCompleted') : t('imageService.backup.dbBackupFailed'));
       queryClient.invalidateQueries({ queryKey: ['backup-status'] });
     },
-    onError: () => toast.error('Failed to run database backup'),
+    onError: () => toast.error(t('imageService.backup.dbBackupFailed')),
   });
 
   const minioMutation = useMutation({
     mutationFn: () => imageServiceApi.runMinioBackup(),
     onSuccess: (res: any) => {
-      toast.success(res.status === 'completed' ? 'MinIO backup completed' : 'MinIO backup failed');
+      toast.success(res.status === 'completed' ? t('imageService.backup.minioBackupCompleted') : t('imageService.backup.minioBackupFailed'));
       queryClient.invalidateQueries({ queryKey: ['backup-status'] });
     },
-    onError: () => toast.error('Failed to run MinIO backup'),
+    onError: () => toast.error(t('imageService.backup.minioBackupFailed')),
   });
 
   const restoreMutation = useMutation({
     mutationFn: (id: string) => imageServiceApi.runRestoreTest(id),
     onSuccess: (res: any) => {
-      toast.success(res.success ? `Restore test: ${res.message}` : `Restore test failed: ${res.message}`);
+      toast.success(res.success ? t('imageService.backup.restoreTestSuccess', { message: res.message }) : t('imageService.backup.restoreTestFailed', { message: res.message }));
     },
-    onError: () => toast.error('Restore test error'),
+    onError: () => toast.error(t('imageService.backup.restoreTestError')),
   });
 
   const cardClass = `${themeConfig.card} rounded-lg p-5`;
@@ -104,7 +111,7 @@ export default function BackupDashboard() {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className={labelClass}>{t('imageService.backup.status')}</span>
-                {statusBadge(status.database.status, themeConfig)}
+                {statusBadge(status.database.status, themeConfig, t)}
               </div>
               <div className="flex justify-between">
                 <span className={labelClass}>{t('imageService.backup.fileSize')}</span>
@@ -113,7 +120,7 @@ export default function BackupDashboard() {
               <div className="flex justify-between">
                 <span className={labelClass}>{t('imageService.backup.lastBackup')}</span>
                 <span className={`text-xs ${themeConfig.text.secondary}`}>
-                  {status.database.completedAt ? new Date(status.database.completedAt).toLocaleString() : '—'}
+                  {status.database.completedAt ? formatDateTime(status.database.completedAt, i18n.language) : '—'}
                 </span>
               </div>
               {status.database.errorMessage && (
@@ -141,7 +148,7 @@ export default function BackupDashboard() {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className={labelClass}>{t('imageService.backup.status')}</span>
-                {statusBadge(status.minio.status, themeConfig)}
+                {statusBadge(status.minio.status, themeConfig, t)}
               </div>
               <div className="flex justify-between">
                 <span className={labelClass}>{t('imageService.backup.fileSize')}</span>
@@ -150,7 +157,7 @@ export default function BackupDashboard() {
               <div className="flex justify-between">
                 <span className={labelClass}>{t('imageService.backup.lastBackup')}</span>
                 <span className={`text-xs ${themeConfig.text.secondary}`}>
-                  {status.minio.completedAt ? new Date(status.minio.completedAt).toLocaleString() : '—'}
+                  {status.minio.completedAt ? formatDateTime(status.minio.completedAt, i18n.language) : '—'}
                 </span>
               </div>
               {status.minio.errorMessage && (
@@ -175,7 +182,7 @@ export default function BackupDashboard() {
 }
 
 function BackupHistoryTable({ themeConfig, onRestoreTest }: { themeConfig: any; onRestoreTest: (id: string) => void }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data, isLoading } = useQuery({
     queryKey: ['backup-records'],
     queryFn: () => imageServiceApi.getBackupRecords({ limit: 20 }),
@@ -191,33 +198,33 @@ function BackupHistoryTable({ themeConfig, onRestoreTest }: { themeConfig: any; 
       <table className="w-full">
         <thead>
           <tr className={`border-b ${themeConfig.cardBorder}`}>
-            <th className={tableHeaderClass}>Type</th>
-            <th className={tableHeaderClass}>Status</th>
-            <th className={tableHeaderClass}>Started</th>
-            <th className={tableHeaderClass}>Size</th>
-            <th className={tableHeaderClass}>Path</th>
-            <th className={`${tableHeaderClass} text-right`}>Actions</th>
+            <th className={tableHeaderClass}>{t('imageService.backup.tableType')}</th>
+            <th className={tableHeaderClass}>{t('imageService.backup.tableStatus')}</th>
+            <th className={tableHeaderClass}>{t('imageService.backup.tableStarted')}</th>
+            <th className={tableHeaderClass}>{t('imageService.backup.tableSize')}</th>
+            <th className={tableHeaderClass}>{t('imageService.backup.tablePath')}</th>
+            <th className={`${tableHeaderClass} text-right`}>{t('imageService.backup.tableActions')}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-white/5">
           {isLoading ? (
-            <tr><td colSpan={6} className={`text-center py-6 text-sm ${themeConfig.text.secondary}`}>Loading...</td></tr>
+            <tr><td colSpan={6} className={`text-center py-6 text-sm ${themeConfig.text.secondary}`}>{t('imageService.backup.loading')}</td></tr>
           ) : records.length === 0 ? (
-            <tr><td colSpan={6} className={`text-center py-6 text-sm ${themeConfig.text.secondary}`}>No backup records</td></tr>
+            <tr><td colSpan={6} className={`text-center py-6 text-sm ${themeConfig.text.secondary}`}>{t('imageService.backup.noRecords')}</td></tr>
           ) : records.map((r: any) => (
             <tr key={r.id} className="hover:bg-white/[0.02] transition-colors">
               <td className={tableCellClass}>
                 <span className={`px-2 py-0.5 rounded text-xs font-medium ${r.type === 'database' ? 'bg-blue-500/10 text-blue-400' : 'bg-purple-500/10 text-purple-400'}`}>
-                  {r.type}
+                  {t(r.type === 'database' ? 'imageService.backup.typeDatabase' : 'imageService.backup.typeMinio')}
                 </span>
               </td>
-              <td className={tableCellClass}>{statusBadge(r.status, themeConfig)}</td>
-              <td className={`${tableCellClass} text-xs text-gray-400`}>{new Date(r.startedAt).toLocaleString()}</td>
+              <td className={tableCellClass}>{statusBadge(r.status, themeConfig, t)}</td>
+              <td className={`${tableCellClass} text-xs text-gray-400`}>{formatDateTime(r.startedAt, i18n.language)}</td>
               <td className={`${tableCellClass} text-xs text-gray-400`}>{formatBytes(r.fileSize)}</td>
               <td className={`${tableCellClass} text-xs text-gray-400 max-w-[200px] truncate`}>{r.filePath || '—'}</td>
               <td className={`${tableCellClass} text-right`}>
                 {r.status === 'completed' && (
-                  <Button size="sm" variant="ghost" onClick={() => onRestoreTest(r.id)} title="Test restore">
+                  <Button size="sm" variant="ghost" onClick={() => onRestoreTest(r.id)} title={t('imageService.backup.testRestore')}>
                     <Shield size={14} />
                   </Button>
                 )}

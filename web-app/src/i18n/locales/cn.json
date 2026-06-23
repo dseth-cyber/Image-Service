@@ -59,7 +59,18 @@
       "tagKeyPlaceholder": "键...",
       "tagValuePlaceholder": "值...",
       "tagAdded": "标签已添加",
-      "tagDeleted": "标签已删除"
+      "tagDeleted": "标签已删除",
+      "dimensions": "尺寸 (宽×高)",
+      "bitDepth": "位深度",
+      "colorSpace": "色彩空间",
+      "compression": "压缩",
+      "fileSize": "文件大小",
+      "sha256": "SHA-256",
+      "captured": "拍摄日期",
+      "processed": "处理日期",
+      "fileTypeRaw": "原始",
+      "fileTypeProcessed": "已处理",
+      "fileTypeThumbnail": "缩略图"
     },
     "cameras": {
       "title": "摄像头管理",
@@ -82,7 +93,13 @@
       "created": "摄像头添加成功",
       "updated": "摄像头更新成功",
       "deactivated": "摄像头已停用",
-      "viewLogs": "查看日志"
+      "viewLogs": "查看日志",
+      "captureMode": "采集模式",
+      "smbUsername": "SMB 用户名",
+      "retentionPolicy": "保留策略",
+      "captureModePeriodic": "定时",
+      "captureModeOnDemand": "按需",
+      "captureModeContinuous": "连续"
     },
     "storage": {
       "title": "存储监控",
@@ -124,7 +141,13 @@
       "deleteDisabled": "无法删除正在被摄像头使用的策略",
       "created": "策略创建成功",
       "updated": "策略更新成功",
-      "deleted": "策略已删除"
+      "deleted": "策略已删除",
+      "on": "开",
+      "off": "关",
+      "days": "天",
+      "hot": "热",
+      "warm": "温",
+      "cold": "冷"
     },
     "processing": {
       "title": "处理监控",
@@ -167,7 +190,8 @@
       "typeThumbnail": "缩略图",
       "typeChecksum": "校验和",
       "typeArchive": "归档",
-      "typeDelete": "删除"
+      "typeDelete": "删除",
+      "seconds": "秒"
     },
     "deadLetter": {
       "title": "死信队列",
@@ -212,7 +236,31 @@
       "actionPolicyDelete": "删除策略",
       "entityImage": "图像",
       "entityImageFile": "图像文件",
-      "entityRetentionPolicy": "保留策略"
+      "entityRetentionPolicy": "保留策略",
+      "actionImageCreate": "创建图像",
+      "actionImageRegister": "注册图像",
+      "actionCameraCreate": "创建摄像头",
+      "actionCameraUpdate": "更新摄像头",
+      "actionCameraDeactivate": "停用摄像头",
+      "actionUserCreate": "创建用户",
+      "actionUserUpdate": "更新用户",
+      "actionUserDeactivate": "停用用户",
+      "actionApiKeyCreate": "创建 API 密钥",
+      "actionApiKeyUpdate": "更新 API 密钥",
+      "actionApiKeyDelete": "删除 API 密钥",
+      "actionSystemConfigUpdate": "更新系统配置",
+      "actionAlertCreate": "创建警报",
+      "actionAlertAcknowledge": "确认警报",
+      "actionLogin": "登录",
+      "actionLogout": "登出",
+      "entityCamera": "摄像头",
+      "entityUser": "用户",
+      "entityProcessingJob": "处理作业",
+      "entitySystemConfig": "系统配置",
+      "entityApiKey": "API 密钥",
+      "entityAlert": "警报",
+      "entityAuditLog": "审计日志",
+      "entityBackupRecord": "备份记录"
     },
     "backup": {
       "title": "备份与恢复",
@@ -224,7 +272,29 @@
       "fileSize": "文件大小",
       "lastBackup": "最近备份",
       "noBackups": "暂无备份",
-      "recentBackups": "最近的备份"
+      "recentBackups": "最近的备份",
+      "tableType": "类型",
+      "tableStatus": "状态",
+      "tableStarted": "开始时间",
+      "tableSize": "大小",
+      "tablePath": "路径",
+      "tableActions": "操作",
+      "loading": "加载中...",
+      "noRecords": "无备份记录",
+      "typeDatabase": "数据库",
+      "typeMinio": "MinIO",
+      "testRestore": "测试恢复",
+      "statusCompleted": "已完成",
+      "statusFailed": "失败",
+      "statusRunning": "运行中",
+      "statusPending": "待处理",
+      "dbBackupCompleted": "数据库备份完成",
+      "dbBackupFailed": "数据库备份失败",
+      "minioBackupCompleted": "MinIO 备份完成",
+      "minioBackupFailed": "MinIO 备份失败",
+      "restoreTestSuccess": "恢复测试: {{message}}",
+      "restoreTestFailed": "恢复测试失败: {{message}}",
+      "restoreTestError": "恢复测试错误"
     },
     "settings": {
       "title": "设置",
@@ -826,6 +896,11 @@
     "completed": "已完成",
     "failed": "失败",
     "deleted": "已删除",
-    "archived": "已归档"
+    "archived": "已归档",
+    "records": "条记录",
+    "page": "第",
+    "of": "页，共",
+    "system": "系统",
+    "mb": "MB"
   }
 }
