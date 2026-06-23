@@ -26,6 +26,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: image-redis
+    command: redis-server --appendonly yes
     ports:
       - "6379:6379"
     volumes:
@@ -87,7 +88,7 @@ services:
     ports:
       - "9445:445"
     volumes:
-      - smb-shares:/share
+      - ./mock_smb_shares:/share
     restart: unless-stopped
     networks:
       - image-network
@@ -98,7 +99,7 @@ services:
     depends_on:
       - smb-server
     volumes:
-      - smb-shares:/share
+      - ./mock_smb_shares:/share
       - ./image-processing-worker/scripts:/scripts:ro
     entrypoint: >
       /bin/sh -c "
@@ -157,6 +158,8 @@ services:
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
       MINIO_BUCKET: ${MINIO_BUCKET:-image-service}
       MINIO_USE_SSL: "false"
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:-dev-encryption-key-32chars!!}
       SERVICE_API_KEY: ${SERVICE_API_KEY:-dev-service-api-key-change-in-production}
       LOG_LEVEL: info
@@ -286,7 +289,7 @@ services:
       dockerfile: Dockerfile
     container_name: image-processing-worker
     volumes:
-      - smb-shares:/mnt/smb/image-smb-server/images
+      - ./mock_smb_shares:/mnt/smb/image-smb-server/images
     environment:
       WORKER_ID: processing-1
       LOG_LEVEL: INFO
@@ -326,7 +329,6 @@ volumes:
   postgres-data:
   redis-data:
   minio-data:
-  smb-shares:
 
 networks:
   image-network:

@@ -50,37 +50,42 @@ async def main() -> None:
 
 
 async def check_dependencies() -> None:
-    await asyncio.sleep(2)
+    # Initial sleep to allow other containers to start up
+    await asyncio.sleep(5)
+    while True:
+        try:
+            redis_ok = await _check_redis()
+            health_state.redis_ok = redis_ok
+        except Exception as e:
+            health_state.redis_ok = False
+            logger.error("Redis health check failed", error=str(e))
 
-    try:
-        redis_ok = await _check_redis()
-        health_state.redis_ok = redis_ok
-    except Exception as e:
-        logger.error("Redis health check failed", error=str(e))
+        try:
+            minio_client = MinioClient()
+            minio_ok = await minio_client.health_check()
+            health_state.minio_ok = minio_ok
+        except Exception as e:
+            health_state.minio_ok = False
+            logger.error("MinIO health check failed", error=str(e))
 
-    try:
-        minio_client = MinioClient()
-        minio_ok = await minio_client.health_check()
-        health_state.minio_ok = minio_ok
-    except Exception as e:
-        logger.error("MinIO health check failed", error=str(e))
+        try:
+            api_client = ApiClient()
+            api_ok = await api_client.health_check()
+            health_state.api_ok = api_ok
+        except Exception as e:
+            health_state.api_ok = False
+            logger.error("API health check failed", error=str(e))
 
-    try:
-        api_client = ApiClient()
-        api_ok = await api_client.health_check()
-        health_state.api_ok = api_ok
-    except Exception as e:
-        logger.error("API health check failed", error=str(e))
+        all_ok = health_state.redis_ok and health_state.minio_ok and health_state.api_ok
+        health_state.status = "ok" if all_ok else "degraded"
 
-    all_ok = health_state.redis_ok and health_state.minio_ok and health_state.api_ok
-    health_state.status = "ok" if all_ok else "degraded"
-
-    logger.info(
-        "Dependency check complete",
-        redis=health_state.redis_ok,
-        minio=health_state.minio_ok,
-        api=health_state.api_ok,
-    )
+        logger.debug(
+            "Dependency check complete",
+            redis=health_state.redis_ok,
+            minio=health_state.minio_ok,
+            api=health_state.api_ok,
+        )
+        await asyncio.sleep(30)
 
 
 async def _check_redis() -> bool:

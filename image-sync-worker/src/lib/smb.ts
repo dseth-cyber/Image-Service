@@ -128,7 +128,8 @@ export class SmbClient {
 
   async readdir(dirPath: string): Promise<SmbFileEntry[]> {
     const lsPath = dirPath.replace(/\\/g, '/').replace(/\/$/, '');
-    const cmd = lsPath && lsPath !== '.' ? `ls ${lsPath}` : 'ls';
+    // Append /* to query folder contents rather than folder metadata
+    const cmd = `ls ${lsPath}/*`;
     const stdout = await runSmbClient(this.camera, [cmd]);
     return parseLsOutput(stdout);
   }

@@ -34,7 +34,7 @@ async def main() -> None:
                 extra={
                     "imageId": event.get("imageId"),
                     "cameraId": event.get("cameraId"),
-                    "filename": event.get("filename"),
+                    "file_name": event.get("filename"),
                 },
             )
     except asyncio.CancelledError:

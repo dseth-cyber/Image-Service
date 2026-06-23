@@ -33,7 +33,7 @@ async def main() -> None:
                 "Received image.processed event for production tracking",
                 extra={
                     "imageId": event.get("imageId"),
-                    "filename": event.get("filename"),
+                    "file_name": event.get("filename"),
                     "pngPath": event.get("pngPath"),
                 },
             )

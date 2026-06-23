@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { getPrisma } from '../../lib/prisma.js';
 import { NotFoundError } from '../../lib/errors.js';
+import { getRedisClient } from '../../lib/redis.js';
 import type { ProcessingLogSearchInput } from './processing-logs.schema.js';
 import type { PaginatedResult } from '../../types/index.js';
 
@@ -90,10 +91,108 @@ export async function searchProcessingLogs(params: ProcessingLogSearchInput): Pr
   };
 }
 
+let lastTxCount = 0;
+let lastTxTime = Date.now();
+
+async function getPgMetrics(prisma: any) {
+  try {
+    const [activeConnRes, locksRes, deadlocksRes, txRes] = await Promise.all([
+      prisma.$queryRawUnsafe("SELECT COUNT(*)::bigint as count FROM pg_stat_activity"),
+      prisma.$queryRawUnsafe("SELECT COUNT(*)::bigint as count FROM pg_locks"),
+      prisma.$queryRawUnsafe("SELECT COALESCE(SUM(deadlocks), 0)::bigint as deadlocks FROM pg_stat_database WHERE datname = current_database()"),
+      prisma.$queryRawUnsafe("SELECT COALESCE(SUM(xact_commit + xact_rollback), 0)::bigint as tx FROM pg_stat_database WHERE datname = current_database()")
+    ]) as [Array<{ count: bigint }>, Array<{ count: bigint }>, Array<{ deadlocks: bigint }>, Array<{ tx: bigint }>];
+
+    const activeConnections = Number(activeConnRes[0]?.count ?? 0);
+    const locks = Number(locksRes[0]?.count ?? 0);
+    const deadlocks = Number(deadlocksRes[0]?.deadlocks ?? 0);
+    const currentTx = Number(txRes[0]?.tx ?? 0);
+
+    const now = Date.now();
+    const elapsed = (now - lastTxTime) / 1000;
+    let tps = 0;
+    if (lastTxCount > 0 && elapsed > 0) {
+      tps = Math.max(0, Math.round((currentTx - lastTxCount) / elapsed));
+    }
+    lastTxCount = currentTx;
+    lastTxTime = now;
+
+    return { tps, activeConnections, locks, deadlocks };
+  } catch (err) {
+    return { tps: 0, activeConnections: 0, locks: 0, deadlocks: 0 };
+  }
+}
+
+async function getMinioMetrics(prisma: any) {
+  try {
+    const [totalStats, recentStats, recentRawStats] = await Promise.all([
+      prisma.imageFile.aggregate({
+        _count: { id: true },
+        _sum: { fileSizeBytes: true }
+      }),
+      prisma.imageFile.aggregate({
+        where: {
+          createdAt: {
+            gte: new Date(Date.now() - 30 * 1000)
+          }
+        },
+        _sum: { fileSizeBytes: true }
+      }),
+      prisma.imageFile.aggregate({
+        where: {
+          fileType: 'raw',
+          createdAt: {
+            gte: new Date(Date.now() - 30 * 1000)
+          }
+        },
+        _sum: { fileSizeBytes: true }
+      })
+    ]);
+
+    const objectCount = Number(totalStats._count.id ?? 0);
+    const bucketSize = Number(totalStats._sum.fileSizeBytes ?? 0n);
+
+    const recentBytes = Number(recentStats._sum.fileSizeBytes ?? 0n);
+    const writeMbPerSec = Number((recentBytes / (1024 * 1024) / 30).toFixed(2));
+
+    const recentRawBytes = Number(recentRawStats._sum.fileSizeBytes ?? 0n);
+    const readMbPerSec = Number((recentRawBytes / (1024 * 1024) / 30).toFixed(2));
+
+    return {
+      writeMbPerSec,
+      readMbPerSec,
+      objectCount,
+      bucketSize
+    };
+  } catch (err) {
+    return { writeMbPerSec: 0, readMbPerSec: 0, objectCount: 0, bucketSize: 0 };
+  }
+}
+
+async function getQueueMetrics() {
+  try {
+    const redis = getRedisClient();
+    const [wait, active, failed, delayed] = await Promise.all([
+      redis.llen('bull:image-processing:wait'),
+      redis.llen('bull:image-processing:active'),
+      redis.zcard('bull:image-processing:failed'),
+      redis.zcard('bull:image-processing:delayed')
+    ]);
+    return {
+      wait: Number(wait),
+      active: Number(active),
+      failed: Number(failed),
+      delayed: Number(delayed)
+    };
+  } catch (err) {
+    return { wait: 0, active: 0, failed: 0, delayed: 0 };
+  }
+}
+
 export async function getProcessingStats() {
   const prisma = getPrisma();
 
-  const [statusCounts, typeCounts] = await Promise.all([
+  const [statusCounts, typeCounts, queue, pgMetrics, minioMetrics] = await Promise.all([
     prisma.processingJob.groupBy({
       by: ['status'],
       _count: { id: true },
@@ -102,6 +201,9 @@ export async function getProcessingStats() {
       by: ['jobType'],
       _count: { id: true },
     }),
+    getQueueMetrics(),
+    getPgMetrics(prisma),
+    getMinioMetrics(prisma),
   ]);
 
   const byStatus: Record<string, number> = {};
@@ -128,6 +230,9 @@ export async function getProcessingStats() {
     queued,
     byStatus,
     byType,
+    queue,
+    postgres: pgMetrics,
+    minio: minioMetrics,
   };
 }
 

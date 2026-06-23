@@ -23,6 +23,9 @@ const DEFAULT_LAYOUTS = {
     { i: 'cameraStatus', x: 0, y: 4, w: 4, h: 3, minW: 3, minH: 2.5 },
     { i: 'byCamera', x: 4, y: 4, w: 4, h: 3, minW: 3, minH: 2.5 },
     { i: 'storageDonut', x: 8, y: 4, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'queueLength', x: 0, y: 7, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'postgresStats', x: 4, y: 7, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'minioStats', x: 8, y: 7, w: 4, h: 3, minW: 3, minH: 2.5 },
   ],
   md: [
     { i: 'stats', x: 0, y: 0, w: 10, h: 1.5, minW: 6, minH: 1.5 },
@@ -31,6 +34,9 @@ const DEFAULT_LAYOUTS = {
     { i: 'cameraStatus', x: 0, y: 4, w: 3, h: 3, minW: 3, minH: 2.5 },
     { i: 'byCamera', x: 3, y: 4, w: 4, h: 3, minW: 3, minH: 2.5 },
     { i: 'storageDonut', x: 7, y: 4, w: 3, h: 3, minW: 3, minH: 2.5 },
+    { i: 'queueLength', x: 0, y: 7, w: 3, h: 3, minW: 3, minH: 2.5 },
+    { i: 'postgresStats', x: 3, y: 7, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'minioStats', x: 7, y: 7, w: 3, h: 3, minW: 3, minH: 2.5 },
   ],
   sm: [
     { i: 'stats', x: 0, y: 0, w: 6, h: 1.5, minW: 4, minH: 1.5 },
@@ -39,6 +45,9 @@ const DEFAULT_LAYOUTS = {
     { i: 'cameraStatus', x: 0, y: 7, w: 6, h: 3, minW: 3, minH: 2.5 },
     { i: 'byCamera', x: 0, y: 10, w: 6, h: 3, minW: 3, minH: 2.5 },
     { i: 'storageDonut', x: 0, y: 13, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'queueLength', x: 0, y: 16, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'postgresStats', x: 0, y: 19, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'minioStats', x: 0, y: 22, w: 6, h: 3, minW: 3, minH: 2.5 },
   ],
 };
 
@@ -66,6 +75,14 @@ function DragHandle({ show }: { show: boolean }) {
       <GripVertical size={13} className="text-white" />
     </div>
   );
+}
+
+function formatBytes(bytes: number) {
+  if (bytes === 0 || isNaN(bytes)) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
 export default function ImageServiceOverview() {
@@ -280,6 +297,79 @@ export default function ImageServiceOverview() {
                 {storageByType.reduce((s: number, v: any) => s + (v.value ?? 0), 0).toLocaleString()}
               </span>
               <span className={`text-xs ${themeConfig.text.secondary}`}>files</span>
+            </div>
+          </div>
+        </div>
+
+        <div key="queueLength" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+          <DragHandle show={isEditing} />
+          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+            Queue Length (BullMQ)
+          </h3>
+          <div className="space-y-2 mt-2">
+            {[
+              { label: 'Wait (คิวรอดำเนินการ)', value: overview?.queue?.wait ?? 0, color: 'text-cyan-400' },
+              { label: 'Active (กำลังประมวลผล)', value: overview?.queue?.active ?? 0, color: 'text-blue-400' },
+              { label: 'Failed (งานล้มเหลว)', value: overview?.queue?.failed ?? 0, color: 'text-red-400' },
+              { label: 'Delayed (คิวหน่วงเวลา)', value: overview?.queue?.delayed ?? 0, color: 'text-purple-400' },
+            ].map((q, idx) => (
+              <div key={idx} className="flex justify-between items-center text-xs py-1 border-b border-white/5 last:border-0 animate-fade-in">
+                <span className={themeConfig.text.secondary}>{q.label}</span>
+                <span className={`font-bold ${q.color}`}>{q.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div key="postgresStats" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+          <DragHandle show={isEditing} />
+          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+            PostgreSQL Status
+          </h3>
+          <div className="space-y-2 mt-2">
+            {[
+              { label: 'Transactions/Sec (TPS)', value: overview?.postgres?.tps ?? 0, color: 'text-cyan-400' },
+              { label: 'Active Connections', value: overview?.postgres?.activeConnections ?? 0, color: 'text-green-400' },
+              { label: 'Active Locks', value: overview?.postgres?.locks ?? 0, color: 'text-yellow-400' },
+              { label: 'Deadlocks', value: overview?.postgres?.deadlocks ?? 0, color: (overview?.postgres?.deadlocks ?? 0) > 0 ? 'text-red-400 font-extrabold animate-pulse' : 'text-gray-400' },
+            ].map((p, idx) => (
+              <div key={idx} className="flex justify-between items-center text-xs py-1 border-b border-white/5 last:border-0">
+                <span className={themeConfig.text.secondary}>{p.label}</span>
+                <span className={`font-bold ${p.color}`}>{p.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div key="minioStats" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+          <DragHandle show={isEditing} />
+          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+            MinIO Telemetry
+          </h3>
+          <div className="space-y-2 mt-2">
+            <div className="flex justify-between items-center text-xs py-1 border-b border-white/5">
+              <span className={themeConfig.text.secondary}>Bucket Size</span>
+              <span className={`font-bold ${themeConfig.text.primary}`}>
+                {formatBytes(overview?.minio?.bucketSize ?? 0)}
+              </span>
+            </div>
+            <div className="flex justify-between items-center text-xs py-1 border-b border-white/5">
+              <span className={themeConfig.text.secondary}>Object Count</span>
+              <span className={`font-bold ${themeConfig.text.primary}`}>
+                {(overview?.minio?.objectCount ?? 0).toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between items-center text-xs py-1 border-b border-white/5">
+              <span className={themeConfig.text.secondary}>Write Throughput</span>
+              <span className="font-bold text-green-400">
+                {overview?.minio?.writeMbPerSec ?? 0} MB/s
+              </span>
+            </div>
+            <div className="flex justify-between items-center text-xs py-1 border-b border-white/5 last:border-0">
+              <span className={themeConfig.text.secondary}>Read Throughput (SMB)</span>
+              <span className="font-bold text-blue-400">
+                {overview?.minio?.readMbPerSec ?? 0} MB/s
+              </span>
             </div>
           </div>
         </div>

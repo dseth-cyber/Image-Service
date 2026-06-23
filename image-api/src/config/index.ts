@@ -23,6 +23,11 @@ export const config = {
     useSSL: process.env.MINIO_USE_SSL === 'true',
   },
 
+  redis: {
+    host: process.env.REDIS_HOST ?? 'localhost',
+    port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
+  },
+
   encryptionKey: process.env.ENCRYPTION_KEY ?? 'change-me',
 
   serviceApiKey: process.env.SERVICE_API_KEY ?? '',

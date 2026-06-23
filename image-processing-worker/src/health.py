@@ -44,7 +44,7 @@ health_state = HealthState()
 
 
 class HealthHandler(BaseHTTPRequestHandler):
-    def do_GET(self) -> None:
+    def _get_response(self) -> tuple[int, bytes]:
         body = json.dumps(health_state.to_dict()).encode()
 
         if self.path == "/health":
@@ -59,11 +59,22 @@ class HealthHandler(BaseHTTPRequestHandler):
         else:
             status_code = 404
             body = json.dumps({"error": "Not found"}).encode()
+        return status_code, body
 
+    def do_GET(self) -> None:
+        status_code, body = self._get_response()
         self.send_response(status_code)
         self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
+
+    def do_HEAD(self) -> None:
+        status_code, body = self._get_response()
+        self.send_response(status_code)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
 
     def log_message(self, format, *args):
         logger.debug("Health request", path=args[0] if args else "")
