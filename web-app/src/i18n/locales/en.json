@@ -15,7 +15,22 @@
       "editLayout": "Edit Layout",
       "resetLayout": "Reset Layout",
       "finishEditing": "Finish Editing",
-      "dragHint": "Drag cards to rearrange, or drag bottom-right corner to resize"
+      "dragHint": "Drag cards to rearrange, or drag bottom-right corner to resize",
+      "queueTitle": "Queue Length (BullMQ)",
+      "queueWait": "Wait",
+      "queueActive": "Active",
+      "queueFailed": "Failed",
+      "queueDelayed": "Delayed",
+      "postgresTitle": "PostgreSQL Status",
+      "postgresTps": "Transactions/Sec (TPS)",
+      "postgresActiveConnections": "Active Connections",
+      "postgresLocks": "Active Locks",
+      "postgresDeadlocks": "Deadlocks",
+      "minioTitle": "MinIO Telemetry",
+      "minioBucketSize": "Bucket Size",
+      "minioObjectCount": "Object Count",
+      "minioWriteThroughput": "Write Throughput",
+      "minioReadThroughput": "Read Throughput (SMB)"
     },
     "search": {
       "title": "Image Search",

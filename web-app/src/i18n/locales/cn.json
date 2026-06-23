@@ -15,7 +15,22 @@
       "editLayout": "编辑布局",
       "resetLayout": "重置布局",
       "finishEditing": "完成编辑",
-      "dragHint": "拖拽卡片重新排列，或拖拽右下角调整大小"
+      "dragHint": "拖拽卡片重新排列，或拖拽右下角调整大小",
+      "queueTitle": "队列长度 (BullMQ)",
+      "queueWait": "等待中",
+      "queueActive": "处理中",
+      "queueFailed": "失败",
+      "queueDelayed": "延迟",
+      "postgresTitle": "PostgreSQL 状态",
+      "postgresTps": "事务/秒 (TPS)",
+      "postgresActiveConnections": "活跃连接",
+      "postgresLocks": "活跃锁",
+      "postgresDeadlocks": "死锁",
+      "minioTitle": "MinIO 遥测",
+      "minioBucketSize": "存储桶大小",
+      "minioObjectCount": "对象数量",
+      "minioWriteThroughput": "写入吞吐量",
+      "minioReadThroughput": "读取吞吐量 (SMB)"
     },
     "search": {
       "title": "图像搜索",

@@ -15,7 +15,22 @@
       "editLayout": "レイアウト編集",
       "resetLayout": "レイアウトリセット",
       "finishEditing": "編集完了",
-      "dragHint": "カードをドラッグして並べ替え、右下をドラッグしてサイズ変更"
+      "dragHint": "カードをドラッグして並べ替え、右下をドラッグしてサイズ変更",
+      "queueTitle": "キュー長 (BullMQ)",
+      "queueWait": "待機中",
+      "queueActive": "処理中",
+      "queueFailed": "失敗",
+      "queueDelayed": "遅延",
+      "postgresTitle": "PostgreSQL ステータス",
+      "postgresTps": "トランザクション/秒 (TPS)",
+      "postgresActiveConnections": "アクティブ接続",
+      "postgresLocks": "アクティブロック",
+      "postgresDeadlocks": "デッドロック",
+      "minioTitle": "MinIO テレメトリー",
+      "minioBucketSize": "バケットサイズ",
+      "minioObjectCount": "オブジェクト数",
+      "minioWriteThroughput": "書き込みスループット",
+      "minioReadThroughput": "読み取りスループット (SMB)"
     },
     "search": {
       "title": "画像検索",

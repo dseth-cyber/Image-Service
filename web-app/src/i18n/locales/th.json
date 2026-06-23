@@ -15,7 +15,22 @@
       "editLayout": "ปรับแต่ง Layout",
       "resetLayout": "รีเซ็ต Layout",
       "finishEditing": "เสร็จสิ้น",
-      "dragHint": "ลากการ์ดเพื่อเรียงใหม่ หรือลากมุมล่างขวาเพื่อปรับขนาด"
+      "dragHint": "ลากการ์ดเพื่อเรียงใหม่ หรือลากมุมล่างขวาเพื่อปรับขนาด",
+      "queueTitle": "ความยาวคิว (BullMQ)",
+      "queueWait": "รอดำเนินการ",
+      "queueActive": "กำลังประมวลผล",
+      "queueFailed": "ล้มเหลว",
+      "queueDelayed": "หน่วงเวลา",
+      "postgresTitle": "สถานะ PostgreSQL",
+      "postgresTps": "รายการ/วินาที (TPS)",
+      "postgresActiveConnections": "การเชื่อมต่อที่ใช้งาน",
+      "postgresLocks": "ล็อคที่ใช้งาน",
+      "postgresDeadlocks": "Deadlocks",
+      "minioTitle": "สถานะ MinIO",
+      "minioBucketSize": "ขนาด Bucket",
+      "minioObjectCount": "จำนวน Object",
+      "minioWriteThroughput": "อัตราเขียนข้อมูล",
+      "minioReadThroughput": "อัตราอ่านข้อมูล (SMB)"
     },
     "search": {
       "title": "ค้นหาภาพ",

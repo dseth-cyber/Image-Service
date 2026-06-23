@@ -15,7 +15,22 @@
       "editLayout": "Layout ပြင်ရန်",
       "resetLayout": "Layout ပြန်သတ်မှတ်ရန်",
       "finishEditing": "တည်းဖြတ်ပြီးပါပြီ",
-      "dragHint": "ကတ်များကိုဆွဲယူ၍ ပြန်စီရန် (သို့) ညာဘက်အောက်ထောင့်ကိုဆွဲ၍ အရွယ်ပြင်ရန်"
+      "dragHint": "ကတ်များကိုဆွဲယူ၍ ပြန်စီရန် (သို့) ညာဘက်အောက်ထောင့်ကိုဆွဲ၍ အရွယ်ပြင်ရန်",
+      "queueTitle": "တန်းစီအရှည် (BullMQ)",
+      "queueWait": "စောင့်ဆိုင်းနေသည်",
+      "queueActive": "လုပ်ဆောင်နေသည်",
+      "queueFailed": "မအောင်မြင်ပါ",
+      "queueDelayed": "ရွှေ့ဆိုင်းထားသည်",
+      "postgresTitle": "PostgreSQL အခြေအနေ",
+      "postgresTps": "အရောင်းအ၀ယ်/စက္ကန့် (TPS)",
+      "postgresActiveConnections": "ချိတ်ဆက်မှုများ",
+      "postgresLocks": "သော့ခတ်မှုများ",
+      "postgresDeadlocks": "သေသော့ခတ်မှုများ",
+      "minioTitle": "MinIO တိုင်းတာချက်များ",
+      "minioBucketSize": "Bucket အရွယ်အစား",
+      "minioObjectCount": "Object အရေအတွက်",
+      "minioWriteThroughput": "ရေးသွင်းမှုနှုန်း",
+      "minioReadThroughput": "ဖတ်ရှုမှုနှုန်း (SMB)"
     },
     "search": {
       "title": "ပုံရှာဖွေခြင်း",

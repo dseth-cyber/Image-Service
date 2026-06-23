@@ -254,6 +254,24 @@ export async function submitProcessingResult(id: string, input: ProcessingResult
     ));
   }
 
+  // Create processing job record for traceability
+  await prisma.processingJob.create({
+    data: {
+      imageId: id,
+      jobType: 'convert',
+      workerId: 'processing-worker',
+      status: input.status === 'failed' ? 'failed' : 'completed',
+      queuedAt: existing.createdAt,
+      startedAt: existing.createdAt,
+      completedAt: input.processedAt ? new Date(input.processedAt) : new Date(),
+      priority: 0,
+      retryCount: 0,
+      maxRetries: 3,
+      queueName: 'bull:image-processing',
+      errorMessage: null,
+    },
+  });
+
   const updated = await prisma.image.update({
     where: { id },
     data: imageData,

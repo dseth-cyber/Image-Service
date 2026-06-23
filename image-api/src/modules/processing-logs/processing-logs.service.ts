@@ -192,7 +192,14 @@ async function getQueueMetrics() {
 export async function getProcessingStats() {
   const prisma = getPrisma();
 
-  const [statusCounts, typeCounts, queue, pgMetrics, minioMetrics] = await Promise.all([
+  const now = new Date();
+  const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const lastHour = new Date(now.getTime() - 60 * 60 * 1000);
+
+  const [
+    statusCounts, typeCounts, queue, pgMetrics, minioMetrics,
+    totalImages, cameraCounts, fileTypeStats, recentImages, cameraList,
+  ] = await Promise.all([
     prisma.processingJob.groupBy({
       by: ['status'],
       _count: { id: true },
@@ -204,6 +211,22 @@ export async function getProcessingStats() {
     getQueueMetrics(),
     getPgMetrics(prisma),
     getMinioMetrics(prisma),
+    prisma.image.count(),
+    prisma.camera.groupBy({
+      by: ['status'],
+      _count: { id: true },
+    }),
+    prisma.imageFile.groupBy({
+      by: ['fileType'],
+      _sum: { fileSizeBytes: true },
+      _count: { id: true },
+    }),
+    prisma.image.groupBy({
+      by: ['capturedAt'],
+      where: { capturedAt: { gte: last7Days } },
+      _count: { id: true },
+    }),
+    prisma.camera.findMany({ select: { id: true, name: true } }),
   ]);
 
   const byStatus: Record<string, number> = {};
@@ -222,12 +245,95 @@ export async function getProcessingStats() {
   const running = byStatus['running'] ?? 0;
   const queued = byStatus['queued'] ?? 0;
 
+  // Camera counts
+  let activeCameras = 0;
+  let inactiveCameras = 0;
+  let errorCameras = 0;
+  for (const c of cameraCounts) {
+    if (c.status === 'active') activeCameras = c._count.id;
+    else if (c.status === 'inactive') inactiveCameras = c._count.id;
+    else if (c.status === 'error') errorCameras = c._count.id;
+  }
+
+  // Storage by type
+  const storageByType = fileTypeStats.map((f) => ({
+    name: f.fileType,
+    value: Number(f._count.id ?? 0),
+  }));
+
+  // Storage used from minio bucketSize
+  const storageUsed = minioMetrics.bucketSize;
+
+  // Processing rate (last hour)
+  const hourlyJobs = await prisma.processingJob.count({
+    where: { completedAt: { gte: lastHour } },
+  });
+  const processingRate = `${hourlyJobs}/hr`;
+
+  // Recent activity (daily image counts for last 7 days)
+  const dayMap: Record<string, number> = {};
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+    dayMap[d.toISOString().slice(0, 10)] = 0;
+  }
+  for (const r of recentImages) {
+    const day = new Date(r.capturedAt).toISOString().slice(0, 10);
+    if (dayMap[day] !== undefined) dayMap[day] = r._count.id;
+  }
+  const recentActivity = Object.entries(dayMap)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([label, value]) => ({ label: label.slice(5), value }));
+
+  // Storage growth (daily bytes for last 7 days)
+  const dailyStorage = await prisma.imageFile.groupBy({
+    by: ['createdAt'],
+    where: { createdAt: { gte: last7Days } },
+    _sum: { fileSizeBytes: true },
+  });
+  const storageDayMap: Record<string, number> = {};
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+    storageDayMap[d.toISOString().slice(0, 10)] = 0;
+  }
+  for (const r of dailyStorage) {
+    const day = new Date(r.createdAt).toISOString().slice(0, 10);
+    if (storageDayMap[day] !== undefined) {
+      storageDayMap[day] += Number(r._sum.fileSizeBytes ?? 0n);
+    }
+  }
+  const storageGrowth = Object.entries(storageDayMap)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([label, value]) => ({ label: label.slice(5), value }));
+
+  // Images by camera
+  const imagesByCameraData = await prisma.image.groupBy({
+    by: ['cameraId'],
+    _count: { id: true },
+  });
+  const cameraMap = new Map(cameraList.map((c) => [c.id, c.name]));
+  const imagesByCamera = imagesByCameraData
+    .map((d) => ({
+      name: cameraMap.get(d.cameraId) ?? d.cameraId,
+      value: d._count.id,
+    }))
+    .sort((a, b) => b.value - a.value);
+
   return {
     total,
+    totalImages,
     completed,
     failed,
     running,
     queued,
+    activeCameras,
+    inactiveCameras,
+    errorCameras,
+    storageUsed,
+    processingRate,
+    recentActivity,
+    storageGrowth,
+    imagesByCamera,
+    storageByType,
     byStatus,
     byType,
     queue,

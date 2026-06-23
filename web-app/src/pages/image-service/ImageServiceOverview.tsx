@@ -304,14 +304,14 @@ export default function ImageServiceOverview() {
         <div key="queueLength" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
           <DragHandle show={isEditing} />
           <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
-            Queue Length (BullMQ)
+            {t('imageService.overview.queueTitle')}
           </h3>
           <div className="space-y-2 mt-2">
             {[
-              { label: 'Wait (คิวรอดำเนินการ)', value: overview?.queue?.wait ?? 0, color: 'text-cyan-400' },
-              { label: 'Active (กำลังประมวลผล)', value: overview?.queue?.active ?? 0, color: 'text-blue-400' },
-              { label: 'Failed (งานล้มเหลว)', value: overview?.queue?.failed ?? 0, color: 'text-red-400' },
-              { label: 'Delayed (คิวหน่วงเวลา)', value: overview?.queue?.delayed ?? 0, color: 'text-purple-400' },
+              { label: t('imageService.overview.queueWait'), value: overview?.queue?.wait ?? 0, color: 'text-cyan-400' },
+              { label: t('imageService.overview.queueActive'), value: overview?.queue?.active ?? 0, color: 'text-blue-400' },
+              { label: t('imageService.overview.queueFailed'), value: overview?.queue?.failed ?? 0, color: 'text-red-400' },
+              { label: t('imageService.overview.queueDelayed'), value: overview?.queue?.delayed ?? 0, color: 'text-purple-400' },
             ].map((q, idx) => (
               <div key={idx} className="flex justify-between items-center text-xs py-1 border-b border-white/5 last:border-0 animate-fade-in">
                 <span className={themeConfig.text.secondary}>{q.label}</span>
@@ -324,14 +324,14 @@ export default function ImageServiceOverview() {
         <div key="postgresStats" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
           <DragHandle show={isEditing} />
           <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
-            PostgreSQL Status
+            {t('imageService.overview.postgresTitle')}
           </h3>
           <div className="space-y-2 mt-2">
             {[
-              { label: 'Transactions/Sec (TPS)', value: overview?.postgres?.tps ?? 0, color: 'text-cyan-400' },
-              { label: 'Active Connections', value: overview?.postgres?.activeConnections ?? 0, color: 'text-green-400' },
-              { label: 'Active Locks', value: overview?.postgres?.locks ?? 0, color: 'text-yellow-400' },
-              { label: 'Deadlocks', value: overview?.postgres?.deadlocks ?? 0, color: (overview?.postgres?.deadlocks ?? 0) > 0 ? 'text-red-400 font-extrabold animate-pulse' : 'text-gray-400' },
+              { label: t('imageService.overview.postgresTps'), value: overview?.postgres?.tps ?? 0, color: 'text-cyan-400' },
+              { label: t('imageService.overview.postgresActiveConnections'), value: overview?.postgres?.activeConnections ?? 0, color: 'text-green-400' },
+              { label: t('imageService.overview.postgresLocks'), value: overview?.postgres?.locks ?? 0, color: 'text-yellow-400' },
+              { label: t('imageService.overview.postgresDeadlocks'), value: overview?.postgres?.deadlocks ?? 0, color: (overview?.postgres?.deadlocks ?? 0) > 0 ? 'text-red-400 font-extrabold animate-pulse' : 'text-gray-400' },
             ].map((p, idx) => (
               <div key={idx} className="flex justify-between items-center text-xs py-1 border-b border-white/5 last:border-0">
                 <span className={themeConfig.text.secondary}>{p.label}</span>
@@ -344,29 +344,29 @@ export default function ImageServiceOverview() {
         <div key="minioStats" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
           <DragHandle show={isEditing} />
           <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
-            MinIO Telemetry
+            {t('imageService.overview.minioTitle')}
           </h3>
           <div className="space-y-2 mt-2">
             <div className="flex justify-between items-center text-xs py-1 border-b border-white/5">
-              <span className={themeConfig.text.secondary}>Bucket Size</span>
+              <span className={themeConfig.text.secondary}>{t('imageService.overview.minioBucketSize')}</span>
               <span className={`font-bold ${themeConfig.text.primary}`}>
                 {formatBytes(overview?.minio?.bucketSize ?? 0)}
               </span>
             </div>
             <div className="flex justify-between items-center text-xs py-1 border-b border-white/5">
-              <span className={themeConfig.text.secondary}>Object Count</span>
+              <span className={themeConfig.text.secondary}>{t('imageService.overview.minioObjectCount')}</span>
               <span className={`font-bold ${themeConfig.text.primary}`}>
                 {(overview?.minio?.objectCount ?? 0).toLocaleString()}
               </span>
             </div>
             <div className="flex justify-between items-center text-xs py-1 border-b border-white/5">
-              <span className={themeConfig.text.secondary}>Write Throughput</span>
+              <span className={themeConfig.text.secondary}>{t('imageService.overview.minioWriteThroughput')}</span>
               <span className="font-bold text-green-400">
                 {overview?.minio?.writeMbPerSec ?? 0} MB/s
               </span>
             </div>
             <div className="flex justify-between items-center text-xs py-1 border-b border-white/5 last:border-0">
-              <span className={themeConfig.text.secondary}>Read Throughput (SMB)</span>
+              <span className={themeConfig.text.secondary}>{t('imageService.overview.minioReadThroughput')}</span>
               <span className="font-bold text-blue-400">
                 {overview?.minio?.readMbPerSec ?? 0} MB/s
               </span>
