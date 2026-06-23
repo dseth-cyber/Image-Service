@@ -375,6 +375,24 @@ export default function App() {
   const configMap: Record<string, any> = sysConfig ?? {}
   const logoBase64 = configMap.system_logo?.value
 
+  // Dynamically update browser tab title and favicon based on system configuration
+  useEffect(() => {
+    const systemName = configMap.system_name?.value || 'Image Service';
+    document.title = systemName;
+
+    let faviconLink = document.querySelector("link[rel*='icon']") as HTMLLinkElement | null;
+    if (!faviconLink) {
+      faviconLink = document.createElement('link');
+      faviconLink.rel = 'icon';
+      document.head.appendChild(faviconLink);
+    }
+    if (logoBase64) {
+      faviconLink.href = logoBase64;
+    } else {
+      faviconLink.href = '/vite.svg';
+    }
+  }, [configMap.system_name?.value, logoBase64]);
+
   if (!isAuthenticated) return <LoginPage logoBase64={logoBase64} />
 
   return (

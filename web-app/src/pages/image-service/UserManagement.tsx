@@ -645,7 +645,7 @@ export default function UserManagement() {
                     <h4 className="text-xs font-semibold uppercase tracking-wider text-cyan-300">{modLabel}</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-2">
                       {mod.permissions.map(perm => {
-                        const permLabel = t(`imageService.permissions.actions.${perm.key}`) || perm.labelEn;
+                        const permLabel = t(`imageService.permissions.actions.${perm.key.replace(':', '_')}`) || perm.labelEn;
                         const isInherited = isPermissionInherited(userForm.role, perm.key);
                         const isChecked = isInherited || userForm.customPermissions.includes(perm.key);
                         
@@ -783,7 +783,7 @@ export default function UserManagement() {
                       <h4 className="text-xs font-semibold uppercase tracking-wider text-cyan-300">{modLabel}</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-2">
                         {mod.permissions.map(perm => {
-                          const permLabel = t(`imageService.permissions.actions.${perm.key}`) || perm.labelEn;
+                          const permLabel = t(`imageService.permissions.actions.${perm.key.replace(':', '_')}`) || perm.labelEn;
                           const isChecked = roleForm.permissions.includes(perm.key);
                           
                           return (

@@ -28,17 +28,19 @@ export default function SystemConfigPage() {
 
   const { data: configs, isLoading } = useQuery({
     queryKey: ['system-config'],
-    queryFn: async () => {
-      const data = await imageServiceApi.getSystemConfigs();
+    queryFn: () => imageServiceApi.getSystemConfigs(),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  useEffect(() => {
+    if (configs) {
       const init: Record<string, string> = {};
-      for (const [key, cfg] of Object.entries(data)) {
+      for (const [key, cfg] of Object.entries(configs)) {
         init[key] = String((cfg as any).value ?? '');
       }
       setValues(init);
-      return data;
-    },
-    staleTime: 1000 * 60 * 5,
-  });
+    }
+  }, [configs]);
 
   const saveMutation = useMutation({
     mutationFn: (data: Record<string, string>) => imageServiceApi.updateSystemConfigs(data),
