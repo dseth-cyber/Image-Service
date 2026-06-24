@@ -127,9 +127,10 @@ export class SmbClient {
   }
 
   async readdir(dirPath: string): Promise<SmbFileEntry[]> {
-    const lsPath = dirPath.replace(/\\/g, '/').replace(/\/$/, '');
-    // Append /* to query folder contents rather than folder metadata
-    const cmd = `ls ${lsPath}/*`;
+    let lsPath = dirPath.replace(/\\/g, '/').replace(/\/$/, '');
+    // Append /* to query folder contents; handle spaces in path
+    const glob = lsPath ? `"${lsPath}/*"` : '*';
+    const cmd = `ls ${glob}`;
     const stdout = await runSmbClient(this.camera, [cmd]);
     return parseLsOutput(stdout);
   }
@@ -142,7 +143,7 @@ export class SmbClient {
     const relativePath = filePath.startsWith(prefix)
       ? filePath.slice(prefix.length)
       : filePath.replace(/^[\\/]+/, '');
-    const args = [unc, '-U', creds, '-c', `get ${relativePath} -`];
+    const args = [unc, '-U', creds, '-c', `get "${relativePath}" -`];
 
     const child = spawn('smbclient', args, {
       stdio: ['ignore', 'pipe', 'pipe'],
