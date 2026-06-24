@@ -12,10 +12,12 @@
       "cameraStatus": "Camera Status",
       "imagesByCamera": "Images by Camera",
       "imagesToday": "Images Today",
+      "perHour": "/hr",
       "editLayout": "Edit Layout",
       "resetLayout": "Reset Layout",
       "finishEditing": "Finish Editing",
       "dragHint": "Drag cards to rearrange, or drag bottom-right corner to resize",
+      "files": "files",
       "queueTitle": "Queue Length (BullMQ)",
       "queueWait": "Wait",
       "queueActive": "Active",
@@ -31,6 +33,25 @@
       "minioObjectCount": "Object Count",
       "minioWriteThroughput": "Write Throughput",
       "minioReadThroughput": "Read Throughput (SMB)"
+    },
+    "trends": {
+      "title": "Executive Trends",
+      "todayImages": "Today's Images",
+      "totalImages": "Total Images",
+      "currentLabel": "Current Period",
+      "previousLabel": "Previous Period",
+      "dailyImages": "Daily Images",
+      "dailyStorage": "Daily Storage (MB)",
+      "period": {
+        "7d": "7 Days",
+        "14d": "14 Days",
+        "21d": "21 Days",
+        "28d": "28 Days",
+        "4m": "4 Months",
+        "8m": "8 Months",
+        "12m": "12 Months",
+        "5y": "5 Years"
+      }
     },
     "search": {
       "title": "Image Search",
@@ -70,7 +91,16 @@
       "processed": "Processed",
       "fileTypeRaw": "Raw",
       "fileTypeProcessed": "Processed",
-      "fileTypeThumbnail": "Thumbnail"
+      "fileTypeThumbnail": "Thumbnail",
+      "processedSize": "Processed Size",
+      "recentImages": "Recent Images",
+      "filename": "Filename",
+      "size": "Size",
+      "capturedAt": "Captured At",
+      "status": "Status",
+      "statusPending": "Pending",
+      "statusProcessed": "Processed",
+      "statusError": "Error"
     },
     "cameras": {
       "title": "Camera Management",
@@ -120,6 +150,7 @@
       "totalFiles": "Total Files",
       "totalSize": "Total Size",
       "byFileType": "By File Type",
+      "types": "types",
       "byCamera": "By Camera",
       "growthTrend": "Growth Trend",
       "days": "Days",
@@ -355,10 +386,13 @@
       "confirmPassword": "Confirm Password",
       "passwordChanged": "Password changed successfully",
       "passwordMismatch": "Passwords do not match",
+      "unauthorized": "Access Denied",
+      "unauthorizedDesc": "You do not have permission to view this resource. Please contact system administrator.",
       "passwordTooShort": "Password must be at least 6 characters",
       "noAccount": "Don't have an account? Register here"
     },
     "nav": {
+      "imageService": "Image Service",
       "overview": "Overview",
       "cameras": "Cameras",
       "search": "Search",

@@ -1,6 +1,7 @@
 import { getPrisma } from '../../lib/prisma.js';
 import { logger } from '../../lib/logger.js';
 import { getMinio } from '../../lib/minio.js';
+import { config } from '../../config/index.js';
 export async function setRetentionUntil(imageId, cameraId) {
     const prisma = getPrisma();
     const camera = await prisma.camera.findUnique({
@@ -36,7 +37,8 @@ export async function sweepExpiredImages() {
             try {
                 for (const file of image.imageFiles) {
                     try {
-                        await getMinio().removeObject(file.bucket, file.objectKey);
+                        const bucketName = file.bucket === 'images' ? config.minio.bucket : file.bucket;
+                        await getMinio().removeObject(bucketName, file.objectKey);
                     }
                     catch (err) {
                         if (!err.message?.includes('Not Found')) {

@@ -101,6 +101,8 @@ export const imageSummarySchema = z.object({
   widthPx: z.number().nullable(),
   heightPx: z.number().nullable(),
   capturedAt: z.string(),
+  thumbnailUrl: z.string().nullable(),
+  processedFileSizeBytes: z.number().nullable(),
 });
 
 export type ImageSearchInput = z.infer<typeof imageSearchSchema>;

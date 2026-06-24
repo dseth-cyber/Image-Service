@@ -12,10 +12,12 @@
       "cameraStatus": "สถานะกล้อง",
       "imagesByCamera": "ภาพแบ่งตามกล้อง",
       "imagesToday": "ภาพวันนี้",
+      "perHour": "/ชั่วโมง",
       "editLayout": "ปรับแต่ง Layout",
       "resetLayout": "รีเซ็ต Layout",
       "finishEditing": "เสร็จสิ้น",
       "dragHint": "ลากการ์ดเพื่อเรียงใหม่ หรือลากมุมล่างขวาเพื่อปรับขนาด",
+      "files": "ไฟล์",
       "queueTitle": "ความยาวคิว (BullMQ)",
       "queueWait": "รอดำเนินการ",
       "queueActive": "กำลังประมวลผล",
@@ -31,6 +33,25 @@
       "minioObjectCount": "จำนวน Object",
       "minioWriteThroughput": "อัตราเขียนข้อมูล",
       "minioReadThroughput": "อัตราอ่านข้อมูล (SMB)"
+    },
+    "trends": {
+      "title": "สถิติผู้บริหาร",
+      "todayImages": "ภาพวันนี้",
+      "totalImages": "ภาพทั้งหมด",
+      "currentLabel": "รอบปัจจุบัน",
+      "previousLabel": "รอบก่อนหน้า",
+      "dailyImages": "ภาพรายวัน",
+      "dailyStorage": "พื้นที่รายวัน (MB)",
+      "period": {
+        "7d": "7 วัน",
+        "14d": "14 วัน",
+        "21d": "21 วัน",
+        "28d": "28 วัน",
+        "4m": "4 เดือน",
+        "8m": "8 เดือน",
+        "12m": "12 เดือน",
+        "5y": "5 ปี"
+      }
     },
     "search": {
       "title": "ค้นหาภาพ",
@@ -70,7 +91,16 @@
       "processed": "วันที่ประมวลผล",
       "fileTypeRaw": "ต้นฉบับ",
       "fileTypeProcessed": "ประมวลผลแล้ว",
-      "fileTypeThumbnail": "รูปขนาดเล็ก"
+      "fileTypeThumbnail": "รูปขนาดเล็ก",
+      "processedSize": "ขนาดที่ประมวลผล",
+      "recentImages": "ภาพล่าสุด",
+      "filename": "ชื่อไฟล์",
+      "size": "ขนาด",
+      "capturedAt": "วันที่ถ่าย",
+      "status": "สถานะ",
+      "statusPending": "รอดำเนินการ",
+      "statusProcessed": "ประมวลผลแล้ว",
+      "statusError": "ข้อผิดพลาด"
     },
     "cameras": {
       "title": "จัดการกล้อง",
@@ -120,6 +150,7 @@
       "totalFiles": "ไฟล์ทั้งหมด",
       "totalSize": "ขนาดทั้งหมด",
       "byFileType": "แบ่งตามประเภทไฟล์",
+      "types": "ชนิด",
       "byCamera": "แบ่งตามกล้อง",
       "growthTrend": "แนวโน้มการเติบโต",
       "days": "วัน",
@@ -355,10 +386,13 @@
       "confirmPassword": "ยืนยันรหัสผ่านใหม่",
       "passwordChanged": "เปลี่ยนรหัสผ่านสำเร็จ",
       "passwordMismatch": "รหัสผ่านไม่ตรงกัน",
+      "unauthorized": "ไม่มีสิทธิ์เข้าถึง",
+      "unauthorizedDesc": "คุณไม่มีสิทธิ์ในการเข้าถึงหน้านี้ กรุณาติดต่อผู้ดูแลระบบ",
       "passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร",
       "noAccount": "ยังไม่มีบัญชี? ลงทะเบียนที่นี่"
     },
     "nav": {
+      "imageService": "Image Service",
       "overview": "ภาพรวม",
       "cameras": "กล้อง",
       "search": "ค้นหา",

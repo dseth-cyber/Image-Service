@@ -95,6 +95,8 @@ export async function updateCamera(id, input) {
         data.retentionPolicyId = input.retentionPolicyId;
     if (input.enabled !== undefined)
         data.enabled = input.enabled;
+    if (input.lastPolledAt !== undefined)
+        data.lastPolledAt = new Date(input.lastPolledAt);
     if (input.metadata !== undefined)
         data.metadata = input.metadata;
     const updated = await prisma.camera.update({

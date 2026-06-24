@@ -93,5 +93,7 @@ export const imageSummarySchema = z.object({
     widthPx: z.number().nullable(),
     heightPx: z.number().nullable(),
     capturedAt: z.string(),
+    thumbnailUrl: z.string().nullable(),
+    processedFileSizeBytes: z.number().nullable(),
 });
 //# sourceMappingURL=images.schema.js.map

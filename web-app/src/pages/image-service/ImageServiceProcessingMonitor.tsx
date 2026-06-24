@@ -6,7 +6,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { imageServiceApi } from '@/services/imageServiceApi';
 import { formatDateTime } from '@/utils/dateUtils';
 import {
-  ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell,
+  ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, LabelList,
   XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts';
 import {
@@ -38,6 +38,24 @@ const JOB_STATUS_STYLES: Record<string, string> = {
   failed: 'bg-red-500/20 text-red-400',
   retrying: 'bg-yellow-500/20 text-yellow-400',
   dead_letter: 'bg-red-500/20 text-red-400',
+};
+
+const STATUS_LABEL_KEY: Record<string, string> = {
+  queued: 'imageService.processingLogs.statusQueued',
+  running: 'imageService.processingLogs.statusRunning',
+  completed: 'imageService.processingLogs.statusCompleted',
+  failed: 'imageService.processingLogs.statusFailed',
+  retrying: 'imageService.processingLogs.statusRetrying',
+  dead_letter: 'imageService.processingLogs.statusDeadLetter',
+};
+
+const TYPE_LABEL_KEY: Record<string, string> = {
+  sync: 'imageService.processingLogs.typeSync',
+  convert: 'imageService.processingLogs.typeConvert',
+  thumbnail: 'imageService.processingLogs.typeThumbnail',
+  checksum: 'imageService.processingLogs.typeChecksum',
+  archive: 'imageService.processingLogs.typeArchive',
+  delete: 'imageService.processingLogs.typeDelete',
 };
 
 export default function ImageServiceProcessingMonitor() {
@@ -100,7 +118,7 @@ export default function ImageServiceProcessingMonitor() {
     return acc;
   }, {});
 
-  const jobTypeData = Object.entries(jobsByType).map(([k, v]) => ({ name: k, value: v }));
+  const jobTypeData = Object.entries(jobsByType).map(([k, v]) => ({ name: t(TYPE_LABEL_KEY[k] ?? k), value: v }));
 
   const tickFill = themeConfig.name === 'light' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)';
   const gridStroke = themeConfig.name === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.05)';
@@ -155,7 +173,8 @@ export default function ImageServiceProcessingMonitor() {
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
                 <Pie data={statusCounts} cx="50%" cy="50%" innerRadius={55} outerRadius={80}
-                  paddingAngle={3} dataKey="value" nameKey="name">
+                  paddingAngle={3} dataKey="value" nameKey="name"
+                  label={({ name, value }) => `${name} ${value}`}>
                   {statusCounts.map((_: any, i: number) => (
                     <Cell key={i} fill={PIE_COLORS[i]} />
                   ))}
@@ -165,7 +184,7 @@ export default function ImageServiceProcessingMonitor() {
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <span className={`text-2xl font-bold ${themeConfig.text.primary}`}>{logs.length}</span>
-              <span className={`text-xs ${themeConfig.text.secondary}`}>total</span>
+              <span className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.processing.totalJobs').toLowerCase()}</span>
             </div>
           </div>
         </div>
@@ -182,6 +201,7 @@ export default function ImageServiceProcessingMonitor() {
                 {jobTypeData.map((_: any, i: number) => (
                   <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />
                 ))}
+                <LabelList dataKey="value" position="top" style={{ fill: tickFill, fontSize: 10 }} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -232,11 +252,11 @@ export default function ImageServiceProcessingMonitor() {
                     <span className="font-mono text-xs">{log.imageId?.slice(0, 8) ?? '—'}...</span>
                   </td>
                   <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>
-                    <span className="px-2 py-0.5 rounded text-xs bg-cyan-500/10 text-cyan-400">{log.jobType}</span>
+                    <span className="px-2 py-0.5 rounded text-xs bg-cyan-500/10 text-cyan-400">{t(TYPE_LABEL_KEY[log.jobType] ?? log.jobType)}</span>
                   </td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${JOB_STATUS_STYLES[log.status] ?? ''}`}>
-                      {log.status}
+                      {t(STATUS_LABEL_KEY[log.status] ?? log.status)}
                     </span>
                   </td>
                   <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>

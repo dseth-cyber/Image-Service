@@ -176,10 +176,6 @@ export class CameraPoller {
             originalFilename: file.originalFilename,
             fileSizeBytes: file.fileSizeBytes,
             capturedAt: new Date().toISOString(),
-            smbSharePath: camera.smbSharePath,
-            smbUsername: camera.smbUsername,
-            smbPassword: camera.smbPasswordEncrypted,
-            smbDomain: camera.smbDomain,
           };
           if (isSha256) {
             jobPayload.checksumSha256 = checksum;

@@ -12,10 +12,12 @@
       "cameraStatus": "ကင်မရာအခြေအနေ",
       "imagesByCamera": "ကင်မရာအလိုက်ပုံများ",
       "imagesToday": "ယနေ့ပုံများ",
+      "perHour": "/နာရီ",
       "editLayout": "Layout ပြင်ရန်",
       "resetLayout": "Layout ပြန်သတ်မှတ်ရန်",
       "finishEditing": "တည်းဖြတ်ပြီးပါပြီ",
       "dragHint": "ကတ်များကိုဆွဲယူ၍ ပြန်စီရန် (သို့) ညာဘက်အောက်ထောင့်ကိုဆွဲ၍ အရွယ်ပြင်ရန်",
+      "files": "ဖိုင်များ",
       "queueTitle": "တန်းစီအရှည် (BullMQ)",
       "queueWait": "စောင့်ဆိုင်းနေသည်",
       "queueActive": "လုပ်ဆောင်နေသည်",
@@ -31,6 +33,25 @@
       "minioObjectCount": "Object အရေအတွက်",
       "minioWriteThroughput": "ရေးသွင်းမှုနှုန်း",
       "minioReadThroughput": "ဖတ်ရှုမှုနှုန်း (SMB)"
+    },
+    "trends": {
+      "title": "အမှုဆောင်လမ်းကြောင်း",
+      "todayImages": "ယနေ့ပုံများ",
+      "totalImages": "စုစုပေါင်းပုံများ",
+      "currentLabel": "လက်ရှိအပိုင်း",
+      "previousLabel": "ယခင်အပိုင်း",
+      "dailyImages": "နေ့စဉ်ပုံများ",
+      "dailyStorage": "နေ့စဉ်သိုလှောင်မှု (MB)",
+      "period": {
+        "7d": "၇ ရက်",
+        "14d": "၁၄ ရက်",
+        "21d": "၂၁ ရက်",
+        "28d": "၂၈ ရက်",
+        "4m": "၄ လ",
+        "8m": "၈ လ",
+        "12m": "၁၂ လ",
+        "5y": "၅ နှစ်"
+      }
     },
     "search": {
       "title": "ပုံရှာဖွေခြင်း",
@@ -70,7 +91,16 @@
       "processed": "လုပ်ဆောင်သည့်နေ့",
       "fileTypeRaw": "မူရင်း",
       "fileTypeProcessed": "လုပ်ဆောင်ပြီး",
-      "fileTypeThumbnail": "သေးငယ်သည့်ပုံ"
+      "fileTypeThumbnail": "သေးငယ်သည့်ပုံ",
+      "processedSize": "လုပ်ဆောင်ပြီးအရွယ်",
+      "recentImages": "မကြာသေးမီပုံများ",
+      "filename": "ဖိုင်အမည်",
+      "size": "အရွယ်အစား",
+      "capturedAt": "ရိုက်ကူးသည့်အချိန်",
+      "status": "အခြေအနေ",
+      "statusPending": "ဆောင်ရွက်ဆဲ",
+      "statusProcessed": "လုပ်ဆောင်ပြီး",
+      "statusError": "အမှား"
     },
     "cameras": {
       "title": "ကင်မရာစီမံခန့်ခွဲမှု",
@@ -106,7 +136,8 @@
       "shares": "မျှဝေမှုများ",
       "useCurrentFolder": "လက်ရှိဖိုင်တွဲသုံးရန်",
       "scanNow": "ယခုစကင်ဖတ်မည်",
-      "scanTriggered": "စကင်ဖတ်ခြင်းစတင်ပြီ၊ ကင်မရာများကို မကြာမီစစ်ဆေးပါမည်"
+      "scanTriggered": "စကင်ဖတ်ခြင်းစတင်ပြီ၊ ကင်မရာများကို မကြာမီစစ်ဆေးပါမည်",
+      "cameraInfo": "ကင်မရာအချက်အလက်"
     },
     "storage": {
       "title": "သိုလှောင်မှုစောင့်ကြည့်ခြင်း",
@@ -114,6 +145,7 @@
       "totalFiles": "စုစုပေါင်းဖိုင်များ",
       "totalSize": "စုစုပေါင်းအရွယ်",
       "byFileType": "ဖိုင်အမျိုးအစားအလိုက်",
+      "types": "အမျိုးအစား",
       "byCamera": "ကင်မရာအလိုက်",
       "growthTrend": "ကြီးထွားမှုလမ်းကြောင်း",
       "days": "ရက်များ",
@@ -349,10 +381,13 @@
       "confirmPassword": "စကားဝှက်အသစ်အတည်ပြုရန်",
       "passwordChanged": "စကားဝှက်ပြောင်းလဲခြင်းအောင်မြင်ပါသည်",
       "passwordMismatch": "စကားဝှက်များမတူပါ",
+      "unauthorized": "ဝင်ရောက်ခွင့်မရှိပါ",
+      "unauthorizedDesc": "ဤအရင်းအမြစ်ကိုကြည့်ရှုရန် ခွင့်ပြုချက်မရှိပါ။ စနစ်စီမံခန့်ခွဲသူကို ဆက်သွယ်ပါ။",
       "passwordTooShort": "စကားဝှက်သည် အနည်းဆုံး 6 လုံးရှိရမည်",
       "noAccount": "အကောင့်မရှိသေးဘူးလား? ဤနေရာတွင် စာရင်းသွင်းပါ"
     },
     "nav": {
+      "imageService": "Image Service",
       "overview": "ခြုံငုံ",
       "cameras": "ကင်မရာများ",
       "search": "ရှာဖွေ",
@@ -878,6 +913,7 @@
     "remove": "ဖယ်ရှားရန်",
     "save": "သိမ်းဆည်း",
     "saving": "သိမ်းဆည်းနေသည်...",
+    "back": "နောက်သို့",
     "error": "အမှား",
     "prev": "ရှေ့",
     "next": "နောက်",

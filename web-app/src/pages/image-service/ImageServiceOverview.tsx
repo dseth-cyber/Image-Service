@@ -8,7 +8,8 @@ import {
   ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts';
-import { GripVertical, Settings, RotateCcw, Check, Camera, HardDrive, Activity, Image } from 'lucide-react';
+import ExecutiveTrends from './ExecutiveTrends';
+import { GripVertical, Settings, RotateCcw, Check, Camera, HardDrive, Activity, Image, TrendingUp } from 'lucide-react';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
@@ -17,37 +18,40 @@ const LAYOUT_STORAGE_KEY = 'image_service_overview_layout_v1';
 
 const DEFAULT_LAYOUTS = {
   lg: [
-    { i: 'stats', x: 0, y: 0, w: 12, h: 1.5, minW: 6, minH: 1.5 },
-    { i: 'recent', x: 0, y: 1, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'growth', x: 6, y: 1, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'cameraStatus', x: 0, y: 4, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'byCamera', x: 4, y: 4, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'storageDonut', x: 8, y: 4, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'queueLength', x: 0, y: 7, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'postgresStats', x: 4, y: 7, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'minioStats', x: 8, y: 7, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'trends', x: 0, y: 0, w: 12, h: 4.5, minW: 6, minH: 3.5 },
+    { i: 'stats', x: 0, y: 4.5, w: 12, h: 1.5, minW: 6, minH: 1.5 },
+    { i: 'recent', x: 0, y: 6, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'growth', x: 6, y: 6, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'cameraStatus', x: 0, y: 9, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 4, y: 9, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'storageDonut', x: 8, y: 9, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'queueLength', x: 0, y: 12, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'postgresStats', x: 4, y: 12, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'minioStats', x: 8, y: 12, w: 4, h: 3, minW: 3, minH: 2.5 },
   ],
   md: [
-    { i: 'stats', x: 0, y: 0, w: 10, h: 1.5, minW: 6, minH: 1.5 },
-    { i: 'recent', x: 0, y: 1, w: 5, h: 3, minW: 3, minH: 2.5 },
-    { i: 'growth', x: 5, y: 1, w: 5, h: 3, minW: 3, minH: 2.5 },
-    { i: 'cameraStatus', x: 0, y: 4, w: 3, h: 3, minW: 3, minH: 2.5 },
-    { i: 'byCamera', x: 3, y: 4, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'storageDonut', x: 7, y: 4, w: 3, h: 3, minW: 3, minH: 2.5 },
-    { i: 'queueLength', x: 0, y: 7, w: 3, h: 3, minW: 3, minH: 2.5 },
-    { i: 'postgresStats', x: 3, y: 7, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'minioStats', x: 7, y: 7, w: 3, h: 3, minW: 3, minH: 2.5 },
+    { i: 'trends', x: 0, y: 0, w: 10, h: 4.5, minW: 6, minH: 3.5 },
+    { i: 'stats', x: 0, y: 4.5, w: 10, h: 1.5, minW: 6, minH: 1.5 },
+    { i: 'recent', x: 0, y: 6, w: 5, h: 3, minW: 3, minH: 2.5 },
+    { i: 'growth', x: 5, y: 6, w: 5, h: 3, minW: 3, minH: 2.5 },
+    { i: 'cameraStatus', x: 0, y: 9, w: 3, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 3, y: 9, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'storageDonut', x: 7, y: 9, w: 3, h: 3, minW: 3, minH: 2.5 },
+    { i: 'queueLength', x: 0, y: 12, w: 3, h: 3, minW: 3, minH: 2.5 },
+    { i: 'postgresStats', x: 3, y: 12, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'minioStats', x: 7, y: 12, w: 3, h: 3, minW: 3, minH: 2.5 },
   ],
   sm: [
-    { i: 'stats', x: 0, y: 0, w: 6, h: 1.5, minW: 4, minH: 1.5 },
-    { i: 'recent', x: 0, y: 1, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'growth', x: 0, y: 4, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'cameraStatus', x: 0, y: 7, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'byCamera', x: 0, y: 10, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'storageDonut', x: 0, y: 13, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'queueLength', x: 0, y: 16, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'postgresStats', x: 0, y: 19, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'minioStats', x: 0, y: 22, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'trends', x: 0, y: 0, w: 6, h: 4.5, minW: 4, minH: 3.5 },
+    { i: 'stats', x: 0, y: 4.5, w: 6, h: 1.5, minW: 4, minH: 1.5 },
+    { i: 'recent', x: 0, y: 6, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'growth', x: 0, y: 9, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'cameraStatus', x: 0, y: 12, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 0, y: 15, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'storageDonut', x: 0, y: 18, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'queueLength', x: 0, y: 21, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'postgresStats', x: 0, y: 24, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'minioStats', x: 0, y: 27, w: 6, h: 3, minW: 3, minH: 2.5 },
   ],
 };
 
@@ -116,7 +120,7 @@ export default function ImageServiceOverview() {
     { label: t('imageService.overview.totalImages'), value: overview?.totalImages?.toLocaleString() ?? '—', icon: Image, color: '#06b6d4' },
     { label: t('imageService.overview.activeCameras'), value: overview?.activeCameras ?? '—', icon: Camera, color: '#10b981' },
     { label: t('imageService.overview.storageUsed'), value: overview?.storageUsed != null ? `${formatBytes(overview.storageUsed)} / ${formatBytes(overview.storageTotal ?? 0)}` : '—', icon: HardDrive, color: '#8b5cf6' },
-    { label: t('imageService.overview.processingRate'), value: overview?.processingRate ?? '—', icon: Activity, color: '#f59e0b' },
+    { label: t('imageService.overview.processingRate'), value: overview?.processingRate != null ? `${overview.processingRate}${t('imageService.overview.perHour')}` : '—', icon: Activity, color: '#f59e0b' },
   ];
 
   const recentActivity = overview?.recentActivity ?? [];
@@ -133,7 +137,7 @@ export default function ImageServiceOverview() {
       <div className="flex items-center justify-between mb-5">
         <div>
           <p className={`text-xs font-medium mb-0.5 uppercase tracking-widest ${themeConfig.text.secondary}`}>
-            Overview · Image Service
+            {t('imageService.nav.imageService')} · {t('imageService.overview.title')}
           </p>
           <h1 className={`text-2xl font-bold ${themeConfig.text.primary}`}>
             {t('imageService.overview.title')}
@@ -176,6 +180,11 @@ export default function ImageServiceOverview() {
         onLayoutChange={handleLayoutChange}
         compactType="vertical"
       >
+        <div key="trends" className="overflow-hidden relative">
+          <DragHandle show={isEditing} />
+          <ExecutiveTrends />
+        </div>
+
         <div key="stats" className={`${themeConfig.card} rounded-lg overflow-hidden relative`}>
           <DragHandle show={isEditing} />
           <div className="grid grid-cols-4 gap-4 p-5 h-full">
@@ -296,7 +305,7 @@ export default function ImageServiceOverview() {
               <span className={`text-2xl font-bold ${themeConfig.text.primary}`}>
                 {storageByType.reduce((s: number, v: any) => s + (v.value ?? 0), 0).toLocaleString()}
               </span>
-              <span className={`text-xs ${themeConfig.text.secondary}`}>files</span>
+              <span className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.overview.files')}</span>
             </div>
           </div>
         </div>

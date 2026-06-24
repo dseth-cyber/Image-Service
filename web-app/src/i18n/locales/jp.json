@@ -12,10 +12,12 @@
       "cameraStatus": "カメラステータス",
       "imagesByCamera": "カメラ別画像数",
       "imagesToday": "本日の画像",
+      "perHour": "/時間",
       "editLayout": "レイアウト編集",
       "resetLayout": "レイアウトリセット",
       "finishEditing": "編集完了",
       "dragHint": "カードをドラッグして並べ替え、右下をドラッグしてサイズ変更",
+      "files": "ファイル",
       "queueTitle": "キュー長 (BullMQ)",
       "queueWait": "待機中",
       "queueActive": "処理中",
@@ -31,6 +33,25 @@
       "minioObjectCount": "オブジェクト数",
       "minioWriteThroughput": "書き込みスループット",
       "minioReadThroughput": "読み取りスループット (SMB)"
+    },
+    "trends": {
+      "title": "経営トレンド",
+      "todayImages": "今日の画像",
+      "totalImages": "総画像数",
+      "currentLabel": "当期",
+      "previousLabel": "前期",
+      "dailyImages": "日別画像数",
+      "dailyStorage": "日別ストレージ (MB)",
+      "period": {
+        "7d": "7日",
+        "14d": "14日",
+        "21d": "21日",
+        "28d": "28日",
+        "4m": "4ヶ月",
+        "8m": "8ヶ月",
+        "12m": "12ヶ月",
+        "5y": "5年"
+      }
     },
     "search": {
       "title": "画像検索",
@@ -70,7 +91,16 @@
       "processed": "処理日",
       "fileTypeRaw": "生データ",
       "fileTypeProcessed": "処理済み",
-      "fileTypeThumbnail": "サムネイル"
+      "fileTypeThumbnail": "サムネイル",
+      "processedSize": "処理後サイズ",
+      "recentImages": "最近の画像",
+      "filename": "ファイル名",
+      "size": "サイズ",
+      "capturedAt": "撮影日時",
+      "status": "ステータス",
+      "statusPending": "保留中",
+      "statusProcessed": "処理済み",
+      "statusError": "エラー"
     },
     "cameras": {
       "title": "カメラ管理",
@@ -106,7 +136,8 @@
       "shares": "共有",
       "useCurrentFolder": "現在のフォルダを使用",
       "scanNow": "今すぐスキャン",
-      "scanTriggered": "スキャンを開始しました。まもなくカメラをポーリングします"
+      "scanTriggered": "スキャンを開始しました。まもなくカメラをポーリングします",
+      "cameraInfo": "カメラ情報"
     },
     "storage": {
       "title": "ストレージ監視",
@@ -114,6 +145,7 @@
       "totalFiles": "総ファイル数",
       "totalSize": "総サイズ",
       "byFileType": "ファイルタイプ別",
+      "types": "種類",
       "byCamera": "カメラ別",
       "growthTrend": "増加傾向",
       "days": "日",
@@ -349,10 +381,13 @@
       "confirmPassword": "新しいパスワード（確認）",
       "passwordChanged": "パスワードを変更しました",
       "passwordMismatch": "パスワードが一致しません",
+      "unauthorized": "アクセス拒否",
+      "unauthorizedDesc": "このリソースを表示する権限がありません。システム管理者に連絡してください。",
       "passwordTooShort": "パスワードは6文字以上必要です",
       "noAccount": "アカウントをお持ちでないですか？こちらで登録"
     },
     "nav": {
+      "imageService": "Image Service",
       "overview": "概要",
       "cameras": "カメラ",
       "search": "検索",
@@ -878,6 +913,7 @@
     "remove": "削除",
     "save": "保存",
     "saving": "保存中...",
+    "back": "戻る",
     "error": "エラー",
     "prev": "前へ",
     "next": "次へ",

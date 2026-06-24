@@ -82,15 +82,17 @@ export async function searchImages(params) {
             include: {
                 camera: { select: { name: true } },
                 imageFiles: {
-                    where: { fileType: 'thumbnail' },
+                    where: { fileType: { in: ['thumbnail', 'processed'] } },
                     select: { id: true, fileType: true, fileSizeBytes: true, mimeType: true, storageClass: true },
-                    take: 1,
                 },
             },
         }),
     ]);
     const data = rows.map((row) => {
         const r = mapBigInt(row);
+        const files = r.imageFiles ?? [];
+        const thumbFile = files.find((f) => f.fileType === 'thumbnail');
+        const procFile = files.find((f) => f.fileType === 'processed');
         return {
             id: r.id,
             cameraId: r.cameraId,
@@ -101,9 +103,8 @@ export async function searchImages(params) {
             widthPx: r.widthPx,
             heightPx: r.heightPx,
             capturedAt: r.capturedAt.toISOString(),
-            thumbnailUrl: Array.isArray(r.imageFiles) && r.imageFiles.length > 0
-                ? `/api/v1/images/${r.id}/files/thumbnail`
-                : null,
+            thumbnailUrl: thumbFile ? `/api/v1/images/${r.id}/files/thumbnail` : null,
+            processedFileSizeBytes: procFile?.fileSizeBytes ?? null,
         };
     });
     return {
@@ -238,6 +239,23 @@ export async function submitProcessingResult(id, input) {
             },
         })));
     }
+    // Create processing job record for traceability
+    await prisma.processingJob.create({
+        data: {
+            imageId: id,
+            jobType: 'convert',
+            workerId: 'processing-worker',
+            status: input.status === 'failed' ? 'failed' : 'completed',
+            queuedAt: existing.createdAt,
+            startedAt: existing.createdAt,
+            completedAt: input.processedAt ? new Date(input.processedAt) : new Date(),
+            priority: 0,
+            retryCount: 0,
+            maxRetries: 3,
+            queueName: 'bull:image-processing',
+            errorMessage: null,
+        },
+    });
     const updated = await prisma.image.update({
         where: { id },
         data: imageData,

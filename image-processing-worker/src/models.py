@@ -10,10 +10,6 @@ class ProcessingJob:
     original_filename: str
     file_size_bytes: int
     checksum_md5: str
-    smb_share_path: str = ""
-    smb_username: str = ""
-    smb_password: str = ""
-    smb_domain: str = ""
     checksum_sha256: str | None = None
     captured_at: str | None = None
 
@@ -28,10 +24,6 @@ class ProcessingJob:
             checksum_md5=data["checksumMd5"],
             checksum_sha256=data.get("checksumSha256"),
             captured_at=data.get("capturedAt"),
-            smb_share_path=data.get("smbSharePath", ""),
-            smb_username=data.get("smbUsername", ""),
-            smb_password=data.get("smbPassword", ""),
-            smb_domain=data.get("smbDomain", ""),
         )
 
     def to_dict(self) -> dict:
@@ -44,9 +36,6 @@ class ProcessingJob:
             "checksumMd5": self.checksum_md5,
             "checksumSha256": self.checksum_sha256,
             "capturedAt": self.captured_at,
-            "smbSharePath": self.smb_share_path,
-            "smbUsername": self.smb_username,
-            "smbDomain": self.smb_domain,
         }
 
 

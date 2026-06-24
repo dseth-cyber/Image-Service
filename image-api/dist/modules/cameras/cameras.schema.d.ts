@@ -56,6 +56,7 @@ export declare const updateCameraSchema: z.ZodObject<{
     captureMode: z.ZodOptional<z.ZodEnum<["on_demand", "periodic", "continuous"]>>;
     retentionPolicyId: z.ZodOptional<z.ZodString>;
     enabled: z.ZodOptional<z.ZodBoolean>;
+    lastPolledAt: z.ZodOptional<z.ZodString>;
     metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
 }, "strip", z.ZodTypeAny, {
     name?: string | undefined;
@@ -72,6 +73,7 @@ export declare const updateCameraSchema: z.ZodObject<{
     timezone?: string | undefined;
     captureMode?: "on_demand" | "periodic" | "continuous" | undefined;
     retentionPolicyId?: string | undefined;
+    lastPolledAt?: string | undefined;
 }, {
     name?: string | undefined;
     description?: string | undefined;
@@ -87,6 +89,7 @@ export declare const updateCameraSchema: z.ZodObject<{
     timezone?: string | undefined;
     captureMode?: "on_demand" | "periodic" | "continuous" | undefined;
     retentionPolicyId?: string | undefined;
+    lastPolledAt?: string | undefined;
 }>;
 export declare const cameraQuerySchema: z.ZodObject<{
     status: z.ZodOptional<z.ZodEnum<["active", "inactive", "error", "maintenance"]>>;

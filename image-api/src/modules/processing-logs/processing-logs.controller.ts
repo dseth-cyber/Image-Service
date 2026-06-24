@@ -14,6 +14,12 @@ async function statsHandler(_request: FastifyRequest, reply: FastifyReply) {
   return reply.status(200).send(stats);
 }
 
+async function trendsHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { period } = request.query as { period?: string };
+  const result = await processingLogsService.getTrends(period ?? '7d');
+  return reply.status(200).send(result);
+}
+
 async function retryHandler(request: FastifyRequest, reply: FastifyReply) {
   const { id } = request.params as { id: string };
   const result = await processingLogsService.retryJob(id);
@@ -83,6 +89,7 @@ async function streamHandler(_request: FastifyRequest, reply: FastifyReply) {
 export async function processingLogRoutes(app: FastifyInstance): Promise<void> {
   app.get('/', { preHandler: [app.authenticate] }, searchHandler);
   app.get('/stats', { preHandler: [app.authenticate] }, statsHandler);
+  app.get('/trends', { preHandler: [app.authenticate] }, trendsHandler);
   app.get('/stream', streamHandler);
   app.post('/:id/retry', { preHandler: [app.authenticate, requirePermission('processing:create')] }, retryHandler);
   app.post('/:id/reject', { preHandler: [app.authenticate, requirePermission('processing:create')] }, rejectHandler);

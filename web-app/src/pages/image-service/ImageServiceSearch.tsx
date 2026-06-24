@@ -40,6 +40,7 @@ export default function ImageServiceSearch() {
   const [tagValue, setTagValue] = useState('');
   const [newTagKey, setNewTagKey] = useState('');
   const [newTagValue, setNewTagValue] = useState('');
+  const [thumbError, setThumbError] = useState(false);
 
   const { data: cameras = [] } = useQuery({
     queryKey: ['cameras'],
@@ -72,7 +73,7 @@ export default function ImageServiceSearch() {
 
   const { data: detail } = useQuery({
     queryKey: ['image-detail', detailId],
-    queryFn: () => imageServiceApi.getImage(detailId!),
+    queryFn: () => { setThumbError(false); return imageServiceApi.getImage(detailId!); },
     enabled: !!detailId,
   });
 
@@ -82,6 +83,9 @@ export default function ImageServiceSearch() {
     else { setSortCol(col); setSortDir('asc'); }
     setPage(1);
   };
+
+  const downloadUrl = (id: string, fileType: string) =>
+    `${(window as any).__API_BASE__ ?? '/image-service'}/api/v1/images/${id}/files/${fileType}`;
 
   const handleDelete = async (id: string) => {
     try {
@@ -178,6 +182,9 @@ export default function ImageServiceSearch() {
                     <div className="flex items-center gap-1">{t('imageService.storage.totalSize')}
                       {sortCol === 'fileSizeBytes' ? sortDir === 'asc' ? <ChevronUp size={11} className="text-cyan-400" /> : <ChevronDown size={11} className="text-cyan-400" /> : <ChevronsUpDown size={11} className="opacity-25" />}</div>
                   </th>
+                  <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>
+                    {t('imageService.search.processedSize')}
+                  </th>
                   <th onClick={() => handleSort('capturedAt')} className={thCls('capturedAt')}>
                     <div className="flex items-center gap-1">{t('imageService.search.fromDate')}
                       {sortCol === 'capturedAt' ? sortDir === 'asc' ? <ChevronUp size={11} className="text-cyan-400" /> : <ChevronDown size={11} className="text-cyan-400" /> : <ChevronsUpDown size={11} className="opacity-25" />}</div>
@@ -197,6 +204,9 @@ export default function ImageServiceSearch() {
                     </td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>
                       {item.fileSizeBytes ? (item.fileSizeBytes / 1024 / 1024).toFixed(1) + ' MB' : '—'}
+                    </td>
+                    <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>
+                      {item.processedFileSizeBytes ? (item.processedFileSizeBytes / 1024 / 1024).toFixed(1) + ' MB' : '—'}
                     </td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>
                       {item.capturedAt ? formatDateTime(item.capturedAt, i18n.language) : '—'}
@@ -241,8 +251,15 @@ export default function ImageServiceSearch() {
         {detail && (
           <div className="space-y-5 p-1 max-w-2xl">
             <div className="flex items-center gap-4">
-              <div className="w-32 h-32 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center">
-                <Image size={48} className="text-cyan-400/60" />
+              <div className="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0">
+                {detail.imageFiles?.some((f: any) => f.fileType === 'thumbnail') && !thumbError
+                  ? <img src={downloadUrl(detail.id, 'thumbnail')}
+                      alt={detail.originalFilename}
+                      className="w-full h-full object-cover"
+                      onError={() => setThumbError(true)} />
+                  : <div className="w-32 h-32 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center">
+                      <Image size={48} className="text-cyan-400/60" />
+                    </div>}
               </div>
               <div className="flex-1">
                 <h3 className={`text-lg font-semibold ${themeConfig.text.primary}`}>{detail.originalFilename}</h3>
@@ -279,11 +296,13 @@ export default function ImageServiceSearch() {
                 <h4 className={`text-sm font-semibold mb-2 flex items-center gap-1.5 ${themeConfig.text.primary}`}>
                   <FileImage size={14} /> {t('imageService.search.files')}
                 </h4>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   {detail.imageFiles.map((f: any) => (
-                    <button key={f.id} className={`px-3 py-2 rounded-md text-xs flex items-center gap-1.5 border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5 transition-colors`}>
+                    <a key={f.id} href={downloadUrl(detail.id, f.fileType)} target="_blank" rel="noopener noreferrer"
+                      className={`px-3 py-2 rounded-md text-xs flex items-center gap-1.5 border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5 transition-colors`}>
                       <Download size={12} /> {t(`imageService.search.fileType${f.fileType.charAt(0).toUpperCase() + f.fileType.slice(1)}`)}
-                    </button>
+                      {f.fileSizeBytes ? ` (${(f.fileSizeBytes / 1024 / 1024).toFixed(1)} MB)` : ''}
+                    </a>
                   ))}
                 </div>
               </div>

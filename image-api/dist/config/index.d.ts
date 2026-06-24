@@ -19,6 +19,10 @@ export declare const config: {
         readonly bucket: string;
         readonly useSSL: boolean;
     };
+    readonly redis: {
+        readonly host: string;
+        readonly port: number;
+    };
     readonly encryptionKey: string;
     readonly serviceApiKey: string;
     readonly notifications: {

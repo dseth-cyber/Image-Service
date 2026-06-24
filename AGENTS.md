@@ -125,3 +125,54 @@ Consumer ในอนาคต: vision-service, predictive-service, historian-se
 ## Charts & Dataviz
 - ใช้ Recharts สำหรับ data visualization
 - ใช้ react-grid-layout สำหรับ draggable/resizable dashboard widgets
+
+---
+
+## Critical Fixes History
+
+### 2026-06-24 — Frontend changes not visible after code edit (Docker rebuild required)
+
+**Problem:** After editing frontend source code, changes were not reflected in the live UI at http://localhost:5173.
+- Caused by manually running a Vite dev server (`npm run dev`) which was killed by Ctrl+C but the actual serving was done by a **Docker container** (`image-web-app`).
+- Subsequent `npm run dev` started a new Vite dev server, but it conflicted with or was shadowed by the Docker container still running on port 5173.
+
+**Fix:** 
+- The frontend runs via **Docker** (`image-web-app` container), not the Vite dev server.
+- After any frontend code change, must rebuild the Docker image and restart:
+  ```bash
+  docker compose build web-app
+  docker compose up -d --no-deps web-app
+  ```
+- Same applies to backend (`image-api`):
+  ```bash
+  docker compose build image-api
+  docker compose up -d --no-deps image-api
+  ```
+- Verify by checking the JS bundle hash in the served `index.html` or grepping for new strings in the built JS.
+
+**Lesson:** Always check which process is actually serving the frontend (Docker vs dev server) before debugging. `docker ps` and `curl http://localhost:5173/ | Select-String "index-"` to confirm.
+
+### 2026-06-24 — scan-now infinite loop + processing-worker SMB access
+
+**Problem 1: scan-now infinite loop**
+- `updateHandler` in `cameras.controller.ts` set `sync:scan-now = 'all'` on EVERY update
+- sync-worker's `updateCameraPoll` called `PATCH /cameras/:id` every cycle → re-triggered scan-now → worker never slept
+- **Fix:** Removed `redis.set('sync:scan-now', ...)` from `updateHandler`. Users click "Scan Now" manually.
+
+**Problem 2: processing-worker file access via mount volume**
+- processing-worker relied on CIFS mount at `/mnt/smb/host/share/` per camera
+- Adding new cameras required docker-compose volume changes → not scalable
+- **Fix:** processing-worker now uses `smbclient` CLI to download TIFF files (same pattern as sync-worker)
+  - `worker.py:_resolve_file()` fetches camera config from `GET /api/v1/cameras/:id`
+  - Uses `smbclient //share -U user%pass -c 'get "relative/path" /tmp/file.tif'`
+  - Deletes temp file after processing
+  - Added `smbclient` to Docker image
+  - Added `api_client.py:get_camera()` for camera config fetch
+
+**Problem 3: stale Redis keys after clear-all-data**
+- `clear-all-data` didn't clear `sync:scan-now`, `sync:scan-now:ids`, `sync:camera:*`, `sync:processed:*` keys
+- **Fix:** Added cleanup of all `sync:*` and `bull:*` keys in `admin.service.ts:clearAllData()`
+
+**Problem 4: `lastPolledAt` silently dropped on camera update**
+- `updateCameraSchema` didn't include `lastPolledAt` → Zod stripped it
+- **Fix:** Added `lastPolledAt: z.string().datetime().optional()` to schema and `updateCamera()` service

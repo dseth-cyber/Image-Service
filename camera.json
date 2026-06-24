@@ -1,0 +1,1 @@
+{"name":"Test-Cam-01","ipAddress":"image-smb-server","smbSharePath":"//image-smb-server/images/cam_1","smbUsername":"camera","smbPasswordEncrypted":"smbpass","pollIntervalSeconds":30,"captureMode":"periodic","retentionPolicyId":"00000000-0000-0000-0000-000000000001"}

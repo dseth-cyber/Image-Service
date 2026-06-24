@@ -87,9 +87,8 @@ export async function searchImages(params: ImageSearchInput): Promise<PaginatedR
       include: {
         camera: { select: { name: true } },
         imageFiles: {
-          where: { fileType: 'thumbnail' },
+          where: { fileType: { in: ['thumbnail', 'processed'] } },
           select: { id: true, fileType: true, fileSizeBytes: true, mimeType: true, storageClass: true },
-          take: 1,
         },
       },
     }),
@@ -97,6 +96,9 @@ export async function searchImages(params: ImageSearchInput): Promise<PaginatedR
 
   const data = rows.map((row) => {
     const r = mapBigInt(row) as Record<string, unknown>;
+    const files = (r.imageFiles as Array<Record<string, unknown>>) ?? [];
+    const thumbFile = files.find((f) => f.fileType === 'thumbnail');
+    const procFile = files.find((f) => f.fileType === 'processed');
     return {
       id: r.id,
       cameraId: r.cameraId,
@@ -107,9 +109,8 @@ export async function searchImages(params: ImageSearchInput): Promise<PaginatedR
       widthPx: r.widthPx,
       heightPx: r.heightPx,
       capturedAt: (r.capturedAt as Date).toISOString(),
-      thumbnailUrl: Array.isArray(r.imageFiles) && r.imageFiles.length > 0
-        ? `/api/v1/images/${r.id}/files/thumbnail`
-        : null,
+      thumbnailUrl: thumbFile ? `/api/v1/images/${r.id}/files/thumbnail` : null,
+      processedFileSizeBytes: procFile?.fileSizeBytes ?? null,
     };
   });
 

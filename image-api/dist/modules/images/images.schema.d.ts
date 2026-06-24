@@ -300,6 +300,8 @@ export declare const imageSummarySchema: z.ZodObject<{
     widthPx: z.ZodNullable<z.ZodNumber>;
     heightPx: z.ZodNullable<z.ZodNumber>;
     capturedAt: z.ZodString;
+    thumbnailUrl: z.ZodNullable<z.ZodString>;
+    processedFileSizeBytes: z.ZodNullable<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
     status: string;
     id: string;
@@ -310,6 +312,8 @@ export declare const imageSummarySchema: z.ZodObject<{
     heightPx: number | null;
     capturedAt: string;
     cameraName: string;
+    thumbnailUrl: string | null;
+    processedFileSizeBytes: number | null;
 }, {
     status: string;
     id: string;
@@ -320,6 +324,8 @@ export declare const imageSummarySchema: z.ZodObject<{
     heightPx: number | null;
     capturedAt: string;
     cameraName: string;
+    thumbnailUrl: string | null;
+    processedFileSizeBytes: number | null;
 }>;
 export type ImageSearchInput = z.infer<typeof imageSearchSchema>;
 export type UpdateMetadataInput = z.infer<typeof updateMetadataSchema>;

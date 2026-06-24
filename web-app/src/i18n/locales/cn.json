@@ -12,10 +12,12 @@
       "cameraStatus": "摄像头状态",
       "imagesByCamera": "按摄像头统计图像",
       "imagesToday": "今日图像",
+      "perHour": "/小时",
       "editLayout": "编辑布局",
       "resetLayout": "重置布局",
       "finishEditing": "完成编辑",
       "dragHint": "拖拽卡片重新排列，或拖拽右下角调整大小",
+      "files": "个文件",
       "queueTitle": "队列长度 (BullMQ)",
       "queueWait": "等待中",
       "queueActive": "处理中",
@@ -31,6 +33,25 @@
       "minioObjectCount": "对象数量",
       "minioWriteThroughput": "写入吞吐量",
       "minioReadThroughput": "读取吞吐量 (SMB)"
+    },
+    "trends": {
+      "title": "高管趋势",
+      "todayImages": "今日图像",
+      "totalImages": "总图像数",
+      "currentLabel": "当前周期",
+      "previousLabel": "上一周期",
+      "dailyImages": "每日图像",
+      "dailyStorage": "每日存储 (MB)",
+      "period": {
+        "7d": "7 天",
+        "14d": "14 天",
+        "21d": "21 天",
+        "28d": "28 天",
+        "4m": "4 个月",
+        "8m": "8 个月",
+        "12m": "12 个月",
+        "5y": "5 年"
+      }
     },
     "search": {
       "title": "图像搜索",
@@ -70,7 +91,16 @@
       "processed": "处理日期",
       "fileTypeRaw": "原始",
       "fileTypeProcessed": "已处理",
-      "fileTypeThumbnail": "缩略图"
+      "fileTypeThumbnail": "缩略图",
+      "processedSize": "处理后大小",
+      "recentImages": "最近图像",
+      "filename": "文件名",
+      "size": "大小",
+      "capturedAt": "拍摄时间",
+      "status": "状态",
+      "statusPending": "待处理",
+      "statusProcessed": "已处理",
+      "statusError": "错误"
     },
     "cameras": {
       "title": "摄像头管理",
@@ -106,7 +136,8 @@
       "shares": "共享",
       "useCurrentFolder": "使用当前文件夹",
       "scanNow": "立即扫描",
-      "scanTriggered": "扫描已触发，将在不久后轮询所有相机"
+      "scanTriggered": "扫描已触发，将在不久后轮询所有相机",
+      "cameraInfo": "摄像头信息"
     },
     "storage": {
       "title": "存储监控",
@@ -114,6 +145,7 @@
       "totalFiles": "总文件数",
       "totalSize": "总大小",
       "byFileType": "按文件类型",
+      "types": "种",
       "byCamera": "按摄像头",
       "growthTrend": "增长趋势",
       "days": "天",
@@ -349,10 +381,13 @@
       "confirmPassword": "确认新密码",
       "passwordChanged": "密码修改成功",
       "passwordMismatch": "密码不匹配",
+      "unauthorized": "访问被拒绝",
+      "unauthorizedDesc": "您没有权限访问此资源，请联系系统管理员",
       "passwordTooShort": "密码至少需要6个字符",
       "noAccount": "还没有账户？在此注册"
     },
     "nav": {
+      "imageService": "图像服务",
       "overview": "概览",
       "cameras": "摄像头",
       "search": "搜索",
@@ -878,6 +913,7 @@
     "remove": "移除",
     "save": "保存",
     "saving": "保存中...",
+    "back": "返回",
     "error": "错误",
     "prev": "上一页",
     "next": "下一页",

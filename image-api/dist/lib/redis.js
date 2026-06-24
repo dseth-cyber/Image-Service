@@ -1,0 +1,14 @@
+import Redis from 'ioredis';
+import { config } from '../config/index.js';
+let redisClient = null;
+export function getRedisClient() {
+    if (!redisClient) {
+        redisClient = new Redis({
+            host: config.redis.host,
+            port: config.redis.port,
+            maxRetriesPerRequest: null,
+        });
+    }
+    return redisClient;
+}
+//# sourceMappingURL=redis.js.map

@@ -1,9 +1,11 @@
 import { getPrisma } from '../../lib/prisma.js';
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export async function createAuditLog(input) {
     const prisma = getPrisma();
+    const validUserId = input.userId && UUID_REGEX.test(input.userId) ? input.userId : null;
     return prisma.auditLog.create({
         data: {
-            userId: input.userId ?? null,
+            userId: validUserId,
             action: input.action,
             entity: input.entity,
             entityId: input.entityId ?? null,

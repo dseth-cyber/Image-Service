@@ -270,7 +270,7 @@ export async function getProcessingStats() {
   const hourlyJobs = await prisma.processingJob.count({
     where: { completedAt: { gte: lastHour } },
   });
-  const processingRate = `${hourlyJobs}/hr`;
+  const processingRate = hourlyJobs;
 
   // Recent activity (daily image counts for last 7 days)
   const dayMap: Record<string, number> = {};
@@ -342,6 +342,93 @@ export async function getProcessingStats() {
     queue,
     postgres: pgMetrics,
     minio: minioMetrics,
+  };
+}
+
+export async function getTrends(period: string) {
+  const prisma = getPrisma();
+  const now = new Date();
+
+  const periodMap: Record<string, number> = {
+    '7d': 7, '14d': 14, '21d': 21, '28d': 28,
+    '4m': 120, '8m': 240, '12m': 365, '5y': 1825,
+  };
+  const days = periodMap[period] ?? 7;
+  const currentStart = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+  const previousStart = new Date(currentStart.getTime() - days * 24 * 60 * 60 * 1000);
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  const [
+    todayImages,
+    totalImages,
+    currentImages,
+    previousImages,
+    currentStorage,
+    previousStorage,
+    currentJobs,
+    previousJobs,
+    dailyImages,
+  ] = await Promise.all([
+    prisma.image.count({ where: { capturedAt: { gte: todayStart } } }),
+    prisma.image.count(),
+    prisma.image.count({ where: { capturedAt: { gte: currentStart } } }),
+    prisma.image.count({ where: { capturedAt: { gte: previousStart, lt: currentStart } } }),
+    prisma.imageFile.aggregate({
+      where: { createdAt: { gte: currentStart } },
+      _sum: { fileSizeBytes: true },
+    }),
+    prisma.imageFile.aggregate({
+      where: { createdAt: { gte: previousStart, lt: currentStart } },
+      _sum: { fileSizeBytes: true },
+    }),
+    prisma.processingJob.count({ where: { completedAt: { gte: currentStart } } }),
+    prisma.processingJob.count({ where: { completedAt: { gte: previousStart, lt: currentStart } } }),
+    // Daily breakdown for current period
+    prisma.image.findMany({
+      where: { capturedAt: { gte: currentStart } },
+      select: { capturedAt: true, fileSizeBytes: true },
+      orderBy: { capturedAt: 'asc' },
+    }),
+  ]);
+
+  const currentStorageBytes = Number(currentStorage._sum.fileSizeBytes ?? 0n);
+  const previousStorageBytes = Number(previousStorage._sum.fileSizeBytes ?? 0n);
+
+  // Build daily breakdown
+  const dayBuckets: Record<string, { images: number; storage: number }> = {};
+  for (let i = 0; i < days; i++) {
+    const d = new Date(currentStart.getTime() + i * 24 * 60 * 60 * 1000);
+    dayBuckets[d.toISOString().slice(0, 10)] = { images: 0, storage: 0 };
+  }
+  for (const img of dailyImages) {
+    const day = img.capturedAt.toISOString().slice(0, 10);
+    if (dayBuckets[day]) {
+      dayBuckets[day].images += 1;
+      dayBuckets[day].storage += Number(img.fileSizeBytes ?? 0n);
+    }
+  }
+  const dailyBreakdown = Object.entries(dayBuckets).map(([date, v]) => ({
+    date,
+    images: v.images,
+    storage: v.storage,
+  }));
+
+  const calcChange = (cur: number, prev: number) =>
+    prev > 0 ? Math.round(((cur - prev) / prev) * 100) : cur > 0 ? 100 : 0;
+
+  return {
+    period,
+    days,
+    today: { images: todayImages },
+    total: { images: totalImages },
+    current: { images: currentImages, storage: currentStorageBytes, jobs: currentJobs },
+    previous: { images: previousImages, storage: previousStorageBytes, jobs: previousJobs },
+    change: {
+      images: calcChange(currentImages, previousImages),
+      storage: calcChange(currentStorageBytes, previousStorageBytes),
+      jobs: calcChange(currentJobs, previousJobs),
+    },
+    dailyBreakdown,
   };
 }
 

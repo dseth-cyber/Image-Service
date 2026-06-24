@@ -1,6 +1,8 @@
 import { Prisma } from '@prisma/client';
 import { getPrisma } from '../../lib/prisma.js';
 import { NotFoundError } from '../../lib/errors.js';
+import { getRedisClient } from '../../lib/redis.js';
+import { getAllConfigs } from '../system-config/system-config.service.js';
 function mapBigInt(obj) {
     if (obj === null || obj === undefined)
         return obj;
@@ -87,9 +89,102 @@ export async function searchProcessingLogs(params) {
         },
     };
 }
+let lastTxCount = 0;
+let lastTxTime = Date.now();
+async function getPgMetrics(prisma) {
+    try {
+        const [activeConnRes, locksRes, deadlocksRes, txRes] = await Promise.all([
+            prisma.$queryRawUnsafe("SELECT COUNT(*)::bigint as count FROM pg_stat_activity"),
+            prisma.$queryRawUnsafe("SELECT COUNT(*)::bigint as count FROM pg_locks"),
+            prisma.$queryRawUnsafe("SELECT COALESCE(SUM(deadlocks), 0)::bigint as deadlocks FROM pg_stat_database WHERE datname = current_database()"),
+            prisma.$queryRawUnsafe("SELECT COALESCE(SUM(xact_commit + xact_rollback), 0)::bigint as tx FROM pg_stat_database WHERE datname = current_database()")
+        ]);
+        const activeConnections = Number(activeConnRes[0]?.count ?? 0);
+        const locks = Number(locksRes[0]?.count ?? 0);
+        const deadlocks = Number(deadlocksRes[0]?.deadlocks ?? 0);
+        const currentTx = Number(txRes[0]?.tx ?? 0);
+        const now = Date.now();
+        const elapsed = (now - lastTxTime) / 1000;
+        let tps = 0;
+        if (lastTxCount > 0 && elapsed > 0) {
+            tps = Math.max(0, Math.round((currentTx - lastTxCount) / elapsed));
+        }
+        lastTxCount = currentTx;
+        lastTxTime = now;
+        return { tps, activeConnections, locks, deadlocks };
+    }
+    catch (err) {
+        return { tps: 0, activeConnections: 0, locks: 0, deadlocks: 0 };
+    }
+}
+async function getMinioMetrics(prisma) {
+    try {
+        const [totalStats, recentStats, recentRawStats] = await Promise.all([
+            prisma.imageFile.aggregate({
+                _count: { id: true },
+                _sum: { fileSizeBytes: true }
+            }),
+            prisma.imageFile.aggregate({
+                where: {
+                    createdAt: {
+                        gte: new Date(Date.now() - 30 * 1000)
+                    }
+                },
+                _sum: { fileSizeBytes: true }
+            }),
+            prisma.imageFile.aggregate({
+                where: {
+                    fileType: 'raw',
+                    createdAt: {
+                        gte: new Date(Date.now() - 30 * 1000)
+                    }
+                },
+                _sum: { fileSizeBytes: true }
+            })
+        ]);
+        const objectCount = Number(totalStats._count.id ?? 0);
+        const bucketSize = Number(totalStats._sum.fileSizeBytes ?? 0n);
+        const recentBytes = Number(recentStats._sum.fileSizeBytes ?? 0n);
+        const writeMbPerSec = Number((recentBytes / (1024 * 1024) / 30).toFixed(2));
+        const recentRawBytes = Number(recentRawStats._sum.fileSizeBytes ?? 0n);
+        const readMbPerSec = Number((recentRawBytes / (1024 * 1024) / 30).toFixed(2));
+        return {
+            writeMbPerSec,
+            readMbPerSec,
+            objectCount,
+            bucketSize
+        };
+    }
+    catch (err) {
+        return { writeMbPerSec: 0, readMbPerSec: 0, objectCount: 0, bucketSize: 0 };
+    }
+}
+async function getQueueMetrics() {
+    try {
+        const redis = getRedisClient();
+        const [wait, active, failed, delayed] = await Promise.all([
+            redis.llen('bull:image-processing:wait'),
+            redis.llen('bull:image-processing:active'),
+            redis.zcard('bull:image-processing:failed'),
+            redis.zcard('bull:image-processing:delayed')
+        ]);
+        return {
+            wait: Number(wait),
+            active: Number(active),
+            failed: Number(failed),
+            delayed: Number(delayed)
+        };
+    }
+    catch (err) {
+        return { wait: 0, active: 0, failed: 0, delayed: 0 };
+    }
+}
 export async function getProcessingStats() {
     const prisma = getPrisma();
-    const [statusCounts, typeCounts] = await Promise.all([
+    const now = new Date();
+    const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const lastHour = new Date(now.getTime() - 60 * 60 * 1000);
+    const [statusCounts, typeCounts, queue, pgMetrics, minioMetrics, totalImages, cameraCounts, fileTypeStats, recentImages, cameraList, configs,] = await Promise.all([
         prisma.processingJob.groupBy({
             by: ['status'],
             _count: { id: true },
@@ -98,6 +193,26 @@ export async function getProcessingStats() {
             by: ['jobType'],
             _count: { id: true },
         }),
+        getQueueMetrics(),
+        getPgMetrics(prisma),
+        getMinioMetrics(prisma),
+        prisma.image.count(),
+        prisma.camera.groupBy({
+            by: ['status'],
+            _count: { id: true },
+        }),
+        prisma.imageFile.groupBy({
+            by: ['fileType'],
+            _sum: { fileSizeBytes: true },
+            _count: { id: true },
+        }),
+        prisma.image.groupBy({
+            by: ['capturedAt'],
+            where: { capturedAt: { gte: last7Days } },
+            _count: { id: true },
+        }),
+        prisma.camera.findMany({ select: { id: true, name: true } }),
+        getAllConfigs(),
     ]);
     const byStatus = {};
     for (const s of statusCounts) {
@@ -112,14 +227,98 @@ export async function getProcessingStats() {
     const failed = byStatus['failed'] ?? 0;
     const running = byStatus['running'] ?? 0;
     const queued = byStatus['queued'] ?? 0;
+    // Camera counts
+    let activeCameras = 0;
+    let inactiveCameras = 0;
+    let errorCameras = 0;
+    for (const c of cameraCounts) {
+        if (c.status === 'active')
+            activeCameras = c._count.id;
+        else if (c.status === 'inactive')
+            inactiveCameras = c._count.id;
+        else if (c.status === 'error')
+            errorCameras = c._count.id;
+    }
+    // Storage by type
+    const storageByType = fileTypeStats.map((f) => ({
+        name: f.fileType,
+        value: Number(f._count.id ?? 0),
+    }));
+    // Storage used from minio bucketSize
+    const storageUsed = minioMetrics.bucketSize;
+    // Processing rate (last hour)
+    const hourlyJobs = await prisma.processingJob.count({
+        where: { completedAt: { gte: lastHour } },
+    });
+    const processingRate = hourlyJobs;
+    // Recent activity (daily image counts for last 7 days)
+    const dayMap = {};
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        dayMap[d.toISOString().slice(0, 10)] = 0;
+    }
+    for (const r of recentImages) {
+        const day = new Date(r.capturedAt).toISOString().slice(0, 10);
+        if (dayMap[day] !== undefined)
+            dayMap[day] = r._count.id;
+    }
+    const recentActivity = Object.entries(dayMap)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([label, value]) => ({ label: label.slice(5), value }));
+    // Storage growth (daily bytes for last 7 days)
+    const dailyStorage = await prisma.imageFile.groupBy({
+        by: ['createdAt'],
+        where: { createdAt: { gte: last7Days } },
+        _sum: { fileSizeBytes: true },
+    });
+    const storageDayMap = {};
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        storageDayMap[d.toISOString().slice(0, 10)] = 0;
+    }
+    for (const r of dailyStorage) {
+        const day = new Date(r.createdAt).toISOString().slice(0, 10);
+        if (storageDayMap[day] !== undefined) {
+            storageDayMap[day] += Number(r._sum.fileSizeBytes ?? 0n);
+        }
+    }
+    const storageGrowth = Object.entries(storageDayMap)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([label, value]) => ({ label: label.slice(5), value }));
+    // Images by camera
+    const imagesByCameraData = await prisma.image.groupBy({
+        by: ['cameraId'],
+        _count: { id: true },
+    });
+    const cameraMap = new Map(cameraList.map((c) => [c.id, c.name]));
+    const imagesByCamera = imagesByCameraData
+        .map((d) => ({
+        name: cameraMap.get(d.cameraId) ?? d.cameraId,
+        value: d._count.id,
+    }))
+        .sort((a, b) => b.value - a.value);
     return {
         total,
+        totalImages,
         completed,
         failed,
         running,
         queued,
+        activeCameras,
+        inactiveCameras,
+        errorCameras,
+        storageUsed,
+        storageTotal: (Number(configs.max_storage_gb?.value ?? 1000)) * 1024 * 1024 * 1024,
+        processingRate,
+        recentActivity,
+        storageGrowth,
+        imagesByCamera,
+        storageByType,
         byStatus,
         byType,
+        queue,
+        postgres: pgMetrics,
+        minio: minioMetrics,
     };
 }
 export async function getStreamData() {
