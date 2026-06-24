@@ -127,7 +127,8 @@ export class SmbClient {
   }
 
   async readdir(dirPath: string): Promise<SmbFileEntry[]> {
-    let lsPath = dirPath.replace(/\\/g, '/').replace(/\/$/, '');
+    // Convert backslashes to forward slashes and strip leading/trailing slashes
+    let lsPath = dirPath.replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
     // Append /* to query folder contents; handle spaces in path
     const glob = lsPath ? `"${lsPath}/*"` : '*';
     const cmd = `ls ${glob}`;
