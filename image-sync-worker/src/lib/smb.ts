@@ -190,7 +190,7 @@ export class SmbClient {
  *   1055762868 blocks of size 1024. 828648528 blocks available
  */
 
-const LS_LINE_REGEX = /^\s*(.+?)\s+([DN])\s+(\d+)\s+(.+?)\s+(\d{4})$/;
+const LS_LINE_REGEX = /^\s*(.+?)\s+([DNAHRS]+)\s+(\d+)\s+(.+?)\s+(\d{4})$/;
 
 function parseLsOutput(stdout: string): SmbFileEntry[] {
   const lines = stdout.split('\n');
@@ -201,7 +201,7 @@ function parseLsOutput(stdout: string): SmbFileEntry[] {
     if (!m) continue;
     const filename = m[1].trim();
     if (filename === '.' || filename === '..') continue;
-    const typeChar = m[2];
+    const attrs = m[2];
     const size = parseInt(m[3], 10);
     const dateStr = `${m[4]} ${m[5]}`;
     const mtime = new Date(dateStr);
@@ -209,7 +209,7 @@ function parseLsOutput(stdout: string): SmbFileEntry[] {
       Filename: filename,
       size,
       mtime,
-      isDirectory: typeChar === 'D',
+      isDirectory: attrs === 'D' || attrs.includes('D'),
     });
   }
 
