@@ -39,7 +39,7 @@ async function deactivateHandler(request: FastifyRequest, reply: FastifyReply) {
   return reply.status(204).send();
 }
 
-async function scanNowHandler(request: FastifyRequest, reply: FastifyReply) {
+async function scanNowHandler(_request: FastifyRequest, reply: FastifyReply) {
   const redis = getRedisClient();
   await redis.set('sync:scan-now', 'all', 'EX', 60);
   return reply.status(200).send({ message: 'Scan triggered' });
