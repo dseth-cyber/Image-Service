@@ -105,7 +105,13 @@
       "shares": "Shares",
       "useCurrentFolder": "Use current folder",
       "scanNow": "Scan Now",
-      "scanTriggered": "Scan triggered, cameras will be polled shortly"
+      "scanTriggered": "Scan triggered, cameras will be polled shortly",
+      "cameraInfo": "Camera Information",
+      "filename": "Filename",
+      "size": "Size",
+      "capturedAt": "Captured At",
+      "recentImages": "Recent Images",
+      "statusProcessed": "Processed"
     },
     "storage": {
       "title": "Storage Monitoring",
@@ -908,6 +914,7 @@
     "of": "of",
     "system": "System",
     "mb": "MB",
-    "browse": "Browse"
+    "browse": "Browse",
+    "back": "Back"
   }
 }

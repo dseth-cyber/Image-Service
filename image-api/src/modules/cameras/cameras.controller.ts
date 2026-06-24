@@ -45,6 +45,14 @@ async function scanNowHandler(_request: FastifyRequest, reply: FastifyReply) {
   return reply.status(200).send({ message: 'Scan triggered' });
 }
 
+async function scanCameraHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as { id: string };
+  const redis = getRedisClient();
+  await redis.sadd('sync:scan-now:ids', id);
+  await redis.expire('sync:scan-now:ids', 60);
+  return reply.status(200).send({ message: `Scan triggered for camera ${id}` });
+}
+
 export async function cameraRoutes(app: FastifyInstance): Promise<void> {
   app.get(
     '/',
@@ -55,6 +63,11 @@ export async function cameraRoutes(app: FastifyInstance): Promise<void> {
     '/scan-now',
     { preHandler: [app.authenticate, requirePermission('cameras:update')] },
     scanNowHandler,
+  );
+  app.post(
+    '/:id/scan',
+    { preHandler: [app.authenticate, requirePermission('cameras:update')] },
+    scanCameraHandler,
   );
   app.get(
     '/:id',

@@ -37,6 +37,8 @@ export function createImageServiceApi(api: any) {
 
     scanNow: () => api.post(`${BASE}/cameras/scan-now`).then((r: any) => r.data),
 
+    scanCamera: (id: string) => api.post(`${BASE}/cameras/${id}/scan`).then((r: any) => r.data),
+
     // Retention Policies
     getRetentionPolicies: () =>
       api.get(`${BASE}/retention-policies`).then((r: any) => r.data),

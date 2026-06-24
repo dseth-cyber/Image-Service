@@ -10,6 +10,7 @@ import { Button, Modal } from '@/components/ui'
 import LoginPage from '@/pages/auth/LoginPage'
 import ImageServiceOverview from '@/pages/image-service/ImageServiceOverview'
 import ImageServiceCameras from '@/pages/image-service/ImageServiceCameras'
+import ImageServiceCameraDetail from '@/pages/image-service/ImageServiceCameraDetail'
 import ImageServiceSearch from '@/pages/image-service/ImageServiceSearch'
 import ImageServiceProcessingMonitor from '@/pages/image-service/ImageServiceProcessingMonitor'
 import ImageServiceStorage from '@/pages/image-service/ImageServiceStorage'
@@ -477,6 +478,9 @@ export default function App() {
             } />
             <Route path="/image-service/cameras" element={
               hasPermission(user, 'cameras:read') ? <ImageServiceCameras /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/cameras/:id" element={
+              hasPermission(user, 'cameras:read') ? <ImageServiceCameraDetail /> : <UnauthorizedPage />
             } />
             <Route path="/image-service/search" element={
               hasPermission(user, 'search:read') ? <ImageServiceSearch /> : <UnauthorizedPage />

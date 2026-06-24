@@ -1,13 +1,14 @@
 import { useState, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/contexts/ToastContext';
 import { imageServiceApi } from '@/services/imageServiceApi';
 import { formatDateTime } from '@/utils/dateUtils';
 import { Search, Plus, ChevronUp, ChevronDown, ChevronsUpDown,
   Edit, Trash2, Eye, Camera, Activity, Wifi, WifiOff, AlertTriangle, Wrench,
-  FolderOpen, RefreshCw, CheckCircle, XCircle, ExternalLink, ChevronRight } from 'lucide-react';
+  FolderOpen, RefreshCw, CheckCircle, XCircle, ExternalLink, ChevronRight, Play } from 'lucide-react';
 import { Modal, Button, SearchableSelect, TableSkeleton, ColumnSelector } from '@/components/ui';
 import { getLocalizedValue } from '@/utils/textUtils';
 
@@ -30,6 +31,7 @@ export default function ImageServiceCameras() {
   const { themeConfig } = useTheme();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -110,6 +112,7 @@ export default function ImageServiceCameras() {
   };
 
   const [scanning, setScanning] = useState(false);
+  const [scanningCameras, setScanningCameras] = useState<Set<string>>(new Set());
 
   const handleScanNow = async () => {
     setScanning(true);
@@ -119,6 +122,18 @@ export default function ImageServiceCameras() {
       setTimeout(() => queryClient.invalidateQueries({ queryKey: ['cameras-list'] }), 3000);
     } catch { toast.error(t('common.error')); }
     finally { setScanning(false); }
+  };
+
+  const handleScanCamera = async (id: string) => {
+    setScanningCameras(prev => new Set(prev).add(id));
+    try {
+      await imageServiceApi.scanCamera(id);
+      toast.success(t('imageService.cameras.scanTriggered'));
+      setTimeout(() => queryClient.invalidateQueries({ queryKey: ['cameras-list'] }), 3000);
+    } catch { toast.error(t('common.error')); }
+    finally {
+      setScanningCameras(prev => { const next = new Set(prev); next.delete(id); return next; });
+    }
   };
 
   const handleTestConnection = async () => {
@@ -307,7 +322,10 @@ export default function ImageServiceCameras() {
                     <td className={`px-4 py-3 text-sm font-medium ${themeConfig.text.primary}`}>
                       <div className="flex items-center gap-2">
                         <Camera size={14} className="text-cyan-400" />
-                        {camera.name}
+                        <button onClick={() => navigate(`/image-service/cameras/${camera.id}`)}
+                          className="hover:text-cyan-300 transition-colors text-left">
+                          {camera.name}
+                        </button>
                       </div>
                     </td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>{camera.ipAddress}</td>
@@ -325,6 +343,11 @@ export default function ImageServiceCameras() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-center gap-1">
+                        <button onClick={() => handleScanCamera(camera.id)}
+                          disabled={scanningCameras.has(camera.id)}
+                          className="p-2 rounded-lg hover:bg-green-500/20">
+                          <RefreshCw size={15} className={`${scanningCameras.has(camera.id) ? 'animate-spin text-green-400' : 'text-green-500'}`} />
+                        </button>
                         <button onClick={() => openEdit(camera)}
                           className="p-2 rounded-lg hover:bg-yellow-500/20"><Edit size={15} className="text-yellow-500" /></button>
                         <button onClick={() => handleDeactivate(camera.id)}

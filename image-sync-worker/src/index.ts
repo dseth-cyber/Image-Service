@@ -89,6 +89,14 @@ async function main(): Promise<void> {
         await redis.del('sync:scan-now');
         continue;
       }
+
+      const scanIds = await redis.smembers('sync:scan-now:ids');
+      if (scanIds.length > 0) {
+        logger.info({ cameraIds: scanIds }, 'Per-camera scan trigger detected — running immediate poll cycle');
+        await redis.del('sync:scan-now:ids');
+        continue;
+      }
+
       await sleep(config.polling.intervalMs);
     }
   }
