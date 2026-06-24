@@ -237,6 +237,10 @@ export function createImageServiceApi(api: any) {
 
     runRestoreTest: (id: string) =>
       api.post(`${BASE}/backup/${id}/restore-test`).then((r: any) => r.data),
+
+    // Admin
+    clearAllData: (data: { password: string; confirmation: string }) =>
+      api.post(`${BASE}/admin/clear-all-data`, data).then((r: any) => r.data),
   };
 }
 

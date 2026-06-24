@@ -909,6 +909,13 @@
     "of": "/",
     "system": "システム",
     "mb": "MB",
-    "browse": "参照"
+    "browse": "参照",
+    "clearData": "全データをクリア",
+    "clearDataWarning": "これにより、すべての画像、処理ジョブ、監査ログ、MinIOオブジェクト、Redisキューが完全に削除されます。カメラ、ユーザー、ロール、システム設定は影響を受けません。この操作は元に戻せません。",
+    "clearDataConfirmLabel": "DELETE と入力して確認",
+    "clearDataPasswordLabel": "パスワードを入力",
+    "clearDataSubmit": "全データをクリア",
+    "clearDataSuccess": "全データをクリアしました",
+    "clearDataError": "データのクリアに失敗しました"
   }
 }

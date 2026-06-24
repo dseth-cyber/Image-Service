@@ -179,7 +179,10 @@ async function main() {
 
   const camera = await prisma.camera.upsert({
     where: { id: '00000000-0000-0000-0000-000000000010' },
-    update: {},
+    update: {
+      status: 'active',
+      smbSubdirectoryPattern: 'cam_1',
+    },
     create: {
       id: '00000000-0000-0000-0000-000000000010',
       name: 'Test Camera (SMB)',
@@ -189,6 +192,7 @@ async function main() {
       smbDomain: 'WORKGROUP',
       smbUsername: 'camera',
       smbPasswordEncrypted: 'smbpass',
+      smbSubdirectoryPattern: 'cam_1',
       status: 'active' as CameraStatus,
       pollIntervalSeconds: 15,
       captureMode: 'periodic',

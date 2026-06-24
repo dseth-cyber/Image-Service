@@ -47,7 +47,10 @@ class ProcessingWorker:
         )
 
         await self.minio.ensure_bucket()
-        await self.kafka.start()
+        try:
+            await self.kafka.start()
+        except Exception as e:
+            logger.warning("Kafka not available — continuing without event emission", error=str(e))
 
         semaphore = asyncio.Semaphore(settings.processing_concurrency)
 

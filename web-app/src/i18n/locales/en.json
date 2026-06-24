@@ -916,6 +916,13 @@
     "system": "System",
     "mb": "MB",
     "browse": "Browse",
-    "back": "Back"
+    "back": "Back",
+    "clearData": "Clear All Data",
+    "clearDataWarning": "This will permanently delete ALL images, processing jobs, audit logs, MinIO objects, and Redis queue data. Cameras, users, roles, and system configuration will NOT be affected. This action CANNOT be undone.",
+    "clearDataConfirmLabel": "Type DELETE to confirm",
+    "clearDataPasswordLabel": "Enter your password",
+    "clearDataSubmit": "Clear All Data",
+    "clearDataSuccess": "All data cleared successfully",
+    "clearDataError": "Failed to clear data"
   }
 }

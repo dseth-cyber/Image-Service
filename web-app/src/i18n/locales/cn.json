@@ -909,6 +909,13 @@
     "of": "页，共",
     "system": "系统",
     "mb": "MB",
-    "browse": "浏览"
+    "browse": "浏览",
+    "clearData": "清除所有数据",
+    "clearDataWarning": "这将永久删除所有图像、处理作业、审计日志、MinIO对象和Redis队列数据。摄像头、用户、角色和系统配置不会受到影响。此操作无法撤销。",
+    "clearDataConfirmLabel": "输入 DELETE 确认",
+    "clearDataPasswordLabel": "输入您的密码",
+    "clearDataSubmit": "清除所有数据",
+    "clearDataSuccess": "所有数据已成功清除",
+    "clearDataError": "清除数据失败"
   }
 }
