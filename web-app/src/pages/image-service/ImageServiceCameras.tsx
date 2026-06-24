@@ -86,7 +86,10 @@ export default function ImageServiceCameras() {
     try {
       setSubmitting(true);
       if (modal.item) {
-        await imageServiceApi.updateCamera(modal.item.id, form);
+        const payload = { ...form };
+        if (!payload.smbPasswordEncrypted) delete payload.smbPasswordEncrypted;
+        if (!payload.smbDomain) delete payload.smbDomain;
+        await imageServiceApi.updateCamera(modal.item.id, payload);
         toast.success(t('imageService.cameras.updated'));
       } else {
         await imageServiceApi.createCamera(form);
