@@ -103,7 +103,9 @@
       "testConnection": "测试连接",
       "browseSmb": "浏览SMB共享",
       "shares": "共享",
-      "useCurrentFolder": "使用当前文件夹"
+      "useCurrentFolder": "使用当前文件夹",
+      "scanNow": "立即扫描",
+      "scanTriggered": "扫描已触发，将在不久后轮询所有相机"
     },
     "storage": {
       "title": "存储监控",

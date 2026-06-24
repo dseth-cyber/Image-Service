@@ -82,6 +82,11 @@ async function main(): Promise<void> {
     }
 
     if (!shutdownRequested) {
+      const scanNow = await redis.get('sync:scan-now');
+      if (scanNow === 'all') {
+        await redis.del('sync:scan-now');
+        continue;
+      }
       await sleep(config.polling.intervalMs);
     }
   }

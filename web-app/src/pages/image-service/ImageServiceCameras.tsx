@@ -109,6 +109,18 @@ export default function ImageServiceCameras() {
     } catch { toast.error(t('common.error')); }
   };
 
+  const [scanning, setScanning] = useState(false);
+
+  const handleScanNow = async () => {
+    setScanning(true);
+    try {
+      await imageServiceApi.scanNow();
+      toast.success(t('imageService.cameras.scanTriggered'));
+      setTimeout(() => queryClient.invalidateQueries({ queryKey: ['cameras-list'] }), 3000);
+    } catch { toast.error(t('common.error')); }
+    finally { setScanning(false); }
+  };
+
   const handleTestConnection = async () => {
     if (!form.smbSharePath || !form.smbUsername) { toast.warning(t('common.requiredFields')); return; }
     setTestResult({ loading: true });
@@ -256,9 +268,15 @@ export default function ImageServiceCameras() {
               }))} />
           </div>
         </div>
-        <Button onClick={openCreate}>
-          <Plus size={16} className="mr-1.5" /> {t('imageService.cameras.newCamera')}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={openCreate}>
+            <Plus size={16} className="mr-1.5" /> {t('imageService.cameras.newCamera')}
+          </Button>
+          <Button variant="secondary" onClick={handleScanNow} disabled={scanning}>
+            <RefreshCw size={16} className={`mr-1.5 ${scanning ? 'animate-spin' : ''}`} />
+            {t('imageService.cameras.scanNow')}
+          </Button>
+        </div>
       </div>
 
       {isLoading ? <TableSkeleton rows={8} /> : (

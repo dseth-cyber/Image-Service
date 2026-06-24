@@ -103,7 +103,9 @@
       "testConnection": "Test Connection",
       "browseSmb": "Browse SMB Shares",
       "shares": "Shares",
-      "useCurrentFolder": "Use current folder"
+      "useCurrentFolder": "Use current folder",
+      "scanNow": "Scan Now",
+      "scanTriggered": "Scan triggered, cameras will be polled shortly"
     },
     "storage": {
       "title": "Storage Monitoring",

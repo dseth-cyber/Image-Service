@@ -35,6 +35,8 @@ export function createImageServiceApi(api: any) {
 
     deactivateCamera: (id: string) => api.delete(`${BASE}/cameras/${id}`),
 
+    scanNow: () => api.post(`${BASE}/cameras/scan-now`).then((r: any) => r.data),
+
     // Retention Policies
     getRetentionPolicies: () =>
       api.get(`${BASE}/retention-policies`).then((r: any) => r.data),

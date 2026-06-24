@@ -103,7 +103,9 @@
       "testConnection": "接続テスト",
       "browseSmb": "SMB共有を参照",
       "shares": "共有",
-      "useCurrentFolder": "現在のフォルダを使用"
+      "useCurrentFolder": "現在のフォルダを使用",
+      "scanNow": "今すぐスキャン",
+      "scanTriggered": "スキャンを開始しました。まもなくカメラをポーリングします"
     },
     "storage": {
       "title": "ストレージ監視",
