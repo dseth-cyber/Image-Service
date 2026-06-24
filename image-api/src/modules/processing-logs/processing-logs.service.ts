@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 import { getPrisma } from '../../lib/prisma.js';
 import { NotFoundError } from '../../lib/errors.js';
 import { getRedisClient } from '../../lib/redis.js';
+import { getAllConfigs } from '../system-config/system-config.service.js';
 import type { ProcessingLogSearchInput } from './processing-logs.schema.js';
 import type { PaginatedResult } from '../../types/index.js';
 
@@ -198,7 +199,7 @@ export async function getProcessingStats() {
 
   const [
     statusCounts, typeCounts, queue, pgMetrics, minioMetrics,
-    totalImages, cameraCounts, fileTypeStats, recentImages, cameraList,
+    totalImages, cameraCounts, fileTypeStats, recentImages, cameraList, configs,
   ] = await Promise.all([
     prisma.processingJob.groupBy({
       by: ['status'],
@@ -227,6 +228,7 @@ export async function getProcessingStats() {
       _count: { id: true },
     }),
     prisma.camera.findMany({ select: { id: true, name: true } }),
+    getAllConfigs(),
   ]);
 
   const byStatus: Record<string, number> = {};
@@ -329,7 +331,7 @@ export async function getProcessingStats() {
     inactiveCameras,
     errorCameras,
     storageUsed,
-    storageTotal: Number(process.env.STORAGE_TOTAL_BYTES ?? 10 * 1024 * 1024 * 1024),
+    storageTotal: (Number(configs.max_storage_gb?.value ?? 1000)) * 1024 * 1024 * 1024,
     processingRate,
     recentActivity,
     storageGrowth,

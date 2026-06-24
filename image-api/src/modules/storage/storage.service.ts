@@ -5,7 +5,7 @@ import type { StorageSummary } from '../../types/index.js';
 export async function getStorageSummary(): Promise<StorageSummary> {
   const prisma = getPrisma();
 
-  const [fileStats, , latestSnapshot] = await Promise.all([
+  const [fileStats, , latestSnapshot, configs] = await Promise.all([
     prisma.imageFile.groupBy({
       by: ['fileType'],
       _sum: { fileSizeBytes: true },
@@ -20,6 +20,7 @@ export async function getStorageSummary(): Promise<StorageSummary> {
       orderBy: { snapshotDate: 'desc' },
       select: { snapshotDate: true },
     }),
+    getAllConfigs(),
   ]);
 
   const byFileType: Record<string, { files: number; bytes: number }> = {};
@@ -51,7 +52,7 @@ export async function getStorageSummary(): Promise<StorageSummary> {
   return {
     totalFiles,
     totalBytes,
-    totalCapacity: Number(process.env.STORAGE_TOTAL_BYTES ?? 10 * 1024 * 1024 * 1024),
+    totalCapacity: (Number(configs.max_storage_gb?.value ?? 1000)) * 1024 * 1024 * 1024,
     byFileType,
     byCamera,
     snapshotDate: latestSnapshot?.snapshotDate.toISOString().slice(0, 10) ?? new Date().toISOString().slice(0, 10),
