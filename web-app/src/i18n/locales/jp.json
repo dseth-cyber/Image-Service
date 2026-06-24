@@ -96,6 +96,7 @@
       "viewLogs": "ログを表示",
       "captureMode": "キャプチャモード",
       "smbUsername": "SMB ユーザー名",
+      "smbPassword": "SMB パスワード",
       "retentionPolicy": "保持ポリシー",
       "captureModePeriodic": "定期",
       "captureModeOnDemand": "オンデマンド",

@@ -96,6 +96,7 @@
       "viewLogs": "ดู Log",
       "captureMode": "โหมดการจับภาพ",
       "smbUsername": "ชื่อผู้ใช้ SMB",
+      "smbPassword": "รหัสผ่าน SMB",
       "retentionPolicy": "นโยบายการจัดเก็บ",
       "captureModePeriodic": "ตามระยะเวลา",
       "captureModeOnDemand": "ตามความต้องการ",

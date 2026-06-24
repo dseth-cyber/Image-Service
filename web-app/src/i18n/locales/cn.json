@@ -96,6 +96,7 @@
       "viewLogs": "查看日志",
       "captureMode": "采集模式",
       "smbUsername": "SMB 用户名",
+      "smbPassword": "SMB 密码",
       "retentionPolicy": "保留策略",
       "captureModePeriodic": "定时",
       "captureModeOnDemand": "按需",

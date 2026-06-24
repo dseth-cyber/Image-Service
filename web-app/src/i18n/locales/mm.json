@@ -96,6 +96,7 @@
       "viewLogs": "Logs ကြည့်ရန်",
       "captureMode": "ရိုက်ကူးမှုပုံစံ",
       "smbUsername": "SMB သုံးစွဲသူအမည်",
+      "smbPassword": "SMB စကားဝှက်",
       "retentionPolicy": "သိမ်းဆည်းမှုမူဝါဒ",
       "captureModePeriodic": "အချိန်အလိုက်",
       "captureModeOnDemand": "လိုအပ်သလို",

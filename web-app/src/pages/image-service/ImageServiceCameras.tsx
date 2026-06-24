@@ -429,6 +429,14 @@ export default function ImageServiceCameras() {
             </div>
             <div className="col-span-2">
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                {t('imageService.cameras.smbPassword')}
+              </label>
+              <input type="password" value={form.smbPasswordEncrypted}
+                onChange={e => setForm(p => ({ ...p, smbPasswordEncrypted: e.target.value }))}
+                className={`w-full px-4 py-2.5 rounded-md ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`} />
+            </div>
+            <div className="col-span-2">
+              <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
                 {t('imageService.cameras.retentionPolicy')} <span className="text-red-400">*</span>
               </label>
               <SearchableSelect value={form.retentionPolicyId} onChange={v => setForm(p => ({ ...p, retentionPolicyId: v }))}

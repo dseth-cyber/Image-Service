@@ -96,6 +96,7 @@
       "viewLogs": "View Logs",
       "captureMode": "Capture Mode",
       "smbUsername": "SMB Username",
+      "smbPassword": "SMB Password",
       "retentionPolicy": "Retention Policy",
       "captureModePeriodic": "Periodic",
       "captureModeOnDemand": "On Demand",
