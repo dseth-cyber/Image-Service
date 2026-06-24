@@ -52,8 +52,7 @@ async function scanRecursive(
 
   for (const entry of entries) {
     const filename = entry.Filename;
-    logger.debug({ camera: camera.name, filename, isDir: entry.isDirectory, size: entry.size }, 'entry');
-    if (shouldSkip(filename)) continue;
+    if (shouldSkip(filename)) { logger.warn({ filename, reason: 'skip' }, 'skip'); continue; }
 
     if (entry.isDirectory) {
       if (depth < maxDepth) {
@@ -66,11 +65,11 @@ async function scanRecursive(
       continue;
     }
 
-    if (!isTiffFile(filename)) continue;
+    if (!isTiffFile(filename)) { logger.warn({ filename, reason: 'not-tiff' }, 'skip'); continue; }
 
     const ageMs = Date.now() - entry.mtime.getTime();
     if (ageMs < STABILITY_WINDOW_MS) {
-      logger.debug({ camera: camera.name, file: filename }, 'File too recent, deferring');
+      logger.warn({ filename, ageMs, reason: 'too-recent' }, 'skip');
       continue;
     }
 
@@ -88,6 +87,7 @@ async function scanRecursive(
     });
   }
 
+  logger.info({ camera: camera.name, discovered: discovered.length }, 'scanRecursive done');
   return discovered;
 }
 
