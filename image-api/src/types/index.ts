@@ -23,6 +23,7 @@ export interface PaginatedResult<T> {
 export interface StorageSummary {
   totalFiles: number;
   totalBytes: number;
+  totalCapacity: number;
   byFileType: Record<string, { files: number; bytes: number }>;
   byCamera: Array<{
     cameraId: string;

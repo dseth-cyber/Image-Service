@@ -85,7 +85,7 @@ export default function ImageServiceStorage() {
 
   const statsCards = [
     { label: t('imageService.storage.totalFiles'), value: (summary?.totalFiles ?? 0).toLocaleString(), icon: FileImage, color: '#06b6d4' },
-    { label: t('imageService.storage.totalSize'), value: formatBytes(summary?.totalBytes ?? 0), icon: HardDrive, color: '#8b5cf6' },
+    { label: t('imageService.storage.totalSize'), value: `${formatBytes(summary?.totalBytes ?? 0)} / ${formatBytes(summary?.totalCapacity ?? 0)}`, icon: HardDrive, color: '#8b5cf6' },
     { label: t('imageService.storage.byFileType'), value: `${byFileType.length} types`, icon: Archive, color: '#f59e0b' },
     { label: t('imageService.storage.growthTrend'), value: growthData.length > 1
       ? growthData[growthData.length - 1].value > growthData[0].value ? t('common.increasing') : t('common.stable')

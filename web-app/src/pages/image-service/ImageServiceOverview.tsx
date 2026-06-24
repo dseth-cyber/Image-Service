@@ -115,7 +115,7 @@ export default function ImageServiceOverview() {
   const stats = [
     { label: t('imageService.overview.totalImages'), value: overview?.totalImages?.toLocaleString() ?? '—', icon: Image, color: '#06b6d4' },
     { label: t('imageService.overview.activeCameras'), value: overview?.activeCameras ?? '—', icon: Camera, color: '#10b981' },
-    { label: t('imageService.overview.storageUsed'), value: overview?.storageUsed ?? '—', icon: HardDrive, color: '#8b5cf6' },
+    { label: t('imageService.overview.storageUsed'), value: overview?.storageUsed != null ? `${formatBytes(overview.storageUsed)} / ${formatBytes(overview.storageTotal ?? 0)}` : '—', icon: HardDrive, color: '#8b5cf6' },
     { label: t('imageService.overview.processingRate'), value: overview?.processingRate ?? '—', icon: Activity, color: '#f59e0b' },
   ];
 

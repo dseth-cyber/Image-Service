@@ -329,6 +329,7 @@ export async function getProcessingStats() {
     inactiveCameras,
     errorCameras,
     storageUsed,
+    storageTotal: Number(process.env.STORAGE_TOTAL_BYTES ?? 10 * 1024 * 1024 * 1024),
     processingRate,
     recentActivity,
     storageGrowth,

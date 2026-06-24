@@ -51,6 +51,7 @@ export async function getStorageSummary(): Promise<StorageSummary> {
   return {
     totalFiles,
     totalBytes,
+    totalCapacity: Number(process.env.STORAGE_TOTAL_BYTES ?? 10 * 1024 * 1024 * 1024),
     byFileType,
     byCamera,
     snapshotDate: latestSnapshot?.snapshotDate.toISOString().slice(0, 10) ?? new Date().toISOString().slice(0, 10),

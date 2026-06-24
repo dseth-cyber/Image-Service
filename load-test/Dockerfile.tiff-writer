@@ -1,0 +1,8 @@
+FROM python:3.12-slim
+
+RUN pip install Pillow --quiet
+
+COPY generate_realistic_tiff.py /scripts/generate_realistic_tiff.py
+COPY tiff_writer.py /scripts/tiff_writer.py
+
+ENTRYPOINT ["python", "/scripts/tiff_writer.py"]
