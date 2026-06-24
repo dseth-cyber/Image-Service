@@ -48,9 +48,11 @@ async function scanRecursive(
 
   const discovered: SyncFile[] = [];
   const entries: SmbFileEntry[] = await smb.readdir(dirPath);
+  logger.info({ camera: camera.name, dirPath, entryCount: entries.length }, 'readdir result');
 
   for (const entry of entries) {
     const filename = entry.Filename;
+    logger.debug({ camera: camera.name, filename, isDir: entry.isDirectory, size: entry.size }, 'entry');
     if (shouldSkip(filename)) continue;
 
     if (entry.isDirectory) {
