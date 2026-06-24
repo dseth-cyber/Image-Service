@@ -3,6 +3,8 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import subprocess
+import tempfile
 from redis.asyncio import Redis
 from src.config import settings
 from src.logger import logger
@@ -137,20 +139,18 @@ class ProcessingWorker:
         try:
             await self.api.update_image_status(job.image_id, "processing")
 
-            local_path = self._resolve_path(job.smb_path)
-            if not os.path.exists(local_path):
-                raise ProcessingError(
-                    f"File not found: {local_path}",
-                    stage="file_access",
-                    recoverable=False,
-                )
+            local_path = await self._resolve_file(job)
 
-            result, png_data, thumb_data = process_tiff(
-                filepath=local_path,
-                image_id=job.image_id,
-                original_filename=job.original_filename,
-                camera_id=job.camera_id,
-            )
+            try:
+                result, png_data, thumb_data = process_tiff(
+                    filepath=local_path,
+                    image_id=job.image_id,
+                    original_filename=job.original_filename,
+                    camera_id=job.camera_id,
+                )
+            finally:
+                if job.smb_share_path and os.path.exists(local_path):
+                    os.unlink(local_path)
 
             await self.minio.upload_tiff(result.raw_object_key, b"")
             await self.minio.upload_png(result.png_object_key, png_data)
@@ -201,19 +201,59 @@ class ProcessingWorker:
             )
             await self._fail(job, job_id, str(e), "unknown")
 
-    def _resolve_path(self, smb_path: str) -> str:
-        mount = settings.smb_mount_path.rstrip("/")
-        cleaned = smb_path.replace("\\", "/")
+    async def _resolve_file(self, job: ProcessingJob) -> str:
+        if job.smb_share_path:
+            share = job.smb_share_path.rstrip("/")
+            relative = job.smb_path[len(share):].lstrip("/")
+            tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".tif")
+            tmp.close()
+            creds = f"{job.smb_username}%{job.smb_password}"
+            cmd = ["smbclient", share, "-U", creds]
+            if job.smb_domain:
+                cmd.extend(["-W", job.smb_domain])
+            cmd.extend(["-c", f'get "{relative}" "{tmp.name}"'])
+            try:
+                subprocess.run(cmd, check=True, capture_output=True, timeout=120)
+            except subprocess.CalledProcessError as e:
+                os.unlink(tmp.name)
+                stderr = (e.stderr or b"").decode(errors="replace").strip()
+                raise ProcessingError(
+                    f"SMB download failed: {stderr or e}",
+                    stage="file_access",
+                    recoverable=True,
+                )
+            except (OSError, subprocess.TimeoutExpired) as e:
+                if os.path.exists(tmp.name):
+                    os.unlink(tmp.name)
+                raise ProcessingError(
+                    f"SMB download error: {e}",
+                    stage="file_access",
+                    recoverable=True,
+                )
+            return tmp.name
 
+        mount = settings.smb_mount_path.rstrip("/")
+        cleaned = job.smb_path.replace("\\", "/")
         if cleaned.startswith("//"):
             parts = cleaned.split("/")
             if len(parts) >= 4:
                 host = parts[2]
                 share = parts[3]
                 subpath = "/".join(parts[4:])
-                return f"{mount}/{host}/{share}/{subpath}"
+                local = f"{mount}/{host}/{share}/{subpath}"
+                if not os.path.exists(local):
+                    raise ProcessingError(
+                        f"File not found: {local}",
+                        stage="file_access",
+                        recoverable=False,
+                    )
+                return local
 
-        return cleaned
+        raise ProcessingError(
+            f"Cannot resolve file path: {job.smb_path}",
+            stage="file_access",
+            recoverable=False,
+        )
 
     def _should_retry(self, job: ProcessingJob) -> bool:
         retry_count = getattr(job, "_retry_count", 0)

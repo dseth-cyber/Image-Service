@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     gcc \
     libc6-dev \
+    smbclient \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
