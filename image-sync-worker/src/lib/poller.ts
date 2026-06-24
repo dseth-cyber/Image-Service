@@ -80,13 +80,14 @@ export class CameraPoller {
 
       const watermark = await this.tracker.getWatermark(camera.id);
       const files = await scanCameraDirectory(smb, camera);
+      logger.info({ camera: camera.name, watermark, totalFiles: files.length }, 'watermark check');
       const filteredFiles = watermark
         ? files.filter((f) => f.lastModified.getTime() >= watermark)
         : files;
       stats.scanned = filteredFiles.length;
 
       if (filteredFiles.length === 0) {
-        logger.debug({ camera: camera.name }, 'No new files found');
+        logger.warn({ camera: camera.name, watermark, totalFiles: files.length }, 'No new files found');
         await api.updateCameraPoll(camera.id);
         await this.tracker.setWatermark(camera.id, Date.now());
         return this.buildResult(camera, stats, startTime);
