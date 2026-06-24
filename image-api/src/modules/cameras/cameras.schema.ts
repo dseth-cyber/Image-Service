@@ -30,6 +30,7 @@ export const updateCameraSchema = z.object({
   captureMode: z.enum(['on_demand', 'periodic', 'continuous']).optional(),
   retentionPolicyId: z.string().uuid().optional(),
   enabled: z.boolean().optional(),
+  lastPolledAt: z.string().datetime().optional(),
   metadata: z.record(z.unknown()).optional(),
 });
 

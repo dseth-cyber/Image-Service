@@ -28,8 +28,6 @@ async function updateHandler(request: FastifyRequest, reply: FastifyReply) {
   const { id } = request.params as { id: string };
   const input = updateCameraSchema.parse(request.body);
   const camera = await camerasService.updateCamera(id, input);
-  const redis = getRedisClient();
-  await redis.set('sync:scan-now', 'all', 'EX', 60);
   return reply.status(200).send(camera);
 }
 

@@ -33,11 +33,17 @@ export async function clearAllData(userId: string, input: { password: string }) 
     }
   })();
 
-  // 2. Clear Redis queue keys
+  // 2. Clear Redis keys (queues, scan triggers, watermarks, tracker state)
   try {
     const redis = getRedisClient();
-    const keys = await redis.keys('bull:*');
-    if (keys.length > 0) await redis.del(...keys);
+    const queueKeys = await redis.keys('bull:*');
+    if (queueKeys.length > 0) await redis.del(...queueKeys);
+    await redis.del('sync:scan-now');
+    await redis.del('sync:scan-now:ids');
+    const syncKeys = await redis.keys('sync:camera:*');
+    if (syncKeys.length > 0) await redis.del(...syncKeys);
+    const processedKeys = await redis.keys('sync:processed:*');
+    if (processedKeys.length > 0) await redis.del(...processedKeys);
   } catch {
     // Redis may not be available
   }
