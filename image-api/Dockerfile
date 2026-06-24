@@ -26,6 +26,9 @@ RUN npm ci --omit=dev --ignore-scripts \
 # Install CLI tools needed for migration and seeding
 RUN npm install -g prisma tsx
 
+# Install smbclient for SMB connection testing and browsing
+RUN apk add --no-cache samba-client
+
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma

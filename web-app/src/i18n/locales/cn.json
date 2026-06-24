@@ -99,7 +99,11 @@
       "retentionPolicy": "保留策略",
       "captureModePeriodic": "定时",
       "captureModeOnDemand": "按需",
-      "captureModeContinuous": "连续"
+      "captureModeContinuous": "连续",
+      "testConnection": "测试连接",
+      "browseSmb": "浏览SMB共享",
+      "shares": "共享",
+      "useCurrentFolder": "使用当前文件夹"
     },
     "storage": {
       "title": "存储监控",
@@ -901,6 +905,7 @@
     "page": "第",
     "of": "页，共",
     "system": "系统",
-    "mb": "MB"
+    "mb": "MB",
+    "browse": "浏览"
   }
 }

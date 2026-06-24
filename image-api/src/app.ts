@@ -27,6 +27,7 @@ import { systemConfigRoutes } from './modules/system-config/system-config.contro
 import { auditRoutes } from './modules/audit/audit.controller.js';
 import { backupRoutes } from './modules/backup/backup.controller.js';
 import { startBackupScheduler, stopBackupScheduler } from './modules/backup/backup-scheduler.js';
+import { smbRoutes } from './modules/smb/smb.controller.js';
 import { startRetentionSweeper, stopRetentionSweeper } from './modules/retention-sweeper/retention-sweeper.controller.js';
 import { startDlqReprocessor, stopDlqReprocessor } from './modules/processing-logs/dlq-reprocessor.js';
 
@@ -102,6 +103,7 @@ export async function buildApp() {
       await api.register(systemConfigRoutes, { prefix: '/api/v1/system-config' });
       await api.register(auditRoutes, { prefix: '/api/v1/audit-logs' });
       await api.register(backupRoutes, { prefix: '/api/v1/backup' });
+      await api.register(smbRoutes, { prefix: '/api/v1' });
     },
   );
 

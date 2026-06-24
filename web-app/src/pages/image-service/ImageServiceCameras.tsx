@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -6,7 +6,8 @@ import { useToast } from '@/contexts/ToastContext';
 import { imageServiceApi } from '@/services/imageServiceApi';
 import { formatDateTime } from '@/utils/dateUtils';
 import { Search, Plus, ChevronUp, ChevronDown, ChevronsUpDown,
-  Edit, Trash2, Eye, Camera, Activity, Wifi, WifiOff, AlertTriangle, Wrench } from 'lucide-react';
+  Edit, Trash2, Eye, Camera, Activity, Wifi, WifiOff, AlertTriangle, Wrench,
+  FolderOpen, RefreshCw, CheckCircle, XCircle, ExternalLink, ChevronRight } from 'lucide-react';
 import { Modal, Button, SearchableSelect, TableSkeleton, ColumnSelector } from '@/components/ui';
 import { getLocalizedValue } from '@/utils/textUtils';
 
@@ -38,6 +39,13 @@ export default function ImageServiceCameras() {
   const [modal, setModal] = useState<{ open: boolean; item?: any | null }>({ open: false });
   const [form, setForm] = useState(emptyForm());
   const [submitting, setSubmitting] = useState(false);
+  const [testResult, setTestResult] = useState<{ loading: boolean; success?: boolean; message?: string }>({ loading: false });
+  const [browseOpen, setBrowseOpen] = useState(false);
+  const [browseItems, setBrowseItems] = useState<Array<{ name: string; isDirectory: boolean }>>([]);
+  const [browsePath, setBrowsePath] = useState('');
+  const [browseLoading, setBrowseLoading] = useState(false);
+  const [browseShares, setBrowseShares] = useState<Array<{ name: string; description: string }>>([]);
+  const [browseStep, setBrowseStep] = useState<'shares' | 'files'>('shares');
 
   const { data: cameras = [], isLoading } = useQuery({
     queryKey: ['cameras-list', search, statusFilter],
@@ -96,6 +104,95 @@ export default function ImageServiceCameras() {
       toast.success(t('imageService.cameras.deactivated'));
       queryClient.invalidateQueries({ queryKey: ['cameras-list'] });
     } catch { toast.error(t('common.error')); }
+  };
+
+  const handleTestConnection = async () => {
+    if (!form.smbSharePath || !form.smbUsername) { toast.warning(t('common.requiredFields')); return; }
+    setTestResult({ loading: true });
+    try {
+      const res = await imageServiceApi.testSmbConnection({
+        smbSharePath: form.smbSharePath,
+        smbUsername: form.smbUsername,
+        smbPasswordEncrypted: form.smbPasswordEncrypted || 'test',
+        smbDomain: form.smbDomain || undefined,
+      });
+      setTestResult({ loading: false, success: res.success, message: res.message });
+      if (res.success) toast.success(res.message);
+      else toast.error(res.message);
+    } catch {
+      setTestResult({ loading: false, success: false, message: 'Connection failed' });
+      toast.error(t('common.error'));
+    }
+  };
+
+  const openBrowse = async () => {
+    if (!form.ipAddress || !form.smbUsername) { toast.warning(t('common.requiredFields')); return; }
+    setBrowseOpen(true);
+    setBrowseStep('shares');
+    setBrowseLoading(true);
+    try {
+      const res = await imageServiceApi.listSmbShares({
+        host: form.ipAddress,
+        smbUsername: form.smbUsername,
+        smbPasswordEncrypted: form.smbPasswordEncrypted || 'test',
+        smbDomain: form.smbDomain || undefined,
+      });
+      setBrowseShares(res.shares ?? []);
+    } catch { toast.error(t('common.error')); }
+    finally { setBrowseLoading(false); }
+  };
+
+  const browseShare = async (share: string) => {
+    const path = `//${form.ipAddress}/${share}`;
+    setBrowseStep('files');
+    setBrowsePath('');
+    setBrowseLoading(true);
+    try {
+      const res = await imageServiceApi.browseSmb({
+        smbSharePath: path,
+        smbUsername: form.smbUsername,
+        smbPasswordEncrypted: form.smbPasswordEncrypted || 'test',
+        smbDomain: form.smbDomain || undefined,
+      });
+      setBrowseItems(res.entries ?? []);
+      setBrowsePath(share + '/');
+    } catch { toast.error(t('common.error')); }
+    finally { setBrowseLoading(false); }
+  };
+
+  const browseFolder = async (folder: string) => {
+    const parts = browsePath.split('/').filter(Boolean);
+    const newPath = [...parts, folder].join('/');
+    const share = parts[0];
+    const subPath = parts.slice(1).concat(folder).join('/');
+    setBrowseLoading(true);
+    try {
+      const res = await imageServiceApi.browseSmb({
+        smbSharePath: `//${form.ipAddress}/${share}`,
+        smbUsername: form.smbUsername,
+        smbPasswordEncrypted: form.smbPasswordEncrypted || 'test',
+        smbDomain: form.smbDomain || undefined,
+        path: subPath,
+      });
+      setBrowseItems(res.entries ?? []);
+      setBrowsePath(newPath + '/');
+    } catch { toast.error(t('common.error')); }
+    finally { setBrowseLoading(false); }
+  };
+
+  const selectBrowsePath = (folder: string) => {
+    const share = browsePath.split('/').filter(Boolean)[0];
+    const subPath = browsePath.endsWith('/') ? browsePath.slice(0, -1) : browsePath;
+    const fullPath = subPath.split('/').slice(1).join('/');
+    const smbPath = fullPath ? `//${form.ipAddress}/${share}/${fullPath}` : `//${form.ipAddress}/${share}`;
+    setForm(p => ({ ...p, smbSharePath: smbPath }));
+    setBrowseOpen(false);
+  };
+
+  const goBackShares = () => {
+    setBrowseStep('shares');
+    setBrowseItems([]);
+    setBrowsePath('');
   };
 
   const filtered = cameras.filter((c: any) =>
@@ -218,12 +315,29 @@ export default function ImageServiceCameras() {
               <input value={form.ipAddress} onChange={e => setForm(p => ({ ...p, ipAddress: e.target.value }))}
                 className={`w-full px-4 py-2.5 rounded-md ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`} required />
             </div>
-            <div>
+            <div className="col-span-2">
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
                 {t('imageService.cameras.smbPath')} <span className="text-red-400">*</span>
               </label>
-              <input value={form.smbSharePath} onChange={e => setForm(p => ({ ...p, smbSharePath: e.target.value }))}
-                className={`w-full px-4 py-2.5 rounded-md ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`} required />
+              <div className="flex gap-2">
+                <input value={form.smbSharePath} onChange={e => setForm(p => ({ ...p, smbSharePath: e.target.value }))}
+                  className={`flex-1 px-4 py-2.5 rounded-md ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`} required />
+                <button type="button" onClick={handleTestConnection} disabled={testResult.loading}
+                  className={`px-3 py-2 rounded-md text-xs font-medium border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5`}>
+                  {testResult.loading ? <RefreshCw size={14} className="animate-spin" /> : <ExternalLink size={14} />}
+                  <span className="ml-1 hidden sm:inline">{t('imageService.cameras.testConnection')}</span>
+                </button>
+                <button type="button" onClick={openBrowse}
+                  className={`px-3 py-2 rounded-md text-xs font-medium border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5`}>
+                  <FolderOpen size={14} /><span className="ml-1 hidden sm:inline">{t('common.browse')}</span>
+                </button>
+              </div>
+              {testResult.message && (
+                <p className={`text-xs mt-1 ${testResult.success ? 'text-green-400' : 'text-red-400'}`}>
+                  {testResult.success ? <CheckCircle size={12} className="inline mr-1" /> : <XCircle size={12} className="inline mr-1" />}
+                  {testResult.message}
+                </p>
+              )}
             </div>
             <div>
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
@@ -262,6 +376,52 @@ export default function ImageServiceCameras() {
             <Button type="submit" disabled={submitting}>{submitting ? t('common.saving') : t('common.save')}</Button>
           </div>
         </form>
+      </Modal>
+
+      <Modal isOpen={browseOpen} onClose={() => setBrowseOpen(false)}
+        title={t('imageService.cameras.browseSmb')}>
+        <div className="max-h-80 overflow-y-auto p-1 space-y-1">
+          {browseLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <RefreshCw size={20} className="animate-spin text-cyan-400" />
+            </div>
+          ) : browseStep === 'shares' ? (
+            browseShares.length === 0 ? (
+              <p className={`text-sm text-center py-4 ${themeConfig.text.secondary}`}>{t('common.noData')}</p>
+            ) : (
+              browseShares.map(s => (
+                <button key={s.name} onClick={() => browseShare(s.name)}
+                  className={`w-full text-left px-3 py-2.5 rounded-lg text-sm flex items-center justify-between hover:bg-white/5 ${themeConfig.text.primary}`}>
+                  <span className="flex items-center gap-2"><FolderOpen size={15} />{s.name}</span>
+                  <span className={`text-xs ${themeConfig.text.secondary}`}>{s.description}</span>
+                </button>
+              ))
+            )
+          ) : (
+            <>
+              <div className="flex items-center gap-1.5 mb-2 text-xs">
+                <button onClick={goBackShares} className="text-cyan-400 hover:underline">{t('imageService.cameras.shares')}</button>
+                <ChevronRight size={10} className={themeConfig.text.secondary} />
+                <span className={themeConfig.text.secondary}>{browsePath}</span>
+              </div>
+              <button onClick={() => selectBrowsePath('')}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm border border-dashed hover:bg-white/5 ${themeConfig.text.primary} ${themeConfig.inputBorder}`}>
+                {t('imageService.cameras.useCurrentFolder')}
+              </button>
+              {browseItems.filter(e => e.isDirectory).map(e => (
+                <div key={e.name} className="flex items-center gap-1">
+                  <button onClick={() => browseFolder(e.name)}
+                    className={`flex-1 text-left px-3 py-2 rounded-lg text-sm hover:bg-white/5 ${themeConfig.text.primary}`}>
+                    <span className="flex items-center gap-2"><FolderOpen size={14} />{e.name}</span>
+                  </button>
+                  <button onClick={() => selectBrowsePath(e.name)}
+                    className="px-2 py-2 rounded text-xs text-cyan-400 hover:bg-white/5"
+                    title={t('common.select')}><CheckCircle size={14} /></button>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
       </Modal>
     </div>
   );

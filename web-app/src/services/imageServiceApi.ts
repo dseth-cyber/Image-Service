@@ -64,6 +64,20 @@ export function createImageServiceApi(api: any) {
     getStorageForecast: () =>
       api.get(`${BASE}/storage/forecast`).then((r: any) => r.data),
 
+    // SMB
+    testSmbConnection: (data: {
+      smbSharePath: string; smbUsername: string; smbPasswordEncrypted: string; smbDomain?: string;
+    }) => api.post(`${BASE}/smb/test-connection`, data).then((r: any) => r.data),
+
+    listSmbShares: (data: {
+      host: string; smbUsername: string; smbPasswordEncrypted: string; smbDomain?: string;
+    }) => api.post(`${BASE}/smb/list-shares`, data).then((r: any) => r.data),
+
+    browseSmb: (data: {
+      smbSharePath: string; smbUsername: string; smbPasswordEncrypted: string;
+      smbDomain?: string; path?: string;
+    }) => api.post(`${BASE}/smb/browse`, data).then((r: any) => r.data),
+
     // Processing Logs
     getProcessingLogs: (params: {
       page?: number; limit?: number; status?: string; jobType?: string;

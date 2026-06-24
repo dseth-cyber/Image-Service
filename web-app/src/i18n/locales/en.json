@@ -99,7 +99,11 @@
       "retentionPolicy": "Retention Policy",
       "captureModePeriodic": "Periodic",
       "captureModeOnDemand": "On Demand",
-      "captureModeContinuous": "Continuous"
+      "captureModeContinuous": "Continuous",
+      "testConnection": "Test Connection",
+      "browseSmb": "Browse SMB Shares",
+      "shares": "Shares",
+      "useCurrentFolder": "Use current folder"
     },
     "storage": {
       "title": "Storage Monitoring",
@@ -901,6 +905,7 @@
     "page": "Page",
     "of": "of",
     "system": "System",
-    "mb": "MB"
+    "mb": "MB",
+    "browse": "Browse"
   }
 }

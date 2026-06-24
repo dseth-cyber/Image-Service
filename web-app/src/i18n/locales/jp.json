@@ -99,7 +99,11 @@
       "retentionPolicy": "保持ポリシー",
       "captureModePeriodic": "定期",
       "captureModeOnDemand": "オンデマンド",
-      "captureModeContinuous": "連続"
+      "captureModeContinuous": "連続",
+      "testConnection": "接続テスト",
+      "browseSmb": "SMB共有を参照",
+      "shares": "共有",
+      "useCurrentFolder": "現在のフォルダを使用"
     },
     "storage": {
       "title": "ストレージ監視",
@@ -901,6 +905,7 @@
     "page": "ページ",
     "of": "/",
     "system": "システム",
-    "mb": "MB"
+    "mb": "MB",
+    "browse": "参照"
   }
 }

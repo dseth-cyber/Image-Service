@@ -99,7 +99,11 @@
       "retentionPolicy": "သိမ်းဆည်းမှုမူဝါဒ",
       "captureModePeriodic": "အချိန်အလိုက်",
       "captureModeOnDemand": "လိုအပ်သလို",
-      "captureModeContinuous": "ဆက်တိုက်"
+      "captureModeContinuous": "ဆက်တိုက်",
+      "testConnection": "ချိတ်ဆက်မှုစစ်ဆေးရန်",
+      "browseSmb": "SMB မျှဝေမှုကိုကြည့်ရှုရန်",
+      "shares": "မျှဝေမှုများ",
+      "useCurrentFolder": "လက်ရှိဖိုင်တွဲသုံးရန်"
     },
     "storage": {
       "title": "သိုလှောင်မှုစောင့်ကြည့်ခြင်း",
@@ -901,6 +905,7 @@
     "page": "စာမျက်နှာ",
     "of": "မှ",
     "system": "စနစ်",
-    "mb": "MB"
+    "mb": "MB",
+    "browse": "ကြည့်ရှုရန်"
   }
 }

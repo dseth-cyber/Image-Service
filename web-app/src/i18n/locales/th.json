@@ -99,7 +99,11 @@
       "retentionPolicy": "นโยบายการจัดเก็บ",
       "captureModePeriodic": "ตามระยะเวลา",
       "captureModeOnDemand": "ตามความต้องการ",
-      "captureModeContinuous": "ต่อเนื่อง"
+      "captureModeContinuous": "ต่อเนื่อง",
+      "testConnection": "ทดสอบการเชื่อมต่อ",
+      "browseSmb": "เรียกดู SMB แชร์",
+      "shares": "แชร์",
+      "useCurrentFolder": "ใช้โฟลเดอร์ปัจจุบัน"
     },
     "storage": {
       "title": "พื้นที่เก็บข้อมูล",
@@ -901,6 +905,7 @@
     "page": "หน้า",
     "of": "จาก",
     "system": "ระบบ",
-    "mb": "MB"
+    "mb": "MB",
+    "browse": "เรียกดู"
   }
 }
