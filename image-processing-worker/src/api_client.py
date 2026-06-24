@@ -130,6 +130,15 @@ class ApiClient:
                     error=str(e),
                 )
 
+    async def get_camera(self, camera_id: str) -> dict:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                f"{self.base_url}/api/v1/cameras/{camera_id}",
+                headers=self._headers(),
+            )
+            response.raise_for_status()
+            return response.json()
+
     async def health_check(self) -> bool:
         try:
             async with httpx.AsyncClient(timeout=5.0) as client:

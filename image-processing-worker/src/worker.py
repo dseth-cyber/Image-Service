@@ -149,7 +149,7 @@ class ProcessingWorker:
                     camera_id=job.camera_id,
                 )
             finally:
-                if job.smb_share_path and os.path.exists(local_path):
+                if os.path.exists(local_path):
                     os.unlink(local_path)
 
             await self.minio.upload_tiff(result.raw_object_key, b"")
@@ -202,58 +202,54 @@ class ProcessingWorker:
             await self._fail(job, job_id, str(e), "unknown")
 
     async def _resolve_file(self, job: ProcessingJob) -> str:
-        if job.smb_share_path:
-            share = job.smb_share_path.rstrip("/")
-            relative = job.smb_path[len(share):].lstrip("/")
-            tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".tif")
-            tmp.close()
-            creds = f"{job.smb_username}%{job.smb_password}"
-            cmd = ["smbclient", share, "-U", creds]
-            if job.smb_domain:
-                cmd.extend(["-W", job.smb_domain])
-            cmd.extend(["-c", f'get "{relative}" "{tmp.name}"'])
-            try:
-                subprocess.run(cmd, check=True, capture_output=True, timeout=120)
-            except subprocess.CalledProcessError as e:
+        try:
+            camera = await self.api.get_camera(job.camera_id)
+        except Exception as e:
+            raise ProcessingError(
+                f"Failed to fetch camera config: {e}",
+                stage="file_access",
+                recoverable=True,
+            )
+
+        share = (camera.get("smbSharePath") or "").rstrip("/")
+        username = camera.get("smbUsername") or ""
+        password = camera.get("smbPasswordEncrypted") or ""
+        domain = camera.get("smbDomain") or ""
+
+        if not share or not username or not password:
+            raise ProcessingError(
+                f"Incomplete SMB credentials for camera {job.camera_id}",
+                stage="file_access",
+                recoverable=False,
+            )
+
+        relative = job.smb_path[len(share):].lstrip("/")
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".tif")
+        tmp.close()
+        creds = f"{username}%{password}"
+        cmd = ["smbclient", share, "-U", creds]
+        if domain:
+            cmd.extend(["-W", domain])
+        cmd.extend(["-c", f'get "{relative}" "{tmp.name}"'])
+        try:
+            subprocess.run(cmd, check=True, capture_output=True, timeout=120)
+        except subprocess.CalledProcessError as e:
+            os.unlink(tmp.name)
+            stderr = (e.stderr or b"").decode(errors="replace").strip()
+            raise ProcessingError(
+                f"SMB download failed: {stderr or e}",
+                stage="file_access",
+                recoverable=True,
+            )
+        except (OSError, subprocess.TimeoutExpired) as e:
+            if os.path.exists(tmp.name):
                 os.unlink(tmp.name)
-                stderr = (e.stderr or b"").decode(errors="replace").strip()
-                raise ProcessingError(
-                    f"SMB download failed: {stderr or e}",
-                    stage="file_access",
-                    recoverable=True,
-                )
-            except (OSError, subprocess.TimeoutExpired) as e:
-                if os.path.exists(tmp.name):
-                    os.unlink(tmp.name)
-                raise ProcessingError(
-                    f"SMB download error: {e}",
-                    stage="file_access",
-                    recoverable=True,
-                )
-            return tmp.name
-
-        mount = settings.smb_mount_path.rstrip("/")
-        cleaned = job.smb_path.replace("\\", "/")
-        if cleaned.startswith("//"):
-            parts = cleaned.split("/")
-            if len(parts) >= 4:
-                host = parts[2]
-                share = parts[3]
-                subpath = "/".join(parts[4:])
-                local = f"{mount}/{host}/{share}/{subpath}"
-                if not os.path.exists(local):
-                    raise ProcessingError(
-                        f"File not found: {local}",
-                        stage="file_access",
-                        recoverable=False,
-                    )
-                return local
-
-        raise ProcessingError(
-            f"Cannot resolve file path: {job.smb_path}",
-            stage="file_access",
-            recoverable=False,
-        )
+            raise ProcessingError(
+                f"SMB download error: {e}",
+                stage="file_access",
+                recoverable=True,
+            )
+        return tmp.name
 
     def _should_retry(self, job: ProcessingJob) -> bool:
         retry_count = getattr(job, "_retry_count", 0)
