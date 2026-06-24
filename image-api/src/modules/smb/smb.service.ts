@@ -42,8 +42,8 @@ export async function listShares(params: {
   const shares: Array<{ name: string; description: string }> = [];
 
   for (const line of stdout.split('\n')) {
-    const m = line.match(/^\s{2}(\S+)\s{2,}(disk|printer|IPC)\s{2,}(.+)$/);
-    if (m && m[2] === 'disk') {
+    const m = line.match(/^\s{0,}(\S+)\s{2,}(Disk|disk|Printer|printer|IPC)\s{0,}(.*)$/);
+    if (m && m[2].toLowerCase() === 'disk') {
       shares.push({ name: m[1], description: m[3].trim() });
     }
   }
