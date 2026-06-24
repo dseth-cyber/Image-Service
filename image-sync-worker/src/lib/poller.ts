@@ -265,3 +265,7 @@ function updateCameraInterval(camera: CameraConfig): void {
 export function resetCameraInterval(cameraId: string): void {
   cameraPollIntervals.delete(cameraId);
 }
+
+export function resetAllCameraIntervals(): void {
+  cameraPollIntervals.clear();
+}

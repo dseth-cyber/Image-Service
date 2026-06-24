@@ -3,7 +3,7 @@ import { config } from './config/index.js';
 import { logger } from './lib/logger.js';
 import { Tracker } from './lib/tracker.js';
 import { JobProducer } from './lib/producer.js';
-import { CameraPoller } from './lib/poller.js';
+import { CameraPoller, resetAllCameraIntervals } from './lib/poller.js';
 import { startHealthServer, updateHealthState } from './health.js';
 import * as api from './lib/api-client.js';
 
@@ -84,6 +84,8 @@ async function main(): Promise<void> {
     if (!shutdownRequested) {
       const scanNow = await redis.get('sync:scan-now');
       if (scanNow === 'all') {
+        logger.info('Scan-now trigger detected — resetting intervals and running immediate poll cycle');
+        resetAllCameraIntervals();
         await redis.del('sync:scan-now');
         continue;
       }
