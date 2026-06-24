@@ -61,8 +61,8 @@ export async function browseDirectory(params: {
   const { host, share } = parseSmbPath(params.smbSharePath);
   const unc = `//${host}/${share}`;
   const creds = `${params.smbUsername}%${params.smbPasswordEncrypted}`;
-  const lsPath = params.path ? params.path.replace(/\\/g, '/').replace(/\/$/, '') : '.';
-  const args = [unc, '-U', creds, '-c', `ls "${lsPath}"`];
+  const lsPath = params.path ? params.path.replace(/\\/g, '/').replace(/\/$/, '') : '';
+  const args = [unc, '-U', creds, '-c', lsPath ? `ls "${lsPath}"` : 'ls'];
   if (params.smbDomain) args.push('-W', params.smbDomain);
 
   const stdout = await runSmbClient(args);

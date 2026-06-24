@@ -131,18 +131,39 @@ export default function ImageServiceCameras() {
   const openBrowse = async () => {
     if (!form.ipAddress || !form.smbUsername) { toast.warning(t('common.requiredFields')); return; }
     setBrowseOpen(true);
-    setBrowseStep('shares');
-    setBrowseLoading(true);
-    try {
-      const res = await imageServiceApi.listSmbShares({
-        host: form.ipAddress,
-        smbUsername: form.smbUsername,
-        smbPasswordEncrypted: form.smbPasswordEncrypted || 'test',
-        smbDomain: form.smbDomain || undefined,
-      });
-      setBrowseShares(res.shares ?? []);
-    } catch { toast.error(t('common.error')); }
-    finally { setBrowseLoading(false); }
+    if (form.smbSharePath) {
+      setBrowseStep('files');
+      setBrowsePath('');
+      setBrowseLoading(true);
+      try {
+        const parts = form.smbSharePath.replace(/^\/\//, '').split('/');
+        const share = parts[1];
+        const subPath = parts.slice(2).join('/');
+        const res = await imageServiceApi.browseSmb({
+          smbSharePath: form.smbSharePath,
+          smbUsername: form.smbUsername,
+          smbPasswordEncrypted: form.smbPasswordEncrypted || 'test',
+          smbDomain: form.smbDomain || undefined,
+          path: subPath || undefined,
+        });
+        setBrowseItems(res.entries ?? []);
+        setBrowsePath(parts.slice(1).join('/') + '/');
+      } catch { toast.error(t('common.error')); }
+      finally { setBrowseLoading(false); }
+    } else {
+      setBrowseStep('shares');
+      setBrowseLoading(true);
+      try {
+        const res = await imageServiceApi.listSmbShares({
+          host: form.ipAddress,
+          smbUsername: form.smbUsername,
+          smbPasswordEncrypted: form.smbPasswordEncrypted || 'test',
+          smbDomain: form.smbDomain || undefined,
+        });
+        setBrowseShares(res.shares ?? []);
+      } catch { toast.error(t('common.error')); }
+      finally { setBrowseLoading(false); }
+    }
   };
 
   const browseShare = async (share: string) => {
