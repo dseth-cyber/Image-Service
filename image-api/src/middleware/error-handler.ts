@@ -1,3 +1,4 @@
+import { ZodError } from 'zod';
 import type { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
 import { AppError } from '../lib/errors.js';
 import { logger } from '../lib/logger.js';
@@ -14,6 +15,17 @@ export async function errorHandler(
       error: error.name,
       message: error.message,
       details: error.details,
+    });
+    return;
+  }
+
+  if (error instanceof ZodError) {
+    logger.warn({ issues: error.issues }, 'Zod validation error');
+    await reply.status(400).send({
+      statusCode: 400,
+      error: 'ValidationError',
+      message: error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; '),
+      details: error.issues,
     });
     return;
   }
