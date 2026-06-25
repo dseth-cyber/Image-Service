@@ -15,6 +15,8 @@
       "perHour": "/小时",
       "editLayout": "编辑布局",
       "resetLayout": "重置布局",
+      "setDefaultLayout": "设为默认",
+      "defaultLayoutSaved": "默认布局已保存",
       "finishEditing": "完成编辑",
       "dragHint": "拖拽卡片重新排列，或拖拽右下角调整大小",
       "files": "个文件",

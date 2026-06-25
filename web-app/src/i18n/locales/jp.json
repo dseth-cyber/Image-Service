@@ -15,6 +15,8 @@
       "perHour": "/時間",
       "editLayout": "レイアウト編集",
       "resetLayout": "レイアウトリセット",
+      "setDefaultLayout": "デフォルトに設定",
+      "defaultLayoutSaved": "デフォルトレイアウトを保存しました",
       "finishEditing": "編集完了",
       "dragHint": "カードをドラッグして並べ替え、右下をドラッグしてサイズ変更",
       "files": "ファイル",

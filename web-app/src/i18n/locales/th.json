@@ -15,6 +15,8 @@
       "perHour": "/ชั่วโมง",
       "editLayout": "ปรับแต่ง Layout",
       "resetLayout": "รีเซ็ต Layout",
+      "setDefaultLayout": "ตั้งเป็นค่าเริ่มต้น",
+      "defaultLayoutSaved": "บันทึก Layout เริ่มต้นเรียบร้อย",
       "finishEditing": "เสร็จสิ้น",
       "dragHint": "ลากการ์ดเพื่อเรียงใหม่ หรือลากมุมล่างขวาเพื่อปรับขนาด",
       "files": "ไฟล์",

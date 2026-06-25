@@ -15,6 +15,8 @@
       "perHour": "/hr",
       "editLayout": "Edit Layout",
       "resetLayout": "Reset Layout",
+      "setDefaultLayout": "Set as Default",
+      "defaultLayoutSaved": "Default layout saved",
       "finishEditing": "Finish Editing",
       "dragHint": "Drag cards to rearrange, or drag bottom-right corner to resize",
       "files": "files",
