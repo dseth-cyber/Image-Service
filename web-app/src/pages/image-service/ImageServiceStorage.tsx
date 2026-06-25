@@ -170,7 +170,7 @@ export default function ImageServiceStorage() {
             </h3>
             <div className="w-24">
               <SearchableSelect value={String(days)} onChange={v => setDays(parseInt(v))}
-                options={[7, 14, 30, 90].map(d => ({ value: String(d), label: `${d} ${t('imageService.storage.days')}` }))} />
+                options={[7, 14, 30, 60, 90].map(d => ({ value: String(d), label: `${d} ${t('imageService.storage.days')}` }))} />
             </div>
           </div>
           <ResponsiveContainer width="100%" height={220}>
