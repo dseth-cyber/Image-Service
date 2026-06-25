@@ -142,16 +142,8 @@ export async function getStorageForecast(): Promise<{
 
   if (growthData.length >= 7) {
     const n = growthData.length;
-    const sumX = (n - 1) * n / 2;
     const sumY = growthData.reduce((s, d) => s + d.bytesAdded, 0);
-    let sumXY = 0;
-    let sumX2 = 0;
-    for (let i = 0; i < n; i++) {
-      sumXY += i * growthData[i].bytesAdded;
-      sumX2 += i * i;
-    }
-    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-    dailyGrowthRate = Math.max(0, slope);
+    dailyGrowthRate = Math.max(0, sumY / n);
   }
 
   const daysUntilFull = dailyGrowthRate > 0
