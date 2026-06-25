@@ -183,7 +183,7 @@ export default function ImageServiceOverview() {
         onLayoutChange={handleLayoutChange}
         compactType="vertical"
       >
-        <div key="trends" className={`${themeConfig.card} rounded-lg overflow-hidden relative`}>
+        <div key="trends" className={`${themeConfig.card} rounded-lg overflow-hidden relative h-full`}>
           <DragHandle show={isEditing} />
           <ExecutiveTrends />
         </div>
