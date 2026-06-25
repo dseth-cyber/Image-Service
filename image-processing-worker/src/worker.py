@@ -141,6 +141,9 @@ class ProcessingWorker:
 
             local_path = await self._resolve_file(job)
 
+            with open(local_path, 'rb') as f:
+                raw_data = f.read()
+
             try:
                 result, png_data, thumb_data = process_tiff(
                     filepath=local_path,
@@ -152,7 +155,7 @@ class ProcessingWorker:
                 if os.path.exists(local_path):
                     os.unlink(local_path)
 
-            await self.minio.upload_tiff(result.raw_object_key, b"")
+            await self.minio.upload_tiff(result.raw_object_key, raw_data)
             await self.minio.upload_png(result.png_object_key, png_data)
             await self.minio.upload_thumbnail(
                 result.thumbnail_object_key, thumb_data

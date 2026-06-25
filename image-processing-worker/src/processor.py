@@ -61,7 +61,7 @@ def process_tiff(
     timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z')
 
     camera_path = _build_camera_path(camera_id)
-    basename = os.path.splitext(original_filename)[0]
+    basename = os.path.splitext(os.path.basename(original_filename))[0]
 
     raw_object_key = f"raw/{camera_path}/{basename}.tiff"
     png_object_key = f"processed/{camera_path}/{basename}.png"
