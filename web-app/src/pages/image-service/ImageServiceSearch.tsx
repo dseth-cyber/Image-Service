@@ -100,12 +100,13 @@ export default function ImageServiceSearch() {
     setPage(1);
   };
 
-  const handleDownload = useCallback(async (id: string, fileType: string) => {
+  const handleDownload = useCallback(async (id: string, fileType: string, filename?: string) => {
     const token = localStorage.getItem('accessToken');
     const base = (window as any).__API_BASE__ ?? '/image-service';
     try {
       const res = await fetch(`${base}/api/v1/images/${id}/files/${fileType}`, {
         headers: { 'Authorization': `Bearer ${token}` },
+        cache: 'no-store',
       });
       if (!res.ok) {
         if (res.status === 500) toast.error(t('imageService.search.fileExpired'));
@@ -116,7 +117,7 @@ export default function ImageServiceSearch() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${id}-${fileType}.tif`;
+      a.download = filename ?? `${id}-${fileType}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -340,10 +341,10 @@ export default function ImageServiceSearch() {
                   <FileImage size={14} /> {t('imageService.search.files')}
                 </h4>
                 <div className="flex gap-2 flex-wrap">
-                  {[...detail.imageFiles].sort((a: any, b: any) =>
-                    (FILE_TYPE_ORDER[a.fileType] ?? 99) - (FILE_TYPE_ORDER[b.fileType] ?? 99)
-                  ).map((f: any) => (
-                    <button key={f.id} onClick={() => handleDownload(detail.id, f.fileType)}
+                    {[...detail.imageFiles].sort((a: any, b: any) =>
+                      (FILE_TYPE_ORDER[a.fileType] ?? 99) - (FILE_TYPE_ORDER[b.fileType] ?? 99)
+                    ).map((f: any) => (
+                      <button key={f.id} onClick={() => handleDownload(detail.id, f.fileType, detail.originalFilename)}
                       className={`px-3 py-2 rounded-md text-xs flex items-center gap-1.5 border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5 transition-colors cursor-pointer`}>
                       <Download size={12} /> {t(`imageService.search.fileType${f.fileType.charAt(0).toUpperCase() + f.fileType.slice(1)}`)}
                       {f.fileSizeBytes ? ` (${(f.fileSizeBytes / 1024 / 1024).toFixed(1)} MB)` : ''}

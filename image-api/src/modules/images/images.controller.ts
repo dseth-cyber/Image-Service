@@ -115,7 +115,7 @@ async function getFileStreamHandler(request: FastifyRequest, reply: FastifyReply
     const minio = getMinio();
     const stream = await minio.getObject(config.minio.bucket, file.objectKey as string);
     reply.header('Content-Type', (file.mimeType as string) ?? 'application/octet-stream');
-    reply.header('Cache-Control', 'public, max-age=31536000, immutable');
+    reply.header('Cache-Control', 'private, no-cache');
     reply.header('Transfer-Encoding', 'chunked');
     const user = (request as any).user;
     createAuditLog({
