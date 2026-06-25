@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import { imageServiceApi } from '@/services/imageServiceApi';
@@ -12,7 +13,7 @@ import {
 } from 'recharts';
 import {
   Activity, CheckCircle, XCircle, AlertTriangle, RotateCcw, RefreshCw,
-  Play, Pause, Radio, GripVertical, Settings, Check,
+  Play, Pause, Radio, GripVertical, Settings, Check, Star,
 } from 'lucide-react';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
@@ -97,7 +98,9 @@ function DragHandle({ show }: { show: boolean }) {
 export default function ImageServiceProcessingMonitor() {
   const { t, i18n } = useTranslation();
   const { themeConfig } = useTheme();
+  const { user } = useAuth();
   const toast = useToast();
+  const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [layouts, setLayouts] = useState(() => {
@@ -117,9 +120,29 @@ export default function ImageServiceProcessingMonitor() {
     localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(allLayouts));
   }, []);
 
+  const { data: systemConfig } = useQuery({
+    queryKey: ['system-config'],
+    queryFn: () => imageServiceApi.getSystemConfigs(),
+    staleTime: Infinity,
+  });
+
+  useEffect(() => {
+    if (systemConfig?.dashboard_layout_processing?.value) {
+      const saved = localStorage.getItem(LAYOUT_STORAGE_KEY);
+      if (!saved) setLayouts(systemConfig.dashboard_layout_processing.value);
+    }
+  }, [systemConfig]);
+
   const handleResetLayout = () => {
     setLayouts(DEFAULT_LAYOUTS);
     localStorage.removeItem(LAYOUT_STORAGE_KEY);
+  };
+
+  const handleSaveDefaultLayout = async () => {
+    try {
+      await imageServiceApi.updateSystemConfigs({ dashboard_layout_processing: JSON.stringify(layouts) });
+      toast.success(t('imageService.overview.defaultLayoutSaved'));
+    } catch { toast.error(t('common.error')); }
   };
 
   const connect = useCallback(() => {
@@ -201,11 +224,20 @@ export default function ImageServiceProcessingMonitor() {
         </div>
         <div className="flex items-center gap-2">
           {isEditing && (
-            <button onClick={handleResetLayout}
-              className={`px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5
-                border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5 transition-colors`}>
-              <RotateCcw size={13} /> {t('imageService.overview.resetLayout')}
-            </button>
+            <>
+              <button onClick={handleResetLayout}
+                className={`px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5
+                  border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5 transition-colors`}>
+                <RotateCcw size={13} /> {t('imageService.overview.resetLayout')}
+              </button>
+              {isAdmin && (
+                <button onClick={handleSaveDefaultLayout}
+                  className="px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5
+                    bg-gradient-to-r from-yellow-600 to-orange-600 text-white hover:brightness-110 transition-all">
+                  <Star size={13} /> {t('imageService.overview.setDefaultLayout')}
+                </button>
+              )}
+            </>
           )}
           <button onClick={() => setIsEditing(!isEditing)}
             className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5

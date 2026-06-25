@@ -15,6 +15,8 @@ const DEFAULT_CONFIGS: Record<string, { value: string; description: string; valu
   max_storage_per_camera_gb: { value: '100', description: 'Per-camera max storage capacity in GB for forecast', valueType: 'number', category: 'storage' },
   dlq_alert_threshold: { value: '10', description: 'Dead letter queue count threshold for alert', valueType: 'number', category: 'alert' },
   dashboard_layout_overview: { value: '', description: 'Default dashboard layout for new users (JSON)', valueType: 'json', category: 'dashboard' },
+  dashboard_layout_processing: { value: '', description: 'Default processing monitor layout for new users (JSON)', valueType: 'json', category: 'dashboard' },
+  dashboard_layout_storage: { value: '', description: 'Default storage layout for new users (JSON)', valueType: 'json', category: 'dashboard' },
 
   // General settings — managed via UI
   system_logo: { value: '', description: 'System logo (base64 data URL)', valueType: 'string', category: 'general' },

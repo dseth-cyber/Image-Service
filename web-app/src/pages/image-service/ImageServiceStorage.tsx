@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import { imageServiceApi } from '@/services/imageServiceApi';
@@ -8,7 +10,7 @@ import {
   ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line,
 } from 'recharts';
-import { HardDrive, FileImage, Image, Archive, BarChart3, TrendingUp, Calendar, AlertTriangle, Clock, GripVertical, Settings, RotateCcw, Check } from 'lucide-react';
+import { HardDrive, FileImage, Image, Archive, BarChart3, TrendingUp, Calendar, AlertTriangle, Clock, GripVertical, Settings, RotateCcw, Check, Star } from 'lucide-react';
 import { SearchableSelect } from '@/components/ui';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
@@ -79,6 +81,9 @@ function DragHandle({ show }: { show: boolean }) {
 export default function ImageServiceStorage() {
   const { t, i18n } = useTranslation();
   const { themeConfig } = useTheme();
+  const { user } = useAuth();
+  const toast = useToast();
+  const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const [days, setDays] = useState(30);
   const [isEditing, setIsEditing] = useState(false);
   const [layouts, setLayouts] = useState(() => {
@@ -112,6 +117,19 @@ export default function ImageServiceStorage() {
     staleTime: 1000 * 60 * 5,
   });
 
+  const { data: systemConfig } = useQuery({
+    queryKey: ['system-config'],
+    queryFn: () => imageServiceApi.getSystemConfigs(),
+    staleTime: Infinity,
+  });
+
+  useEffect(() => {
+    if (systemConfig?.dashboard_layout_storage?.value) {
+      const saved = localStorage.getItem(LAYOUT_STORAGE_KEY);
+      if (!saved) setLayouts(systemConfig.dashboard_layout_storage.value);
+    }
+  }, [systemConfig]);
+
   const handleLayoutChange = useCallback((_l: any, allLayouts: any) => {
     setLayouts(allLayouts);
     localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(allLayouts));
@@ -120,6 +138,13 @@ export default function ImageServiceStorage() {
   const handleResetLayout = () => {
     setLayouts(DEFAULT_LAYOUTS);
     localStorage.removeItem(LAYOUT_STORAGE_KEY);
+  };
+
+  const handleSaveDefaultLayout = async () => {
+    try {
+      await imageServiceApi.updateSystemConfigs({ dashboard_layout_storage: JSON.stringify(layouts) });
+      toast.success(t('imageService.overview.defaultLayoutSaved'));
+    } catch { toast.error(t('common.error')); }
   };
 
   const tickFill = themeConfig.name === 'light' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)';
@@ -173,11 +198,20 @@ export default function ImageServiceStorage() {
         </div>
         <div className="flex items-center gap-2">
           {isEditing && (
-            <button onClick={handleResetLayout}
-              className={`px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5
-                border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5 transition-colors`}>
-              <RotateCcw size={13} /> {t('imageService.overview.resetLayout')}
-            </button>
+            <>
+              <button onClick={handleResetLayout}
+                className={`px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5
+                  border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5 transition-colors`}>
+                <RotateCcw size={13} /> {t('imageService.overview.resetLayout')}
+              </button>
+              {isAdmin && (
+                <button onClick={handleSaveDefaultLayout}
+                  className="px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5
+                    bg-gradient-to-r from-yellow-600 to-orange-600 text-white hover:brightness-110 transition-all">
+                  <Star size={13} /> {t('imageService.overview.setDefaultLayout')}
+                </button>
+              )}
+            </>
           )}
           <button onClick={() => setIsEditing(!isEditing)}
             className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5
