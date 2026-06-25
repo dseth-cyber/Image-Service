@@ -14,44 +14,44 @@ import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
-const LAYOUT_STORAGE_KEY = 'image_service_overview_layout_v1';
+const LAYOUT_STORAGE_KEY = 'image_service_overview_layout_v2';
 
 const DEFAULT_LAYOUTS = {
   lg: [
     { i: 'trends', x: 0, y: 0, w: 12, h: 4.5, minW: 6, minH: 3.5 },
     { i: 'stats', x: 0, y: 4.5, w: 12, h: 1.5, minW: 6, minH: 1.5 },
-    { i: 'recent', x: 0, y: 6, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'growth', x: 6, y: 6, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'cameraStatus', x: 0, y: 9, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'byCamera', x: 4, y: 9, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'storageDonut', x: 8, y: 9, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'queueLength', x: 0, y: 12, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'postgresStats', x: 4, y: 12, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'minioStats', x: 8, y: 12, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'recent', x: 0, y: 6, w: 6, h: 2.5, minW: 3, minH: 2 },
+    { i: 'growth', x: 6, y: 6, w: 6, h: 2.5, minW: 3, minH: 2 },
+    { i: 'cameraStatus', x: 0, y: 8.5, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 4, y: 8.5, w: 4, h: 2.5, minW: 3, minH: 2 },
+    { i: 'storageDonut', x: 8, y: 8.5, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'queueLength', x: 0, y: 11.5, w: 4, h: 2, minW: 3, minH: 1.5 },
+    { i: 'postgresStats', x: 4, y: 11.5, w: 4, h: 2, minW: 3, minH: 1.5 },
+    { i: 'minioStats', x: 8, y: 11.5, w: 4, h: 2, minW: 3, minH: 1.5 },
   ],
   md: [
     { i: 'trends', x: 0, y: 0, w: 10, h: 4.5, minW: 6, minH: 3.5 },
     { i: 'stats', x: 0, y: 4.5, w: 10, h: 1.5, minW: 6, minH: 1.5 },
-    { i: 'recent', x: 0, y: 6, w: 5, h: 3, minW: 3, minH: 2.5 },
-    { i: 'growth', x: 5, y: 6, w: 5, h: 3, minW: 3, minH: 2.5 },
-    { i: 'cameraStatus', x: 0, y: 9, w: 3, h: 3, minW: 3, minH: 2.5 },
-    { i: 'byCamera', x: 3, y: 9, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'storageDonut', x: 7, y: 9, w: 3, h: 3, minW: 3, minH: 2.5 },
-    { i: 'queueLength', x: 0, y: 12, w: 3, h: 3, minW: 3, minH: 2.5 },
-    { i: 'postgresStats', x: 3, y: 12, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'minioStats', x: 7, y: 12, w: 3, h: 3, minW: 3, minH: 2.5 },
+    { i: 'recent', x: 0, y: 6, w: 5, h: 2.5, minW: 3, minH: 2 },
+    { i: 'growth', x: 5, y: 6, w: 5, h: 2.5, minW: 3, minH: 2 },
+    { i: 'cameraStatus', x: 0, y: 8.5, w: 3, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 3, y: 8.5, w: 4, h: 2.5, minW: 3, minH: 2 },
+    { i: 'storageDonut', x: 7, y: 8.5, w: 3, h: 3, minW: 3, minH: 2.5 },
+    { i: 'queueLength', x: 0, y: 11.5, w: 3, h: 2, minW: 3, minH: 1.5 },
+    { i: 'postgresStats', x: 3, y: 11.5, w: 4, h: 2, minW: 3, minH: 1.5 },
+    { i: 'minioStats', x: 7, y: 11.5, w: 3, h: 2, minW: 3, minH: 1.5 },
   ],
   sm: [
     { i: 'trends', x: 0, y: 0, w: 6, h: 4.5, minW: 4, minH: 3.5 },
     { i: 'stats', x: 0, y: 4.5, w: 6, h: 1.5, minW: 4, minH: 1.5 },
-    { i: 'recent', x: 0, y: 6, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'growth', x: 0, y: 9, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'cameraStatus', x: 0, y: 12, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'byCamera', x: 0, y: 15, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'storageDonut', x: 0, y: 18, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'queueLength', x: 0, y: 21, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'postgresStats', x: 0, y: 24, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'minioStats', x: 0, y: 27, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'recent', x: 0, y: 6, w: 6, h: 2.5, minW: 3, minH: 2 },
+    { i: 'growth', x: 0, y: 8.5, w: 6, h: 2.5, minW: 3, minH: 2 },
+    { i: 'cameraStatus', x: 0, y: 11, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 0, y: 14, w: 6, h: 2.5, minW: 3, minH: 2 },
+    { i: 'storageDonut', x: 0, y: 16.5, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'queueLength', x: 0, y: 19.5, w: 6, h: 2, minW: 3, minH: 1.5 },
+    { i: 'postgresStats', x: 0, y: 21.5, w: 6, h: 2, minW: 3, minH: 1.5 },
+    { i: 'minioStats', x: 0, y: 23.5, w: 6, h: 2, minW: 3, minH: 1.5 },
   ],
 };
 
@@ -231,7 +231,7 @@ export default function ImageServiceOverview() {
             {t('imageService.overview.storageGrowth')} (GB)
           </h3>
           <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={storageGrowth} barCategoryGap="30%">
+            <BarChart data={storageGrowth} barCategoryGap="30%" margin={{ top: 16, right: 8, left: 0, bottom: 0 }}>
               <CartesianGrid vertical={false} stroke={gridStroke} />
               <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -246,7 +246,7 @@ export default function ImageServiceOverview() {
           </ResponsiveContainer>
         </div>
 
-        <div key="cameraStatus" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+        <div key="cameraStatus" className={`${themeConfig.card} rounded-lg relative p-5`}>
           <DragHandle show={isEditing} />
           <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
             {t('imageService.overview.cameraStatus')}
@@ -257,13 +257,14 @@ export default function ImageServiceOverview() {
                 { name: t('imageService.cameras.active'), value: overview?.activeCameras ?? 0 },
                 { name: t('imageService.cameras.inactive'), value: overview?.inactiveCameras ?? 0 },
                 { name: t('imageService.cameras.error'), value: overview?.errorCameras ?? 0 },
-              ]} cx="50%" cy="50%" innerRadius={55} outerRadius={80}
+              ]} cx="50%" cy="55%" innerRadius={50} outerRadius={70}
                 paddingAngle={3} dataKey="value" nameKey="name"
                 label={({ name, value }: any) => `${name}: ${value}`}>
                 {PIE_COLORS.slice(0, 3).map((c, i) => (
                   <Cell key={i} fill={c} />
                 ))}
               </Pie>
+              <Tooltip content={<CustomTooltip />} />
             </PieChart>
           </ResponsiveContainer>
           <div className="mt-3 space-y-1.5">
@@ -289,7 +290,7 @@ export default function ImageServiceOverview() {
             {t('imageService.overview.imagesByCamera')}
           </h3>
           <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={imagesByCamera} layout="vertical" barCategoryGap="20%">
+            <BarChart data={imagesByCamera} layout="vertical" barCategoryGap="20%" margin={{ top: 0, right: 32, left: 0, bottom: 0 }}>
               <CartesianGrid horizontal={false} stroke={gridStroke} />
               <XAxis type="number" tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis dataKey="name" type="category" tick={{ fill: tickFill, fontSize: 10 }} axisLine={false} tickLine={false} width={80} />
@@ -304,7 +305,7 @@ export default function ImageServiceOverview() {
           </ResponsiveContainer>
         </div>
 
-        <div key="storageDonut" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+        <div key="storageDonut" className={`${themeConfig.card} rounded-lg relative p-5`}>
           <DragHandle show={isEditing} />
           <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
             {t('imageService.storage.byFileType')}
@@ -312,13 +313,14 @@ export default function ImageServiceOverview() {
           <div className="relative">
             <ResponsiveContainer width="100%" height={180}>
               <PieChart>
-                <Pie data={storageByType} cx="50%" cy="50%" innerRadius={55} outerRadius={80}
+                <Pie data={storageByType} cx="50%" cy="55%" innerRadius={50} outerRadius={70}
                   paddingAngle={3} dataKey="value" nameKey="name"
                   label={({ name, value }: any) => `${name}: ${value.toLocaleString()}`}>
                   {storageByType.map((_: any, i: number) => (
                     <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                   ))}
                 </Pie>
+                <Tooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">

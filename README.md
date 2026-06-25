@@ -154,11 +154,12 @@ docker-compose up -d
 
 | Container | Port | คำอธิบาย |
 |---|---|---|
+| web-app | 443 (HTTPS), 80 (→redirect) | Frontend + Reverse Proxy |
+| image-api | 3001 | REST API |
 | postgres | 5432 | ฐานข้อมูล PostgreSQL |
 | redis | 6379 | Cache และ Job Queue |
 | minio | 9300 (API), 9301 (Console) | Object Storage |
 | smb-server | 9445 | SMB Share จำลอง |
-| image-api | 3001 | REST API |
 | image-sync-worker | — | SMB Poller |
 | image-processing-worker | — | TIFF Processor |
 | zookeeper | 2181 | Kafka dependency |
@@ -178,10 +179,57 @@ docker-compose up -d
 
 | บริการ | URL |
 |---|---|
-| Web App | http://localhost:5173 |
-| REST API | http://localhost:3002 |
-| Swagger Docs | http://localhost:3002/docs |
-| MinIO Console | http://localhost:9301 |
+| Web App | https://192.168.30.248 |
+| REST API | https://192.168.30.248/image-service/api/v1 |
+| Swagger Docs | http://192.168.30.248:3001/docs |
+| MinIO Console | http://192.168.30.248:9301 |
+
+> **หมายเหตุ:** ระบบบังคับใช้ HTTPS — เข้าผ่าน HTTP จะ redirect ไป HTTPS อัตโนมัติ
+> เบราว์เซอร์อาจแจ้งเตือน "Not Secure" เนื่องจากใช้ Self-signed Certificate ซึ่งปลอดภัยสำหรับใช้งานภายใน LAN
+
+---
+
+## HTTPS / SSL Certificate
+
+ระบบใช้ **Self-signed Certificate** สำหรับการเข้าถึงผ่าน HTTPS ภายใน LAN
+
+### สร้าง Certificate ครั้งแรก
+
+```bash
+cd /home/administrator/Image-Service
+./ssl/generate-cert.sh 192.168.30.248
+docker compose up -d
+```
+
+### เปลี่ยน IP เครื่อง (ย้ายติดตั้ง)
+
+เมื่อย้ายเครื่องไปใช้ IP ใหม่ ทำแค่ 2 ขั้นตอน:
+
+```bash
+cd /home/administrator/Image-Service
+./ssl/generate-cert.sh <IP-ใหม่>
+docker compose restart web-app
+```
+
+ไม่ต้อง rebuild — Certificate mount ผ่าน Docker volume
+
+### เพิ่ม Subdomain (เข้าผ่านอินเทอร์เน็ต)
+
+```bash
+./ssl/generate-cert.sh 192.168.30.248 images.yourdomain.com
+docker compose restart web-app
+```
+
+สามารถใส่ได้ทั้ง IP และ domain พร้อมกัน
+
+### ไฟล์ที่เกี่ยวข้อง
+
+| ไฟล์ | คำอธิบาย |
+|---|---|
+| `ssl/generate-cert.sh` | Script สร้าง certificate (รับ IP/domain เป็น parameter) |
+| `ssl/server.crt` | Certificate (ไม่ commit เข้า git) |
+| `ssl/server.key` | Private key (ไม่ commit เข้า git) |
+| `web-app/nginx.conf` | Nginx config (HTTPS + HTTP redirect) |
 
 ---
 
@@ -286,6 +334,11 @@ image-service/
 │   ├── historian_consumer.py
 │   └── production_consumer.py
 │
+├── ssl/                            # SSL Certificate
+│   ├── generate-cert.sh            # Script สร้าง cert (รับ IP/domain)
+│   ├── server.crt                  # Certificate (ไม่ commit)
+│   └── server.key                  # Private key (ไม่ commit)
+│
 └── mock_smb_shares/                # ไฟล์ทดสอบสำหรับ SMB
     ├── cam_1/ ถึง cam_10/
     └── test_*.tiff
@@ -311,6 +364,7 @@ image-service/
 | GET | `/:id` | ดูรายละเอียดภาพ |
 | PATCH | `/:id/metadata` | อัปเดต metadata |
 | DELETE | `/:id` | ลบภาพ (soft-delete) |
+| POST | `/:id/reprocess` | ส่งภาพเข้าคิวประมวลผลใหม่ |
 | GET | `/:id/files/:fileType` | ดาวน์โหลดไฟล์ (raw/processed/thumbnail) |
 
 ### กล้อง (`/api/v1/cameras`)

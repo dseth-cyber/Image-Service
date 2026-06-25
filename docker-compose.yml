@@ -333,7 +333,10 @@ services:
       dockerfile: Dockerfile
     container_name: image-web-app
     ports:
-      - "5173:5173"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./ssl:/etc/nginx/ssl:ro
     depends_on:
       - image-api
     restart: unless-stopped
