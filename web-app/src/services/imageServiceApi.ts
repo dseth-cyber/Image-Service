@@ -248,6 +248,41 @@ export function createImageServiceApi(api: any) {
     getTrends: (period: string) =>
       api.get(`${BASE}/processing-logs/trends`, { params: { period } }).then((r: any) => r.data),
 
+    // Storage Providers
+    getStorageProviders: (params?: {}) =>
+      api.get(`${BASE}/storage-providers`, { params }).then((r: any) => r.data),
+
+    getStorageProvider: (id: string) =>
+      api.get(`${BASE}/storage-providers/${id}`).then((r: any) => r.data),
+
+    createStorageProvider: (data: any) =>
+      api.post(`${BASE}/storage-providers`, data).then((r: any) => r.data),
+
+    updateStorageProvider: (id: string, data: any) =>
+      api.patch(`${BASE}/storage-providers/${id}`, data).then((r: any) => r.data),
+
+    deleteStorageProvider: (id: string) =>
+      api.delete(`${BASE}/storage-providers/${id}`),
+
+    testStorageProvider: (id: string) =>
+      api.post(`${BASE}/storage-providers/${id}/test`).then((r: any) => r.data),
+
+    getStorageProviderMetrics: (id: string) =>
+      api.get(`${BASE}/storage-providers/${id}/metrics`).then((r: any) => r.data),
+
+    // Migration Jobs
+    getMigrationJobs: (params?: { status?: string }) =>
+      api.get(`${BASE}/migrations`, { params }).then((r: any) => r.data),
+
+    createMigrationJob: (data: { sourceId: string; targetId: string; fileType?: string }) =>
+      api.post(`${BASE}/migrations`, data).then((r: any) => r.data),
+
+    runMigrationJob: (id: string) =>
+      api.post(`${BASE}/migrations/${id}/run`).then((r: any) => r.data),
+
+    cancelMigrationJob: (id: string) =>
+      api.post(`${BASE}/migrations/${id}/cancel`).then((r: any) => r.data),
+
     // Admin
     clearAllData: (data: { password: string; confirmation: string }) =>
       api.post(`${BASE}/admin/clear-all-data`, data).then((r: any) => r.data),

@@ -1,0 +1,191 @@
+import { getPrisma } from '../../lib/prisma.js';
+import { storageRouter } from '../../lib/storage/storage-router.js';
+import { S3Provider } from '../../lib/storage/s3-provider.js';
+import { LocalDiskProvider } from '../../lib/storage/local-disk-provider.js';
+import { NotFoundError, ConflictError, ValidationError } from '../../lib/errors.js';
+import type { CreateProviderInput, UpdateProviderInput } from './storage-providers.schema.js';
+import type { S3Config, LocalDiskConfig } from '../../lib/storage/types.js';
+
+export async function listProviders() {
+  const prisma = getPrisma();
+  return prisma.storageProvider.findMany({
+    where: { deletedAt: null },
+    orderBy: [{ priority: 'asc' }, { name: 'asc' }],
+  });
+}
+
+export async function getProviderById(id: string) {
+  const prisma = getPrisma();
+  const provider = await prisma.storageProvider.findUnique({ where: { id } });
+  if (!provider || provider.deletedAt) throw new NotFoundError('StorageProvider', id);
+  return provider;
+}
+
+export async function createProvider(input: CreateProviderInput) {
+  const prisma = getPrisma();
+
+  const existing = await prisma.storageProvider.findFirst({
+    where: { name: input.name, deletedAt: null },
+  });
+  if (existing) throw new ConflictError(`Storage provider '${input.name}' already exists`);
+
+  const config = input.type === 'local'
+    ? { basePath: (input.config as LocalDiskConfig).basePath }
+    : {
+        endpoint: (input.config as S3Config).endpoint,
+        port: (input.config as S3Config).port,
+        accessKey: (input.config as S3Config).accessKey,
+        secretKey: (input.config as S3Config).secretKey,
+        bucket: (input.config as S3Config).bucket,
+        useSSL: (input.config as S3Config).useSSL,
+      };
+
+  const provider = await prisma.storageProvider.create({
+    data: {
+      name: input.name,
+      type: input.type,
+      config: config as any,
+      isDefault: input.isDefault ?? false,
+      priority: input.priority ?? 0,
+      description: input.description,
+    },
+  });
+
+  if (provider.isDefault) {
+    await prisma.storageProvider.updateMany({
+      where: { id: { not: provider.id }, isDefault: true, deletedAt: null },
+      data: { isDefault: false },
+    });
+  }
+
+  try {
+    buildProviderInstance(provider.id, provider.name, provider.type as any, provider.config as any);
+    storageRouter.register({
+      id: provider.id,
+      name: provider.name,
+      type: provider.type as any,
+      config: provider.config as any,
+      isDefault: provider.isDefault,
+      isActive: provider.isActive,
+    });
+  } catch (err) {
+    // provider registered but may not respond — that's OK
+  }
+
+  return provider;
+}
+
+export async function updateProvider(id: string, input: UpdateProviderInput) {
+  const prisma = getPrisma();
+
+  const existing = await prisma.storageProvider.findUnique({ where: { id } });
+  if (!existing || existing.deletedAt) throw new NotFoundError('StorageProvider', id);
+
+  if (input.name && input.name !== existing.name) {
+    const nameConflict = await prisma.storageProvider.findFirst({
+      where: { name: input.name, deletedAt: null, id: { not: id } },
+    });
+    if (nameConflict) throw new ConflictError(`Storage provider '${input.name}' already exists`);
+  }
+
+  const data: Record<string, unknown> = {};
+  if (input.name !== undefined) data.name = input.name;
+  if (input.config !== undefined) data.config = input.config as Record<string, unknown>;
+  if (input.priority !== undefined) data.priority = input.priority;
+  if (input.description !== undefined) data.description = input.description;
+  if (input.isActive !== undefined) data.isActive = input.isActive;
+
+  if (input.isDefault === true) {
+    data.isDefault = true;
+    await prisma.storageProvider.updateMany({
+      where: { id: { not: id }, isDefault: true, deletedAt: null },
+      data: { isDefault: false },
+    });
+  }
+
+  const provider = await prisma.storageProvider.update({
+    where: { id },
+    data,
+  });
+
+  storageRouter.unregister(id);
+  try {
+    storageRouter.register({
+      id: provider.id,
+      name: provider.name,
+      type: provider.type as any,
+      config: provider.config as any,
+      isDefault: provider.isDefault,
+      isActive: provider.isActive,
+    });
+  } catch {
+    // ignore
+  }
+
+  if (input.isDefault === true) storageRouter.setDefault(id);
+
+  return provider;
+}
+
+export async function deleteProvider(id: string) {
+  const prisma = getPrisma();
+
+  const existing = await prisma.storageProvider.findUnique({ where: { id } });
+  if (!existing || existing.deletedAt) throw new NotFoundError('StorageProvider', id);
+
+  const fileCount = await prisma.imageFile.count({ where: { storageProviderId: id } });
+  if (fileCount > 0) {
+    throw new ValidationError(
+      `Cannot delete provider with ${fileCount} files. Migrate files first.`,
+    );
+  }
+
+  const jobCount = await prisma.migrationJob.count({
+    where: {
+      OR: [{ sourceId: id }, { targetId: id }],
+      status: { in: ['pending', 'running'] },
+    },
+  });
+  if (jobCount > 0) {
+    throw new ValidationError('Cannot delete provider with active migration jobs');
+  }
+
+  await prisma.storageProvider.update({
+    where: { id },
+    data: { deletedAt: new Date(), isActive: false, isDefault: false },
+  });
+
+  storageRouter.unregister(id);
+}
+
+export async function testProvider(id: string) {
+  const provider = await getProviderById(id);
+  try {
+    const instance = buildProviderInstance(provider.id, provider.name, provider.type as any, provider.config as any);
+    const result = await instance.health();
+    return result;
+  } catch (err: any) {
+    return { ok: false, latencyMs: 0, error: err.message };
+  }
+}
+
+export async function getProviderMetrics(id: string) {
+  const prisma = getPrisma();
+  const metrics = await prisma.storageProviderMetric.findMany({
+    where: { providerId: id },
+    orderBy: { collectedAt: 'desc' },
+    take: 100,
+  });
+  return metrics;
+}
+
+function buildProviderInstance(id: string, name: string, type: 's3' | 'local', config: any) {
+  switch (type) {
+    case 's3':
+      return new S3Provider(id, name, config as S3Config);
+    case 'local':
+      return new LocalDiskProvider(id, name, config as LocalDiskConfig);
+    default:
+      throw new ValidationError(`Unsupported provider type: ${type}`);
+  }
+}

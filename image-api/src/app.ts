@@ -15,6 +15,8 @@ import { cameraRoutes } from './modules/cameras/cameras.controller.js';
 import { retentionRoutes } from './modules/retention/retention.controller.js';
 import { healthRoutes } from './modules/health/health.controller.js';
 import { storageRoutes } from './modules/storage/storage.controller.js';
+import { storageProviderRoutes } from './modules/storage-providers/storage-providers.controller.js';
+import { migrationRoutes } from './modules/migrations/migrations.controller.js';
 import { alertRoutes } from './modules/alerts/alerts.controller.js';
 import { userRoutes } from './modules/users/users.controller.js';
 import { roleRoutes } from './modules/roles/roles.controller.js';
@@ -109,6 +111,8 @@ export async function buildApp() {
       await api.register(backupRoutes, { prefix: '/api/v1/backup' });
       await api.register(smbRoutes, { prefix: '/api/v1' });
       await api.register(adminRoutes, { prefix: '/api/v1/admin' });
+      await api.register(storageProviderRoutes, { prefix: '/api/v1/storage-providers' });
+      await api.register(migrationRoutes, { prefix: '/api/v1/migrations' });
       await api.register(workerUploadRoutes, { prefix: '/api/v1/images' });
     },
   );

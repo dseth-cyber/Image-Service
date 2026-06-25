@@ -52,8 +52,8 @@ const PHASES = [
   { key: 'phase12', status: 'Launched', priority: 'P8.3' },
   { key: 'phase13', status: 'Launched', priority: 'P8.4' },
   { key: 'phase14', status: 'Launched', priority: 'P8.5' },
-  { key: 'phase15', status: 'In Progress', priority: 'P9' },
-  { key: 'phase16', status: 'Planned', priority: 'P9.1' },
+  { key: 'phase15', status: 'Launched', priority: 'P9' },
+  { key: 'phase16', status: 'In Progress', priority: 'P9.1' },
   { key: 'phase17', status: 'Planned', priority: 'P9.2' },
   { key: 'phase18', status: 'Planned', priority: 'P9.3' },
 ]
