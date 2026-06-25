@@ -81,6 +81,7 @@
       "tagValuePlaceholder": "value...",
       "tagAdded": "Tag added",
       "tagDeleted": "Tag deleted",
+      "fileExpired": "Original file not found (deleted or expired)",
       "dimensions": "Dimensions",
       "bitDepth": "Bit Depth",
       "colorSpace": "Color Space",

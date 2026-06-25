@@ -11,6 +11,8 @@ import {
   Download, Image, FileImage, Tag, Info, X, Filter, Plus,
 } from 'lucide-react';
 
+const FILE_TYPE_ORDER: Record<string, number> = { raw: 0, thumbnail: 1, processed: 2 };
+
 const IMAGE_STATUS_COLORS: Record<string, string> = {
   completed: 'bg-green-500/20 text-green-400',
   processing: 'bg-blue-500/20 text-blue-400',
@@ -81,14 +83,14 @@ export default function ImageServiceSearch() {
   useEffect(() => {
     if (!detail?.id || !detail.imageFiles?.some((f: any) => f.fileType === 'thumbnail')) return;
     let cancelled = false;
-    let blobUrl: string | null = null;
+    const blobUrls: string[] = [];
     (async () => {
       try {
         const blob = await imageServiceApi.getImageFileBlob(detail.id, 'thumbnail');
-        if (!cancelled) { blobUrl = URL.createObjectURL(blob); setThumbSrc(blobUrl); }
+        if (!cancelled) { const url = URL.createObjectURL(blob); blobUrls.push(url); setThumbSrc(url); }
       } catch { if (!cancelled) setThumbError(true); }
     })();
-    return () => { cancelled = true; if (blobUrl) URL.revokeObjectURL(blobUrl); };
+    return () => { cancelled = true; blobUrls.forEach(u => URL.revokeObjectURL(u)); };
   }, [detail?.id]);
 
   const handleSort = (col: string) => {
@@ -109,7 +111,13 @@ export default function ImageServiceSearch() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } catch { toast.error(t('common.error')); }
+    } catch (err: any) {
+      if (err?.response?.status === 500) {
+        toast.error(t('imageService.search.fileExpired'));
+      } else {
+        toast.error(t('common.error'));
+      }
+    }
   }, [t, toast]);
 
   const handleDelete = async (id: string) => {
@@ -277,14 +285,18 @@ export default function ImageServiceSearch() {
           <div className="space-y-5 p-1 max-w-2xl">
             <div className="flex items-center gap-4">
               <div className="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0">
-                {detail.imageFiles?.some((f: any) => f.fileType === 'thumbnail') && !thumbError
-                  ? <img src={thumbSrc ?? ''}
+                {thumbSrc
+                  ? <img src={thumbSrc}
                       alt={detail.originalFilename}
                       className="w-full h-full object-cover"
-                      onError={() => setThumbError(true)} />
-                  : <div className="w-32 h-32 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center">
-                      <Image size={48} className="text-cyan-400/60" />
-                    </div>}
+                      onError={() => { setThumbSrc(null); setThumbError(true); }} />
+                  : thumbError
+                    ? <div className="w-32 h-32 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center">
+                        <Image size={48} className="text-cyan-400/60" />
+                      </div>
+                    : <div className="w-32 h-32 rounded-lg bg-white/5 flex items-center justify-center">
+                        <div className="animate-pulse w-8 h-8 rounded-full bg-white/10" />
+                      </div>}
               </div>
               <div className="flex-1">
                 <h3 className={`text-lg font-semibold ${themeConfig.text.primary}`}>{detail.originalFilename}</h3>
@@ -322,7 +334,9 @@ export default function ImageServiceSearch() {
                   <FileImage size={14} /> {t('imageService.search.files')}
                 </h4>
                 <div className="flex gap-2 flex-wrap">
-                  {detail.imageFiles.map((f: any) => (
+                  {[...detail.imageFiles].sort((a: any, b: any) =>
+                    (FILE_TYPE_ORDER[a.fileType] ?? 99) - (FILE_TYPE_ORDER[b.fileType] ?? 99)
+                  ).map((f: any) => (
                     <button key={f.id} onClick={() => handleDownload(detail.id, f.fileType, detail.originalFilename)}
                       className={`px-3 py-2 rounded-md text-xs flex items-center gap-1.5 border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5 transition-colors cursor-pointer`}>
                       <Download size={12} /> {t(`imageService.search.fileType${f.fileType.charAt(0).toUpperCase() + f.fileType.slice(1)}`)}

@@ -81,6 +81,7 @@
       "tagValuePlaceholder": "ค่า...",
       "tagAdded": "เพิ่มแท็กแล้ว",
       "tagDeleted": "ลบแท็กแล้ว",
+      "fileExpired": "ไฟล์ต้นฉบับไม่มีอยู่ในระบบ (ถูกลบหรือหมดอายุ)",
       "dimensions": "ขนาด (กว้าง×สูง)",
       "bitDepth": "ความลึกสี",
       "colorSpace": "พื้นที่สี",

@@ -81,6 +81,7 @@
       "tagValuePlaceholder": "値...",
       "tagAdded": "タグを追加しました",
       "tagDeleted": "タグを削除しました",
+      "fileExpired": "元のファイルが見つかりません（削除済みまたは期限切れ）",
       "dimensions": "寸法 (幅×高さ)",
       "bitDepth": "ビット深度",
       "colorSpace": "色空間",
