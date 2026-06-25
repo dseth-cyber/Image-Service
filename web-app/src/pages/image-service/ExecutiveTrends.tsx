@@ -57,7 +57,7 @@ export default function ExecutiveTrends() {
   })) ?? [];
 
   return (
-    <div className={`${themeConfig.card} rounded-lg p-5`}>
+    <div className="p-5 h-full">
       <div className="flex items-center justify-between mb-4">
         <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>
           {t('imageService.trends.title')}
