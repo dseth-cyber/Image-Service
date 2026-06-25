@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -6,6 +6,11 @@ import { useToast } from '@/contexts/ToastContext';
 import { imageServiceApi } from '@/services/imageServiceApi';
 import { Plus, Edit, Trash2, Shield, Clock, Archive, HardDrive, ImageIcon } from 'lucide-react';
 import { Modal, Button, TableSkeleton, SearchableSelect } from '@/components/ui';
+
+const POLICY_NAME_KEYS: Record<string, { name: string; desc: string }> = {
+  'Default Retention': { name: 'imageService.retention.defaultName', desc: 'imageService.retention.defaultDesc' },
+  'Long-Term Retention': { name: 'imageService.retention.longTermName', desc: 'imageService.retention.longTermDesc' },
+};
 
 const emptyForm = () => ({
   name: '', description: '', rawRetentionDays: 7,
@@ -15,7 +20,7 @@ const emptyForm = () => ({
 });
 
 export default function ImageServiceRetention() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { themeConfig } = useTheme();
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -104,10 +109,12 @@ export default function ImageServiceRetention() {
                 <div>
                   <h3 className={`text-base font-semibold flex items-center gap-2 ${themeConfig.text.primary}`}>
                     <Shield size={16} className="text-cyan-400" />
-                    {policy.name}
+                    {t(POLICY_NAME_KEYS[policy.name]?.name ?? policy.name)}
                   </h3>
-                  {policy.description && (
-                    <p className={`text-xs mt-0.5 ${themeConfig.text.secondary}`}>{policy.description}</p>
+                  {(POLICY_NAME_KEYS[policy.name] || policy.description) && (
+                    <p className={`text-xs mt-0.5 ${themeConfig.text.secondary}`}>
+                      {t(POLICY_NAME_KEYS[policy.name]?.desc ?? policy.description)}
+                    </p>
                   )}
                 </div>
                 <div className="flex items-center gap-1">

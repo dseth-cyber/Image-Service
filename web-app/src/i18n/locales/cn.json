@@ -187,7 +187,11 @@
       "days": "天",
       "hot": "热",
       "warm": "温",
-      "cold": "冷"
+      "cold": "冷",
+      "defaultName": "默认保留策略",
+      "defaultDesc": "生产摄像头的标准保留策略",
+      "longTermName": "长期保留策略",
+      "longTermDesc": "质量检查摄像头的延长保留策略"
     },
     "processing": {
       "title": "处理监控",

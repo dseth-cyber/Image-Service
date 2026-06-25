@@ -187,7 +187,11 @@
       "days": "日",
       "hot": "ホット",
       "warm": "ウォーム",
-      "cold": "コールド"
+      "cold": "コールド",
+      "defaultName": "デフォルト保持",
+      "defaultDesc": "本番カメラ用の標準保持ポリシー",
+      "longTermName": "長期保持",
+      "longTermDesc": "品質検査カメラ用の延長保持ポリシー"
     },
     "processing": {
       "title": "処理モニター",

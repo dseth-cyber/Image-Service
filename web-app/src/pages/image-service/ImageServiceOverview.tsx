@@ -127,7 +127,9 @@ export default function ImageServiceOverview() {
   const storageGrowthRaw = overview?.storageGrowth ?? [];
   const storageGrowth = storageGrowthRaw.map((d: any) => ({ label: d.label, value: Math.round(d.value / (1024 * 1024 * 1024) * 100) / 100 }));
   const imagesByCamera = overview?.imagesByCamera ?? [];
-  const storageByType = overview?.storageByType ?? [];
+  const storageByTypeRaw = overview?.storageByType ?? [];
+  const fileTypeNameKey: Record<string, string> = { raw: 'imageService.storage.rawImages', thumbnail: 'imageService.storage.thumbnails', processed: 'imageService.storage.processedImages' };
+  const storageByType = storageByTypeRaw.map((d: any) => ({ ...d, name: t(fileTypeNameKey[d.name] ?? d.name) }));
 
   const tickFill = themeConfig.name === 'light' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)';
   const gridStroke = themeConfig.name === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.05)';
@@ -264,6 +266,21 @@ export default function ImageServiceOverview() {
               </Pie>
             </PieChart>
           </ResponsiveContainer>
+          <div className="mt-3 space-y-1.5">
+            {[
+              { name: t('imageService.cameras.active'), value: overview?.activeCameras ?? 0, color: '#06b6d4' },
+              { name: t('imageService.cameras.inactive'), value: overview?.inactiveCameras ?? 0, color: '#8b5cf6' },
+              { name: t('imageService.cameras.error'), value: overview?.errorCameras ?? 0, color: '#f59e0b' },
+            ].map((item, i) => (
+              <div key={i} className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span className={themeConfig.text.primary}>{item.name}</span>
+                </div>
+                <span className={themeConfig.text.primary}>{item.value.toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div key="byCamera" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
@@ -310,6 +327,17 @@ export default function ImageServiceOverview() {
               </span>
               <span className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.overview.files')}</span>
             </div>
+          </div>
+          <div className="mt-3 space-y-1.5">
+            {storageByType.map((item: any, i: number) => (
+              <div key={i} className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: PIE_COLORS[i] }} />
+                  <span className={themeConfig.text.primary}>{item.name}</span>
+                </div>
+                <span className={themeConfig.text.primary}>{item.value.toLocaleString()} files</span>
+              </div>
+            ))}
           </div>
         </div>
 

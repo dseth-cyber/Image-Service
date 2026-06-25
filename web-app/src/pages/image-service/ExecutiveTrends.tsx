@@ -108,8 +108,8 @@ export default function ExecutiveTrends() {
               <h4 className={`text-xs font-semibold mb-2 ${themeConfig.text.secondary}`}>
                 {t('imageService.trends.dailyImages')}
               </h4>
-              <ResponsiveContainer width="100%" height={160}>
-                <BarChart data={chartData}>
+              <ResponsiveContainer width="100%" height={170}>
+                <BarChart data={chartData} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
                   <CartesianGrid vertical={false} stroke={gridStroke} />
                   <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 9 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: tickFill, fontSize: 9 }} axisLine={false} tickLine={false} />
@@ -122,10 +122,10 @@ export default function ExecutiveTrends() {
             </div>
             <div>
               <h4 className={`text-xs font-semibold mb-2 ${themeConfig.text.secondary}`}>
-                {t('imageService.trends.dailyStorage')} (GB)
+                {t('imageService.trends.dailyStorage')}
               </h4>
-              <ResponsiveContainer width="100%" height={160}>
-                <BarChart data={chartData}>
+              <ResponsiveContainer width="100%" height={170}>
+                <BarChart data={chartData} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
                   <CartesianGrid vertical={false} stroke={gridStroke} />
                   <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 9 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: tickFill, fontSize: 9 }} axisLine={false} tickLine={false} />

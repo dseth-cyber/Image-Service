@@ -192,7 +192,11 @@
       "days": "d",
       "hot": "Hot",
       "warm": "Warm",
-      "cold": "Cold"
+      "cold": "Cold",
+      "defaultName": "Default Retention",
+      "defaultDesc": "Standard retention policy for production cameras",
+      "longTermName": "Long-Term Retention",
+      "longTermDesc": "Extended retention for quality inspection cameras"
     },
     "processing": {
       "title": "Processing Monitor",
