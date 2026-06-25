@@ -75,6 +75,8 @@
       "deleteImage": "删除图像",
       "deleteConfirm": "确定要删除此图像吗？",
       "deleteSuccess": "图像已删除",
+      "reprocess": "重新处理",
+      "reprocessQueued": "图像已排队重新处理",
       "tagKey": "标签键",
       "tagValue": "标签值",
       "tagKeyPlaceholder": "键...",

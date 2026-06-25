@@ -75,6 +75,8 @@
       "deleteImage": "画像を削除",
       "deleteConfirm": "この画像を削除してもよろしいですか？",
       "deleteSuccess": "画像を削除しました",
+      "reprocess": "再処理",
+      "reprocessQueued": "画像を再処理キューに追加しました",
       "tagKey": "タグキー",
       "tagValue": "タグ値",
       "tagKeyPlaceholder": "キー...",

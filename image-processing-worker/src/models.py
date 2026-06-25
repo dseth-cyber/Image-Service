@@ -9,7 +9,7 @@ class ProcessingJob:
     smb_path: str
     original_filename: str
     file_size_bytes: int
-    checksum_md5: str
+    checksum_md5: str = ""
     checksum_sha256: str | None = None
     captured_at: str | None = None
 
@@ -21,7 +21,7 @@ class ProcessingJob:
             smb_path=data["smbPath"],
             original_filename=data["originalFilename"],
             file_size_bytes=data["fileSizeBytes"],
-            checksum_md5=data["checksumMd5"],
+            checksum_md5=data.get("checksumMd5", ""),
             checksum_sha256=data.get("checksumSha256"),
             captured_at=data.get("capturedAt"),
         )

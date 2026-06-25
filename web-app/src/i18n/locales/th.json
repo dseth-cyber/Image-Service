@@ -75,6 +75,8 @@
       "deleteImage": "ลบภาพ",
       "deleteConfirm": "แน่ใจว่าต้องการลบภาพนี้?",
       "deleteSuccess": "ลบภาพสำเร็จ",
+      "reprocess": "ประมวลผลใหม่",
+      "reprocessQueued": "ส่งภาพเข้าคิวประมวลผลใหม่แล้ว",
       "tagKey": "คีย์แท็ก",
       "tagValue": "ค่าแท็ก",
       "tagKeyPlaceholder": "คีย์...",

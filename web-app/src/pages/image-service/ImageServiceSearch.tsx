@@ -8,8 +8,18 @@ import { formatDateTime } from '@/utils/dateUtils';
 import { Modal, Button, SearchableSelect, TableSkeleton } from '@/components/ui';
 import {
   Search, ChevronUp, ChevronDown, ChevronsUpDown, Eye, Trash2,
-  Download, Image, FileImage, Tag, Info, X, Filter, Plus,
+  Download, Image, FileImage, Tag, Info, X, Filter, Plus, RefreshCw, FolderOpen,
 } from 'lucide-react';
+
+function parseFilePath(originalFilename: string): { basename: string; subFolder: string } {
+  const normalized = originalFilename.replace(/\\/g, '/').replace(/^\/+/, '');
+  const lastSlash = normalized.lastIndexOf('/');
+  if (lastSlash === -1) return { basename: normalized, subFolder: '' };
+  return {
+    basename: normalized.slice(lastSlash + 1),
+    subFolder: normalized.slice(0, lastSlash),
+  };
+}
 
 const FILE_TYPE_ORDER: Record<string, number> = { raw: 0, thumbnail: 1, processed: 2 };
 
@@ -236,7 +246,18 @@ export default function ImageServiceSearch() {
                 {items.map((item: any, idx: number) => (
                   <tr key={item.id} className={`border-b ${themeConfig.tableBorder} ${themeConfig.tableRow}`}>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>{(page - 1) * 20 + idx + 1}</td>
-                    <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>{item.originalFilename}</td>
+                    <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>
+                      {(() => { const { basename, subFolder } = parseFilePath(item.originalFilename); return (
+                        <div>
+                          <span>{basename}</span>
+                          {subFolder && (
+                            <span className={`ml-1.5 inline-flex items-center gap-0.5 text-[10px] ${themeConfig.text.secondary}`}>
+                              <FolderOpen size={10} /> {subFolder}
+                            </span>
+                          )}
+                        </div>
+                      ); })()}
+                    </td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${IMAGE_STATUS_COLORS[item.status] ?? 'bg-gray-500/20 text-gray-400'}`}>
                         {t('common.' + item.status) ?? item.status}
@@ -306,7 +327,12 @@ export default function ImageServiceSearch() {
                       </div>}
               </div>
               <div className="flex-1">
-                <h3 className={`text-lg font-semibold ${themeConfig.text.primary}`}>{detail.originalFilename}</h3>
+                <h3 className={`text-lg font-semibold ${themeConfig.text.primary}`}>{parseFilePath(detail.originalFilename).basename}</h3>
+                {parseFilePath(detail.originalFilename).subFolder && (
+                  <p className={`text-xs flex items-center gap-1 ${themeConfig.text.secondary}`}>
+                    <FolderOpen size={11} /> {parseFilePath(detail.originalFilename).subFolder}
+                  </p>
+                )}
                 <p className={`text-xs ${themeConfig.text.secondary}`}>ID: {detail.id}</p>
                 <span className={`mt-1 inline-block px-2 py-0.5 rounded-full text-xs font-medium ${IMAGE_STATUS_COLORS[detail.status]}`}>{t('common.' + detail.status) ?? detail.status}</span>
               </div>
@@ -344,7 +370,7 @@ export default function ImageServiceSearch() {
                     {[...detail.imageFiles].sort((a: any, b: any) =>
                       (FILE_TYPE_ORDER[a.fileType] ?? 99) - (FILE_TYPE_ORDER[b.fileType] ?? 99)
                     ).map((f: any) => (
-                      <button key={f.id} onClick={() => handleDownload(detail.id, f.fileType, detail.originalFilename)}
+                      <button key={f.id} onClick={() => handleDownload(detail.id, f.fileType, parseFilePath(detail.originalFilename).basename)}
                       className={`px-3 py-2 rounded-md text-xs flex items-center gap-1.5 border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5 transition-colors cursor-pointer`}>
                       <Download size={12} /> {t(`imageService.search.fileType${f.fileType.charAt(0).toUpperCase() + f.fileType.slice(1)}`)}
                       {f.fileSizeBytes ? ` (${(f.fileSizeBytes / 1024 / 1024).toFixed(1)} MB)` : ''}
@@ -417,6 +443,16 @@ export default function ImageServiceSearch() {
 
             <div className="flex justify-end gap-2 pt-3 border-t" style={{ borderColor: trackColor }}>
               <Button variant="secondary" onClick={() => setDetailId(null)}>{t('common.close')}</Button>
+              <Button onClick={async () => {
+                try {
+                  await imageServiceApi.reprocessImage(detail.id);
+                  toast.success(t('imageService.search.reprocessQueued'));
+                  queryClient.invalidateQueries({ queryKey: ['images'] });
+                  queryClient.invalidateQueries({ queryKey: ['image-detail', detailId] });
+                } catch { toast.error(t('common.error')); }
+              }} className="!bg-amber-600 hover:!bg-amber-700 text-white">
+                <RefreshCw size={14} className="mr-1.5" /> {t('imageService.search.reprocess')}
+              </Button>
               <Button onClick={() => handleDelete(detail.id)} className="!bg-red-600 hover:!bg-red-700 text-white">
                 <Trash2 size={14} className="mr-1.5" /> {t('imageService.search.deleteImage')}
               </Button>

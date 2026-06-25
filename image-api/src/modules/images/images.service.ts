@@ -3,6 +3,9 @@ import { getPrisma } from '../../lib/prisma.js';
 import { logger } from '../../lib/logger.js';
 import { NotFoundError } from '../../lib/errors.js';
 import { setRetentionUntil } from '../retention-sweeper/retention-sweeper.service.js';
+import { getRedisClient } from '../../lib/redis.js';
+import { getMinio } from '../../lib/minio.js';
+import { config } from '../../config/index.js';
 import type { ImageSearchInput, UpdateMetadataInput, RegisterImageInput, ProcessingResultInput } from './images.schema.js';
 import type { PaginatedResult } from '../../types/index.js';
 
@@ -297,4 +300,63 @@ export async function softDeleteImage(id: string) {
     where: { id },
     data: { status: 'deleted', deletedAt: new Date() },
   });
+}
+
+export async function reprocessImage(id: string) {
+  const prisma = getPrisma();
+
+  const image = await prisma.image.findUnique({
+    where: { id },
+    include: {
+      camera: true,
+      imageFiles: true,
+    },
+  });
+
+  if (!image || image.status === 'deleted') {
+    throw new NotFoundError('Image', id);
+  }
+
+  const minio = getMinio();
+  for (const file of image.imageFiles) {
+    try {
+      await minio.removeObject(config.minio.bucket, file.objectKey);
+    } catch (err) {
+      logger.warn({ imageId: id, objectKey: file.objectKey, err }, 'Failed to remove old MinIO object');
+    }
+  }
+
+  await prisma.imageFile.deleteMany({ where: { imageId: id } });
+
+  await prisma.image.update({
+    where: { id },
+    data: {
+      status: 'pending',
+      processedAt: null,
+    },
+  });
+
+  const smbSharePath = image.camera.smbSharePath.replace(/\/+$/, '');
+  const cleanFilename = image.originalFilename.replace(/^[\\/]+/, '').replace(/\\/g, '/');
+  const smbPath = `${smbSharePath}/${cleanFilename}`;
+
+  const redis = getRedisClient();
+  const jobId = `reprocess-${id}-${Date.now()}`;
+  const jobData = JSON.stringify({
+    imageId: id,
+    cameraId: image.cameraId,
+    smbPath,
+    originalFilename: image.originalFilename,
+    fileSizeBytes: Number(image.fileSizeBytes),
+    checksumMd5: image.checksumMd5 ?? '',
+    checksumSha256: image.checksumSha256 ?? undefined,
+    capturedAt: image.capturedAt.toISOString(),
+  });
+
+  await redis.hset(`bull:image-processing:${jobId}`, 'data', jobData);
+  await redis.lpush('bull:image-processing:wait', jobId);
+
+  logger.info({ imageId: id, jobId }, 'Image queued for reprocessing');
+
+  return { id, status: 'pending', jobId };
 }

@@ -21,6 +21,8 @@ export function createImageServiceApi(api: any) {
 
     deleteImage: (id: string) => api.delete(`${BASE}/images/${id}`).then((r: any) => r.data),
 
+    reprocessImage: (id: string) => api.post(`${BASE}/images/${id}/reprocess`).then((r: any) => r.data),
+
     // Cameras
     getCameras: (params?: { status?: string; enabled?: boolean }) =>
       api.get(`${BASE}/cameras`, { params }).then((r: any) => r.data),

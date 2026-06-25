@@ -75,6 +75,8 @@
       "deleteImage": "ပုံဖျက်ရန်",
       "deleteConfirm": "ဤပုံကိုဖျက်မည်မှာ သေချာပါသလား?",
       "deleteSuccess": "ပုံဖျက်ခြင်းအောင်မြင်ပါသည်",
+      "reprocess": "ပြန်လည်စီမံရန်",
+      "reprocessQueued": "ပုံကို ပြန်လည်စီမံရန် တန်းစီထားပါသည်",
       "tagKey": "တက်ဂ်သော့",
       "tagValue": "တက်ဂ်တန်ဖိုး",
       "tagKeyPlaceholder": "သော့...",
