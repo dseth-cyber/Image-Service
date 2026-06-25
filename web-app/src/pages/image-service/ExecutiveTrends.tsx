@@ -57,12 +57,12 @@ export default function ExecutiveTrends() {
   })) ?? [];
 
   return (
-    <div className="p-5 h-full">
+    <div className="flex flex-col p-5 h-full min-h-0">
       <div className="flex items-center justify-between mb-4">
         <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>
           {t('imageService.trends.title')}
         </h3>
-        <div className="w-32">
+        <div className="w-32 shrink-0">
           <SearchableSelect value={period} onChange={setPeriod} options={periodOptions} />
         </div>
       </div>
@@ -71,7 +71,7 @@ export default function ExecutiveTrends() {
         <div className={`text-sm py-8 text-center ${themeConfig.text.secondary}`}>{t('common.loading')}</div>
       ) : data ? (
         <>
-          <div className="grid grid-cols-4 gap-3 mb-5">
+          <div className="grid grid-cols-4 gap-3 mb-5 shrink-0">
             <div className="p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
               <div className="flex items-center gap-1.5 mb-1">
                 <Image size={13} className="text-cyan-400" />
@@ -103,38 +103,42 @@ export default function ExecutiveTrends() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <h4 className={`text-xs font-semibold mb-2 ${themeConfig.text.secondary}`}>
+          <div className="flex-1 grid grid-cols-2 gap-4 min-h-0">
+            <div className="flex flex-col min-h-0">
+              <h4 className={`text-xs font-semibold mb-2 shrink-0 ${themeConfig.text.secondary}`}>
                 {t('imageService.trends.dailyImages')}
               </h4>
-              <ResponsiveContainer width="100%" height={170}>
-                <BarChart data={chartData} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
-                  <CartesianGrid vertical={false} stroke={gridStroke} />
-                  <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 9 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: tickFill, fontSize: 9 }} axisLine={false} tickLine={false} />
-                  <Tooltip />
-                  <Bar dataKey="images" fill="#06b6d4" radius={[3, 3, 0, 0]}>
-                    <LabelList dataKey="images" position="top" style={{ fill: tickFill, fontSize: 9 }} />
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="flex-1 min-h-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
+                    <CartesianGrid vertical={false} stroke={gridStroke} />
+                    <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 9 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: tickFill, fontSize: 9 }} axisLine={false} tickLine={false} />
+                    <Tooltip />
+                    <Bar dataKey="images" fill="#06b6d4" radius={[3, 3, 0, 0]}>
+                      <LabelList dataKey="images" position="top" style={{ fill: tickFill, fontSize: 9 }} />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-            <div>
-              <h4 className={`text-xs font-semibold mb-2 ${themeConfig.text.secondary}`}>
+            <div className="flex flex-col min-h-0">
+              <h4 className={`text-xs font-semibold mb-2 shrink-0 ${themeConfig.text.secondary}`}>
                 {t('imageService.trends.dailyStorage')}
               </h4>
-              <ResponsiveContainer width="100%" height={170}>
-                <BarChart data={chartData} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
-                  <CartesianGrid vertical={false} stroke={gridStroke} />
-                  <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 9 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: tickFill, fontSize: 9 }} axisLine={false} tickLine={false} />
-                  <Tooltip />
-                  <Bar dataKey="storage" fill="#8b5cf6" radius={[3, 3, 0, 0]}>
-                    <LabelList dataKey="storage" position="top" style={{ fill: tickFill, fontSize: 9 }} />
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="flex-1 min-h-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 20, right: 8, left: 0, bottom: 0 }}>
+                    <CartesianGrid vertical={false} stroke={gridStroke} />
+                    <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 9 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fill: tickFill, fontSize: 9 }} axisLine={false} tickLine={false} />
+                    <Tooltip />
+                    <Bar dataKey="storage" fill="#8b5cf6" radius={[3, 3, 0, 0]}>
+                      <LabelList dataKey="storage" position="top" style={{ fill: tickFill, fontSize: 9 }} />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
         </>
