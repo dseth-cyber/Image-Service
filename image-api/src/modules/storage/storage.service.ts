@@ -158,7 +158,7 @@ export async function getStorageForecast(): Promise<{
     ? Math.ceil((maxBytes - totalBytes) / dailyGrowthRate)
     : null;
 
-  const projections = [120, 240, 360].map((days) => {
+  const projections = [7, 14, 30, 60, 90, 120, 240, 360].map((days) => {
     const projectedBytes = totalBytes + dailyGrowthRate * days;
     return {
       days,
