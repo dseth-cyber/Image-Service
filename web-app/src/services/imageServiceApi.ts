@@ -238,6 +238,10 @@ export function createImageServiceApi(api: any) {
     runRestoreTest: (id: string) =>
       api.post(`${BASE}/backup/${id}/restore-test`).then((r: any) => r.data),
 
+    // Image File Blob (for authenticated preview/download)
+    getImageFileBlob: (id: string, fileType: string) =>
+      api.get(`${BASE}/images/${id}/files/${fileType}`, { responseType: 'blob' }).then((r: any) => r.data),
+
     // Trends (Executive Dashboard)
     getTrends: (period: string) =>
       api.get(`${BASE}/processing-logs/trends`, { params: { period } }).then((r: any) => r.data),

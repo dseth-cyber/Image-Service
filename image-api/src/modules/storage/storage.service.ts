@@ -125,10 +125,15 @@ export async function getStorageForecast(): Promise<{
   daysUntilFull: number | null;
   projections: { days: number; projectedBytes: number; usagePercent: number }[];
 }> {
-  const [summary, growth60, growth90, configs] = await Promise.all([
+  const [summary, growth60, growth90, oldestImage, configs] = await Promise.all([
     getStorageSummary(),
     getStorageGrowth(60),
     getStorageGrowth(90),
+    getPrisma().image.findFirst({
+      where: { status: { not: 'deleted' } },
+      orderBy: { capturedAt: 'asc' },
+      select: { capturedAt: true },
+    }),
     getAllConfigs(),
   ]);
 
@@ -136,7 +141,7 @@ export async function getStorageForecast(): Promise<{
   const totalBytes = summary.totalBytes;
   const usagePercent = maxBytes > 0 ? (totalBytes / maxBytes) * 100 : 0;
 
-  // Calculate daily growth rate from 90-day data (use 60-day as fallback)
+  // Calculate daily growth rate from recent data first, fall back to all-time average
   const growthData = growth90.data.length >= 30 ? growth90.data : growth60.data;
   let dailyGrowthRate = 0;
 
@@ -144,6 +149,9 @@ export async function getStorageForecast(): Promise<{
     const n = growthData.length;
     const sumY = growthData.reduce((s, d) => s + d.bytesAdded, 0);
     dailyGrowthRate = Math.max(0, sumY / n);
+  } else if (oldestImage?.capturedAt && totalBytes > 0) {
+    const ageDays = Math.max(1, (Date.now() - oldestImage.capturedAt.getTime()) / (1000 * 60 * 60 * 24));
+    dailyGrowthRate = Math.max(0, totalBytes / ageDays);
   }
 
   const daysUntilFull = dailyGrowthRate > 0

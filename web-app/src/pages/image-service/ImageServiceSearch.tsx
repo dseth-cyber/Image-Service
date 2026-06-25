@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -41,6 +41,7 @@ export default function ImageServiceSearch() {
   const [newTagKey, setNewTagKey] = useState('');
   const [newTagValue, setNewTagValue] = useState('');
   const [thumbError, setThumbError] = useState(false);
+  const [thumbSrc, setThumbSrc] = useState<string | null>(null);
 
   const { data: cameras = [] } = useQuery({
     queryKey: ['cameras'],
@@ -73,9 +74,22 @@ export default function ImageServiceSearch() {
 
   const { data: detail } = useQuery({
     queryKey: ['image-detail', detailId],
-    queryFn: () => { setThumbError(false); return imageServiceApi.getImage(detailId!); },
+    queryFn: () => { setThumbError(false); setThumbSrc(null); return imageServiceApi.getImage(detailId!); },
     enabled: !!detailId,
   });
+
+  useEffect(() => {
+    if (!detail?.id || !detail.imageFiles?.some((f: any) => f.fileType === 'thumbnail')) return;
+    let cancelled = false;
+    let blobUrl: string | null = null;
+    (async () => {
+      try {
+        const blob = await imageServiceApi.getImageFileBlob(detail.id, 'thumbnail');
+        if (!cancelled) { blobUrl = URL.createObjectURL(blob); setThumbSrc(blobUrl); }
+      } catch { if (!cancelled) setThumbError(true); }
+    })();
+    return () => { cancelled = true; if (blobUrl) URL.revokeObjectURL(blobUrl); };
+  }, [detail?.id]);
 
   const handleSort = (col: string) => {
     if (col === 'actions' || col === 'no') return;
@@ -84,8 +98,19 @@ export default function ImageServiceSearch() {
     setPage(1);
   };
 
-  const downloadUrl = (id: string, fileType: string) =>
-    `${(window as any).__API_BASE__ ?? '/image-service'}/api/v1/images/${id}/files/${fileType}`;
+  const handleDownload = useCallback(async (id: string, fileType: string, filename?: string) => {
+    try {
+      const blob = await imageServiceApi.getImageFileBlob(id, fileType);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename ?? `${id}-${fileType}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch { toast.error(t('common.error')); }
+  }, [t, toast]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -253,7 +278,7 @@ export default function ImageServiceSearch() {
             <div className="flex items-center gap-4">
               <div className="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0">
                 {detail.imageFiles?.some((f: any) => f.fileType === 'thumbnail') && !thumbError
-                  ? <img src={downloadUrl(detail.id, 'thumbnail')}
+                  ? <img src={thumbSrc ?? ''}
                       alt={detail.originalFilename}
                       className="w-full h-full object-cover"
                       onError={() => setThumbError(true)} />
@@ -298,11 +323,11 @@ export default function ImageServiceSearch() {
                 </h4>
                 <div className="flex gap-2 flex-wrap">
                   {detail.imageFiles.map((f: any) => (
-                    <a key={f.id} href={downloadUrl(detail.id, f.fileType)} target="_blank" rel="noopener noreferrer"
-                      className={`px-3 py-2 rounded-md text-xs flex items-center gap-1.5 border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5 transition-colors`}>
+                    <button key={f.id} onClick={() => handleDownload(detail.id, f.fileType, detail.originalFilename)}
+                      className={`px-3 py-2 rounded-md text-xs flex items-center gap-1.5 border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5 transition-colors cursor-pointer`}>
                       <Download size={12} /> {t(`imageService.search.fileType${f.fileType.charAt(0).toUpperCase() + f.fileType.slice(1)}`)}
                       {f.fileSizeBytes ? ` (${(f.fileSizeBytes / 1024 / 1024).toFixed(1)} MB)` : ''}
-                    </a>
+                    </button>
                   ))}
                 </div>
               </div>
