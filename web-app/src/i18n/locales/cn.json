@@ -849,9 +849,51 @@
         "pg_dump 和 MinIO 备份脚本",
         "每月自动恢复测试",
         "备份状态仪表板"
-      ]
-    },
-    "permissions": {
+      ],
+    "phase15": "P9 — 存储提供者抽象层",
+    "phase15Desc": "StorageProvider 接口、S3 (MinIO)、带分片的本地磁盘、StorageRouter、Worker上传重构",
+    "phase15Status": "进行中",
+    "phase15Tasks": [
+      "StorageProvider 接口 — 统一的 save/getStream/delete/health API",
+      "S3Provider — 封装现有 MinIO 客户端，兼容所有 S3 存储",
+      "LocalDiskProvider — YYYY/MM/DD/fileType/hashPrefix 分片方案，支持千万级文件",
+      "StorageRouter — 内存注册表，getDefault()，变更时 refresh()",
+      "重构 images/retention/admin/backup/health 中所有 MinIO 调用 → StorageRouter",
+      "Worker 直接写入存储，仅向 API 发送元数据",
+      "Prisma: storage_providers 表，image_files 增加 storageProviderId + storageProfileId + checksumSha256",
+      "首次部署时从环境变量自动创建 'Primary Storage'"
+    ],
+    "phase16": "P9.1 — 存储管理与迁移",
+    "phase16Desc": "存储提供者管理页面、迁移引擎、健康监控",
+    "phase16Status": "已计划",
+    "phase16Tasks": [
+      "存储提供者 CRUD 页面 — 从 UI 添加/编辑/删除",
+      "连接测试 — 验证存储端点和凭证",
+      "设置默认提供者 — 改变新文件写入位置",
+      "提供者健康仪表板 — 容量条、延迟、状态",
+      "StorageProviderMetric — 每15分钟自动收集健康/统计信息",
+      "迁移引擎 — 通过 BullMQ 后台任务在提供者间迁移数据",
+      "迁移仪表板 — 进度、历史、取消/重试"
+    ],
+    "phase17": "P9.2 — 存储配置文件",
+    "phase17Desc": "根据不同用例将存储路由到不同的后端",
+    "phase17Status": "已计划",
+    "phase17Tasks": [
+      "存储配置文件 — 带提供者路由规则的实体",
+      "基于策略的路由 — 默认、废品归档、AI数据集、OCR归档",
+      "ImageFile.storageProfileId — 链接到配置文件",
+      "配置文件管理界面"
+    ],
+    "phase18": "P9.3 — SMB/NFS 存储提供者",
+    "phase18Desc": "通过 SMB 和 NFS 协议直接支持 NAS",
+    "phase18Status": "已计划",
+    "phase18Tasks": [
+      "SMBProvider — 通过 SMB 直接写入 NAS",
+      "NFSProvider — 通过 NFS 直接写入 NAS",
+      "扩展 StorageProvider 接口 — 零业务逻辑变更"
+    ]
+  },
+  "permissions": {
       "modules": {
         "overview": "仪表板 / 概览",
         "cameras": "摄像头",

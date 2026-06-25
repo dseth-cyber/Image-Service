@@ -854,9 +854,51 @@
         "Script backup pg_dump และ MinIO",
         "ทดสอบ Restore อัตโนมัติทุกเดือน",
         "Dashboard สถานะ Backup"
-      ]
-    },
-    "permissions": {
+      ],
+    "phase15": "P9 — Storage Provider Abstraction",
+    "phase15Desc": "Interface StorageProvider, S3 (MinIO), LocalDisk พร้อม Sharding, StorageRouter, ปรับปรุง Worker Upload",
+    "phase15Status": "กำลังดำเนินการ",
+    "phase15Tasks": [
+      "StorageProvider Interface — API เดียว save/getStream/delete/health สำหรับทุก Provider",
+      "S3Provider — ห่อ MinIO Client เดิม รองรับ S3-compatible storage ทั้งหมด",
+      "LocalDiskProvider — Sharding แบบ YYYY/MM/DD/fileType/hashPrefix รองรับ 10 ล้าน+ ไฟล์",
+      "StorageRouter — Registry ในหน่วยความจำ, getDefault(), refresh() เมื่อมีการเปลี่ยนแปลง",
+      "ปรับปรุงการเรียก MinIO ใน images, retention, admin, backup, health → StorageRouter",
+      "Worker เขียนไฟล์ไปยัง Provider โดยตรง, ส่ง Metadata-only ไปยัง API",
+      "Prisma: ตาราง storage_providers, image_files.storageProviderId + storageProfileId + checksumSha256",
+      "Auto-seed 'Primary Storage' จาก Environment Variables ครั้งแรกที่ Deploy"
+    ],
+    "phase16": "P9.1 — การจัดการ Storage และ Migration",
+    "phase16Desc": "UI จัดการ Storage Provider, ระบบย้ายข้อมูล (Migration Engine), การตรวจสอบสถานะ",
+    "phase16Status": "วางแผนไว้",
+    "phase16Tasks": [
+      "หน้า Storage Providers — เพิ่ม/แก้ไข/ลบ Provider จาก UI",
+      "Test Connection — ตรวจสอบการเชื่อมต่อ Provider",
+      "Set Default Provider — เปลี่ยนตำแหน่งบันทึกไฟล์ใหม่",
+      "Provider Health Dashboard — แถบความจุ, latency, สถานะ Provider",
+      "StorageProviderMetric — เก็บข้อมูลสุขภาพอัตโนมัติทุก 15 นาที",
+      "Migration Engine — ย้ายข้อมูลระหว่าง Provider ผ่าน Background Job (BullMQ)",
+      "Migration Dashboard — ความคืบหน้า, ประวัติ, ยกเลิก/ลองใหม่"
+    ],
+    "phase17": "P9.2 — Storage Profiles",
+    "phase17Desc": "การจัดเส้นทางตามนโยบายไปยัง Storage Backend ที่แตกต่างกัน",
+    "phase17Status": "วางแผนไว้",
+    "phase17Tasks": [
+      "Storage Profiles — Entity Profile พร้อมกฎการจัดเส้นทางไปยัง Provider",
+      "Policy-based routing — Default, Reject Archive, AI Dataset, OCR Archive",
+      "ImageFile.storageProfileId — เชื่อมโยงไปยัง Profile",
+      "UI จัดการ Profile"
+    ],
+    "phase18": "P9.3 — SMB / NFS Providers",
+    "phase18Desc": "รองรับ NAS โดยตรงผ่าน SMB และ NFS",
+    "phase18Status": "วางแผนไว้",
+    "phase18Tasks": [
+      "SMBProvider — เขียนไฟล์ไปยัง NAS โดยตรงผ่าน SMB",
+      "NFSProvider — เขียนไฟล์ไปยัง NAS โดยตรงผ่าน NFS",
+      "ต่อขยายจาก StorageProvider Interface — ไม่ต้องเปลี่ยน Business Logic"
+    ]
+  },
+  "permissions": {
       "modules": {
         "overview": "แดชบอร์ด / ภาพรวม",
         "cameras": "กล้องวงจรปิด",

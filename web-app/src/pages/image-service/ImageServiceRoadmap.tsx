@@ -5,7 +5,7 @@ import { imageServiceApi } from '@/services/imageServiceApi'
 import {
   Microscope, Camera, Database, Server, Activity, CheckCircle2, Clock, Kanban,
   ArrowRight, HardDrive, Shield, Wifi, Bug, Lock, FileText, Cpu, Palette, Layout,
-  BookText, MessageCircle, Settings,
+  BookText, MessageCircle, Settings, GitBranch, Layers,
 } from 'lucide-react'
 
 const PHASE_STATUS_STYLES: Record<string, string> = {
@@ -30,6 +30,10 @@ const PHASE_ICONS: Record<string, any> = {
   phase12: Server,
   phase13: Shield,
   phase14: FileText,
+  phase15: HardDrive,
+  phase16: GitBranch,
+  phase17: Layers,
+  phase18: Server,
 }
 
 const PHASES = [
@@ -48,6 +52,10 @@ const PHASES = [
   { key: 'phase12', status: 'Launched', priority: 'P8.3' },
   { key: 'phase13', status: 'Launched', priority: 'P8.4' },
   { key: 'phase14', status: 'Launched', priority: 'P8.5' },
+  { key: 'phase15', status: 'In Progress', priority: 'P9' },
+  { key: 'phase16', status: 'Planned', priority: 'P9.1' },
+  { key: 'phase17', status: 'Planned', priority: 'P9.2' },
+  { key: 'phase18', status: 'Planned', priority: 'P9.3' },
 ]
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -66,6 +74,10 @@ const PRIORITY_COLORS: Record<string, string> = {
   'P8.3': 'bg-teal-500/20 text-teal-400',
   'P8.4': 'bg-teal-500/20 text-teal-400',
   'P8.5': 'bg-teal-500/20 text-teal-400',
+  P9: 'bg-indigo-500/20 text-indigo-400',
+  'P9.1': 'bg-indigo-500/20 text-indigo-400',
+  'P9.2': 'bg-indigo-500/20 text-indigo-400',
+  'P9.3': 'bg-indigo-500/20 text-indigo-400',
 }
 
 const STATUS_WEIGHTS: Record<string, number> = {

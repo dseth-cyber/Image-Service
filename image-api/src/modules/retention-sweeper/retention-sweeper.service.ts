@@ -1,7 +1,6 @@
 import { getPrisma } from '../../lib/prisma.js';
 import { logger } from '../../lib/logger.js';
-import { getMinio } from '../../lib/minio.js';
-import { config } from '../../config/index.js';
+import { storageRouter } from '../../lib/storage/storage-router.js';
 
 export async function setRetentionUntil(imageId: string, cameraId: string): Promise<void> {
   const prisma = getPrisma();
@@ -43,11 +42,13 @@ export async function sweepExpiredImages(): Promise<{ deleted: number; errors: n
       try {
         for (const file of image.imageFiles) {
           try {
-            const bucketName = file.bucket === 'images' ? config.minio.bucket : file.bucket;
-            await getMinio().removeObject(bucketName, file.objectKey);
+            const provider = file.storageProviderId
+              ? storageRouter.get(file.storageProviderId)
+              : storageRouter.getDefault();
+            await provider.delete(file.objectKey);
           } catch (err: any) {
             if (!err.message?.includes('Not Found')) {
-              logger.error({ err, imageId: image.id, fileId: file.id }, 'Failed to delete file from MinIO');
+              logger.error({ err, imageId: image.id, fileId: file.id }, 'Failed to delete file from storage');
             }
           }
         }

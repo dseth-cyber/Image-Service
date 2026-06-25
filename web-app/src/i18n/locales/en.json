@@ -854,9 +854,51 @@
         "pg_dump and MinIO backup scripts",
         "Monthly restore test automation",
         "Backup status dashboard"
-      ]
-    },
-    "permissions": {
+      ],
+    "phase15": "P9 — Storage Provider Abstraction",
+    "phase15Desc": "StorageProvider Interface, S3 (MinIO), LocalDisk with sharding, StorageRouter, worker upload refactor",
+    "phase15Status": "In Progress",
+    "phase15Tasks": [
+      "StorageProvider Interface — unified save/getStream/delete/health API",
+      "S3Provider — wraps existing MinIO client, works with any S3-compatible storage",
+      "LocalDiskProvider — YYYY/MM/DD/fileType/hashPrefix sharding for 10M+ files",
+      "StorageRouter — in-memory registry, getDefault(), refresh() on mutation",
+      "Refactor MinIO calls in images, retention, admin, backup, health → StorageRouter",
+      "Worker writes directly to provider, sends metadata-only to API",
+      "Prisma: storage_providers table, image_files.storageProviderId + storageProfileId + checksumSha256",
+      "Auto-seed 'Primary Storage' from env on first deploy"
+    ],
+    "phase16": "P9.1 — Storage Management & Migration",
+    "phase16Desc": "Admin UI for Storage Providers, Migration Engine, Health Monitoring",
+    "phase16Status": "Planned",
+    "phase16Tasks": [
+      "Storage Providers CRUD page — add/edit/delete providers from UI",
+      "Test Connection — validates provider endpoint + credentials",
+      "Set Default Provider — changes where new files go",
+      "Provider Health Dashboard — capacity bar, latency, status per provider",
+      "StorageProviderMetric — auto-collect health/stats every 15m",
+      "Migration Engine — move data between providers via BullMQ background job",
+      "Migration Dashboard — progress, history, cancel/retry"
+    ],
+    "phase17": "P9.2 — Storage Profiles",
+    "phase17Desc": "Policy-based routing to different storage backends per use case",
+    "phase17Status": "Planned",
+    "phase17Tasks": [
+      "Storage Profiles — Profile entity with provider routing rules",
+      "Policy-based routing — Default, Reject Archive, AI Dataset, OCR Archive",
+      "ImageFile.storageProfileId — link to profile",
+      "Admin UI for profile CRUD"
+    ],
+    "phase18": "P9.3 — SMB / NFS Providers",
+    "phase18Desc": "Direct NAS support via SMB and NFS storage backends",
+    "phase18Status": "Planned",
+    "phase18Tasks": [
+      "SMBProvider — direct write to NAS via SMB protocol",
+      "NFSProvider — direct write to NAS via NFS mount",
+      "Extends StorageProvider interface — zero business logic changes"
+    ]
+  },
+  "permissions": {
       "modules": {
         "overview": "Dashboard / Overview",
         "cameras": "Cameras",

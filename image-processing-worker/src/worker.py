@@ -22,6 +22,7 @@ class ProcessingWorker:
         self.api = ApiClient()
         self.kafka = KafkaEventProducer()
         self._running = True
+        self._provider_id: str | None = None
 
     @property
     def redis(self) -> Redis:
@@ -49,6 +50,14 @@ class ProcessingWorker:
         )
 
         await self.minio.ensure_bucket()
+        try:
+            provider = await self.api.get_default_storage_provider()
+            self._provider_id = provider.get("id")
+            self.api._provider_id = self._provider_id
+            logger.info("Using storage provider", provider_id=self._provider_id, name=provider.get("name"))
+        except Exception as e:
+            logger.warning("Failed to get default storage provider — proceeding without provider_id", error=str(e))
+
         try:
             await self.kafka.start()
         except Exception as e:
@@ -160,6 +169,35 @@ class ProcessingWorker:
             await self.minio.upload_thumbnail(
                 result.thumbnail_object_key, thumb_data
             )
+
+            if self._provider_id:
+                await self.api.report_file_upload(
+                    image_id=result.image_id,
+                    file_type="raw",
+                    object_key=result.raw_object_key,
+                    storage_provider_id=self._provider_id,
+                    file_size_bytes=result.raw_size_bytes,
+                    checksum_sha256=result.sha256,
+                    mime_type="image/tiff",
+                )
+                await self.api.report_file_upload(
+                    image_id=result.image_id,
+                    file_type="processed",
+                    object_key=result.png_object_key,
+                    storage_provider_id=self._provider_id,
+                    file_size_bytes=result.png_size_bytes,
+                    checksum_sha256=result.sha256,
+                    mime_type="image/png",
+                )
+                await self.api.report_file_upload(
+                    image_id=result.image_id,
+                    file_type="thumbnail",
+                    object_key=result.thumbnail_object_key,
+                    storage_provider_id=self._provider_id,
+                    file_size_bytes=result.thumbnail_size_bytes,
+                    checksum_sha256=result.sha256,
+                    mime_type="image/png",
+                )
 
             await self.api.report_processing_result(result)
 

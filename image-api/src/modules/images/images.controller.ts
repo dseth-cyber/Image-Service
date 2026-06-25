@@ -2,8 +2,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { imageSearchSchema, registerImageSchema, updateMetadataSchema, updateTagsSchema, processingResultSchema } from './images.schema.js';
 import * as imagesService from './images.service.js';
 import { requirePermission } from '../../middleware/rbac.js';
-import { getMinio } from '../../lib/minio.js';
-import { config } from '../../config/index.js';
+import { storageRouter } from '../../lib/storage/storage-router.js';
 import { createAuditLog } from '../audit/audit.service.js';
 
 async function registerImageHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -127,8 +126,10 @@ async function getFileStreamHandler(request: FastifyRequest, reply: FastifyReply
   }
 
   try {
-    const minio = getMinio();
-    const stream = await minio.getObject(config.minio.bucket, file.objectKey as string);
+    const provider = (file.storageProviderId as string)
+      ? storageRouter.get(file.storageProviderId as string)
+      : storageRouter.getDefault();
+    const stream = await provider.getStream(file.objectKey as string);
     reply.header('Content-Type', (file.mimeType as string) ?? 'application/octet-stream');
     reply.header('Cache-Control', 'no-store');
     reply.header('Transfer-Encoding', 'chunked');

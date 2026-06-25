@@ -29,6 +29,13 @@ enum ImageStatus {
   @@map("image_status")
 }
 
+enum ProviderType {
+  s3
+  local
+
+  @@map("provider_type")
+}
+
 enum FileType {
   raw
   processed
@@ -161,6 +168,25 @@ model RetentionPolicy {
   @@map("retention_policies")
 }
 
+model StorageProvider {
+  id            String       @id @default(uuid()) @db.Uuid
+  name          String       @unique @db.VarChar(128)
+  type          ProviderType
+  config        Json
+  isDefault     Boolean      @default(false) @map("is_default")
+  isActive      Boolean      @default(true) @map("is_active")
+  capacityBytes BigInt?      @map("capacity_bytes")
+  priority      Int          @default(0)
+  description   String?      @db.Text
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+  deletedAt     DateTime?    @map("deleted_at")
+
+  imageFiles    ImageFile[]
+
+  @@map("storage_providers")
+}
+
 model Camera {
   id                     String       @id @default(uuid()) @db.Uuid
   name                   String       @db.VarChar(128)
@@ -227,18 +253,21 @@ model Image {
 }
 
 model ImageFile {
-  id             String       @id @default(uuid()) @db.Uuid
-  imageId        String       @map("image_id") @db.Uuid
-  fileType       FileType     @map("file_type")
-  bucket         String       @db.VarChar(128)
-  objectKey      String       @db.Text
-  storageClass   StorageClass @default(hot) @map("storage_class")
-  fileSizeBytes  BigInt       @map("file_size_bytes")
-  checksumSha256 String?      @map("checksum_sha256") @db.Char(64)
-  mimeType       String?      @map("mime_type") @db.VarChar(128)
-  createdAt      DateTime     @default(now()) @map("created_at")
+  id                String          @id @default(uuid()) @db.Uuid
+  imageId           String          @map("image_id") @db.Uuid
+  fileType          FileType        @map("file_type")
+  bucket            String          @db.VarChar(128)
+  objectKey         String          @db.Text
+  storageClass      StorageClass    @default(hot) @map("storage_class")
+  fileSizeBytes     BigInt          @map("file_size_bytes")
+  checksumSha256    String?         @map("checksum_sha256") @db.Char(64)
+  mimeType          String?         @map("mime_type") @db.VarChar(128)
+  storageProviderId String?         @map("storage_provider_id") @db.Uuid
+  storageProfileId  String?         @map("storage_profile_id") @db.VarChar(64)
+  createdAt         DateTime        @default(now()) @map("created_at")
 
-  image Image @relation(fields: [imageId], references: [id])
+  image           Image            @relation(fields: [imageId], references: [id])
+  storageProvider StorageProvider? @relation(fields: [storageProviderId], references: [id])
 
   @@unique([imageId, fileType])
   @@map("image_files")

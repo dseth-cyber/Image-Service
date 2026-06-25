@@ -31,6 +31,9 @@ import { smbRoutes } from './modules/smb/smb.controller.js';
 import adminRoutes from './modules/admin/admin.controller.js';
 import { startRetentionSweeper, stopRetentionSweeper } from './modules/retention-sweeper/retention-sweeper.controller.js';
 import { startDlqReprocessor, stopDlqReprocessor } from './modules/processing-logs/dlq-reprocessor.js';
+import { workerUploadRoutes } from './modules/images/worker-upload.controller.js';
+import { storageRouter } from './lib/storage/storage-router.js';
+import { getPrisma } from './lib/prisma.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -106,6 +109,7 @@ export async function buildApp() {
       await api.register(backupRoutes, { prefix: '/api/v1/backup' });
       await api.register(smbRoutes, { prefix: '/api/v1' });
       await api.register(adminRoutes, { prefix: '/api/v1/admin' });
+      await api.register(workerUploadRoutes, { prefix: '/api/v1/images' });
     },
   );
 
@@ -128,6 +132,20 @@ export async function startApp() {
   startBackupScheduler();
 
   try {
+    const prisma = getPrisma();
+    const providers = await prisma.storageProvider.findMany({ where: { deletedAt: null } });
+    for (const p of providers) {
+      storageRouter.register({
+        id: p.id,
+        name: p.name,
+        type: p.type as any,
+        config: p.config as any,
+        isDefault: p.isDefault,
+        isActive: p.isActive,
+      });
+    }
+    logger.info({ count: storageRouter.size() }, 'Storage providers registered');
+
     await app.listen({ host: config.host, port: config.port });
     logger.info({ port: config.port, env: config.nodeEnv }, 'Server started');
     logger.info(`Swagger docs at http://${config.host}:${config.port}/docs`);

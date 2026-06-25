@@ -4,9 +4,9 @@ import { logger } from '../../lib/logger.js';
 import { NotFoundError } from '../../lib/errors.js';
 import { setRetentionUntil } from '../retention-sweeper/retention-sweeper.service.js';
 import { getRedisClient } from '../../lib/redis.js';
-import { getMinio } from '../../lib/minio.js';
-import { config } from '../../config/index.js';
+import { storageRouter } from '../../lib/storage/storage-router.js';
 import type { ImageSearchInput, UpdateMetadataInput, RegisterImageInput, ProcessingResultInput } from './images.schema.js';
+import type { WorkerUploadInput } from './worker-upload.schema.js';
 import type { PaginatedResult } from '../../types/index.js';
 
 function mapBigInt(obj: unknown): unknown {
@@ -136,7 +136,7 @@ export async function getImageById(id: string) {
     include: {
       camera: { select: { id: true, name: true } },
       imageFiles: {
-        select: { id: true, fileType: true, fileSizeBytes: true, mimeType: true, storageClass: true, objectKey: true },
+        select: { id: true, fileType: true, fileSizeBytes: true, mimeType: true, storageClass: true, objectKey: true, storageProviderId: true },
       },
       imageTags: {
         select: { key: true, value: true },
@@ -253,6 +253,7 @@ export async function submitProcessingResult(id: string, input: ProcessingResult
           storageClass: file.storageClass ?? 'hot',
           fileSizeBytes: BigInt(file.fileSizeBytes),
           mimeType: file.mimeType ?? null,
+          storageProviderId: file.storageProviderId ?? null,
         },
       }),
     ));
@@ -288,6 +289,25 @@ export async function submitProcessingResult(id: string, input: ProcessingResult
   return mapBigInt(updated);
 }
 
+export async function recordWorkerUpload(input: WorkerUploadInput) {
+  const prisma = getPrisma();
+
+  const imageFile = await prisma.imageFile.create({
+    data: {
+      imageId: input.imageId,
+      fileType: input.fileType as any,
+      bucket: 'images',
+      objectKey: input.objectKey,
+      fileSizeBytes: BigInt(input.fileSizeBytes),
+      checksumSha256: input.checksumSha256 ?? null,
+      mimeType: input.mimeType ?? null,
+      storageProviderId: input.storageProviderId,
+    },
+  });
+
+  return { id: imageFile.id };
+}
+
 export async function softDeleteImage(id: string) {
   const prisma = getPrisma();
 
@@ -317,12 +337,14 @@ export async function reprocessImage(id: string) {
     throw new NotFoundError('Image', id);
   }
 
-  const minio = getMinio();
   for (const file of image.imageFiles) {
     try {
-      await minio.removeObject(config.minio.bucket, file.objectKey);
+      const provider = file.storageProviderId
+        ? storageRouter.get(file.storageProviderId)
+        : storageRouter.getDefault();
+      await provider.delete(file.objectKey);
     } catch (err) {
-      logger.warn({ imageId: id, objectKey: file.objectKey, err }, 'Failed to remove old MinIO object');
+      logger.warn({ imageId: id, objectKey: file.objectKey, err }, 'Failed to remove old storage object');
     }
   }
 

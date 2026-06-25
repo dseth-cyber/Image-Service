@@ -28,6 +28,10 @@ export const config = {
     port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
   },
 
+  storage: {
+    localPath: process.env.LOCAL_STORAGE_PATH ?? '/data/images',
+  },
+
   encryptionKey: process.env.ENCRYPTION_KEY ?? 'change-me',
 
   serviceApiKey: process.env.SERVICE_API_KEY ?? '',

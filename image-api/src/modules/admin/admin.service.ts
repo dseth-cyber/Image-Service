@@ -1,9 +1,8 @@
 import bcrypt from 'bcryptjs';
 import { ForbiddenError } from '../../lib/errors.js';
 import { getPrisma } from '../../lib/prisma.js';
-import { getMinio } from '../../lib/minio.js';
+import { storageRouter } from '../../lib/storage/storage-router.js';
 import { getRedisClient } from '../../lib/redis.js';
-import { config } from '../../config/index.js';
 import { createAuditLog } from '../audit/audit.service.js';
 
 export async function clearAllData(userId: string, input: { password: string }) {
@@ -13,23 +12,19 @@ export async function clearAllData(userId: string, input: { password: string }) 
     throw new ForbiddenError('Invalid password');
   }
 
-  // 1. Clear MinIO objects (fire-and-forget to avoid timeout)
+  // 1. Clear storage objects (fire-and-forget to avoid timeout)
   (async () => {
     try {
-      const m = getMinio();
-      const b = config.minio.bucket;
-      const objects = await new Promise<string[]>((resolve, reject) => {
-        const list: string[] = [];
-        const stream = m.listObjects(b, '', true);
-        stream.on('data', (obj) => { if (obj.name) list.push(obj.name); });
-        stream.on('error', reject);
-        stream.on('end', () => resolve(list));
-      });
-      for (let i = 0; i < objects.length; i += 1000) {
-        await m.removeObjects(b, objects.slice(i, i + 1000));
+      const provider = storageRouter.getDefault();
+      const objects: string[] = [];
+      for await (const key of provider.list()) {
+        objects.push(key);
+      }
+      if (objects.length > 0) {
+        await provider.deleteBatch(objects);
       }
     } catch {
-      // ignore MinIO errors in background
+      // ignore storage errors in background
     }
   })();
 

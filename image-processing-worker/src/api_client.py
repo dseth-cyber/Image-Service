@@ -11,6 +11,7 @@ class ApiClient:
         self.base_url = settings.api_base_url.rstrip("/")
         self.jwt = settings.api_jwt
         self.api_key = settings.api_service_api_key
+        self._provider_id: str | None = None
 
     def _headers(self) -> dict[str, str]:
         headers = {"Content-Type": "application/json"}
@@ -44,6 +45,30 @@ class ApiClient:
     ) -> None:
         metadata = result.metadata
 
+        files = [
+            {
+                "fileType": "raw",
+                "fileSizeBytes": result.raw_size_bytes,
+                "mimeType": "image/tiff",
+                "objectKey": result.raw_object_key,
+            },
+            {
+                "fileType": "processed",
+                "fileSizeBytes": result.png_size_bytes,
+                "mimeType": "image/png",
+                "objectKey": result.png_object_key,
+            },
+            {
+                "fileType": "thumbnail",
+                "fileSizeBytes": result.thumbnail_size_bytes,
+                "mimeType": "image/png",
+                "objectKey": result.thumbnail_object_key,
+            },
+        ]
+        if self._provider_id:
+            for f in files:
+                f["storageProviderId"] = self._provider_id
+
         payload = {
             "status": "completed",
             "widthPx": metadata.width_px,
@@ -55,26 +80,7 @@ class ApiClient:
             "checksumSha256": result.sha256,
             "processedAt": result.processed_at,
             "tiffMetadata": metadata.tiff_tags,
-            "files": [
-                {
-                    "fileType": "raw",
-                    "fileSizeBytes": result.raw_size_bytes,
-                    "mimeType": "image/tiff",
-                    "objectKey": result.raw_object_key,
-                },
-                {
-                    "fileType": "processed",
-                    "fileSizeBytes": result.png_size_bytes,
-                    "mimeType": "image/png",
-                    "objectKey": result.png_object_key,
-                },
-                {
-                    "fileType": "thumbnail",
-                    "fileSizeBytes": result.thumbnail_size_bytes,
-                    "mimeType": "image/png",
-                    "objectKey": result.thumbnail_object_key,
-                },
-            ],
+            "files": files,
         }
 
         async with httpx.AsyncClient(timeout=30.0) as client:
@@ -134,6 +140,34 @@ class ApiClient:
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.get(
                 f"{self.base_url}/api/v1/cameras/{camera_id}",
+                headers=self._headers(),
+            )
+            response.raise_for_status()
+            return response.json()
+
+    async def get_default_storage_provider(self) -> dict:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                f"{self.base_url}/api/v1/storage-providers/default",
+                headers=self._headers(),
+            )
+            response.raise_for_status()
+            return response.json()
+
+    async def report_file_upload(self, image_id: str, file_type: str, object_key: str, storage_provider_id: str, file_size_bytes: int, checksum_sha256: str | None = None, mime_type: str | None = None) -> dict:
+        payload = {
+            "imageId": image_id,
+            "fileType": file_type,
+            "objectKey": object_key,
+            "storageProviderId": storage_provider_id,
+            "fileSizeBytes": file_size_bytes,
+            "checksumSha256": checksum_sha256,
+            "mimeType": mime_type,
+        }
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                f"{self.base_url}/api/v1/images/worker-upload",
+                json=payload,
                 headers=self._headers(),
             )
             response.raise_for_status()

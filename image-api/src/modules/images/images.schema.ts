@@ -42,6 +42,7 @@ export const processingResultFileSchema = z.object({
   objectKey: z.string().min(1),
   bucket: z.string().default('images'),
   storageClass: z.enum(['hot', 'warm', 'cold']).default('hot'),
+  storageProviderId: z.string().uuid().optional(),
 });
 
 export const processingResultSchema = z.object({

@@ -144,6 +144,8 @@ services:
     container_name: image-api
     ports:
       - "3001:3001"
+    volumes:
+      - local-storage-data:/data/images
     environment:
       NODE_ENV: production
       HOST: 0.0.0.0
@@ -158,6 +160,7 @@ services:
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
       MINIO_BUCKET: ${MINIO_BUCKET:-image-service}
       MINIO_USE_SSL: "false"
+      LOCAL_STORAGE_PATH: /data/images
       REDIS_HOST: redis
       REDIS_PORT: 6379
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:-dev-encryption-key-32chars!!}
@@ -290,6 +293,7 @@ services:
     container_name: image-processing-worker
     volumes:
       - ./mock_smb_shares:/mnt/smb/image-smb-server/images
+      - local-storage-data:/data/images
     environment:
       WORKER_ID: processing-1
       LOG_LEVEL: INFO
@@ -347,6 +351,7 @@ volumes:
   postgres-data:
   redis-data:
   minio-data:
+  local-storage-data:
 
 networks:
   image-network:

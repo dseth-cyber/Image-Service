@@ -849,9 +849,51 @@
         "pg_dump နှင့် MinIO backup scripts များ",
         "လစဉ် အလိုအလျောက် Restore စမ်းသပ်ခြင်း",
         "Backup အခြေအနေ ဒက်ရှ်ဘုတ်"
-      ]
-    },
-    "permissions": {
+      ],
+    "phase15": "P9 — Storage Provider Abstraction",
+    "phase15Desc": "StorageProvider Interface, S3 (MinIO), LocalDisk with sharding, StorageRouter, worker upload refactor",
+    "phase15Status": "လုပ်ဆောင်နေသည်",
+    "phase15Tasks": [
+      "StorageProvider Interface — save/getStream/delete/health API တစ်စုတည်း",
+      "S3Provider — MinIO client ကိုထုတ်ပေးထားပြီး S3-compatible storage အားလုံးနှင့်အလုပ်လုပ်နိုင်",
+      "LocalDiskProvider — YYYY/MM/DD/fileType/hashPrefix sharding ဖြင့် သန်း ၁၀+ ဖိုင်များကိုလက်ခံနိုင်",
+      "StorageRouter — in-memory registry, getDefault(), refresh() on mutation",
+      "MinIO calls များကို images, retention, admin, backup, health → StorageRouter သို့ပြောင်းလဲခြင်း",
+      "Worker က provider သို့တိုက်ရိုက်ရေးသည်၊ API သို့ metadata သာပို့သည်",
+      "Prisma: storage_providers ဇယား, image_files.storageProviderId + storageProfileId + checksumSha256",
+      "ပထမဆုံး deploy လုပ်သည့်အခါ env မှ 'Primary Storage' ကို auto-seed လုပ်သည်"
+    ],
+    "phase16": "P9.1 — Storage Management & Migration",
+    "phase16Desc": "Storage Providers UI, Migration Engine, Health Monitoring",
+    "phase16Status": "စီစဉ်ထား",
+    "phase16Tasks": [
+      "Storage Providers CRUD စာမျက်နှာ — provider များကို UI မှထည့်/ပြင်/ဖျက်နိုင်",
+      "Test Connection — provider endpoint နှင့် credentials ကိုစစ်ဆေးသည်",
+      "Set Default Provider — ဖိုင်အသစ်များသိုလှောင်မည့်နေရာကိုပြောင်းလဲသည်",
+      "Provider Health Dashboard — capacity bar, latency, status per provider",
+      "StorageProviderMetric — ၁၅ မိနစ်တိုင်း health/stats ကို auto-collect လုပ်သည်",
+      "Migration Engine — BullMQ background job ဖြင့် provider များကြားဒေတာရွှေ့ပြောင်းခြင်း",
+      "Migration Dashboard — တိုးတက်မှု, မှတ်တမ်း, ပယ်ဖျက်/ပြန်ကြိုးစား"
+    ],
+    "phase17": "P9.2 — Storage Profiles",
+    "phase17Desc": "Policy-based routing ဖြင့် storage backend အမျိုးမျိုးသို့ပို့ဆောင်ခြင်း",
+    "phase17Status": "စီစဉ်ထား",
+    "phase17Tasks": [
+      "Storage Profiles — provider routing rules ပါသော Profile entity",
+      "Policy-based routing — Default, Reject Archive, AI Dataset, OCR Archive",
+      "ImageFile.storageProfileId — link to profile",
+      "Admin UI for profile CRUD"
+    ],
+    "phase18": "P9.3 — SMB / NFS Providers",
+    "phase18Desc": "SMB နှင့် NFS မှတစ်ဆင့် NAS ကိုတိုက်ရိုက်ပံ့ပိုးခြင်း",
+    "phase18Status": "စီစဉ်ထား",
+    "phase18Tasks": [
+      "SMBProvider — SMB protocol ဖြင့် NAS သို့တိုက်ရိုက်ရေးသည်",
+      "NFSProvider — NFS mount ဖြင့် NAS သို့တိုက်ရိုက်ရေးသည်",
+      "StorageProvider interface မှ extend — business logic ပြောင်းရန်မလို"
+    ]
+  },
+  "permissions": {
       "modules": {
         "overview": "ဒက်ရှ်ဘုတ် / ခြုံငုံသုံးသပ်ချက်",
         "cameras": "ကင်မရာများ",

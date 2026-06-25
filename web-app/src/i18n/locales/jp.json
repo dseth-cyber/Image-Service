@@ -849,9 +849,51 @@
         "pg_dump と MinIO のバックアップスクリプト",
         "毎月の自動復元テスト",
         "バックアップステータスダッシュボード"
-      ]
-    },
-    "permissions": {
+      ],
+    "phase15": "P9 — ストレージプロバイダ抽象化",
+    "phase15Desc": "StorageProvider インターフェース、S3 (MinIO)、シャーディング付きLocalDisk、StorageRouter、Workerアップロードリファクタ",
+    "phase15Status": "進行中",
+    "phase15Tasks": [
+      "StorageProvider インターフェース — 統一された save/getStream/delete/health API",
+      "S3Provider — 既存の MinIO クライアントをラップ、全 S3 互換ストレージで動作",
+      "LocalDiskProvider — YYYY/MM/DD/fileType/hashPrefix シャーディング、1000万+ファイル対応",
+      "StorageRouter — インメモリレジストリ、getDefault()、変更時に refresh()",
+      "images/retention/admin/backup/health の全 MinIO 呼び出しを StorageRouter に置き換え",
+      "Worker はプロバイダに直接書き込み、API にはメタデータのみ送信",
+      "Prisma: storage_providers テーブル、image_files に storageProviderId + storageProfileId + checksumSha256 追加",
+      "初回デプロイ時に環境変数から 'Primary Storage' を自動シード"
+    ],
+    "phase16": "P9.1 — ストレージ管理と移行",
+    "phase16Desc": "ストレージプロバイダ管理UI、移行エンジン、ヘルスモニタリング",
+    "phase16Status": "計画済み",
+    "phase16Tasks": [
+      "ストレージプロバイダ CRUD ページ — UI からプロバイダの追加/編集/削除",
+      "接続テスト — エンドポイントと認証情報を検証",
+      "デフォルトプロバイダ設定 — 新規ファイルの書き込み先を変更",
+      "プロバイダ健全性ダッシュボード — 容量バー、レイテンシ、ステータス",
+      "StorageProviderMetric — 15分ごとに自動でヘルス/統計情報を収集",
+      "移行エンジン — BullMQ バックグラウンドジョブでプロバイダ間のデータ移動",
+      "移行ダッシュボード — 進捗、履歴、キャンセル/リトライ"
+    ],
+    "phase17": "P9.2 — ストレージプロファイル",
+    "phase17Desc": "ユースケースに応じたポリシーベースのストレージルーティング",
+    "phase17Status": "計画済み",
+    "phase17Tasks": [
+      "ストレージプロファイル — プロバイダルーティングルールを持つエンティティ",
+      "ポリシーベースルーティング — デフォルト、リジェクトアーカイブ、AIデータセット、OCRアーカイブ",
+      "ImageFile.storageProfileId — プロファイルへのリンク",
+      "プロファイル管理UI"
+    ],
+    "phase18": "P9.3 — SMB/NFS プロバイダ",
+    "phase18Desc": "SMB および NFS プロトコルによる NAS 直接サポート",
+    "phase18Status": "計画済み",
+    "phase18Tasks": [
+      "SMBProvider — SMB プロトコルで NAS に直接書き込み",
+      "NFSProvider — NFS マウントで NAS に直接書き込み",
+      "StorageProvider インターフェースを拡張 — ビジネスロジックの変更は不要"
+    ]
+  },
+  "permissions": {
       "modules": {
         "overview": "ダッシュボード / 概要",
         "cameras": "カメラ",

@@ -1,6 +1,7 @@
 import { getPrisma } from '../../lib/prisma.js';
 import { logger } from '../../lib/logger.js';
 import { config } from '../../config/index.js';
+import { storageRouter } from '../../lib/storage/storage-router.js';
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -65,33 +66,34 @@ export async function runDatabaseBackup(): Promise<{ id: string; status: string;
   }
 }
 
-export async function runMinioBackup(): Promise<{ id: string; status: string; filePath?: string }> {
+export async function runStorageBackup(): Promise<{ id: string; status: string; filePath?: string }> {
   const prisma = getPrisma();
 
   const record = await prisma.backupRecord.create({
-    data: { type: 'minio', status: 'running' },
+    data: { type: 'storage', status: 'running' },
   });
 
   try {
     fs.mkdirSync(BACKUP_DIR, { recursive: true });
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filePath = path.join(BACKUP_DIR, `minio_backup_${timestamp}.tar.gz`);
+    const filePath = path.join(BACKUP_DIR, `storage_backup_${timestamp}.tar.gz`);
 
-    const mcCmd = [
-      'mc',
-      'mirror',
-      `--overwrite`,
-      `${config.minio.bucket}/`,
-      filePath,
-    ];
+    const provider = storageRouter.getDefault();
+    const chunks: Buffer[] = [];
+    let objectCount = 0;
 
-    execSync(mcCmd.join(' '), {
-      stdio: 'pipe',
-      timeout: 600_000,
-    });
+    for await (const key of provider.list()) {
+      const data = await provider.getBuffer(key);
+      const header = Buffer.from(`${key}:${data.length}\n`);
+      chunks.push(header, data);
+      objectCount++;
+    }
+
+    const data = Buffer.concat(chunks);
+    fs.writeFileSync(filePath, data);
 
     const stats = fs.statSync(filePath);
-    const checksum = crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+    const checksum = crypto.createHash('sha256').update(data).digest('hex');
 
     await prisma.backupRecord.update({
       where: { id: record.id },
@@ -104,14 +106,14 @@ export async function runMinioBackup(): Promise<{ id: string; status: string; fi
       },
     });
 
-    logger.info({ filePath, size: stats.size }, 'MinIO backup completed');
+    logger.info({ filePath, size: stats.size, objects: objectCount }, 'Storage backup completed');
     return { id: record.id, status: 'completed', filePath };
   } catch (err: any) {
     await prisma.backupRecord.update({
       where: { id: record.id },
       data: { status: 'failed', errorMessage: err.message, completedAt: new Date() },
     });
-    logger.error({ err }, 'MinIO backup failed');
+    logger.error({ err }, 'Storage backup failed');
     return { id: record.id, status: 'failed' };
   }
 }
