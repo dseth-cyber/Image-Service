@@ -162,7 +162,7 @@ export default function ImageServiceProcessingMonitor() {
   }, [autoRefresh, connect]);
 
   const statusCounts = ['completed', 'running', 'queued', 'failed', 'dead_letter'].map((s) => ({
-    name: t(`imageService.processingLogs.${s === 'dead_letter' ? 'failed' : s}`),
+    name: t(STATUS_LABEL_KEY[s] ?? s),
     value: logs.filter((l) => l.status === s).length,
   }));
 

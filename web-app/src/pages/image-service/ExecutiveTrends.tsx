@@ -5,7 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { imageServiceApi } from '@/services/imageServiceApi';
 import { SearchableSelect } from '@/components/ui';
 import {
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LabelList,
 } from 'recharts';
 import {
   TrendingUp, TrendingDown, Minus, Image, HardDrive, Activity,
@@ -53,7 +53,7 @@ export default function ExecutiveTrends() {
   const chartData = data?.dailyBreakdown?.map((d: any) => ({
     label: d.date?.slice(5),
     images: d.images,
-    storage: Math.round(d.storage / (1024 * 1024)),
+    storage: Math.round(d.storage / (1024 * 1024 * 1024) * 100) / 100,
   })) ?? [];
 
   return (
@@ -114,13 +114,15 @@ export default function ExecutiveTrends() {
                   <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 9 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: tickFill, fontSize: 9 }} axisLine={false} tickLine={false} />
                   <Tooltip />
-                  <Bar dataKey="images" fill="#06b6d4" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="images" fill="#06b6d4" radius={[3, 3, 0, 0]}>
+                    <LabelList dataKey="images" position="top" style={{ fill: tickFill, fontSize: 9 }} />
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
             <div>
               <h4 className={`text-xs font-semibold mb-2 ${themeConfig.text.secondary}`}>
-                {t('imageService.trends.dailyStorage')} (MB)
+                {t('imageService.trends.dailyStorage')} (GB)
               </h4>
               <ResponsiveContainer width="100%" height={160}>
                 <BarChart data={chartData}>
@@ -128,7 +130,9 @@ export default function ExecutiveTrends() {
                   <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 9 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: tickFill, fontSize: 9 }} axisLine={false} tickLine={false} />
                   <Tooltip />
-                  <Bar dataKey="storage" fill="#8b5cf6" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="storage" fill="#8b5cf6" radius={[3, 3, 0, 0]}>
+                    <LabelList dataKey="storage" position="top" style={{ fill: tickFill, fontSize: 9 }} />
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>

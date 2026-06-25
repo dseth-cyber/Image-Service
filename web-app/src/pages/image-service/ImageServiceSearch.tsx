@@ -101,8 +101,18 @@ export default function ImageServiceSearch() {
   };
 
   const handleDownload = useCallback(async (id: string, fileType: string, filename?: string) => {
+    const token = localStorage.getItem('accessToken');
+    const base = (window as any).__API_BASE__ ?? '/image-service';
     try {
-      const blob = await imageServiceApi.getImageFileBlob(id, fileType);
+      const res = await fetch(`${base}/api/v1/images/${id}/files/${fileType}`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        if (res.status === 500) { toast.error(t('imageService.search.fileExpired')); }
+        else { toast.error(t('common.error')); }
+        return;
+      }
+      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -111,13 +121,7 @@ export default function ImageServiceSearch() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } catch (err: any) {
-      if (err?.response?.status === 500) {
-        toast.error(t('imageService.search.fileExpired'));
-      } else {
-        toast.error(t('common.error'));
-      }
-    }
+    } catch { toast.error(t('common.error')); }
   }, [t, toast]);
 
   const handleDelete = async (id: string) => {

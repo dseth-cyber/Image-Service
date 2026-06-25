@@ -6,7 +6,7 @@ import { Responsive, WidthProvider } from 'react-grid-layout';
 import { imageServiceApi } from '@/services/imageServiceApi';
 import {
   ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList,
 } from 'recharts';
 import ExecutiveTrends from './ExecutiveTrends';
 import { GripVertical, Settings, RotateCcw, Check, Camera, HardDrive, Activity, Image, TrendingUp } from 'lucide-react';
@@ -124,7 +124,8 @@ export default function ImageServiceOverview() {
   ];
 
   const recentActivity = overview?.recentActivity ?? [];
-  const storageGrowth = overview?.storageGrowth ?? [];
+  const storageGrowthRaw = overview?.storageGrowth ?? [];
+  const storageGrowth = storageGrowthRaw.map((d: any) => ({ label: d.label, value: Math.round(d.value / (1024 * 1024 * 1024) * 100) / 100 }));
   const imagesByCamera = overview?.imagesByCamera ?? [];
   const storageByType = overview?.storageByType ?? [];
 
@@ -225,7 +226,7 @@ export default function ImageServiceOverview() {
         <div key="growth" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
           <DragHandle show={isEditing} />
           <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
-            {t('imageService.overview.storageGrowth')}
+            {t('imageService.overview.storageGrowth')} (GB)
           </h3>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={storageGrowth} barCategoryGap="30%">
@@ -237,6 +238,7 @@ export default function ImageServiceOverview() {
                 {storageGrowth.map((_: any, i: number) => (
                   <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />
                 ))}
+                <LabelList dataKey="value" position="top" style={{ fill: tickFill, fontSize: 10 }} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -254,12 +256,12 @@ export default function ImageServiceOverview() {
                 { name: t('imageService.cameras.inactive'), value: overview?.inactiveCameras ?? 0 },
                 { name: t('imageService.cameras.error'), value: overview?.errorCameras ?? 0 },
               ]} cx="50%" cy="50%" innerRadius={55} outerRadius={80}
-                paddingAngle={3} dataKey="value" nameKey="name">
+                paddingAngle={3} dataKey="value" nameKey="name"
+                label={({ name, value }: any) => `${name}: ${value}`}>
                 {PIE_COLORS.slice(0, 3).map((c, i) => (
                   <Cell key={i} fill={c} />
                 ))}
               </Pie>
-              <Tooltip content={<CustomTooltip />} />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -279,6 +281,7 @@ export default function ImageServiceOverview() {
                 {imagesByCamera.map((_: any, i: number) => (
                   <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />
                 ))}
+                <LabelList dataKey="value" position="right" style={{ fill: tickFill, fontSize: 10 }} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -293,12 +296,12 @@ export default function ImageServiceOverview() {
             <ResponsiveContainer width="100%" height={180}>
               <PieChart>
                 <Pie data={storageByType} cx="50%" cy="50%" innerRadius={55} outerRadius={80}
-                  paddingAngle={3} dataKey="value" nameKey="name">
+                  paddingAngle={3} dataKey="value" nameKey="name"
+                  label={({ name, value }: any) => `${name}: ${value.toLocaleString()}`}>
                   {storageByType.map((_: any, i: number) => (
                     <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
