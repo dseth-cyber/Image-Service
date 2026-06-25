@@ -94,13 +94,14 @@ export async function getStorageGrowth(days: number) {
     bytes_added: bigint;
   }>>`
     SELECT
-      DATE(captured_at) as date,
-      COUNT(*)::bigint as images_added,
-      COALESCE(SUM(file_size_bytes), 0)::bigint as bytes_added
-    FROM images
-    WHERE captured_at >= ${startDate}
-      AND status != 'deleted'
-    GROUP BY DATE(captured_at)
+      DATE(i.captured_at) as date,
+      COUNT(DISTINCT i.id)::bigint as images_added,
+      COALESCE(SUM(f.file_size_bytes), 0)::bigint as bytes_added
+    FROM images i
+    LEFT JOIN image_files f ON f.image_id = i.id
+    WHERE i.captured_at >= ${startDate}
+      AND i.status != 'deleted'
+    GROUP BY DATE(i.captured_at)
     ORDER BY date ASC
   `;
 
