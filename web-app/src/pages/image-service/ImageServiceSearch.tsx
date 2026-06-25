@@ -100,25 +100,19 @@ export default function ImageServiceSearch() {
     setPage(1);
   };
 
-  const handleDownload = useCallback(async (id: string, fileType: string) => {
+  const handleDownload = useCallback((id: string, fileType: string) => {
     const token = localStorage.getItem('accessToken');
     const base = (window as any).__API_BASE__ ?? '/image-service';
     const url = `${base}/api/v1/images/${id}/files/${fileType}?token=${encodeURIComponent(token ?? '')}`;
-    try {
-      const controller = new AbortController();
-      const res = await fetch(url, { signal: controller.signal });
-      if (!res.ok) {
-        if (res.status === 500) toast.error(t('imageService.search.fileExpired'));
-        else toast.error(t('common.error'));
-        controller.abort();
-        return;
-      }
-      controller.abort();
-    } catch {
-      toast.error(t('common.error'));
-      return;
-    }
-    window.open(url, '_blank');
+    // Open window synchronously to avoid popup blocker
+    const dw = window.open('', '_blank');
+    if (!dw) { toast.error(t('common.error')); return; }
+    dw.document.write('<!DOCTYPE html><html><body style="background:#0f172a;color:#94a3b8;display:flex;align-items:center;justify-content:center;font-family:sans-serif;font-size:14px"><p>' + t('imageService.search.downloadStarting') + '</p></body></html>');
+    // Async check
+    fetch(url).then(res => {
+      if (!res.ok) { dw.close(); toast.error(res.status === 500 ? t('imageService.search.fileExpired') : t('common.error')); return; }
+      dw.location.href = url;
+    }).catch(() => { dw.close(); toast.error(t('common.error')); });
   }, [t, toast]);
 
   const handleDelete = async (id: string) => {

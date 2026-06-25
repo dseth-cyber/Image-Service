@@ -82,6 +82,7 @@
       "tagAdded": "Tag added",
       "tagDeleted": "Tag deleted",
       "fileExpired": "Original file not found (deleted or expired)",
+      "downloadStarting": "Preparing download...",
       "dimensions": "Dimensions",
       "bitDepth": "Bit Depth",
       "colorSpace": "Color Space",

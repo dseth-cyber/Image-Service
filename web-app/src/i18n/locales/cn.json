@@ -82,6 +82,7 @@
       "tagAdded": "标签已添加",
       "tagDeleted": "标签已删除",
       "fileExpired": "原始文件不存在（已删除或过期）",
+      "downloadStarting": "正在准备下载...",
       "dimensions": "尺寸 (宽×高)",
       "bitDepth": "位深度",
       "colorSpace": "色彩空间",
