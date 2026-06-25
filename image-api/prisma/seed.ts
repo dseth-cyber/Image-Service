@@ -177,6 +177,29 @@ async function main() {
   });
   console.log(`  Alert rule: ${alertRule.name}`);
 
+  const storageProvider = await prisma.storageProvider.upsert({
+    where: { id: '00000000-0000-0000-0000-000000000020' },
+    update: {},
+    create: {
+      id: '00000000-0000-0000-0000-000000000020',
+      name: 'Primary Storage',
+      type: 's3',
+      config: {
+        bucket: process.env.MINIO_BUCKET || 'images',
+        endpoint: process.env.MINIO_ENDPOINT || 'image-minio',
+        port: parseInt(process.env.MINIO_PORT || '9000', 10),
+        useSSL: process.env.MINIO_USE_SSL === 'true',
+        accessKey: process.env.MINIO_ACCESS_KEY || 'minioadmin',
+        secretKey: process.env.MINIO_SECRET_KEY || 'minioadmin',
+      },
+      isDefault: true,
+      isActive: true,
+      priority: 1,
+      description: 'Primary S3-compatible storage (MinIO)',
+    },
+  });
+  console.log(`  Storage provider: ${storageProvider.name} (${storageProvider.type})`);
+
   const camera = await prisma.camera.upsert({
     where: { id: '00000000-0000-0000-0000-000000000010' },
     update: {
