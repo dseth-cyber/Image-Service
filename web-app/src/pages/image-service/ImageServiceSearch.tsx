@@ -100,29 +100,11 @@ export default function ImageServiceSearch() {
     setPage(1);
   };
 
-  const handleDownload = useCallback(async (id: string, fileType: string, filename?: string) => {
+  const handleDownload = useCallback((id: string, fileType: string) => {
     const token = localStorage.getItem('accessToken');
     const base = (window as any).__API_BASE__ ?? '/image-service';
-    try {
-      const res = await fetch(`${base}/api/v1/images/${id}/files/${fileType}`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-      if (!res.ok) {
-        if (res.status === 500) { toast.error(t('imageService.search.fileExpired')); }
-        else { toast.error(t('common.error')); }
-        return;
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename ?? `${id}-${fileType}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch { toast.error(t('common.error')); }
-  }, [t, toast]);
+    window.open(`${base}/api/v1/images/${id}/files/${fileType}?token=${encodeURIComponent(token ?? '')}`, '_blank');
+  }, []);
 
   const handleDelete = async (id: string) => {
     try {
@@ -341,7 +323,7 @@ export default function ImageServiceSearch() {
                   {[...detail.imageFiles].sort((a: any, b: any) =>
                     (FILE_TYPE_ORDER[a.fileType] ?? 99) - (FILE_TYPE_ORDER[b.fileType] ?? 99)
                   ).map((f: any) => (
-                    <button key={f.id} onClick={() => handleDownload(detail.id, f.fileType, detail.originalFilename)}
+                    <button key={f.id} onClick={() => handleDownload(detail.id, f.fileType)}
                       className={`px-3 py-2 rounded-md text-xs flex items-center gap-1.5 border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5 transition-colors cursor-pointer`}>
                       <Download size={12} /> {t(`imageService.search.fileType${f.fileType.charAt(0).toUpperCase() + f.fileType.slice(1)}`)}
                       {f.fileSizeBytes ? ` (${(f.fileSizeBytes / 1024 / 1024).toFixed(1)} MB)` : ''}

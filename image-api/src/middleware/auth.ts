@@ -34,6 +34,22 @@ export async function authenticate(
       throw new UnauthorizedError('Invalid token payload');
     }
   } catch (err) {
+    // Fallback: token in query parameter (for GET file downloads via window.open)
+    if (request.method === 'GET') {
+      const queryToken = (request.query as Record<string, string>)?.['token'];
+      if (queryToken) {
+        try {
+          const decoded = request.server.jwt.verify(queryToken) as AuthenticatedUser;
+          if (decoded && decoded.id) {
+            (request as unknown as { user: AuthenticatedUser }).user = {
+              id: decoded.id, username: decoded.username ?? 'unknown',
+              email: decoded.email ?? '', role: decoded.role ?? 'user',
+            };
+            return;
+          }
+        } catch { /* fall through to error */ }
+      }
+    }
     if (err instanceof UnauthorizedError) {
       throw err;
     }
