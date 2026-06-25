@@ -1,14 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Responsive, WidthProvider } from 'react-grid-layout';
 import { imageServiceApi } from '@/services/imageServiceApi';
 import {
   ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line,
 } from 'recharts';
-import { HardDrive, FileImage, Image, Archive, BarChart3, TrendingUp, Calendar, AlertTriangle, Clock } from 'lucide-react';
+import { HardDrive, FileImage, Image, Archive, BarChart3, TrendingUp, Calendar, AlertTriangle, Clock, GripVertical, Settings, RotateCcw, Check } from 'lucide-react';
 import { SearchableSelect } from '@/components/ui';
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
+const LAYOUT_STORAGE_KEY = 'image_service_storage_layout_v1';
+
+const DEFAULT_LAYOUTS: Record<string, any[]> = {
+  lg: [
+    { i: 'stats', x: 0, y: 0, w: 12, h: 1.5, minW: 6, minH: 1.5 },
+    { i: 'pieByFileType', x: 0, y: 1.5, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'growthTrend', x: 4, y: 1.5, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'forecastChart', x: 8, y: 1.5, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'projectionTable', x: 0, y: 4.5, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 4, y: 4.5, w: 8, h: 3, minW: 4, minH: 2.5 },
+  ],
+  md: [
+    { i: 'stats', x: 0, y: 0, w: 10, h: 1.5, minW: 6, minH: 1.5 },
+    { i: 'pieByFileType', x: 0, y: 1.5, w: 5, h: 3, minW: 3, minH: 2.5 },
+    { i: 'growthTrend', x: 5, y: 1.5, w: 5, h: 3, minW: 3, minH: 2.5 },
+    { i: 'forecastChart', x: 0, y: 4.5, w: 5, h: 3, minW: 3, minH: 2.5 },
+    { i: 'projectionTable', x: 5, y: 4.5, w: 5, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 0, y: 7.5, w: 10, h: 3, minW: 4, minH: 2.5 },
+  ],
+  sm: [
+    { i: 'stats', x: 0, y: 0, w: 6, h: 1.5, minW: 4, minH: 1.5 },
+    { i: 'pieByFileType', x: 0, y: 1.5, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'growthTrend', x: 0, y: 4.5, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'forecastChart', x: 0, y: 7.5, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'projectionTable', x: 0, y: 10.5, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 0, y: 13.5, w: 6, h: 3, minW: 4, minH: 2.5 },
+  ],
+};
 
 const PIE_COLORS = ['#06b6d4', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444'];
 const BAR_COLORS = ['#06b6d4', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#3b82f6'];
@@ -34,10 +67,26 @@ function formatBytes(bytes: number): string {
   return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + units[i];
 }
 
+function DragHandle({ show }: { show: boolean }) {
+  if (!show) return null;
+  return (
+    <div className="drag-handle absolute top-2 right-2 cursor-grab active:cursor-grabbing opacity-40 hover:opacity-90 transition-opacity z-10 p-1 rounded-md bg-black/40 backdrop-blur-sm">
+      <GripVertical size={13} className="text-white" />
+    </div>
+  );
+}
+
 export default function ImageServiceStorage() {
   const { t, i18n } = useTranslation();
   const { themeConfig } = useTheme();
   const [days, setDays] = useState(30);
+  const [isEditing, setIsEditing] = useState(false);
+  const [layouts, setLayouts] = useState(() => {
+    try {
+      const saved = localStorage.getItem(LAYOUT_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : DEFAULT_LAYOUTS;
+    } catch { return DEFAULT_LAYOUTS; }
+  });
 
   const { data: summary } = useQuery({
     queryKey: ['storage-summary'],
@@ -62,6 +111,16 @@ export default function ImageServiceStorage() {
     queryFn: () => imageServiceApi.getCameras(),
     staleTime: 1000 * 60 * 5,
   });
+
+  const handleLayoutChange = useCallback((_l: any, allLayouts: any) => {
+    setLayouts(allLayouts);
+    localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(allLayouts));
+  }, []);
+
+  const handleResetLayout = () => {
+    setLayouts(DEFAULT_LAYOUTS);
+    localStorage.removeItem(LAYOUT_STORAGE_KEY);
+  };
 
   const tickFill = themeConfig.name === 'light' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)';
   const gridStroke = themeConfig.name === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.05)';
@@ -100,209 +159,257 @@ export default function ImageServiceStorage() {
     },
   ];
 
+  const hasData = summary && byFileType.length > 0;
+
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <p className={`text-xs font-medium uppercase tracking-widest ${themeConfig.text.secondary}`}>
-          Image Service · {t('imageService.storage.title')}
-        </p>
-        <h1 className={`text-2xl font-bold ${themeConfig.text.primary}`}>{t('imageService.storage.title')}</h1>
-        <p className={`text-sm mt-1 ${themeConfig.text.secondary}`}>{t('imageService.storage.subtitle')}</p>
-      </div>
-
-      <div className="grid grid-cols-5 gap-4 mb-6">
-        {statsCards.map((s, i) => (
-          <div key={i} className={`${themeConfig.card} rounded-lg p-5`}>
-            <div className="flex items-center gap-2 mb-2">
-              <s.icon size={16} style={{ color: s.color }} />
-              <span className={`text-xs ${themeConfig.text.secondary}`}>{s.label}</span>
-            </div>
-            <span className="text-xl font-bold" style={{ color: s.color }}>{s.value}</span>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-2 gap-5 mb-6">
-        <div className={`${themeConfig.card} rounded-lg p-5`}>
-          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
-            {t('imageService.storage.byFileType')}
-          </h3>
-          <div className="relative">
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie data={byFileType} cx="50%" cy="50%" innerRadius={55} outerRadius={80}
-                  paddingAngle={3} dataKey="value" nameKey="name">
-                  {byFileType.map((_: any, i: number) => (
-                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend wrapperStyle={{ fontSize: 11, color: tickFill }} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-              <span className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.storage.totalSize')}</span>
-              <p className={`text-sm font-bold ${themeConfig.text.primary}`}>{formatBytes(summary?.totalBytes ?? 0)}</p>
-            </div>
-          </div>
-          {byFileType.length > 0 && (
-            <div className="mt-3 space-y-1.5">
-              {byFileType.map((item: any, i: number) => (
-                <div key={i} className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: PIE_COLORS[i] }} />
-                    <span className={themeConfig.text.primary}>{item.name}</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <span className={themeConfig.text.secondary}>{formatBytes(item.value)}</span>
-                    <span className={themeConfig.text.primary}>{item.files.toLocaleString()} files</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <p className={`text-xs font-medium uppercase tracking-widest ${themeConfig.text.secondary}`}>
+            Image Service · {t('imageService.storage.title')}
+          </p>
+          <h1 className={`text-2xl font-bold ${themeConfig.text.primary}`}>{t('imageService.storage.title')}</h1>
+          <p className={`text-sm mt-1 ${themeConfig.text.secondary}`}>{t('imageService.storage.subtitle')}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {isEditing && (
+            <button onClick={handleResetLayout}
+              className={`px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5
+                border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5 transition-colors`}>
+              <RotateCcw size={13} /> {t('imageService.overview.resetLayout')}
+            </button>
           )}
-        </div>
-
-        <div className={`${themeConfig.card} rounded-lg p-5`}>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>
-              {t('imageService.storage.growthTrend')}
-            </h3>
-            <div className="w-24">
-              <SearchableSelect value={String(days)} onChange={v => setDays(parseInt(v))}
-                options={[7, 14, 30, 60, 90].map(d => ({ value: String(d), label: `${d} ${t('imageService.storage.days')}` }))} />
-            </div>
-          </div>
-          <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={growthData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="growthGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
-              <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip content={<CustomTooltip />} />
-              <Area type="monotone" dataKey="value" stroke="#06b6d4" strokeWidth={2}
-                fill="url(#growthGrad)" dot={false} name="MB" />
-            </AreaChart>
-          </ResponsiveContainer>
+          <button onClick={() => setIsEditing(!isEditing)}
+            className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5
+              ${isEditing
+                ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white'
+                : `border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5`} transition-all`}>
+            {isEditing ? <Check size={14} /> : <Settings size={14} />}
+            {isEditing ? t('imageService.overview.finishEditing') : t('imageService.overview.editLayout')}
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-5 mb-6">
-        <div className={`${themeConfig.card} rounded-lg p-5`}>
-          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
-            {t('imageService.storage.forecast')}
-          </h3>
-          {forecast ? (
-            <>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex-1">
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className={themeConfig.text.secondary}>{t('imageService.storage.usage')}</span>
-                    <span className={themeConfig.text.primary}>{forecast.usagePercent.toFixed(1)}%</span>
-                  </div>
-                  <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min(100, forecast.usagePercent)}%`, backgroundColor: forecast.usagePercent > 85 ? '#ef4444' : forecast.usagePercent > 70 ? '#f59e0b' : '#06b6d4' }} />
-                  </div>
-                  <div className="flex justify-between text-xs mt-1">
-                    <span className={themeConfig.text.secondary}>{formatBytes(forecast.totalBytes)}</span>
-                    <span className={themeConfig.text.secondary}>{formatBytes(forecast.maxBytes)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className={`text-xs ${themeConfig.text.secondary} mb-3`}>
-                {t('imageService.storage.dailyGrowth')}: {formatBytes(forecast.dailyGrowthRate)}/day
-              </div>
-
-              <ResponsiveContainer width="100%" height={180}>
-                <LineChart data={[
-                  { label: t('imageService.storage.today'), value: forecast.usagePercent },
-                  ...forecast.projections.map((p: any) => ({ label: `${p.days}d`, value: p.usagePercent })),
-                ]}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
-                  <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis domain={[0, 100]} tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} unit="%" />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Line type="monotone" dataKey="value" stroke="#8b5cf6" strokeWidth={2}
-                    dot={{ r: 4, fill: '#8b5cf6' }} name="Usage %" />
-                </LineChart>
-              </ResponsiveContainer>
-            </>
-          ) : (
-            <div className={`text-center py-8 ${themeConfig.text.secondary} text-sm`}>
-              {t('imageService.storage.noData')}
-            </div>
-          )}
-        </div>
-
-        <div className={`${themeConfig.card} rounded-lg p-5`}>
-          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
-            {t('imageService.storage.projectionTable')}
-          </h3>
-          {forecast?.projections ? (
-            <div className="space-y-3">
-              {forecast.projections.map((p: any) => {
-                const isFull = p.usagePercent >= 100;
-                return (
-                  <div key={p.days} className={`rounded-lg p-3 ${isFull ? 'bg-red-500/10 border border-red-500/20' : 'bg-white/5'}`}>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className={`text-sm font-semibold ${themeConfig.text.primary}`}>
-                        {t('imageService.storage.inDays', { days: p.days })}
-                      </span>
-                      <span className={`text-xs font-semibold ${isFull ? 'text-red-400' : themeConfig.text.secondary}`}>
-                        {isFull ? t('imageService.storage.full') : `${p.usagePercent.toFixed(1)}%`}
-                      </span>
-                    </div>
-                    <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
-                      <div className="h-full rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(100, p.usagePercent)}%`, backgroundColor: isFull ? '#ef4444' : '#8b5cf6' }} />
-                    </div>
-                    <div className={`text-xs mt-1 ${themeConfig.text.secondary}`}>
-                      {formatBytes(p.projectedBytes)}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className={`text-center py-8 ${themeConfig.text.secondary} text-sm`}>
-              {t('imageService.storage.noData')}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {byCamera.length > 0 && (
-        <div className={`${themeConfig.card} rounded-lg p-5`}>
-          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
-            {t('imageService.storage.byCamera')}
-          </h3>
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={byCamera} barCategoryGap="30%">
-              <CartesianGrid vertical={false} stroke={gridStroke} />
-              <XAxis dataKey="name" tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
-              <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                {byCamera.map((_: any, i: number) => (
-                  <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+      {isEditing && (
+        <div className={`mb-4 px-4 py-2.5 rounded-lg text-xs ${themeConfig.card}`}>
+          {t('imageService.overview.dragHint')}
         </div>
       )}
 
-      {(!summary || byFileType.length === 0) && (
+      {!hasData ? (
         <div className={`text-center py-12 ${themeConfig.text.secondary} text-sm`}>
           {t('imageService.storage.noData')}
         </div>
+      ) : (
+        <ResponsiveGridLayout
+          className="layout"
+          layouts={layouts}
+          breakpoints={{ lg: 1200, md: 996, sm: 768 }}
+          cols={{ lg: 12, md: 10, sm: 6 }}
+          rowHeight={100}
+          isDraggable={isEditing}
+          isResizable={isEditing}
+          draggableHandle=".drag-handle"
+          onLayoutChange={handleLayoutChange}
+          compactType="vertical"
+        >
+          <div key="stats" className={`${themeConfig.card} rounded-lg overflow-hidden relative`}>
+            <DragHandle show={isEditing} />
+            <div className="grid grid-cols-5 gap-4 p-5 h-full">
+              {statsCards.map((s, i) => (
+                <div key={i} className="flex flex-col justify-center">
+                  <div className="flex items-center gap-2 mb-2">
+                    <s.icon size={18} style={{ color: s.color }} />
+                    <span className={`text-xs ${themeConfig.text.secondary}`}>{s.label}</span>
+                  </div>
+                  <span className="text-xl font-bold" style={{ color: s.color }}>{s.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div key="pieByFileType" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+            <DragHandle show={isEditing} />
+            <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+              {t('imageService.storage.byFileType')}
+            </h3>
+            <div className="relative">
+              <ResponsiveContainer width="100%" height={180}>
+                <PieChart>
+                  <Pie data={byFileType} cx="50%" cy="50%" innerRadius={55} outerRadius={80}
+                    paddingAngle={3} dataKey="value" nameKey="name">
+                    {byFileType.map((_: any, i: number) => (
+                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend wrapperStyle={{ fontSize: 11, color: tickFill }} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+                <span className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.storage.totalSize')}</span>
+                <p className={`text-sm font-bold ${themeConfig.text.primary}`}>{formatBytes(summary?.totalBytes ?? 0)}</p>
+              </div>
+            </div>
+            {byFileType.length > 0 && (
+              <div className="mt-3 space-y-1.5">
+                {byFileType.map((item: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: PIE_COLORS[i] }} />
+                      <span className={themeConfig.text.primary}>{item.name}</span>
+                    </div>
+                    <div className="flex gap-3">
+                      <span className={themeConfig.text.secondary}>{formatBytes(item.value)}</span>
+                      <span className={themeConfig.text.primary}>{item.files.toLocaleString()} files</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div key="growthTrend" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+            <DragHandle show={isEditing} />
+            <div className="flex items-center justify-between mb-3">
+              <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>
+                {t('imageService.storage.growthTrend')}
+              </h3>
+              <div className="w-24">
+                <SearchableSelect value={String(days)} onChange={v => setDays(parseInt(v))}
+                  options={[7, 14, 30, 60, 90].map(d => ({ value: String(d), label: `${d} ${t('imageService.storage.days')}` }))} />
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={180}>
+              <AreaChart data={growthData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="growthGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Area type="monotone" dataKey="value" stroke="#06b6d4" strokeWidth={2}
+                  fill="url(#growthGrad)" dot={false} name="MB" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div key="forecastChart" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+            <DragHandle show={isEditing} />
+            <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+              {t('imageService.storage.forecast')}
+            </h3>
+            {forecast ? (
+              <>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="flex-1">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className={themeConfig.text.secondary}>{t('imageService.storage.usage')}</span>
+                      <span className={themeConfig.text.primary}>{forecast.usagePercent.toFixed(1)}%</span>
+                    </div>
+                    <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-500"
+                        style={{ width: `${Math.min(100, forecast.usagePercent)}%`, backgroundColor: forecast.usagePercent > 85 ? '#ef4444' : forecast.usagePercent > 70 ? '#f59e0b' : '#06b6d4' }} />
+                    </div>
+                    <div className="flex justify-between text-xs mt-1">
+                      <span className={themeConfig.text.secondary}>{formatBytes(forecast.totalBytes)}</span>
+                      <span className={themeConfig.text.secondary}>{formatBytes(forecast.maxBytes)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={`text-xs ${themeConfig.text.secondary} mb-3`}>
+                  {t('imageService.storage.dailyGrowth')}: {formatBytes(forecast.dailyGrowthRate)}/day
+                </div>
+
+                <ResponsiveContainer width="100%" height={150}>
+                  <LineChart data={[
+                    { label: t('imageService.storage.today'), value: forecast.usagePercent },
+                    ...forecast.projections.map((p: any) => ({ label: `${p.days}d`, value: p.usagePercent })),
+                  ]}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                    <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis domain={[0, 100]} tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} unit="%" />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Line type="monotone" dataKey="value" stroke="#8b5cf6" strokeWidth={2}
+                      dot={{ r: 4, fill: '#8b5cf6' }} name="Usage %" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </>
+            ) : (
+              <div className={`text-center py-8 ${themeConfig.text.secondary} text-sm`}>
+                {t('imageService.storage.noData')}
+              </div>
+            )}
+          </div>
+
+          <div key="projectionTable" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+            <DragHandle show={isEditing} />
+            <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+              {t('imageService.storage.projectionTable')}
+            </h3>
+            {forecast?.projections ? (
+              <div className="space-y-2.5">
+                {forecast.projections.map((p: any) => {
+                  const isFull = p.usagePercent >= 100;
+                  return (
+                    <div key={p.days} className={`rounded-lg p-3 ${isFull ? 'bg-red-500/10 border border-red-500/20' : 'bg-white/5'}`}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className={`text-sm font-semibold ${themeConfig.text.primary}`}>
+                          {t('imageService.storage.inDays', { days: p.days })}
+                        </span>
+                        <span className={`text-xs font-semibold ${isFull ? 'text-red-400' : themeConfig.text.secondary}`}>
+                          {isFull ? t('imageService.storage.full') : `${p.usagePercent.toFixed(1)}%`}
+                        </span>
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                        <div className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${Math.min(100, p.usagePercent)}%`, backgroundColor: isFull ? '#ef4444' : '#8b5cf6' }} />
+                      </div>
+                      <div className={`text-xs mt-1 ${themeConfig.text.secondary}`}>
+                        {formatBytes(p.projectedBytes)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className={`text-center py-8 ${themeConfig.text.secondary} text-sm`}>
+                {t('imageService.storage.noData')}
+              </div>
+            )}
+          </div>
+
+          <div key="byCamera" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+            <DragHandle show={isEditing} />
+            <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+              {t('imageService.storage.byCamera')}
+            </h3>
+            {byCamera.length > 0 ? (
+              <ResponsiveContainer width="100%" height={180}>
+                <BarChart data={byCamera} barCategoryGap="30%">
+                  <CartesianGrid vertical={false} stroke={gridStroke} />
+                  <XAxis dataKey="name" tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                    {byCamera.map((_: any, i: number) => (
+                      <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className={`text-center py-8 ${themeConfig.text.secondary} text-sm`}>
+                {t('imageService.storage.noData')}
+              </div>
+            )}
+          </div>
+        </ResponsiveGridLayout>
       )}
     </div>
   );
