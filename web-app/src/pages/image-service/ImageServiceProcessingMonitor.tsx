@@ -119,17 +119,23 @@ export default function ImageServiceProcessingMonitor() {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [vizStyle, setVizStyle] = useState(() => localStorage.getItem('processing_viz_style') ?? 'ring');
 
-  const { data: initialStats } = useQuery({
+  const { data: initialData } = useQuery({
+    queryKey: ['processing-stats-initial'],
+    queryFn: () => imageServiceApi.getOverview(),
+    staleTime: 1000 * 10,
+  });
+
+  const { data: initialLogs } = useQuery({
     queryKey: ['processing-logs-initial'],
     queryFn: () => imageServiceApi.getProcessingLogs({ page: 1, limit: 20, sort: 'queuedAt', order: 'desc' }),
     staleTime: 1000 * 10,
   });
 
   useEffect(() => {
-    if (initialStats?.data && logs.length === 0) {
-      setLogs(initialStats.data);
+    if (initialLogs?.data && logs.length === 0) {
+      setLogs(initialLogs.data);
     }
-  }, [initialStats]);
+  }, [initialLogs]);
   const esRef = useRef<EventSource | null>(null);
 
   const handleLayoutChange = useCallback((_l: any, allLayouts: any) => {
@@ -224,10 +230,11 @@ export default function ImageServiceProcessingMonitor() {
     } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
   };
 
-  const totalJobs = logs.length;
-  const completedJobs = logs.filter((l) => l.status === 'completed').length;
-  const failedJobs = logs.filter((l) => l.status === 'failed' || l.status === 'dead_letter').length;
-  const runningJobs = logs.filter((l) => l.status === 'running').length;
+  const bs = initialData?.byStatus ?? {};
+  const totalJobs = Object.values(bs as Record<string, number>).reduce((a: number, b: number) => a + b, 0) || logs.length;
+  const completedJobs = (bs as any)?.completed ?? logs.filter((l: any) => l.status === 'completed').length;
+  const failedJobs = ((bs as any)?.failed ?? 0) + ((bs as any)?.dead_letter ?? 0) || logs.filter((l: any) => l.status === 'failed' || l.status === 'dead_letter').length;
+  const runningJobs = (bs as any)?.running ?? logs.filter((l: any) => l.status === 'running').length;
 
   return (
     <div className="p-6">

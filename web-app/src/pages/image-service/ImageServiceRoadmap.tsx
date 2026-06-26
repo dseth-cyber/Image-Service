@@ -57,7 +57,7 @@ const PHASES = [
   { key: 'phase16', status: 'Launched', priority: 'P9.1' },
   { key: 'phase17', status: 'Launched', priority: 'P9.2' },
   { key: 'phase18', status: 'Launched', priority: 'P9.3' },
-  { key: 'phase19', status: 'Planned', priority: 'P10' },
+  { key: 'phase19', status: 'Launched', priority: 'P10' },
 ]
 
 const PRIORITY_COLORS: Record<string, string> = {

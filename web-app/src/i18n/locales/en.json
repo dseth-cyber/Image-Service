@@ -227,7 +227,11 @@
       "actions": "Actions",
       "enable": "Enable",
       "disable": "Disable",
-      "edit": "Edit"
+      "edit": "Edit",
+      "capacityGb": "Max Capacity (GB)",
+      "capacityAutoHint": "Auto-detected from disk",
+      "capacityAutoDesc": "Local Disk auto-detects capacity from filesystem. Enter value to override.",
+      "capacityManualDesc": "Enter max capacity for usage % calculation and low-space alerts."
     },
     "migrations": {
       "title": "Migration Jobs",
@@ -1015,13 +1019,13 @@
     ],
     "phase19": "P10 — Storage Capacity Monitor",
     "phase19Desc": "Show real capacity per Storage Provider — Server local disk, MinIO/S3, NAS automatically with manual fallback for NAS",
-    "phase19Status": "Planned",
+    "phase19Status": "Launched",
     "phase19Tasks": [
-      "S3/MinIO — auto-fetch bucket size + capacity from API",
-      "Local Disk — read real disk space from df (total/used/free)",
-      "NAS (SMB/NFS) — manual capacity setting per Storage Provider",
-      "UI Dashboard — separate card per provider: name, type, capacity, used, remaining",
-      "Alert when remaining space below configured threshold",
+      "✅ S3/MinIO — auto-fetch bucket size + capacity from API (fallback capacityBytes from DB)",
+      "✅ Local Disk — read real disk space via statfsSync (total/used/free)",
+      "✅ NAS (SMB/NFS) — manual capacity setting per Storage Provider (capacityBytes field)",
+      "✅ UI Dashboard — capacity bar per provider: name, type, used/total, %",
+      "✅ Alert when storage exceeds threshold (warning 75% / critical 90%)",
       "System config storage limit as fallback when auto-detection unavailable"
     ]
   },

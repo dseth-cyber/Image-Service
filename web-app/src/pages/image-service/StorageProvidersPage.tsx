@@ -276,6 +276,7 @@ function StorageProviderFormModal({ isOpen, onClose, editTarget }: { isOpen: boo
   const [description, setDescription] = useState(editTarget?.description || '')
   const [isDefault, setIsDefault] = useState(editTarget?.isDefault || false)
   const [priority, setPriority] = useState(editTarget?.priority?.toString() || '0')
+  const [capacityGb, setCapacityGb] = useState(editTarget?.capacityBytes ? (Number(editTarget.capacityBytes) / 1024 / 1024 / 1024).toString() : '')
   const [submitting, setSubmitting] = useState(false)
 
   const createMutation = useMutation({
@@ -320,7 +321,8 @@ function StorageProviderFormModal({ isOpen, onClose, editTarget }: { isOpen: boo
     if (!name.trim()) { toast.error('Name is required'); return }
     setSubmitting(true)
     const config = buildConfig()
-    const payload = { name: name.trim(), type, config, description: description.trim() || undefined, isDefault, priority: parseInt(priority, 10) || 0 }
+    const capBytes = capacityGb ? Math.round(parseFloat(capacityGb) * 1024 * 1024 * 1024) : undefined
+    const payload = { name: name.trim(), type, config, description: description.trim() || undefined, isDefault, priority: parseInt(priority, 10) || 0, capacityBytes: capBytes }
     if (isEdit) {
       updateMutation.mutate({ id: editTarget.id, data: payload })
     } else {
@@ -448,6 +450,16 @@ function StorageProviderFormModal({ isOpen, onClose, editTarget }: { isOpen: boo
         <div>
           <label className={labelClass}>{t('imageService.storageProviders.description')}</label>
           <textarea value={description} onChange={e => setDescription(e.target.value)} rows={2} className={inputClass} />
+        </div>
+        <div>
+          <label className={labelClass}>{t('imageService.storageProviders.capacityGb')}</label>
+          <input type="number" value={capacityGb} onChange={e => setCapacityGb(e.target.value)} className={inputClass}
+            placeholder={type === 'local' ? t('imageService.storageProviders.capacityAutoHint') : '500'} />
+          <p className={`text-xs mt-1 ${themeConfig.text.secondary}`}>
+            {type === 'local'
+              ? t('imageService.storageProviders.capacityAutoDesc')
+              : t('imageService.storageProviders.capacityManualDesc')}
+          </p>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>

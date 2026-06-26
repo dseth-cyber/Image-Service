@@ -227,7 +227,11 @@
       "actions": "การดำเนินการ",
       "enable": "เปิดใช้งาน",
       "disable": "ปิดใช้งาน",
-      "edit": "แก้ไข"
+      "edit": "แก้ไข",
+      "capacityGb": "ความจุสูงสุด (GB)",
+      "capacityAutoHint": "อ่านจากดิสก์อัตโนมัติ",
+      "capacityAutoDesc": "Local Disk จะอ่านความจุจากดิสก์จริงอัตโนมัติ กรอกเพื่อ override",
+      "capacityManualDesc": "กรอกความจุสูงสุดเพื่อใช้คำนวณ % และแจ้งเตือนเมื่อพื้นที่ใกล้เต็ม"
     },
     "migrations": {
       "title": "งานโยกย้าย",
@@ -1015,13 +1019,13 @@
     ],
     "phase19": "P10 — Storage Capacity Monitor",
     "phase19Desc": "แสดงความจุจริงของแต่ละ Storage Provider — Server local disk, MinIO/S3, NAS แบบอัตโนมัติ พร้อม fallback ตั้งค่า manual สำหรับ NAS",
-    "phase19Status": "วางแผนไว้",
+    "phase19Status": "เปิดใช้งานแล้ว",
     "phase19Tasks": [
-      "S3/MinIO — ดึง bucket size + capacity จาก API อัตโนมัติ",
-      "Local Disk — อ่านพื้นที่ดิสก์จริงจาก df (total/used/free)",
-      "NAS (SMB/NFS) — ตั้งค่า capacity manual ต่อ Storage Provider",
-      "UI Dashboard — แสดงแยก card ต่อ provider: ชื่อ, ประเภท, ความจุ, ใช้ไป, เหลือ",
-      "แจ้งเตือนเมื่อพื้นที่เหลือน้อยกว่า threshold ที่ตั้งไว้",
+      "✅ S3/MinIO — ดึง bucket size + capacity จาก API อัตโนมัติ (fallback capacityBytes จาก DB)",
+      "✅ Local Disk — อ่านพื้นที่ดิสก์จริงจาก statfsSync (total/used/free)",
+      "✅ NAS (SMB/NFS) — ตั้งค่า capacity manual ต่อ Storage Provider (capacityBytes field)",
+      "✅ UI Dashboard — แสดงแยก card ต่อ provider พร้อม capacity bar: ชื่อ, ประเภท, ใช้ไป/ความจุ, %",
+      "✅ แจ้งเตือนเมื่อพื้นที่เหลือน้อยกว่า threshold (warning 75% / critical 90%)",
       "ค่า config ขีดจำกัดพื้นที่ เป็น fallback เมื่อดึงจริงไม่ได้"
     ]
   },
