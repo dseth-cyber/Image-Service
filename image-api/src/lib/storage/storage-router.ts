@@ -27,6 +27,8 @@ class StorageRouter {
         return new SMBProvider(record.id, record.name, record.config as any);
       case 'nfs':
         return new NFSProvider(record.id, record.name, record.config as any);
+      case 'seaweedfs':
+        return new S3Provider(record.id, record.name, record.config as any);
     }
   }
 

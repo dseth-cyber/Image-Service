@@ -124,7 +124,7 @@ async function getPgMetrics(prisma: any) {
   }
 }
 
-async function getMinioMetrics(prisma: any) {
+async function getStorageMetrics(prisma: any) {
   try {
     const [totalStats, recentStats, recentRawStats] = await Promise.all([
       prisma.imageFile.aggregate({
@@ -198,7 +198,7 @@ export async function getProcessingStats() {
   const lastHour = new Date(now.getTime() - 60 * 60 * 1000);
 
   const [
-    statusCounts, typeCounts, queue, pgMetrics, minioMetrics,
+    statusCounts, typeCounts, queue, pgMetrics, storageMetrics,
     totalImages, cameraCounts, fileTypeStats, recentImages, cameraList, configs,
   ] = await Promise.all([
     prisma.processingJob.groupBy({
@@ -211,7 +211,7 @@ export async function getProcessingStats() {
     }),
     getQueueMetrics(),
     getPgMetrics(prisma),
-    getMinioMetrics(prisma),
+    getStorageMetrics(prisma),
     prisma.image.count(),
     prisma.camera.groupBy({
       by: ['status'],
@@ -263,8 +263,8 @@ export async function getProcessingStats() {
     value: Number(f._count.id ?? 0),
   }));
 
-  // Storage used from minio bucketSize
-  const storageUsed = minioMetrics.bucketSize;
+  // Storage used from storage metrics
+  const storageUsed = storageMetrics.bucketSize;
 
   // Processing rate (last hour)
   const hourlyJobs = await prisma.processingJob.count({
@@ -341,7 +341,7 @@ export async function getProcessingStats() {
     byType,
     queue,
     postgres: pgMetrics,
-    minio: minioMetrics,
+    storage: storageMetrics,
   };
 }
 

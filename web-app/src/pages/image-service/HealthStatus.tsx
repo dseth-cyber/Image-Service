@@ -66,7 +66,8 @@ export default function HealthStatus() {
 
   const serviceOk = health?.status === 'ok'
   const dbOk = health?.checks?.database === 'ok'
-  const minioOk = health?.checks?.minio === 'ok'
+  const storageOk = health?.checks?.storage === 'ok'
+  const providers = health?.providers ?? []
 
   if (healthLoading) return <div className="p-6"><TableSkeleton rows={4} /></div>
 
@@ -100,10 +101,13 @@ export default function HealthStatus() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="flex flex-wrap gap-3">
           <StatusBadge ok={dbOk} label={t('imageService.health.database')} />
-          <StatusBadge ok={minioOk} label={t('imageService.health.storage')} />
+          <StatusBadge ok={storageOk} label={t('imageService.health.storage')} />
           <StatusBadge ok={serviceOk} label={t('imageService.health.api')} />
+          {providers.map((p: any) => (
+            <StatusBadge key={p.id} ok={p.status === 'ok'} label={`${p.name} (${p.type})`} />
+          ))}
         </div>
 
         {health?.uptime && (
@@ -134,13 +138,13 @@ export default function HealthStatus() {
             ['image-api', `${window.location.protocol}//${window.location.hostname}:3001`, serviceOk],
             ['PostgreSQL 15', 'postgres:5432', dbOk],
             ['Redis 7', 'redis:6379', true],
-            ['MinIO S3', 'minio:9000', minioOk],
+            ...providers.map((p: any) => [`${p.name} (${p.type})`, '', p.status === 'ok']),
             ['Kafka', 'kafka:9092', true],
-          ].map(([name, endpoint, ok]) => (
+          ].map(([name, endpoint, ok]: any) => (
             <div key={String(name)} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/5">
               {ok ? <CheckCircle size={13} className="text-green-400" /> : <XCircle size={13} className="text-red-400" />}
               <span className={`font-medium ${themeConfig.text.primary}`}>{name}</span>
-              <span className={`text-xs font-mono ${themeConfig.text.secondary}`}>{endpoint}</span>
+              {endpoint && <span className={`text-xs font-mono ${themeConfig.text.secondary}`}>{endpoint}</span>}
               <span className={`ml-auto text-xs ${ok ? 'text-green-400' : 'text-red-400'}`}>
                 {ok ? t('imageService.health.healthy') : t('imageService.health.degraded')}
               </span>

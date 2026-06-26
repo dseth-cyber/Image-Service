@@ -29,7 +29,7 @@ const DEFAULT_LAYOUTS = {
     { i: 'storageDonut', x: 8, y: 8.5, w: 4, h: 3, minW: 3, minH: 2.5 },
     { i: 'queueLength', x: 0, y: 11.5, w: 4, h: 2, minW: 3, minH: 1.5 },
     { i: 'postgresStats', x: 4, y: 11.5, w: 4, h: 2, minW: 3, minH: 1.5 },
-    { i: 'minioStats', x: 8, y: 11.5, w: 4, h: 2, minW: 3, minH: 1.5 },
+    { i: 'providerStats', x: 8, y: 11.5, w: 4, h: 2, minW: 3, minH: 1.5 },
   ],
   md: [
     { i: 'trends', x: 0, y: 0, w: 10, h: 4.5, minW: 6, minH: 3.5 },
@@ -41,7 +41,7 @@ const DEFAULT_LAYOUTS = {
     { i: 'storageDonut', x: 7, y: 8.5, w: 3, h: 3, minW: 3, minH: 2.5 },
     { i: 'queueLength', x: 0, y: 11.5, w: 3, h: 2, minW: 3, minH: 1.5 },
     { i: 'postgresStats', x: 3, y: 11.5, w: 4, h: 2, minW: 3, minH: 1.5 },
-    { i: 'minioStats', x: 7, y: 11.5, w: 3, h: 2, minW: 3, minH: 1.5 },
+    { i: 'providerStats', x: 7, y: 11.5, w: 3, h: 2, minW: 3, minH: 1.5 },
   ],
   sm: [
     { i: 'trends', x: 0, y: 0, w: 6, h: 4.5, minW: 4, minH: 3.5 },
@@ -53,7 +53,7 @@ const DEFAULT_LAYOUTS = {
     { i: 'storageDonut', x: 0, y: 16.5, w: 6, h: 3, minW: 3, minH: 2.5 },
     { i: 'queueLength', x: 0, y: 19.5, w: 6, h: 2, minW: 3, minH: 1.5 },
     { i: 'postgresStats', x: 0, y: 21.5, w: 6, h: 2, minW: 3, minH: 1.5 },
-    { i: 'minioStats', x: 0, y: 23.5, w: 6, h: 2, minW: 3, minH: 1.5 },
+    { i: 'providerStats', x: 0, y: 23.5, w: 6, h: 2, minW: 3, minH: 1.5 },
   ],
 };
 
@@ -122,6 +122,12 @@ export default function ImageServiceOverview() {
       }
     }
   }, [systemConfig]);
+
+  const { data: providers = [] } = useQuery({
+    queryKey: ['storage-providers-overview'],
+    queryFn: () => imageServiceApi.getStorageProviders().then((r: any) => r.data ?? r),
+    staleTime: 1000 * 30,
+  });
 
   const { data: overview, isLoading } = useQuery({
     queryKey: ['image-service-overview'],
@@ -424,36 +430,34 @@ export default function ImageServiceOverview() {
           </div>
         </div>
 
-        <div key="minioStats" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+        <div key="providerStats" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
           <DragHandle show={isEditing} />
           <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
-            {t('imageService.overview.minioTitle')}
+            {t('imageService.overview.providerTitle')}
           </h3>
-          <div className="space-y-2 mt-2">
-            <div className="flex justify-between items-center text-xs py-1 border-b border-white/5">
-              <span className={themeConfig.text.secondary}>{t('imageService.overview.minioBucketSize')}</span>
-              <span className={`font-bold ${themeConfig.text.primary}`}>
-                {formatBytes(overview?.minio?.bucketSize ?? 0)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center text-xs py-1 border-b border-white/5">
-              <span className={themeConfig.text.secondary}>{t('imageService.overview.minioObjectCount')}</span>
-              <span className={`font-bold ${themeConfig.text.primary}`}>
-                {(overview?.minio?.objectCount ?? 0).toLocaleString()}
-              </span>
-            </div>
-            <div className="flex justify-between items-center text-xs py-1 border-b border-white/5">
-              <span className={themeConfig.text.secondary}>{t('imageService.overview.minioWriteThroughput')}</span>
-              <span className="font-bold text-green-400">
-                {overview?.minio?.writeMbPerSec ?? 0} MB/s
-              </span>
-            </div>
-            <div className="flex justify-between items-center text-xs py-1 border-b border-white/5 last:border-0">
-              <span className={themeConfig.text.secondary}>{t('imageService.overview.minioReadThroughput')}</span>
-              <span className="font-bold text-blue-400">
-                {overview?.minio?.readMbPerSec ?? 0} MB/s
-              </span>
-            </div>
+          <div className="space-y-2 mt-2 max-h-[180px] overflow-y-auto">
+            {Array.isArray(providers) && providers.length > 0 ? providers.map((p: any) => (
+              <div key={p.id} className="flex items-center justify-between text-xs py-1.5 px-2 rounded-lg bg-white/5">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${p.isActive ? 'bg-green-400' : 'bg-red-400'}`} />
+                  <span className={`font-medium truncate ${themeConfig.text.primary}`}>{p.name}</span>
+                  <span className={`text-xs font-mono ${themeConfig.text.secondary}`}>({p.type})</span>
+                </div>
+                <span className={`text-xs flex-shrink-0 ml-2 ${p.isDefault ? 'text-yellow-400' : themeConfig.text.secondary}`}>
+                  {p.isDefault ? t('imageService.overview.default') : ''}
+                </span>
+              </div>
+            )) : (
+              <p className={`text-xs ${themeConfig.text.secondary} text-center py-4`}>
+                {t('imageService.overview.noProviders')}
+              </p>
+            )}
+          </div>
+          <div className="mt-2 pt-2 border-t border-white/5 flex justify-between text-xs">
+            <span className={themeConfig.text.secondary}>{t('imageService.overview.storageUsed')}</span>
+            <span className={`font-bold ${themeConfig.text.primary}`}>
+              {formatBytes(overview?.storageUsed ?? 0)}
+            </span>
           </div>
         </div>
       </ResponsiveGridLayout>

@@ -30,11 +30,9 @@
       "postgresActiveConnections": "การเชื่อมต่อที่ใช้งาน",
       "postgresLocks": "ล็อคที่ใช้งาน",
       "postgresDeadlocks": "Deadlocks",
-      "minioTitle": "สถานะ MinIO",
-      "minioBucketSize": "ขนาด Bucket",
-      "minioObjectCount": "จำนวน Object",
-      "minioWriteThroughput": "อัตราเขียนข้อมูล",
-      "minioReadThroughput": "อัตราอ่านข้อมูล (SMB)"
+      "providerTitle": "Storage Providers",
+      "default": "เริ่มต้น",
+      "noProviders": "ไม่มี Provider ที่กำหนดค่า"
     },
     "trends": {
       "title": "สถิติผู้บริหาร",
@@ -181,14 +179,19 @@
       "providerName": "ชื่อผู้ให้บริการ",
       "providerType": "ประเภท",
       "s3": "S3 Compatible",
-      "local": "Local Disk",
+      "local": "Local File System",
+      "smb": "SMB Share",
+      "nfs": "NFS Export",
+      "seaweedfs": "SeaweedFS (S3-compatible)",
+      "seaweedfsHint": "SeaweedFS ใช้ S3-compatible API กำหนด filer/volume S3 endpoint ด้านบน",
       "endpoint": "Endpoint",
       "port": "พอร์ต",
       "accessKey": "Access Key",
       "secretKey": "Secret Key",
       "bucket": "Bucket",
+      "region": "Region",
       "useSSL": "ใช้ SSL",
-      "basePath": "Base Path",
+      "basePath": "Root Directory",
       "description": "คำอธิบาย",
       "isDefault": "เป็นค่าเริ่มต้น",
       "default": "เริ่มต้น",
@@ -198,6 +201,13 @@
       "inactive": "ปิดใช้งาน",
       "testConnection": "ทดสอบการเชื่อมต่อ",
       "testSuccess": "เชื่อมต่อสำเร็จ",
+      "share": "Share Path",
+      "username": "Username",
+      "password": "Password",
+      "domain": "Domain (ไม่บังคับ)",
+      "nfsServer": "NFS Server",
+      "nfsExportPath": "Export Path",
+      "nfsMountOptions": "Mount Options (ไม่บังคับ)",
       "testFailed": "เชื่อมต่อล้มเหลว",
       "deleteConfirm": "คุณแน่ใจหรือไม่ที่จะลบผู้ให้บริการนี้?",
       "deleteForbidden": "ไม่สามารถลบผู้ให้บริการที่มีไฟล์อยู่ได้ โปรดย้ายไฟล์ก่อน",
@@ -205,11 +215,16 @@
       "created": "สร้างผู้ให้บริการสำเร็จ",
       "updated": "อัปเดตผู้ให้บริการสำเร็จ",
       "setDefault": "ตั้งเป็นค่าเริ่มต้น",
+      "defaultSet": "อัปเดตค่าเริ่มต้นแล้ว",
       "providerFiles": "ไฟล์ในผู้ให้บริการนี้",
       "noProviders": "ยังไม่มีผู้ให้บริการจัดเก็บข้อมูล",
       "health": "สถานะ",
       "latency": "ความหน่วง",
-      "lastMetric": "ค่าล่าสุด"
+      "lastMetric": "ค่าล่าสุด",
+      "actions": "การดำเนินการ",
+      "enable": "เปิดใช้งาน",
+      "disable": "ปิดใช้งาน",
+      "edit": "แก้ไข"
     },
     "migrations": {
       "title": "งานโยกย้าย",
@@ -788,22 +803,22 @@
         {
           "label": "Processing Worker",
           "tech": "Python 3.12 · Pillow",
-          "desc": "แปลง TIFF→PNG, สร้าง thumbnail, คำนวณ SHA256 checksum, เก็บใน MinIO, รายงานผลให้ API ซึ่งเขียน metadata ไปยัง DB"
+          "desc": "แปลง TIFF→PNG, สร้าง thumbnail, คำนวณ SHA256 checksum, เก็บผ่าน Storage Provider (SMB/NFS/S3/Local/SeaweedFS), รายงานผลให้ API ซึ่งเขียน metadata ไปยัง DB"
         },
         {
           "label": "API Service",
           "tech": "Fastify · Prisma · PostgreSQL 15",
-          "desc": "ค้นหารูปภาพ, จัดการ metadata, นโยบาย retention, ตรวจสอบสุขภาพระบบ, JWT auth + RBAC, OpenAPI docs"
+          "desc": "ค้นหารูปภาพ, จัดการ metadata, นโยบาย retention, จัดการ Storage Providers, ตรวจสอบสุขภาพระบบ, JWT auth + RBAC, OpenAPI docs"
         },
         {
           "label": "Frontend",
           "tech": "React 18 · Vite 5 · Tailwind",
-          "desc": "Dashboard, ค้นหารูปภาพ, ตรวจสอบกล้อง, จัดการพื้นที่เก็บ, นโยบาย retention, ดู processing logs. TanStack Query, Recharts"
+          "desc": "Dashboard, ค้นหารูปภาพ, ตรวจสอบกล้อง, จัดการ Storage Providers, นโยบาย retention, ดู processing logs. TanStack Query, Recharts"
         },
         {
           "label": "โครงสร้างพื้นฐาน",
-          "tech": "Redis 7 · MinIO · Docker Compose",
-          "desc": "Redis สำหรับ BullMQ queues + caching. MinIO ที่เก็บวัตถุแบบ S3. รันบน VM ที่แยกจาก ERP Platform แต่ละ service มี DB ของตัวเอง (DB isolation)"
+          "tech": "Redis 7 · Storage Providers · Docker Compose",
+          "desc": "Redis สำหรับ BullMQ queues + caching. Pluggable storage providers (S3/MinIO, SMB, NFS, Local Disk, SeaweedFS). รันบน VM ที่แยกจาก ERP Platform แต่ละ service มี DB ของตัวเอง (DB isolation)"
         },
         {
           "label": "การเชื่อมต่ออนาคต",
@@ -947,11 +962,11 @@
         "Dashboard สถานะ Backup"
       ],
     "phase15": "P9 — Storage Provider Abstraction",
-    "phase15Desc": "Interface StorageProvider, S3 (MinIO), LocalDisk พร้อม Sharding, StorageRouter, ปรับปรุง Worker Upload",
+    "phase15Desc": "Interface StorageProvider, S3 (MinIO, SeaweedFS), LocalDisk พร้อม Sharding, StorageRouter, ปรับปรุง Worker Upload",
     "phase15Status": "กำลังดำเนินการ",
     "phase15Tasks": [
       "StorageProvider Interface — API เดียว save/getStream/delete/health สำหรับทุก Provider",
-      "S3Provider — ห่อ MinIO Client เดิม รองรับ S3-compatible storage ทั้งหมด",
+      "S3Provider — ห่อ MinIO/SeaweedFS Client เดิม รองรับ S3-compatible storage ทั้งหมด",
       "LocalDiskProvider — Sharding แบบ YYYY/MM/DD/fileType/hashPrefix รองรับ 10 ล้าน+ ไฟล์",
       "StorageRouter — Registry ในหน่วยความจำ, getDefault(), refresh() เมื่อมีการเปลี่ยนแปลง",
       "ปรับปรุงการเรียก MinIO ใน images, retention, admin, backup, health → StorageRouter",
@@ -980,12 +995,13 @@
       "ImageFile.storageProfileId — เชื่อมโยงไปยัง Profile",
       "UI จัดการ Profile"
     ],
-    "phase18": "P9.3 — SMB / NFS Providers",
-    "phase18Desc": "รองรับ NAS โดยตรงผ่าน SMB และ NFS",
+    "phase18": "P9.3 — SMB / NFS / SeaweedFS Providers",
+    "phase18Desc": "รองรับ NAS โดยตรงผ่าน SMB, NFS และ SeaweedFS (S3-compatible)",
     "phase18Status": "วางแผนไว้",
     "phase18Tasks": [
       "SMBProvider — เขียนไฟล์ไปยัง NAS โดยตรงผ่าน SMB",
       "NFSProvider — เขียนไฟล์ไปยัง NAS โดยตรงผ่าน NFS",
+      "SeaweedFSProvider — ใช้ S3Provider เดิม (S3-compatible API, ไม่ต้องเปลี่ยน Config)",
       "ต่อขยายจาก StorageProvider Interface — ไม่ต้องเปลี่ยน Business Logic"
     ]
   },

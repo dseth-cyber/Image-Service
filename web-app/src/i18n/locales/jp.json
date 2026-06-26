@@ -30,11 +30,9 @@
       "postgresActiveConnections": "アクティブ接続",
       "postgresLocks": "アクティブロック",
       "postgresDeadlocks": "デッドロック",
-      "minioTitle": "MinIO テレメトリー",
-      "minioBucketSize": "バケットサイズ",
-      "minioObjectCount": "オブジェクト数",
-      "minioWriteThroughput": "書き込みスループット",
-      "minioReadThroughput": "読み取りスループット (SMB)"
+      "providerTitle": "ストレージプロバイダー",
+      "default": "デフォルト",
+      "noProviders": "プロバイダーが設定されていません"
     },
     "trends": {
       "title": "経営トレンド",
@@ -176,14 +174,19 @@
       "providerName": "プロバイダー名",
       "providerType": "タイプ",
       "s3": "S3 互換",
-      "local": "ローカルディスク",
+      "local": "ローカルファイルシステム",
+      "smb": "SMB 共有",
+      "nfs": "NFS エクスポート",
+      "seaweedfs": "SeaweedFS (S3互換)",
+      "seaweedfsHint": "SeaweedFS は S3 互換 API を使用します。上記に filer/volume S3 エンドポイントを設定してください。",
       "endpoint": "エンドポイント",
       "port": "ポート",
       "accessKey": "アクセスキー",
       "secretKey": "シークレットキー",
       "bucket": "バケット",
+      "region": "リージョン",
       "useSSL": "SSL を使用",
-      "basePath": "ベースパス",
+      "basePath": "ルートディレクトリ",
       "description": "説明",
       "isDefault": "デフォルトに設定",
       "default": "デフォルト",
@@ -193,6 +196,13 @@
       "inactive": "無効",
       "testConnection": "接続テスト",
       "testSuccess": "接続成功",
+      "share": "共有パス",
+      "username": "ユーザー名",
+      "password": "パスワード",
+      "domain": "ドメイン（オプション）",
+      "nfsServer": "NFS サーバー",
+      "nfsExportPath": "エクスポートパス",
+      "nfsMountOptions": "マウントオプション（オプション）",
       "testFailed": "接続失敗",
       "deleteConfirm": "このプロバイダーを削除してもよろしいですか？",
       "deleteForbidden": "ファイルが存在するプロバイダーは削除できません。先にファイルを移行してください。",
@@ -200,11 +210,16 @@
       "created": "プロバイダーを作成しました",
       "updated": "プロバイダーを更新しました",
       "setDefault": "デフォルトに設定",
+      "defaultSet": "デフォルトプロバイダーを更新しました",
       "providerFiles": "このプロバイダーのファイル",
       "noProviders": "ストレージプロバイダーが設定されていません",
       "health": "ヘルス",
       "latency": "レイテンシ",
-      "lastMetric": "最新メトリクス"
+      "lastMetric": "最新メトリクス",
+      "actions": "アクション",
+      "enable": "有効化",
+      "disable": "無効化",
+      "edit": "編集"
     },
     "migrations": {
       "title": "移行ジョブ",
@@ -783,22 +798,22 @@
         {
           "label": "処理 Worker",
           "tech": "Python 3.12 · Pillow",
-          "desc": "TIFF→PNG 変換、サムネイル生成、SHA256 チェックサム計算、MinIO 保存、結果を API に報告、API が DB メタデータを書き込み"
+          "desc": "TIFF→PNG 変換、サムネイル生成、SHA256 チェックサム計算、Storage Provider (SMB/NFS/S3/Local/SeaweedFS) 経由で保存、結果を API に報告、API が DB メタデータを書き込み"
         },
         {
           "label": "API サービス",
           "tech": "Fastify · Prisma · PostgreSQL 15",
-          "desc": "画像検索、メタデータ管理、保持ポリシー、ヘルス監視、JWT認証+RBAC、OpenAPI ドキュメント"
+          "desc": "画像検索、メタデータ管理、保持ポリシー、Storage Providers CRUD、ヘルス監視、JWT認証+RBAC、OpenAPI ドキュメント"
         },
         {
           "label": "フロントエンド",
           "tech": "React 18 · Vite 5 · Tailwind",
-          "desc": "ダッシュボード、画像検索、カメラ監視、ストレージ監視、保持ポリシー、処理ログ。TanStack Query、Recharts"
+          "desc": "ダッシュボード、画像検索、カメラ監視、Storage Providers 管理、保持ポリシー、処理ログ。TanStack Query、Recharts"
         },
         {
           "label": "インフラストラクチャ",
-          "tech": "Redis 7 · MinIO · Docker Compose",
-          "desc": "Redis は BullMQ キュー + キャッシング用。MinIO S3 互換オブジェクトストレージ。ERP プラットフォームから分離された専用 VM 上で動作。各サービスが独自の DB を所有（DB 分離）"
+          "tech": "Redis 7 · Storage Providers · Docker Compose",
+          "desc": "Redis は BullMQ キュー + キャッシング用。Pluggable storage providers (S3/MinIO, SMB, NFS, Local Disk, SeaweedFS)。ERP プラットフォームから分離された専用 VM 上で動作。各サービスが独自の DB を所有（DB 分離）"
         },
         {
           "label": "将来の統合",
@@ -942,11 +957,11 @@
         "バックアップステータスダッシュボード"
       ],
     "phase15": "P9 — ストレージプロバイダ抽象化",
-    "phase15Desc": "StorageProvider インターフェース、S3 (MinIO)、シャーディング付きLocalDisk、StorageRouter、Workerアップロードリファクタ",
+    "phase15Desc": "StorageProvider インターフェース、S3 (MinIO, SeaweedFS)、シャーディング付きLocalDisk、StorageRouter、Workerアップロードリファクタ",
     "phase15Status": "進行中",
     "phase15Tasks": [
       "StorageProvider インターフェース — 統一された save/getStream/delete/health API",
-      "S3Provider — 既存の MinIO クライアントをラップ、全 S3 互換ストレージで動作",
+      "S3Provider — 既存の MinIO/SeaweedFS クライアントをラップ、全 S3 互換ストレージで動作",
       "LocalDiskProvider — YYYY/MM/DD/fileType/hashPrefix シャーディング、1000万+ファイル対応",
       "StorageRouter — インメモリレジストリ、getDefault()、変更時に refresh()",
       "images/retention/admin/backup/health の全 MinIO 呼び出しを StorageRouter に置き換え",
@@ -975,12 +990,13 @@
       "ImageFile.storageProfileId — プロファイルへのリンク",
       "プロファイル管理UI"
     ],
-    "phase18": "P9.3 — SMB/NFS プロバイダ",
-    "phase18Desc": "SMB および NFS プロトコルによる NAS 直接サポート",
+    "phase18": "P9.3 — SMB/NFS/SeaweedFS プロバイダ",
+    "phase18Desc": "SMB、NFS、SeaweedFS (S3互換) による NAS 直接サポート",
     "phase18Status": "計画済み",
     "phase18Tasks": [
       "SMBProvider — SMB プロトコルで NAS に直接書き込み",
       "NFSProvider — NFS マウントで NAS に直接書き込み",
+      "SeaweedFSProvider — 既存の S3Provider を利用 (S3互換API、設定変更不要)",
       "StorageProvider インターフェースを拡張 — ビジネスロジックの変更は不要"
     ]
   },

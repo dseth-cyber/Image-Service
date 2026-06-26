@@ -30,11 +30,9 @@
       "postgresActiveConnections": "活跃连接",
       "postgresLocks": "活跃锁",
       "postgresDeadlocks": "死锁",
-      "minioTitle": "MinIO 遥测",
-      "minioBucketSize": "存储桶大小",
-      "minioObjectCount": "对象数量",
-      "minioWriteThroughput": "写入吞吐量",
-      "minioReadThroughput": "读取吞吐量 (SMB)"
+      "providerTitle": "存储提供商",
+      "default": "默认",
+      "noProviders": "未配置任何提供商"
     },
     "trends": {
       "title": "高管趋势",
@@ -176,14 +174,19 @@
       "providerName": "提供商名称",
       "providerType": "类型",
       "s3": "S3 兼容",
-      "local": "本地磁盘",
+      "local": "本地文件系统",
+      "smb": "SMB 共享",
+      "nfs": "NFS 导出",
+      "seaweedfs": "SeaweedFS (S3兼容)",
+      "seaweedfsHint": "SeaweedFS 使用 S3 兼容 API。请在上方配置 filer/volume S3 端点。",
       "endpoint": "端点",
       "port": "端口",
       "accessKey": "访问密钥",
       "secretKey": "秘密密钥",
       "bucket": "存储桶",
+      "region": "区域",
       "useSSL": "使用 SSL",
-      "basePath": "基础路径",
+      "basePath": "根目录",
       "description": "描述",
       "isDefault": "设为默认",
       "default": "默认",
@@ -193,6 +196,13 @@
       "inactive": "禁用",
       "testConnection": "测试连接",
       "testSuccess": "连接成功",
+      "share": "共享路径",
+      "username": "用户名",
+      "password": "密码",
+      "domain": "域名（可选）",
+      "nfsServer": "NFS 服务器",
+      "nfsExportPath": "导出路径",
+      "nfsMountOptions": "挂载选项（可选）",
       "testFailed": "连接失败",
       "deleteConfirm": "确定要删除此提供商吗？",
       "deleteForbidden": "无法删除有文件的提供商，请先迁移文件",
@@ -200,11 +210,16 @@
       "created": "提供商创建成功",
       "updated": "提供商更新成功",
       "setDefault": "设为默认",
+      "defaultSet": "默认提供商已更新",
       "providerFiles": "此提供商中的文件",
       "noProviders": "尚未配置存储提供商",
       "health": "健康状态",
       "latency": "延迟",
-      "lastMetric": "最新指标"
+      "lastMetric": "最新指标",
+      "actions": "操作",
+      "enable": "启用",
+      "disable": "禁用",
+      "edit": "编辑"
     },
     "migrations": {
       "title": "迁移任务",
@@ -783,22 +798,22 @@
         {
           "label": "处理 Worker",
           "tech": "Python 3.12 · Pillow",
-          "desc": "转换 TIFF→PNG，生成缩略图，计算 SHA256 校验和，存储到 MinIO，将结果报告给 API，由 API 写入数据库元数据"
+          "desc": "转换 TIFF→PNG，生成缩略图，计算 SHA256 校验和，通过 Storage Provider (SMB/NFS/S3/Local/SeaweedFS) 存储，将结果报告给 API，由 API 写入数据库元数据"
         },
         {
           "label": "API 服务",
           "tech": "Fastify · Prisma · PostgreSQL 15",
-          "desc": "图像搜索、元数据管理、保留策略、健康监控、JWT 认证 + RBAC、OpenAPI 文档"
+          "desc": "图像搜索、元数据管理、保留策略、Storage Providers CRUD、健康监控、JWT 认证 + RBAC、OpenAPI 文档"
         },
         {
           "label": "前端",
           "tech": "React 18 · Vite 5 · Tailwind",
-          "desc": "仪表板、图像搜索、相机监控、存储监控、保留策略、处理日志。TanStack Query、Recharts"
+          "desc": "仪表板、图像搜索、相机监控、Storage Providers 管理、保留策略、处理日志。TanStack Query、Recharts"
         },
         {
           "label": "基础设施",
-          "tech": "Redis 7 · MinIO · Docker Compose",
-          "desc": "Redis 用于 BullMQ 队列 + 缓存。MinIO S3 兼容对象存储。运行在与 ERP 平台分离的专用 VM 上。每个服务拥有自己的数据库（数据库隔离）"
+          "tech": "Redis 7 · Storage Providers · Docker Compose",
+          "desc": "Redis 用于 BullMQ 队列 + 缓存。可插拔存储提供商 (S3/MinIO, SMB, NFS, Local Disk, SeaweedFS)。运行在与 ERP 平台分离的专用 VM 上。每个服务拥有自己的数据库（数据库隔离）"
         },
         {
           "label": "未来集成",
@@ -942,11 +957,11 @@
         "备份状态仪表板"
       ],
     "phase15": "P9 — 存储提供者抽象层",
-    "phase15Desc": "StorageProvider 接口、S3 (MinIO)、带分片的本地磁盘、StorageRouter、Worker上传重构",
+    "phase15Desc": "StorageProvider 接口、S3 (MinIO, SeaweedFS)、带分片的本地磁盘、StorageRouter、Worker上传重构",
     "phase15Status": "进行中",
     "phase15Tasks": [
       "StorageProvider 接口 — 统一的 save/getStream/delete/health API",
-      "S3Provider — 封装现有 MinIO 客户端，兼容所有 S3 存储",
+      "S3Provider — 封装现有 MinIO/SeaweedFS 客户端，兼容所有 S3 存储",
       "LocalDiskProvider — YYYY/MM/DD/fileType/hashPrefix 分片方案，支持千万级文件",
       "StorageRouter — 内存注册表，getDefault()，变更时 refresh()",
       "重构 images/retention/admin/backup/health 中所有 MinIO 调用 → StorageRouter",
@@ -975,12 +990,13 @@
       "ImageFile.storageProfileId — 链接到配置文件",
       "配置文件管理界面"
     ],
-    "phase18": "P9.3 — SMB/NFS 存储提供者",
-    "phase18Desc": "通过 SMB 和 NFS 协议直接支持 NAS",
+    "phase18": "P9.3 — SMB/NFS/SeaweedFS 存储提供者",
+    "phase18Desc": "通过 SMB、NFS 和 SeaweedFS (S3兼容) 直接支持 NAS",
     "phase18Status": "已计划",
     "phase18Tasks": [
       "SMBProvider — 通过 SMB 直接写入 NAS",
       "NFSProvider — 通过 NFS 直接写入 NAS",
+      "SeaweedFSProvider — 使用现有 S3Provider (S3兼容API，无需更改配置)",
       "扩展 StorageProvider 接口 — 零业务逻辑变更"
     ]
   },

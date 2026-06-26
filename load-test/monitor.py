@@ -8,7 +8,7 @@ Collects:
   1. docker stats for all containers
   2. PostgreSQL health (connections, deadlocks, TPS, table growth, index usage)
   3. Redis health (memory, queue length, AOF status)
-  4. MinIO health (storage, object count, throughput)
+  4. Storage providers health (via API — supports MinIO, SMB, NFS, S3)
   5. API health (queue stats, processing stats)
   6. Kafka health (consumer lag, failed messages)
   7. System resource usage
@@ -33,7 +33,7 @@ CONTAINERS = [
     "image-sync-worker",
     "image-redis",
     "image-postgres",
-    "image-minio",
+    "image-minio",         # Development S3 provider (optional — production uses configured providers)
     "image-kafka",
     "image-zookeeper",
     "image-smb-server",
@@ -127,35 +127,31 @@ def collect_redis_metrics() -> dict:
     return results
 
 
-def collect_minio_metrics() -> dict:
+def collect_storage_metrics() -> dict:
+    """Collect metrics from storage providers via API health endpoint."""
     results = {}
-    # Disk usage
-    out = run_cmd(["docker", "exec", "image-minio", "mc", "du", "--json", "local/image-service"], timeout=10)
+    out = run_cmd([
+        "docker", "exec", "image-api",
+        "wget", "-qO-", "http://localhost:3001/api/v1/health",
+    ], timeout=10)
     if out and out != "ERROR":
         try:
-            results["bucket_size"] = json.loads(out.split("\n")[0])
+            data = json.loads(out)
+            results["health"] = data.get("providers", [])
+            results["storage_ok"] = data.get("checks", {}).get("storage") == "ok"
         except json.JSONDecodeError:
-            results["bucket_size_raw"] = out
+            results["health_raw"] = out
 
-    # Object count
-    out2 = run_cmd(["docker", "exec", "image-minio", "mc", "ls", "--json", "local/image-service"], timeout=10)
+    # Get detailed provider metrics from API
+    out2 = run_cmd([
+        "docker", "exec", "image-api",
+        "wget", "-qO-", "http://localhost:3001/api/v1/storage-providers",
+    ], timeout=10)
     if out2 and out2 != "ERROR":
-        lines = [l for l in out2.split("\n") if l.strip()]
-        results["object_count"] = len(lines)
-        # Parse last few for size info
         try:
-            objects = [json.loads(l) for l in lines if l.startswith("{")]
-            results["total_size"] = sum(o.get("size", 0) for o in objects)
+            results["providers"] = json.loads(out2)
         except json.JSONDecodeError:
-            pass
-
-    # Bucket info
-    out3 = run_cmd(["docker", "exec", "image-minio", "mc", "info", "--json", "local"], timeout=10)
-    if out3 and out3 != "ERROR":
-        try:
-            results["server_info"] = json.loads(out3.split("\n")[0])
-        except json.JSONDecodeError:
-            pass
+            results["providers_raw"] = out2
 
     return results
 
@@ -322,8 +318,8 @@ def main():
         metrics["redis"] = collect_redis_metrics()
         print("OK")
 
-        print("  Collecting MinIO metrics...", end=" ", flush=True)
-        metrics["minio"] = collect_minio_metrics()
+        print("  Collecting storage provider metrics...", end=" ", flush=True)
+        metrics["storage"] = collect_storage_metrics()
         print("OK")
 
         print("  Collecting Kafka metrics...", end=" ", flush=True)

@@ -34,6 +34,7 @@ import { smbRoutes } from './modules/smb/smb.controller.js';
 import adminRoutes from './modules/admin/admin.controller.js';
 import { startRetentionSweeper, stopRetentionSweeper } from './modules/retention-sweeper/retention-sweeper.controller.js';
 import { startDlqReprocessor, stopDlqReprocessor } from './modules/processing-logs/dlq-reprocessor.js';
+import { startMetricCollector, stopMetricCollector } from './modules/provider-metrics/provider-metric-collector.js';
 import { workerUploadRoutes } from './modules/images/worker-upload.controller.js';
 import { storageRouter } from './lib/storage/storage-router.js';
 import { getPrisma } from './lib/prisma.js';
@@ -136,6 +137,7 @@ export async function startApp() {
   startRetentionSweeper();
   startDlqReprocessor();
   startBackupScheduler();
+  startMetricCollector();
 
   try {
     const prisma = getPrisma();
@@ -165,6 +167,7 @@ export async function startApp() {
     stopRetentionSweeper();
     stopDlqReprocessor();
     stopBackupScheduler();
+    stopMetricCollector();
     await app.close();
     process.exit(0);
   };

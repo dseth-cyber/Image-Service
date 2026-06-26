@@ -30,11 +30,9 @@
       "postgresActiveConnections": "ချိတ်ဆက်မှုများ",
       "postgresLocks": "သော့ခတ်မှုများ",
       "postgresDeadlocks": "သေသော့ခတ်မှုများ",
-      "minioTitle": "MinIO တိုင်းတာချက်များ",
-      "minioBucketSize": "Bucket အရွယ်အစား",
-      "minioObjectCount": "Object အရေအတွက်",
-      "minioWriteThroughput": "ရေးသွင်းမှုနှုန်း",
-      "minioReadThroughput": "ဖတ်ရှုမှုနှုန်း (SMB)"
+      "providerTitle": "သိုလှောင်မှုပံ့ပိုးသူများ",
+      "default": "မူလ",
+      "noProviders": "ပံ့ပိုးသူ မသတ်မှတ်ရသေးပါ"
     },
     "trends": {
       "title": "အမှုဆောင်လမ်းကြောင်း",
@@ -176,14 +174,19 @@
       "providerName": "အမည်",
       "providerType": "အမျိုးအစား",
       "s3": "S3 Compatible",
-      "local": "Local Disk",
+      "local": "Local File System",
+      "smb": "SMB Share",
+      "nfs": "NFS Export",
+      "seaweedfs": "SeaweedFS (S3-compatible)",
+      "seaweedfsHint": "SeaweedFS သည် S3-compatible API ကို အသုံးပြုသည်။ အထက်တွင် filer/volume S3 endpoint ကို သတ်မှတ်ပါ။",
       "endpoint": "Endpoint",
       "port": "Port",
       "accessKey": "Access Key",
       "secretKey": "Secret Key",
       "bucket": "Bucket",
+      "region": "Region",
       "useSSL": "SSL သုံးရန်",
-      "basePath": "Base Path",
+      "basePath": "Root Directory",
       "description": "ဖော်ပြချက်",
       "isDefault": "မူလသတ်မှတ်ရန်",
       "default": "မူလ",
@@ -193,6 +196,13 @@
       "inactive": "မအသက်ဝင်",
       "testConnection": "ချိတ်ဆက်မှုစမ်းသပ်ရန်",
       "testSuccess": "ချိတ်ဆက်မှုအောင်မြင်",
+      "share": "Share Path",
+      "username": "Username",
+      "password": "Password",
+      "domain": "Domain (optional)",
+      "nfsServer": "NFS Server",
+      "nfsExportPath": "Export Path",
+      "nfsMountOptions": "Mount Options (optional)",
       "testFailed": "ချိတ်ဆက်မှုမအောင်မြင်",
       "deleteConfirm": "ဤဝန်ဆောင်မှုပေးသူကို ဖျက်ရန်သေချာပါသလား။",
       "deleteForbidden": "ဖိုင်များရှိနေသော ဝန်ဆောင်မှုပေးသူကို မဖျက်နိုင်ပါ။ ဖိုင်များကို ဦးစွာရွှေ့ပါ။",
@@ -200,11 +210,16 @@
       "created": "ဝန်ဆောင်မှုပေးသူကို ဖန်တီးပြီးပြီ",
       "updated": "ဝန်ဆောင်မှုပေးသူကို ပြင်ဆင်ပြီးပြီ",
       "setDefault": "မူလအဖြစ်သတ်မှတ်ရန်",
+      "defaultSet": "မူလဝန်ဆောင်မှုပေးသူကို ပြင်ဆင်ပြီးပြီ",
       "providerFiles": "ဤဝန်ဆောင်မှုပေးသူရှိ ဖိုင်များ",
       "noProviders": "သိုလှောင်မှုဝန်ဆောင်မှုပေးသူ မရှိသေးပါ",
       "health": "ကျန်းမာရေး",
       "latency": "ကြန့်ကြာချိန်",
-      "lastMetric": "နောက်ဆုံးတိုင်းတာချက်"
+      "lastMetric": "နောက်ဆုံးတိုင်းတာချက်",
+      "actions": "လုပ်ဆောင်ချက်များ",
+      "enable": "ဖွင့်ရန်",
+      "disable": "ပိတ်ရန်",
+      "edit": "ပြင်ရန်"
     },
     "migrations": {
       "title": "ရွှေ့ပြောင်းခြင်းလုပ်ငန်းများ",
@@ -783,22 +798,22 @@
         {
           "label": "Processing Worker",
           "tech": "Python 3.12 · Pillow",
-          "desc": "TIFF→PNG ပြောင်း၊ thumbnail ထုတ်၊ SHA256 checksum တွက်၊ MinIO တွင် သိမ်း၊ API သို့ ရလဒ်တင်ပြ၊ API က DB metadata ရေးသည်"
+          "desc": "TIFF→PNG ပြောင်း၊ thumbnail ထုတ်၊ SHA256 checksum တွက်၊ Storage Provider (SMB/NFS/S3/Local/SeaweedFS) မှတစ်ဆင့် သိမ်း၊ API သို့ ရလဒ်တင်ပြ၊ API က DB metadata ရေးသည်"
         },
         {
           "label": "API Service",
           "tech": "Fastify · Prisma · PostgreSQL 15",
-          "desc": "ပုံရှာဖွေ၊ metadata စီမံ၊ retention မူဝါဒ၊ ကျန်းမာရေးစောင့်ကြည့်၊ JWT auth + RBAC၊ OpenAPI docs"
+          "desc": "ပုံရှာဖွေ၊ metadata စီမံ၊ retention မူဝါဒ၊ Storage Providers CRUD၊ ကျန်းမာရေးစောင့်ကြည့်၊ JWT auth + RBAC၊ OpenAPI docs"
         },
         {
           "label": "Frontend",
           "tech": "React 18 · Vite 5 · Tailwind",
-          "desc": "Dashboard, ပုံရှာဖွေ, ကင်မရာစောင့်ကြည့်, သိုလှောင်မှုစောင့်ကြည့်, retention မူဝါဒ, processing logs. TanStack Query, Recharts"
+          "desc": "Dashboard, ပုံရှာဖွေ, ကင်မရာစောင့်ကြည့်, Storage Providers စီမံ, retention မူဝါဒ, processing logs. TanStack Query, Recharts"
         },
         {
           "label": "အခြေခံအဆောက်အအုံ",
-          "tech": "Redis 7 · MinIO · Docker Compose",
-          "desc": "Redis for BullMQ queues + caching. MinIO S3 လိုက်ဖက်သော object storage. ERP Platform မှ သီးခြား VM ပေါ်တွင် လည်ပတ်သည်။ ဝန်ဆောင်မှုတစ်ခုစီတွင် ၎င်း၏ DB ရှိသည် (DB isolation)"
+          "tech": "Redis 7 · Storage Providers · Docker Compose",
+          "desc": "Redis for BullMQ queues + caching. Pluggable storage providers (S3/MinIO, SMB, NFS, Local Disk, SeaweedFS). ERP Platform မှ သီးခြား VM ပေါ်တွင် လည်ပတ်သည်။ ဝန်ဆောင်မှုတစ်ခုစီတွင် ၎င်း၏ DB ရှိသည် (DB isolation)"
         },
         {
           "label": "အနာဂတ်ချိတ်ဆက်မှု",
@@ -942,11 +957,11 @@
         "Backup အခြေအနေ ဒက်ရှ်ဘုတ်"
       ],
     "phase15": "P9 — Storage Provider Abstraction",
-    "phase15Desc": "StorageProvider Interface, S3 (MinIO), LocalDisk with sharding, StorageRouter, worker upload refactor",
+    "phase15Desc": "StorageProvider Interface, S3 (MinIO, SeaweedFS), LocalDisk with sharding, StorageRouter, worker upload refactor",
     "phase15Status": "လုပ်ဆောင်နေသည်",
     "phase15Tasks": [
       "StorageProvider Interface — save/getStream/delete/health API တစ်စုတည်း",
-      "S3Provider — MinIO client ကိုထုတ်ပေးထားပြီး S3-compatible storage အားလုံးနှင့်အလုပ်လုပ်နိုင်",
+      "S3Provider — MinIO/SeaweedFS client ကိုထုတ်ပေးထားပြီး S3-compatible storage အားလုံးနှင့်အလုပ်လုပ်နိုင်",
       "LocalDiskProvider — YYYY/MM/DD/fileType/hashPrefix sharding ဖြင့် သန်း ၁၀+ ဖိုင်များကိုလက်ခံနိုင်",
       "StorageRouter — in-memory registry, getDefault(), refresh() on mutation",
       "MinIO calls များကို images, retention, admin, backup, health → StorageRouter သို့ပြောင်းလဲခြင်း",
@@ -975,12 +990,13 @@
       "ImageFile.storageProfileId — link to profile",
       "Admin UI for profile CRUD"
     ],
-    "phase18": "P9.3 — SMB / NFS Providers",
-    "phase18Desc": "SMB နှင့် NFS မှတစ်ဆင့် NAS ကိုတိုက်ရိုက်ပံ့ပိုးခြင်း",
+    "phase18": "P9.3 — SMB / NFS / SeaweedFS Providers",
+    "phase18Desc": "SMB, NFS နှင့် SeaweedFS (S3-compatible) မှတစ်ဆင့် NAS ကိုတိုက်ရိုက်ပံ့ပိုးခြင်း",
     "phase18Status": "စီစဉ်ထား",
     "phase18Tasks": [
       "SMBProvider — SMB protocol ဖြင့် NAS သို့တိုက်ရိုက်ရေးသည်",
       "NFSProvider — NFS mount ဖြင့် NAS သို့တိုက်ရိုက်ရေးသည်",
+      "SeaweedFSProvider — ရှိပြီး S3Provider ကိုသုံးသည် (S3-compatible API, config ပြောင်းစရာမလို)",
       "StorageProvider interface မှ extend — business logic ပြောင်းရန်မလို"
     ]
   },

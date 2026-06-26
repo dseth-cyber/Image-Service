@@ -30,11 +30,9 @@
       "postgresActiveConnections": "Active Connections",
       "postgresLocks": "Active Locks",
       "postgresDeadlocks": "Deadlocks",
-      "minioTitle": "MinIO Telemetry",
-      "minioBucketSize": "Bucket Size",
-      "minioObjectCount": "Object Count",
-      "minioWriteThroughput": "Write Throughput",
-      "minioReadThroughput": "Read Throughput (SMB)"
+      "providerTitle": "Storage Providers",
+      "default": "Default",
+      "noProviders": "No providers configured"
     },
     "trends": {
       "title": "Executive Trends",
@@ -181,14 +179,19 @@
       "providerName": "Provider Name",
       "providerType": "Provider Type",
       "s3": "S3 Compatible",
-      "local": "Local Disk",
+      "local": "Local File System",
+      "smb": "SMB Share",
+      "nfs": "NFS Export",
+      "seaweedfs": "SeaweedFS (S3-compatible)",
+      "seaweedfsHint": "SeaweedFS uses S3-compatible API. Configure filer/volume S3 endpoint above.",
       "endpoint": "Endpoint",
       "port": "Port",
       "accessKey": "Access Key",
       "secretKey": "Secret Key",
       "bucket": "Bucket",
+      "region": "Region",
       "useSSL": "Use SSL",
-      "basePath": "Base Path",
+      "basePath": "Root Directory",
       "description": "Description",
       "isDefault": "Is Default",
       "default": "Default",
@@ -198,6 +201,13 @@
       "inactive": "Inactive",
       "testConnection": "Test Connection",
       "testSuccess": "Connection successful",
+      "share": "Share Path",
+      "username": "Username",
+      "password": "Password",
+      "domain": "Domain (optional)",
+      "nfsServer": "NFS Server",
+      "nfsExportPath": "Export Path",
+      "nfsMountOptions": "Mount Options (optional)",
       "testFailed": "Connection failed",
       "deleteConfirm": "Are you sure you want to delete this provider?",
       "deleteForbidden": "Cannot delete provider with existing files. Migrate files first.",
@@ -205,11 +215,16 @@
       "created": "Provider created successfully",
       "updated": "Provider updated successfully",
       "setDefault": "Set as Default",
+      "defaultSet": "Default provider updated",
       "providerFiles": "Files in this provider",
       "noProviders": "No storage providers configured",
       "health": "Health",
       "latency": "Latency",
-      "lastMetric": "Last Metric"
+      "lastMetric": "Last Metric",
+      "actions": "Actions",
+      "enable": "Enable",
+      "disable": "Disable",
+      "edit": "Edit"
     },
     "migrations": {
       "title": "Migration Jobs",
@@ -788,22 +803,22 @@
         {
           "label": "Processing Worker",
           "tech": "Python 3.12 · Pillow",
-          "desc": "Converts TIFF→PNG, generates thumbnails, calculates SHA256 checksum, stores in MinIO, reports result to API which writes metadata to DB."
+          "desc": "Converts TIFF→PNG, generates thumbnails, calculates SHA256 checksum, stores via Storage Provider (SMB/NFS/S3/Local/SeaweedFS), reports result to API which writes metadata to DB."
         },
         {
           "label": "API Service",
           "tech": "Fastify · Prisma · PostgreSQL 15",
-          "desc": "Image search, metadata management, retention policies, health monitoring, JWT auth + RBAC, OpenAPI docs."
+          "desc": "Image search, metadata management, retention policies, storage providers CRUD, health monitoring, JWT auth + RBAC, OpenAPI docs."
         },
         {
           "label": "Frontend",
           "tech": "React 18 · Vite 5 · Tailwind",
-          "desc": "Dashboard, image search, camera monitoring, storage monitoring, retention policy, processing logs. TanStack Query, Recharts."
+          "desc": "Dashboard, image search, camera monitoring, storage providers dashboard, retention policy, processing logs. TanStack Query, Recharts."
         },
         {
           "label": "Infrastructure",
-          "tech": "Redis 7 · MinIO · Docker Compose",
-          "desc": "Redis for BullMQ queues + caching. MinIO S3-compatible object storage. Runs on dedicated VM(s) separate from ERP platform. Each service owns its own DB (DB isolation)."
+          "tech": "Redis 7 · Storage Providers · Docker Compose",
+          "desc": "Redis for BullMQ queues + caching. Pluggable storage providers (S3/MinIO, SMB, NFS, Local Disk, SeaweedFS). Runs on dedicated VM(s) separate from ERP platform. Each service owns its own DB (DB isolation)."
         },
         {
           "label": "Future Integration",
@@ -947,11 +962,11 @@
         "Backup status dashboard"
       ],
     "phase15": "P9 — Storage Provider Abstraction",
-    "phase15Desc": "StorageProvider Interface, S3 (MinIO), LocalDisk with sharding, StorageRouter, worker upload refactor",
+    "phase15Desc": "StorageProvider Interface, S3 (MinIO, SeaweedFS), LocalDisk with sharding, StorageRouter, worker upload refactor",
     "phase15Status": "In Progress",
     "phase15Tasks": [
       "StorageProvider Interface — unified save/getStream/delete/health API",
-      "S3Provider — wraps existing MinIO client, works with any S3-compatible storage",
+      "S3Provider — wraps existing MinIO/SeaweedFS client, works with any S3-compatible storage",
       "LocalDiskProvider — YYYY/MM/DD/fileType/hashPrefix sharding for 10M+ files",
       "StorageRouter — in-memory registry, getDefault(), refresh() on mutation",
       "Refactor MinIO calls in images, retention, admin, backup, health → StorageRouter",
@@ -980,12 +995,13 @@
       "ImageFile.storageProfileId — link to profile",
       "Admin UI for profile CRUD"
     ],
-    "phase18": "P9.3 — SMB / NFS Providers",
-    "phase18Desc": "Direct NAS support via SMB and NFS storage backends",
+    "phase18": "P9.3 — SMB / NFS / SeaweedFS Providers",
+    "phase18Desc": "Direct NAS support via SMB, NFS, and SeaweedFS (S3-compatible) storage backends",
     "phase18Status": "Planned",
     "phase18Tasks": [
       "SMBProvider — direct write to NAS via SMB protocol",
       "NFSProvider — direct write to NAS via NFS mount",
+      "SeaweedFSProvider — uses existing S3Provider (S3-compatible API, zero config change)",
       "Extends StorageProvider interface — zero business logic changes"
     ]
   },

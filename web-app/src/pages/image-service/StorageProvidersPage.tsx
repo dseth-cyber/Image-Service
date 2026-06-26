@@ -5,7 +5,23 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { useToast } from '@/contexts/ToastContext'
 import { imageServiceApi } from '@/services/imageServiceApi'
 import { Button, Modal, TableSkeleton, SearchableSelect } from '@/components/ui'
-import { Plus, HardDrive, CheckCircle, XCircle, TestTube, Star, Trash2, Edit3, Wifi, Clock, Server } from 'lucide-react'
+import { Plus, HardDrive, CheckCircle, XCircle, TestTube, Star, Trash2, Edit3, Server, Wifi, Clock, ToggleLeft, ToggleRight } from 'lucide-react'
+
+const TYPE_LABEL: Record<string, string> = {
+  s3: 'storageProviders.s3',
+  local: 'storageProviders.local',
+  smb: 'storageProviders.smb',
+  nfs: 'storageProviders.nfs',
+  seaweedfs: 'storageProviders.seaweedfs',
+}
+
+const TYPE_ICON: Record<string, any> = {
+  s3: Server,
+  seaweedfs: Server,
+  local: HardDrive,
+  smb: HardDrive,
+  nfs: HardDrive,
+}
 
 export default function StorageProvidersPage() {
   const { t } = useTranslation()
@@ -49,6 +65,29 @@ export default function StorageProvidersPage() {
     },
   })
 
+  const toggleActiveMutation = useMutation({
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
+      imageServiceApi.updateStorageProvider(id, { isActive }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['storage-providers'] })
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || t('common.error'))
+    },
+  })
+
+  const setDefaultMutation = useMutation({
+    mutationFn: (id: string) =>
+      imageServiceApi.updateStorageProvider(id, { isDefault: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['storage-providers'] })
+      toast.success(t('imageService.storageProviders.defaultSet'))
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || t('common.error'))
+    },
+  })
+
   const handleTest = async (id: string) => {
     setTestingId(id)
     testMutation.mutate(id)
@@ -65,9 +104,13 @@ export default function StorageProvidersPage() {
   }
 
   const typeIcon = (type: string) => {
-    if (type === 's3') return <Server size={16} className="text-blue-400" />
-    return <HardDrive size={16} className="text-amber-400" />
+    const Icon = TYPE_ICON[type] || HardDrive
+    const color = type === 's3' || type === 'seaweedfs' ? 'text-blue-400' : 'text-amber-400'
+    return <Icon size={16} className={color} />
   }
+
+  const thClass = `px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${themeConfig.text.secondary}`
+  const tdClass = `px-4 py-3 text-sm ${themeConfig.text.primary}`
 
   return (
     <div className="p-6">
@@ -92,79 +135,94 @@ export default function StorageProvidersPage() {
           <p className="text-lg font-medium">{t('imageService.storageProviders.noProviders')}</p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {providers.map((p: any) => {
-            const testResult = testResults[p.id]
-            return (
-              <div key={p.id} className={`rounded-lg border ${themeConfig.card} p-5 space-y-3`}>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    {typeIcon(p.type)}
-                    <div>
-                      <h3 className={`font-semibold ${themeConfig.text.primary}`}>{p.name}</h3>
-                      <span className={`text-xs ${themeConfig.text.secondary}`}>
-                        {p.type === 's3' ? t('imageService.storageProviders.s3') : t('imageService.storageProviders.local')}
+        <div className={`rounded-lg overflow-hidden border ${themeConfig.card}`}>
+          <table className="w-full">
+            <thead className={themeConfig.name === 'light' ? 'bg-gray-100' : 'bg-white/5'}>
+              <tr>
+                <th className={thClass}>{t('imageService.storageProviders.providerName')}</th>
+                <th className={thClass}>{t('imageService.storageProviders.providerType')}</th>
+                <th className={thClass}>{t('imageService.storageProviders.status')}</th>
+                <th className={thClass}>{t('imageService.storageProviders.default')}</th>
+                <th className={thClass}>{t('imageService.storageProviders.health')}</th>
+                <th className={thClass}>{t('imageService.storageProviders.actions')}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/10">
+              {providers.map((p: any) => {
+                const testResult = testResults[p.id]
+                return (
+                  <tr key={p.id} className="hover:bg-white/5 transition-colors">
+                    <td className={tdClass}>
+                      <div className="flex items-center gap-2">
+                        {typeIcon(p.type)}
+                        <span className="font-medium">{p.name}</span>
+                      </div>
+                    </td>
+                    <td className={tdClass}>
+                      <span className="text-xs">{t(`imageService.${TYPE_LABEL[p.type] || TYPE_LABEL.local}`)}</span>
+                    </td>
+                    <td className={tdClass}>
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                        p.isActive ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'
+                      }`}>
+                        {p.isActive ? <CheckCircle size={10} /> : <XCircle size={10} />}
+                        {p.isActive ? t('imageService.storageProviders.active') : t('imageService.storageProviders.inactive')}
                       </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {p.isDefault && (
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-cyan-500/20 text-cyan-300">
-                        <Star size={10} /> {t('imageService.storageProviders.default')}
-                      </span>
-                    )}
-                    <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                      p.isActive ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'
-                    }`}>
-                      {p.isActive ? <CheckCircle size={10} /> : <XCircle size={10} />}
-                      {p.isActive ? t('imageService.storageProviders.active') : t('imageService.storageProviders.inactive')}
-                    </span>
-                  </div>
-                </div>
-
-                {p.description && (
-                  <p className={`text-xs ${themeConfig.text.secondary}`}>{p.description}</p>
-                )}
-
-                <div className={`text-xs space-y-1 ${themeConfig.text.secondary}`}>
-                  {p.type === 's3' && (
-                    <>
-                      <div className="flex justify-between"><span>{t('imageService.storageProviders.endpoint')}</span><span className={themeConfig.text.primary}>{p.config.endpoint}:{p.config.port}</span></div>
-                      <div className="flex justify-between"><span>{t('imageService.storageProviders.bucket')}</span><span className={themeConfig.text.primary}>{p.config.bucket}</span></div>
-                    </>
-                  )}
-                  {p.type === 'local' && (
-                    <div className="flex justify-between"><span>{t('imageService.storageProviders.basePath')}</span><span className={themeConfig.text.primary}>{p.config.basePath}</span></div>
-                  )}
-                  <div className="flex justify-between"><span>{t('imageService.storageProviders.priority')}</span><span className={themeConfig.text.primary}>{p.priority}</span></div>
-                </div>
-
-                {testResult && (
-                  <div className={`flex items-center gap-2 text-xs px-3 py-2 rounded ${testResult.ok ? 'bg-green-500/10 text-green-300' : 'bg-red-500/10 text-red-300'}`}>
-                    <Wifi size={12} />
-                    {testResult.ok ? (
-                      <>{t('imageService.storageProviders.testSuccess')} ({testResult.latencyMs}ms)</>
-                    ) : (
-                      <>{t('imageService.storageProviders.testFailed')}: {testResult.error}</>
-                    )}
-                  </div>
-                )}
-
-                <div className="flex items-center gap-1 pt-2 border-t border-white/10">
-                  <Button variant="secondary" size="sm" onClick={() => handleTest(p.id)} disabled={testingId === p.id}>
-                    <TestTube size={14} className="mr-1" />
-                    {testingId === p.id ? '...' : t('imageService.storageProviders.testConnection')}
-                  </Button>
-                  <Button variant="secondary" size="sm" onClick={() => handleEdit(p)}>
-                    <Edit3 size={14} />
-                  </Button>
-                  <Button variant="secondary" size="sm" className="!text-red-400 hover:!bg-red-500/20" onClick={() => setDeleteTarget(p)} disabled={p.isDefault}>
-                    <Trash2 size={14} />
-                  </Button>
-                </div>
-              </div>
-            )
-          })}
+                    </td>
+                    <td className={tdClass}>
+                      {p.isDefault ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-cyan-500/20 text-cyan-300">
+                          <Star size={10} /> {t('imageService.storageProviders.default')}
+                        </span>
+                      ) : (
+                        <span className={`text-xs ${themeConfig.text.secondary}`}>—</span>
+                      )}
+                    </td>
+                    <td className={tdClass}>
+                      {testResult ? (
+                        <div className={`flex items-center gap-1.5 text-xs ${testResult.ok ? 'text-green-400' : 'text-red-400'}`}>
+                          {testResult.ok ? <CheckCircle size={12} /> : <XCircle size={12} />}
+                          <span>{testResult.ok ? `${testResult.latencyMs}ms` : testResult.error}</span>
+                        </div>
+                      ) : p.isActive ? (
+                        <button onClick={() => handleTest(p.id)} className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors">
+                          {testingId === p.id ? '...' : t('imageService.storageProviders.testConnection')}
+                        </button>
+                      ) : (
+                        <span className={`text-xs ${themeConfig.text.secondary}`}>—</span>
+                      )}
+                    </td>
+                    <td className={tdClass}>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => toggleActiveMutation.mutate({ id: p.id, isActive: !p.isActive })}
+                          className={`p-1.5 rounded transition-colors ${p.isActive ? 'text-green-400 hover:bg-green-500/20' : 'text-gray-500 hover:bg-white/10'}`}
+                          title={p.isActive ? t('imageService.storageProviders.disable') : t('imageService.storageProviders.enable')}>
+                          {p.isActive ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
+                        </button>
+                        {!p.isDefault && p.isActive && (
+                          <button onClick={() => setDefaultMutation.mutate(p.id)}
+                            className="p-1.5 rounded text-yellow-400 hover:bg-yellow-500/20 transition-colors"
+                            title={t('imageService.storageProviders.setDefault')}>
+                            <Star size={15} />
+                          </button>
+                        )}
+                        <button onClick={() => handleEdit(p)}
+                          className="p-1.5 rounded text-cyan-400 hover:bg-cyan-500/20 transition-colors"
+                          title={t('imageService.storageProviders.edit')}>
+                          <Edit3 size={15} />
+                        </button>
+                        <button onClick={() => setDeleteTarget(p)} disabled={p.isDefault}
+                          className={`p-1.5 rounded transition-colors ${p.isDefault ? 'text-gray-600 cursor-not-allowed' : 'text-red-400 hover:bg-red-500/20'}`}
+                          title={t('common.delete')}>
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 
@@ -199,14 +257,22 @@ function StorageProviderFormModal({ isOpen, onClose, editTarget }: { isOpen: boo
   const isEdit = !!editTarget
 
   const [name, setName] = useState(editTarget?.name || '')
-  const [type, setType] = useState(editTarget?.type || 's3')
+  const [type, setType] = useState(editTarget?.type || 'local')
   const [endpoint, setEndpoint] = useState(editTarget?.config?.endpoint || '')
   const [port, setPort] = useState(editTarget?.config?.port?.toString() || '9000')
   const [accessKey, setAccessKey] = useState(editTarget?.config?.accessKey || '')
   const [secretKey, setSecretKey] = useState(editTarget?.config?.secretKey || '')
   const [bucket, setBucket] = useState(editTarget?.config?.bucket || '')
   const [useSSL, setUseSSL] = useState(editTarget?.config?.useSSL || false)
+  const [region, setRegion] = useState(editTarget?.config?.region || '')
   const [basePath, setBasePath] = useState(editTarget?.config?.basePath || '')
+  const [share, setShare] = useState(editTarget?.config?.share || '')
+  const [smbDomain, setSmbDomain] = useState(editTarget?.config?.domain || '')
+  const [smbUsername, setSmbUsername] = useState(editTarget?.config?.username || '')
+  const [smbPassword, setSmbPassword] = useState(editTarget?.config?.password || '')
+  const [nfsServer, setNfsServer] = useState(editTarget?.config?.server || '')
+  const [nfsExportPath, setNfsExportPath] = useState(editTarget?.config?.exportPath || '')
+  const [nfsMountOptions, setNfsMountOptions] = useState(editTarget?.config?.mountOptions || '')
   const [description, setDescription] = useState(editTarget?.description || '')
   const [isDefault, setIsDefault] = useState(editTarget?.isDefault || false)
   const [priority, setPriority] = useState(editTarget?.priority?.toString() || '0')
@@ -234,16 +300,27 @@ function StorageProviderFormModal({ isOpen, onClose, editTarget }: { isOpen: boo
     onSettled: () => setSubmitting(false),
   })
 
+  const buildConfig = () => {
+    switch (type) {
+      case 's3':
+      case 'seaweedfs':
+        return { endpoint, port: parseInt(port, 10), accessKey, secretKey, bucket, useSSL, ...(region ? { region } : {}) }
+      case 'local':
+        return { basePath }
+      case 'smb':
+        return { share, username: smbUsername, password: smbPassword, ...(smbDomain ? { domain: smbDomain } : {}) }
+      case 'nfs':
+        return { server: nfsServer, exportPath: nfsExportPath, ...(nfsMountOptions ? { mountOptions: nfsMountOptions } : {}) }
+      default:
+        return {}
+    }
+  }
+
   const handleSubmit = async () => {
     if (!name.trim()) { toast.error('Name is required'); return }
     setSubmitting(true)
-
-    const config = type === 's3'
-      ? { endpoint, port: parseInt(port, 10), accessKey, secretKey, bucket, useSSL }
-      : { basePath }
-
+    const config = buildConfig()
     const payload = { name: name.trim(), type, config, description: description.trim() || undefined, isDefault, priority: parseInt(priority, 10) || 0 }
-
     if (isEdit) {
       updateMutation.mutate({ id: editTarget.id, data: payload })
     } else {
@@ -261,7 +338,7 @@ function StorageProviderFormModal({ isOpen, onClose, editTarget }: { isOpen: boo
       <div className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
         <div>
           <label className={labelClass}>{t('imageService.storageProviders.providerName')}</label>
-          <input type="text" value={name} onChange={e => setName(e.target.value)} className={inputClass} />
+          <input type="text" value={name} onChange={e => setName(e.target.value)} className={inputClass} placeholder="Primary Storage" />
         </div>
         <div>
           <label className={labelClass}>{t('imageService.storageProviders.providerType')}</label>
@@ -269,26 +346,39 @@ function StorageProviderFormModal({ isOpen, onClose, editTarget }: { isOpen: boo
             value={type}
             onChange={setType}
             options={[
-              { value: 's3', label: t('imageService.storageProviders.s3') },
               { value: 'local', label: t('imageService.storageProviders.local') },
+              { value: 's3', label: t('imageService.storageProviders.s3') },
+              { value: 'seaweedfs', label: t('imageService.storageProviders.seaweedfs') },
+              { value: 'smb', label: t('imageService.storageProviders.smb') },
+              { value: 'nfs', label: t('imageService.storageProviders.nfs') },
             ]}
           />
         </div>
-        {type === 's3' ? (
+
+        {(type === 's3' || type === 'seaweedfs') && (
           <>
+            {type === 'seaweedfs' && (
+              <p className={`text-xs px-3 py-2 rounded ${themeConfig.card} ${themeConfig.text.secondary}`}>
+                {t('imageService.storageProviders.seaweedfsHint')}
+              </p>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>{t('imageService.storageProviders.endpoint')}</label>
-                <input type="text" value={endpoint} onChange={e => setEndpoint(e.target.value)} className={inputClass} placeholder="image-minio" />
+                <input type="text" value={endpoint} onChange={e => setEndpoint(e.target.value)} className={inputClass} placeholder={type === 'seaweedfs' ? 'seaweedfs-filer' : 'image-minio'} />
               </div>
               <div>
                 <label className={labelClass}>{t('imageService.storageProviders.port')}</label>
-                <input type="number" value={port} onChange={e => setPort(e.target.value)} className={inputClass} />
+                <input type="number" value={port} onChange={e => setPort(e.target.value)} className={inputClass} placeholder={type === 'seaweedfs' ? '8333' : '9000'} />
               </div>
             </div>
             <div>
               <label className={labelClass}>{t('imageService.storageProviders.bucket')}</label>
               <input type="text" value={bucket} onChange={e => setBucket(e.target.value)} className={inputClass} placeholder="images" />
+            </div>
+            <div>
+              <label className={labelClass}>{t('imageService.storageProviders.region')}</label>
+              <input type="text" value={region} onChange={e => setRegion(e.target.value)} className={inputClass} placeholder="us-east-1" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -306,12 +396,55 @@ function StorageProviderFormModal({ isOpen, onClose, editTarget }: { isOpen: boo
               <label htmlFor="useSSL" className="text-sm text-white">{t('imageService.storageProviders.useSSL')}</label>
             </div>
           </>
-        ) : (
+        )}
+
+        {type === 'local' && (
           <div>
             <label className={labelClass}>{t('imageService.storageProviders.basePath')}</label>
             <input type="text" value={basePath} onChange={e => setBasePath(e.target.value)} className={inputClass} placeholder="/data/images" />
           </div>
         )}
+
+        {type === 'smb' && (
+          <>
+            <div>
+              <label className={labelClass}>{t('imageService.storageProviders.share')}</label>
+              <input type="text" value={share} onChange={e => setShare(e.target.value)} className={inputClass} placeholder="//server/share" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>{t('imageService.storageProviders.username')}</label>
+                <input type="text" value={smbUsername} onChange={e => setSmbUsername(e.target.value)} className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>{t('imageService.storageProviders.password')}</label>
+                <input type="password" value={smbPassword} onChange={e => setSmbPassword(e.target.value)} className={inputClass} />
+              </div>
+            </div>
+            <div>
+              <label className={labelClass}>{t('imageService.storageProviders.domain')}</label>
+              <input type="text" value={smbDomain} onChange={e => setSmbDomain(e.target.value)} className={inputClass} placeholder="WORKGROUP" />
+            </div>
+          </>
+        )}
+
+        {type === 'nfs' && (
+          <>
+            <div>
+              <label className={labelClass}>{t('imageService.storageProviders.nfsServer')}</label>
+              <input type="text" value={nfsServer} onChange={e => setNfsServer(e.target.value)} className={inputClass} placeholder="10.0.0.10" />
+            </div>
+            <div>
+              <label className={labelClass}>{t('imageService.storageProviders.nfsExportPath')}</label>
+              <input type="text" value={nfsExportPath} onChange={e => setNfsExportPath(e.target.value)} className={inputClass} placeholder="/export/images" />
+            </div>
+            <div>
+              <label className={labelClass}>{t('imageService.storageProviders.nfsMountOptions')}</label>
+              <input type="text" value={nfsMountOptions} onChange={e => setNfsMountOptions(e.target.value)} className={inputClass} placeholder="vers=4.2,hard,intr" />
+            </div>
+          </>
+        )}
+
         <div>
           <label className={labelClass}>{t('imageService.storageProviders.description')}</label>
           <textarea value={description} onChange={e => setDescription(e.target.value)} rows={2} className={inputClass} />

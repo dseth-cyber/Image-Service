@@ -1,6 +1,6 @@
 import type { Readable } from 'stream';
 
-export type ProviderType = 's3' | 'local' | 'smb' | 'nfs';
+export type ProviderType = 's3' | 'local' | 'smb' | 'nfs' | 'seaweedfs';
 
 export interface HealthResult {
   ok: boolean;
