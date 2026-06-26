@@ -250,12 +250,12 @@ export default function ImageServiceOverview() {
           </div>
         </div>
 
-        <div key="recent" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+        <div key="recent" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
           <DragHandle show={isEditing} />
-          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+          <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>
             {t('imageService.overview.recentActivity')}
           </h3>
-          <ResponsiveContainer width="100%" height={180}>
+          <ResponsiveContainer width="100%" height="100%" className="flex-1 min-h-0">
             <AreaChart data={recentActivity} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="recentGrad" x1="0" y1="0" x2="0" y2="1">
@@ -272,12 +272,12 @@ export default function ImageServiceOverview() {
           </ResponsiveContainer>
         </div>
 
-        <div key="growth" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+        <div key="growth" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
           <DragHandle show={isEditing} />
-          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+          <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>
             {t('imageService.overview.storageGrowth')} (GB)
           </h3>
-          <ResponsiveContainer width="100%" height={180}>
+          <ResponsiveContainer width="100%" height="100%" className="flex-1 min-h-0">
             <BarChart data={storageGrowth} barCategoryGap="30%" margin={{ top: 16, right: 8, left: 0, bottom: 0 }}>
               <CartesianGrid vertical={false} stroke={gridStroke} />
               <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -293,12 +293,12 @@ export default function ImageServiceOverview() {
           </ResponsiveContainer>
         </div>
 
-        <div key="cameraStatus" className={`${themeConfig.card} rounded-lg relative p-5`}>
+        <div key="cameraStatus" className={`${themeConfig.card} rounded-lg relative p-5 flex flex-col h-full`}>
           <DragHandle show={isEditing} />
-          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+          <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>
             {t('imageService.overview.cameraStatus')}
           </h3>
-          <ResponsiveContainer width="100%" height={180}>
+          <ResponsiveContainer width="100%" height="100%" className="flex-1 min-h-0">
             <PieChart>
               <Pie data={[
                 { name: t('imageService.cameras.active'), value: overview?.activeCameras ?? 0 },
@@ -331,12 +331,12 @@ export default function ImageServiceOverview() {
           </div>
         </div>
 
-        <div key="byCamera" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+        <div key="byCamera" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
           <DragHandle show={isEditing} />
-          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+          <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>
             {t('imageService.overview.imagesByCamera')}
           </h3>
-          <ResponsiveContainer width="100%" height={180}>
+          <ResponsiveContainer width="100%" height="100%" className="flex-1 min-h-0">
             <BarChart data={imagesByCamera} layout="vertical" barCategoryGap="20%" margin={{ top: 0, right: 32, left: 0, bottom: 0 }}>
               <CartesianGrid horizontal={false} stroke={gridStroke} />
               <XAxis type="number" tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -352,13 +352,13 @@ export default function ImageServiceOverview() {
           </ResponsiveContainer>
         </div>
 
-        <div key="storageDonut" className={`${themeConfig.card} rounded-lg relative p-5`}>
+        <div key="storageDonut" className={`${themeConfig.card} rounded-lg relative p-5 flex flex-col h-full`}>
           <DragHandle show={isEditing} />
-          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+          <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>
             {t('imageService.storage.byFileType')}
           </h3>
-          <div className="relative">
-            <ResponsiveContainer width="100%" height={180}>
+          <div className="relative flex-1 min-h-0">
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={storageByType} cx="50%" cy="55%" innerRadius={50} outerRadius={70}
                   paddingAngle={3} dataKey="value" nameKey="name"
@@ -390,12 +390,12 @@ export default function ImageServiceOverview() {
           </div>
         </div>
 
-        <div key="queueLength" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+        <div key="queueLength" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
           <DragHandle show={isEditing} />
-          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+          <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>
             {t('imageService.overview.queueTitle')}
           </h3>
-          <div className="space-y-2 mt-2">
+          <div className="space-y-2 flex-1">
             {[
               { label: t('imageService.overview.queueWait'), value: overview?.queue?.wait ?? 0, color: 'text-cyan-400' },
               { label: t('imageService.overview.queueActive'), value: overview?.queue?.active ?? 0, color: 'text-blue-400' },
@@ -410,12 +410,12 @@ export default function ImageServiceOverview() {
           </div>
         </div>
 
-        <div key="postgresStats" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+        <div key="postgresStats" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
           <DragHandle show={isEditing} />
-          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+          <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>
             {t('imageService.overview.postgresTitle')}
           </h3>
-          <div className="space-y-2 mt-2">
+          <div className="space-y-2 flex-1">
             {[
               { label: t('imageService.overview.postgresTps'), value: overview?.postgres?.tps ?? 0, color: 'text-cyan-400' },
               { label: t('imageService.overview.postgresActiveConnections'), value: overview?.postgres?.activeConnections ?? 0, color: 'text-green-400' },
@@ -430,12 +430,12 @@ export default function ImageServiceOverview() {
           </div>
         </div>
 
-        <div key="providerStats" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+        <div key="providerStats" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
           <DragHandle show={isEditing} />
-          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+          <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>
             {t('imageService.overview.providerTitle')}
           </h3>
-          <div className="space-y-2 mt-2 max-h-[180px] overflow-y-auto">
+          <div className="space-y-2 flex-1 overflow-y-auto">
             {Array.isArray(providers) && providers.length > 0 ? providers.map((p: any) => (
               <div key={p.id} className="flex items-center justify-between text-xs py-1.5 px-2 rounded-lg bg-white/5">
                 <div className="flex items-center gap-2 min-w-0">

@@ -262,13 +262,13 @@ export default function ImageServiceStorage() {
             </div>
           </div>
 
-          <div key="pieByFileType" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+          <div key="pieByFileType" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
             <DragHandle show={isEditing} />
-            <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+            <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>
               {t('imageService.storage.byFileType')}
             </h3>
-            <div className="relative">
-              <ResponsiveContainer width="100%" height={180}>
+            <div className="relative flex-1 min-h-0">
+              <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={byFileType} cx="50%" cy="50%" innerRadius={55} outerRadius={80}
                     paddingAngle={3} dataKey="value" nameKey="name">
@@ -303,9 +303,9 @@ export default function ImageServiceStorage() {
             )}
           </div>
 
-          <div key="growthTrend" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+          <div key="growthTrend" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
             <DragHandle show={isEditing} />
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-3 flex-shrink-0">
               <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>
                 {t('imageService.storage.growthTrend')}
               </h3>
@@ -314,7 +314,7 @@ export default function ImageServiceStorage() {
                   options={[7, 14, 30, 60, 90].map(d => ({ value: String(d), label: `${d} ${t('imageService.storage.days')}` }))} />
               </div>
             </div>
-            <ResponsiveContainer width="100%" height={180}>
+            <ResponsiveContainer width="100%" height="100%" className="flex-1 min-h-0">
               <AreaChart data={growthData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="growthGrad" x1="0" y1="0" x2="0" y2="1">
@@ -332,9 +332,9 @@ export default function ImageServiceStorage() {
             </ResponsiveContainer>
           </div>
 
-          <div key="forecastChart" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+          <div key="forecastChart" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
             <DragHandle show={isEditing} />
-            <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+            <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>
               {t('imageService.storage.forecast')}
             </h3>
             {forecast ? (
@@ -360,7 +360,7 @@ export default function ImageServiceStorage() {
                   {t('imageService.storage.dailyGrowth')}: {formatBytes(forecast.dailyGrowthRate)}/day
                 </div>
 
-                <ResponsiveContainer width="100%" height={150}>
+                <ResponsiveContainer width="100%" height="100%" className="flex-1 min-h-0">
                   <LineChart data={[
                     { label: t('imageService.storage.today'), value: forecast.usagePercent },
                     ...forecast.projections.map((p: any) => ({ label: `${p.days}d`, value: p.usagePercent })),
@@ -381,13 +381,13 @@ export default function ImageServiceStorage() {
             )}
           </div>
 
-          <div key="projectionTable" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+          <div key="projectionTable" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
             <DragHandle show={isEditing} />
-            <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+            <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>
               {t('imageService.storage.projectionTable')}
             </h3>
             {forecast?.projections ? (
-              <div className="space-y-2.5">
+              <div className="space-y-2.5 flex-1 overflow-y-auto min-h-0">
                 {forecast.projections.map((p: any) => {
                   const isFull = p.usagePercent >= 100;
                   return (
@@ -418,13 +418,13 @@ export default function ImageServiceStorage() {
             )}
           </div>
 
-          <div key="byCamera" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+          <div key="byCamera" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
             <DragHandle show={isEditing} />
-            <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>
+            <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>
               {t('imageService.storage.byCamera')}
             </h3>
             {byCamera.length > 0 ? (
-              <ResponsiveContainer width="100%" height={180}>
+              <ResponsiveContainer width="100%" height="100%" className="flex-1 min-h-0">
                 <BarChart data={byCamera} barCategoryGap="30%">
                   <CartesianGrid vertical={false} stroke={gridStroke} />
                   <XAxis dataKey="name" tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />

@@ -34,6 +34,7 @@ const PHASE_ICONS: Record<string, any> = {
   phase16: GitBranch,
   phase17: Layers,
   phase18: Server,
+  phase19: HardDrive,
 }
 
 const PHASES = [
@@ -56,6 +57,7 @@ const PHASES = [
   { key: 'phase16', status: 'Launched', priority: 'P9.1' },
   { key: 'phase17', status: 'Launched', priority: 'P9.2' },
   { key: 'phase18', status: 'Launched', priority: 'P9.3' },
+  { key: 'phase19', status: 'Planned', priority: 'P10' },
 ]
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -78,6 +80,7 @@ const PRIORITY_COLORS: Record<string, string> = {
   'P9.1': 'bg-indigo-500/20 text-indigo-400',
   'P9.2': 'bg-indigo-500/20 text-indigo-400',
   'P9.3': 'bg-indigo-500/20 text-indigo-400',
+  P10: 'bg-emerald-500/20 text-emerald-400',
 }
 
 const STATUS_WEIGHTS: Record<string, number> = {

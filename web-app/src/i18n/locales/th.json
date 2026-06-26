@@ -1003,6 +1003,17 @@
       "NFSProvider — เขียนไฟล์ไปยัง NAS โดยตรงผ่าน NFS",
       "SeaweedFSProvider — ใช้ S3Provider เดิม (S3-compatible API, ไม่ต้องเปลี่ยน Config)",
       "ต่อขยายจาก StorageProvider Interface — ไม่ต้องเปลี่ยน Business Logic"
+    ],
+    "phase19": "P10 — Storage Capacity Monitor",
+    "phase19Desc": "แสดงความจุจริงของแต่ละ Storage Provider — Server local disk, MinIO/S3, NAS แบบอัตโนมัติ พร้อม fallback ตั้งค่า manual สำหรับ NAS",
+    "phase19Status": "วางแผนไว้",
+    "phase19Tasks": [
+      "S3/MinIO — ดึง bucket size + capacity จาก API อัตโนมัติ",
+      "Local Disk — อ่านพื้นที่ดิสก์จริงจาก df (total/used/free)",
+      "NAS (SMB/NFS) — ตั้งค่า capacity manual ต่อ Storage Provider",
+      "UI Dashboard — แสดงแยก card ต่อ provider: ชื่อ, ประเภท, ความจุ, ใช้ไป, เหลือ",
+      "แจ้งเตือนเมื่อพื้นที่เหลือน้อยกว่า threshold ที่ตั้งไว้",
+      "ค่า config ขีดจำกัดพื้นที่ เป็น fallback เมื่อดึงจริงไม่ได้"
     ]
   },
   "permissions": {

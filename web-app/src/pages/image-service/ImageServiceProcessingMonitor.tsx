@@ -291,11 +291,11 @@ export default function ImageServiceProcessingMonitor() {
           </div>
         </div>
 
-        <div key="jobStatus" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+        <div key="jobStatus" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
           <DragHandle show={isEditing} />
-          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>{t('imageService.processing.jobStatus')}</h3>
-          <div className="relative">
-            <ResponsiveContainer width="100%" height={180}>
+          <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>{t('imageService.processing.jobStatus')}</h3>
+          <div className="relative flex-1 min-h-0">
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={statusCounts} cx="50%" cy="50%" innerRadius={55} outerRadius={80}
                   paddingAngle={3} dataKey="value" nameKey="name"
@@ -314,10 +314,10 @@ export default function ImageServiceProcessingMonitor() {
           </div>
         </div>
 
-        <div key="byType" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+        <div key="byType" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
           <DragHandle show={isEditing} />
-          <h3 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>{t('imageService.processing.byType')}</h3>
-          <ResponsiveContainer width="100%" height={180}>
+          <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>{t('imageService.processing.byType')}</h3>
+          <ResponsiveContainer width="100%" height="100%" className="flex-1 min-h-0">
             <BarChart data={jobTypeData} barCategoryGap="30%">
               <CartesianGrid vertical={false} stroke={gridStroke} />
               <XAxis dataKey="name" tick={{ fill: tickFill, fontSize: 10 }} axisLine={false} tickLine={false} />
@@ -333,9 +333,9 @@ export default function ImageServiceProcessingMonitor() {
           </ResponsiveContainer>
         </div>
 
-        <div key="recentJobs" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5`}>
+        <div key="recentJobs" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
           <DragHandle show={isEditing} />
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 flex-shrink-0">
             <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.processing.recentJobs')}</h3>
             <div className="flex items-center gap-2">
               <span className={`flex items-center gap-1 text-xs ${connected ? 'text-green-400' : 'text-red-400'}`}>
@@ -359,7 +359,7 @@ export default function ImageServiceProcessingMonitor() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-auto flex-1 min-h-0">
             <table className="w-full">
               <thead className={themeConfig.tableHeader}>
                 <tr>

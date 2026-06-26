@@ -998,6 +998,17 @@
       "NFSProvider — 通过 NFS 直接写入 NAS",
       "SeaweedFSProvider — 使用现有 S3Provider (S3兼容API，无需更改配置)",
       "扩展 StorageProvider 接口 — 零业务逻辑变更"
+    ],
+    "phase19": "P10 — 存储容量监控",
+    "phase19Desc": "显示每个存储提供者的真实容量 — 服务器本地磁盘、MinIO/S3、NAS 自动检测，NAS 支持手动配置",
+    "phase19Status": "计划中",
+    "phase19Tasks": [
+      "S3/MinIO — 自动从 API 获取 bucket 大小和容量",
+      "本地磁盘 — 通过 df 读取真实磁盘空间 (总量/已用/可用)",
+      "NAS (SMB/NFS) — 按存储提供者手动设置容量",
+      "UI 仪表板 — 按提供者显示独立卡片：名称、类型、容量、已用、剩余",
+      "剩余空间低于阈值时发出警报",
+      "系统配置存储限制作为无法自动检测时的备选"
     ]
   },
   "permissions": {

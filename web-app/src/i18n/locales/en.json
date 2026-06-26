@@ -1003,6 +1003,17 @@
       "NFSProvider — direct write to NAS via NFS mount",
       "SeaweedFSProvider — uses existing S3Provider (S3-compatible API, zero config change)",
       "Extends StorageProvider interface — zero business logic changes"
+    ],
+    "phase19": "P10 — Storage Capacity Monitor",
+    "phase19Desc": "Show real capacity per Storage Provider — Server local disk, MinIO/S3, NAS automatically with manual fallback for NAS",
+    "phase19Status": "Planned",
+    "phase19Tasks": [
+      "S3/MinIO — auto-fetch bucket size + capacity from API",
+      "Local Disk — read real disk space from df (total/used/free)",
+      "NAS (SMB/NFS) — manual capacity setting per Storage Provider",
+      "UI Dashboard — separate card per provider: name, type, capacity, used, remaining",
+      "Alert when remaining space below configured threshold",
+      "System config storage limit as fallback when auto-detection unavailable"
     ]
   },
   "permissions": {
