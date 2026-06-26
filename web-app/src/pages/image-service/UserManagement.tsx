@@ -64,10 +64,13 @@ const PERMISSION_MODULES = [
   },
   {
     key: 'storage',
-    labelTh: 'ข้อมูลพื้นที่จัดเก็บ',
-    labelEn: 'Storage Analysis',
+    labelTh: 'พื้นที่จัดเก็บ / Storage Providers',
+    labelEn: 'Storage / Providers / Profiles',
     permissions: [
-      { key: 'storage:read', labelTh: 'ดูสถิติและพยากรณ์พื้นที่', labelEn: 'View Storage Stats & Forecast' }
+      { key: 'storage:read', labelTh: 'ดูสถิติพื้นที่ / Providers / Profiles / Migrations', labelEn: 'View Storage Stats / Providers / Profiles / Migrations' },
+      { key: 'storage:create', labelTh: 'เพิ่ม Provider / Profile / สร้าง Migration', labelEn: 'Create Provider / Profile / Migration' },
+      { key: 'storage:update', labelTh: 'แก้ไข Provider / Profile / รัน Migration', labelEn: 'Update Provider / Profile / Run Migration' },
+      { key: 'storage:delete', labelTh: 'ลบ Provider / Profile', labelEn: 'Delete Provider / Profile' }
     ]
   },
   {

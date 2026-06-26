@@ -50,6 +50,7 @@ api.interceptors.response.use(
     try {
       const { data } = await axios.post('/image-service/api/v1/auth/refresh', { refreshToken })
       localStorage.setItem('accessToken', data.accessToken)
+      if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken)
       processQueue(null, data.accessToken)
       originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
       return api(originalRequest)

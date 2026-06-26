@@ -35,7 +35,9 @@ async function refreshHandler(request: FastifyRequest, reply: FastifyReply) {
     { expiresIn: config.jwt.accessExpiresIn },
   );
 
-  return reply.status(200).send({ accessToken });
+  const refreshToken = await authService.createRefreshToken(user.id);
+
+  return reply.status(200).send({ accessToken, refreshToken });
 }
 
 async function meHandler(request: FastifyRequest, reply: FastifyReply) {
