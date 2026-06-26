@@ -2,9 +2,11 @@ import { getPrisma } from '../../lib/prisma.js';
 import { storageRouter } from '../../lib/storage/storage-router.js';
 import { S3Provider } from '../../lib/storage/s3-provider.js';
 import { LocalDiskProvider } from '../../lib/storage/local-disk-provider.js';
+import { SMBProvider } from '../../lib/storage/smb-provider.js';
+import { NFSProvider } from '../../lib/storage/nfs-provider.js';
 import { NotFoundError, ConflictError, ValidationError } from '../../lib/errors.js';
 import type { CreateProviderInput, UpdateProviderInput } from './storage-providers.schema.js';
-import type { S3Config, LocalDiskConfig } from '../../lib/storage/types.js';
+import type { S3Config, LocalDiskConfig, SMBConfig, NFSConfig } from '../../lib/storage/types.js';
 
 export async function listProviders() {
   const prisma = getPrisma();
@@ -29,9 +31,30 @@ export async function createProvider(input: CreateProviderInput) {
   });
   if (existing) throw new ConflictError(`Storage provider '${input.name}' already exists`);
 
-  const config = input.type === 'local'
-    ? { basePath: (input.config as LocalDiskConfig).basePath }
-    : {
+  let config: Record<string, unknown>;
+  switch (input.type) {
+    case 'local':
+      config = { basePath: (input.config as LocalDiskConfig).basePath };
+      break;
+    case 'smb':
+      config = {
+        share: (input.config as SMBConfig).share,
+        domain: (input.config as SMBConfig).domain,
+        username: (input.config as SMBConfig).username,
+        password: (input.config as SMBConfig).password,
+        mountPath: (input.config as SMBConfig).mountPath,
+      };
+      break;
+    case 'nfs':
+      config = {
+        server: (input.config as NFSConfig).server,
+        exportPath: (input.config as NFSConfig).exportPath,
+        mountOptions: (input.config as NFSConfig).mountOptions,
+        mountPath: (input.config as NFSConfig).mountPath,
+      };
+      break;
+    default:
+      config = {
         endpoint: (input.config as S3Config).endpoint,
         port: (input.config as S3Config).port,
         accessKey: (input.config as S3Config).accessKey,
@@ -39,6 +62,7 @@ export async function createProvider(input: CreateProviderInput) {
         bucket: (input.config as S3Config).bucket,
         useSSL: (input.config as S3Config).useSSL,
       };
+  }
 
   const provider = await prisma.storageProvider.create({
     data: {
@@ -179,12 +203,16 @@ export async function getProviderMetrics(id: string) {
   return metrics;
 }
 
-function buildProviderInstance(id: string, name: string, type: 's3' | 'local', config: any) {
+function buildProviderInstance(id: string, name: string, type: 's3' | 'local' | 'smb' | 'nfs', config: any) {
   switch (type) {
     case 's3':
       return new S3Provider(id, name, config as S3Config);
     case 'local':
       return new LocalDiskProvider(id, name, config as LocalDiskConfig);
+    case 'smb':
+      return new SMBProvider(id, name, config as SMBConfig);
+    case 'nfs':
+      return new NFSProvider(id, name, config as NFSConfig);
     default:
       throw new ValidationError(`Unsupported provider type: ${type}`);
   }

@@ -231,6 +231,31 @@
       "started": "移行を開始しました",
       "cancelledMsg": "移行をキャンセルしました"
     },
+    "storageProfiles": {
+      "title": "ストレージプロファイル",
+      "subtitle": "ポリシーベースのストレージバックエンドルーティング",
+      "newProfile": "新規プロファイル",
+      "editProfile": "プロファイルを編集",
+      "code": "コード",
+      "name": "名前",
+      "nameTh": "名前 (TH)",
+      "nameEn": "名前 (EN)",
+      "nameCn": "名前 (CN)",
+      "nameMm": "名前 (MM)",
+      "nameJp": "名前 (JP)",
+      "provider": "プロバイダー",
+      "rules": "ルール",
+      "ruleCount": "{{count}} ルール",
+      "sortOrder": "順序",
+      "status": "ステータス",
+      "isActive": "有効",
+      "description": "説明",
+      "noProfiles": "ストレージプロファイルが設定されていません",
+      "deleteConfirm": "このプロファイルを削除してもよろしいですか？",
+      "created": "プロファイルを作成しました",
+      "updated": "プロファイルを更新しました",
+      "deleted": "プロファイルを削除しました"
+    },
     "retention": {
       "title": "保存ポリシー",
       "subtitle": "画像保存ポリシーの管理",
@@ -481,6 +506,7 @@
       "auditLog": "監査ログ",
       "backup": "バックアップ",
       "storageProviders": "ストレージプロバイダー",
+      "storageProfiles": "ストレージプロファイル",
       "migrations": "移行"
     },
     "masterdataManagement": {

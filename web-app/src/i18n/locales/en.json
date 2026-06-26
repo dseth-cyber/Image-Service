@@ -236,6 +236,31 @@
       "started": "Migration started",
       "cancelledMsg": "Migration cancelled"
     },
+    "storageProfiles": {
+      "title": "Storage Profiles",
+      "subtitle": "Policy-based routing to storage backends",
+      "newProfile": "New Profile",
+      "editProfile": "Edit Profile",
+      "code": "Code",
+      "name": "Name",
+      "nameTh": "Name (TH)",
+      "nameEn": "Name (EN)",
+      "nameCn": "Name (CN)",
+      "nameMm": "Name (MM)",
+      "nameJp": "Name (JP)",
+      "provider": "Provider",
+      "rules": "Rules",
+      "ruleCount": "{{count}} rule(s)",
+      "sortOrder": "Sort Order",
+      "status": "Status",
+      "isActive": "Active",
+      "description": "Description",
+      "noProfiles": "No storage profiles configured",
+      "deleteConfirm": "Are you sure you want to delete this profile?",
+      "created": "Profile created",
+      "updated": "Profile updated",
+      "deleted": "Profile deleted"
+    },
     "retention": {
       "title": "Retention Policies",
       "subtitle": "Manage image retention policies",
@@ -486,6 +511,7 @@
       "auditLog": "Audit Log",
       "backup": "Backup",
       "storageProviders": "Storage Providers",
+      "storageProfiles": "Storage Profiles",
       "migrations": "Migrations"
     },
     "masterdataManagement": {

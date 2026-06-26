@@ -29,9 +29,10 @@ import DeadLetterQueue from '@/pages/image-service/DeadLetterQueue'
 import AuditLogViewer from '@/pages/image-service/AuditLogViewer'
 import BackupDashboard from '@/pages/image-service/BackupDashboard'
 import StorageProvidersPage from '@/pages/image-service/StorageProvidersPage'
+import StorageProfilesPage from '@/pages/image-service/StorageProfilesPage'
 import {
   Camera, LayoutDashboard, Search, Activity, HardDrive, FileText, Shield, Settings, Map,
-  Globe, Palette, User, ChevronDown, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info, Server,
+  Globe, Palette, User, ChevronDown, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info, Server, Layers,
 } from 'lucide-react'
 
 export function hasPermission(user: any, permission: string): boolean {
@@ -64,6 +65,7 @@ const navItems = [
   { path: '/image-service/processing', labelKey: 'nav.processing', icon: Activity, permission: 'processing:read' },
   { path: '/image-service/storage', labelKey: 'nav.storage', icon: HardDrive, permission: 'storage:read' },
   { path: '/image-service/storage-providers', labelKey: 'nav.storageProviders', icon: Server, permission: 'storage:read' },
+  { path: '/image-service/storage-profiles', labelKey: 'nav.storageProfiles', icon: Layers, permission: 'storage:read' },
   { path: '/image-service/logs', labelKey: 'nav.logs', icon: FileText, permission: 'logs:read' },
   { path: '/image-service/dead-letter', labelKey: 'nav.deadLetter', icon: AlertTriangle, permission: 'dead-letter:read' },
   { path: '/image-service/audit-log', labelKey: 'nav.auditLog', icon: History, permission: 'audit-log:read' },
@@ -495,6 +497,9 @@ export default function App() {
             } />
             <Route path="/image-service/storage-providers" element={
               hasPermission(user, 'storage:read') ? <StorageProvidersPage /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/storage-profiles" element={
+              hasPermission(user, 'storage:read') ? <StorageProfilesPage /> : <UnauthorizedPage />
             } />
             <Route path="/image-service/logs" element={
               hasPermission(user, 'logs:read') ? <ImageServiceProcessingLogs /> : <UnauthorizedPage />

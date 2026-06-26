@@ -270,6 +270,25 @@ export function createImageServiceApi(api: any) {
     getStorageProviderMetrics: (id: string) =>
       api.get(`${BASE}/storage-providers/${id}/metrics`).then((r: any) => r.data),
 
+    // Storage Profiles
+    getStorageProfiles: () =>
+      api.get(`${BASE}/storage-profiles`).then((r: any) => r.data),
+
+    getStorageProfile: (id: string) =>
+      api.get(`${BASE}/storage-profiles/${id}`).then((r: any) => r.data),
+
+    createStorageProfile: (data: any) =>
+      api.post(`${BASE}/storage-profiles`, data).then((r: any) => r.data),
+
+    updateStorageProfile: (id: string, data: any) =>
+      api.patch(`${BASE}/storage-profiles/${id}`, data).then((r: any) => r.data),
+
+    deleteStorageProfile: (id: string) =>
+      api.delete(`${BASE}/storage-profiles/${id}`).then((r: any) => r.data),
+
+    resolveStorageProfile: (params?: { fileType?: string; tagKey?: string; tagValue?: string; cameraId?: string }) =>
+      api.get(`${BASE}/storage-profiles/resolve`, { params }).then((r: any) => r.data),
+
     // Migration Jobs
     getMigrationJobs: (params?: { status?: string }) =>
       api.get(`${BASE}/migrations`, { params }).then((r: any) => r.data),

@@ -1,6 +1,6 @@
 import type { Readable } from 'stream';
 
-export type ProviderType = 's3' | 'local';
+export type ProviderType = 's3' | 'local' | 'smb' | 'nfs';
 
 export interface HealthResult {
   ok: boolean;
@@ -26,7 +26,22 @@ export interface LocalDiskConfig {
   basePath: string;
 }
 
-export type ProviderConfig = S3Config | LocalDiskConfig;
+export interface SMBConfig {
+  share: string;
+  domain?: string;
+  username: string;
+  password: string;
+  mountPath?: string;
+}
+
+export interface NFSConfig {
+  server: string;
+  exportPath: string;
+  mountOptions?: string;
+  mountPath?: string;
+}
+
+export type ProviderConfig = S3Config | LocalDiskConfig | SMBConfig | NFSConfig;
 
 export interface StorageProvider {
   readonly id: string;
@@ -42,4 +57,29 @@ export interface StorageProvider {
   exists(key: string): Promise<boolean>;
   health(): Promise<HealthResult>;
   stats(): Promise<StatsResult>;
+}
+
+export interface RoutingRule {
+  condition: {
+    fileType?: string;
+    tagKey?: string;
+    tagValue?: string;
+    cameraId?: string;
+  };
+  providerId: string;
+}
+
+export interface StorageProfileData {
+  id: string;
+  code: string;
+  nameTh: string;
+  nameEn: string;
+  nameCn: string;
+  nameMm: string;
+  nameJp: string;
+  description?: string;
+  providerId: string;
+  routingRules: RoutingRule[];
+  sortOrder: number;
+  isActive: boolean;
 }

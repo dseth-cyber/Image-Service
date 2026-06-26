@@ -236,6 +236,31 @@
       "started": "เริ่มโยกย้ายแล้ว",
       "cancelledMsg": "ยกเลิกงานโยกย้ายแล้ว"
     },
+    "storageProfiles": {
+      "title": "โปรไฟล์จัดเก็บ",
+      "subtitle": "กำหนดเส้นทางตามนโยบายไปยัง Backend จัดเก็บ",
+      "newProfile": "โปรไฟล์ใหม่",
+      "editProfile": "แก้ไขโปรไฟล์",
+      "code": "รหัส",
+      "name": "ชื่อ",
+      "nameTh": "ชื่อ (TH)",
+      "nameEn": "ชื่อ (EN)",
+      "nameCn": "ชื่อ (CN)",
+      "nameMm": "ชื่อ (MM)",
+      "nameJp": "ชื่อ (JP)",
+      "provider": "ผู้ให้บริการ",
+      "rules": "กฎ",
+      "ruleCount": "{{count}} กฎ",
+      "sortOrder": "ลำดับ",
+      "status": "สถานะ",
+      "isActive": "เปิดใช้งาน",
+      "description": "คำอธิบาย",
+      "noProfiles": "ยังไม่มีโปรไฟล์จัดเก็บ",
+      "deleteConfirm": "คุณแน่ใจหรือไม่ที่จะลบโปรไฟล์นี้?",
+      "created": "สร้างโปรไฟล์สำเร็จ",
+      "updated": "อัปเดตโปรไฟล์สำเร็จ",
+      "deleted": "ลบโปรไฟล์สำเร็จ"
+    },
     "retention": {
       "title": "นโยบายการจัดเก็บ",
       "subtitle": "จัดการนโยบายการจัดเก็บภาพถ่าย",
@@ -486,6 +511,7 @@
       "auditLog": "บันทึกการตรวจสอบ",
       "backup": "สำรองข้อมูล",
       "storageProviders": "ผู้ให้บริการจัดเก็บ",
+      "storageProfiles": "โปรไฟล์จัดเก็บ",
       "migrations": "การโยกย้าย"
     },
     "masterdataManagement": {

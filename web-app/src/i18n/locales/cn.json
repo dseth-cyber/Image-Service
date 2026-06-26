@@ -231,6 +231,31 @@
       "started": "迁移已开始",
       "cancelledMsg": "迁移已取消"
     },
+    "storageProfiles": {
+      "title": "存储配置文件",
+      "subtitle": "基于策略的路由到存储后端",
+      "newProfile": "新建配置文件",
+      "editProfile": "编辑配置文件",
+      "code": "代码",
+      "name": "名称",
+      "nameTh": "名称 (TH)",
+      "nameEn": "名称 (EN)",
+      "nameCn": "名称 (CN)",
+      "nameMm": "名称 (MM)",
+      "nameJp": "名称 (JP)",
+      "provider": "提供商",
+      "rules": "规则",
+      "ruleCount": "{{count}} 条规则",
+      "sortOrder": "排序",
+      "status": "状态",
+      "isActive": "启用",
+      "description": "描述",
+      "noProfiles": "尚未配置存储配置文件",
+      "deleteConfirm": "确定要删除此配置文件吗？",
+      "created": "配置文件创建成功",
+      "updated": "配置文件更新成功",
+      "deleted": "配置文件删除成功"
+    },
     "retention": {
       "title": "保留策略",
       "subtitle": "管理图像保留策略",
@@ -481,6 +506,7 @@
       "auditLog": "审计日志",
       "backup": "备份",
       "storageProviders": "存储提供商",
+      "storageProfiles": "存储配置",
       "migrations": "迁移"
     },
     "masterdataManagement": {

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const providerTypeSchema = z.enum(['s3', 'local']);
+export const providerTypeSchema = z.enum(['s3', 'local', 'smb', 'nfs']);
 
 export const s3ConfigSchema = z.object({
   endpoint: z.string().min(1),
@@ -15,7 +15,22 @@ export const localDiskConfigSchema = z.object({
   basePath: z.string().min(1),
 });
 
-export const providerConfigSchema = z.union([s3ConfigSchema, localDiskConfigSchema]);
+export const smbConfigSchema = z.object({
+  share: z.string().min(1),
+  domain: z.string().optional(),
+  username: z.string().min(1),
+  password: z.string().min(1),
+  mountPath: z.string().optional(),
+});
+
+export const nfsConfigSchema = z.object({
+  server: z.string().min(1),
+  exportPath: z.string().min(1),
+  mountOptions: z.string().optional(),
+  mountPath: z.string().optional(),
+});
+
+export const providerConfigSchema = z.union([s3ConfigSchema, localDiskConfigSchema, smbConfigSchema, nfsConfigSchema]);
 
 export const createProviderSchema = z.object({
   name: z.string().min(1).max(128),

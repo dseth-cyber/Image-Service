@@ -1,5 +1,7 @@
 import { S3Provider } from './s3-provider.js';
 import { LocalDiskProvider } from './local-disk-provider.js';
+import { SMBProvider } from './smb-provider.js';
+import { NFSProvider } from './nfs-provider.js';
 import type { StorageProvider, ProviderConfig, ProviderType } from './types.js';
 
 interface ProviderRecord {
@@ -21,6 +23,10 @@ class StorageRouter {
         return new S3Provider(record.id, record.name, record.config as any);
       case 'local':
         return new LocalDiskProvider(record.id, record.name, record.config as any);
+      case 'smb':
+        return new SMBProvider(record.id, record.name, record.config as any);
+      case 'nfs':
+        return new NFSProvider(record.id, record.name, record.config as any);
     }
   }
 
