@@ -157,13 +157,13 @@ export async function runRestoreTest(backupRecordId: string): Promise<{ success:
 export async function getBackupStatus() {
   const prisma = getPrisma();
 
-  const [latestDb, latestMinio, stats] = await Promise.all([
+  const [latestDb, latestStorage, stats] = await Promise.all([
     prisma.backupRecord.findFirst({
       where: { type: 'database' },
       orderBy: { startedAt: 'desc' },
     }),
     prisma.backupRecord.findFirst({
-      where: { type: 'minio' },
+      where: { type: { in: ['storage', 'minio'] } },
       orderBy: { startedAt: 'desc' },
     }),
     prisma.backupRecord.groupBy({
@@ -191,14 +191,14 @@ export async function getBackupStatus() {
       completedAt: latestDb.completedAt?.toISOString() ?? null,
       errorMessage: latestDb.errorMessage,
     } : null,
-    minio: latestMinio ? {
-      id: latestMinio.id,
-      status: latestMinio.status,
-      filePath: latestMinio.filePath,
-      fileSize: latestMinio.fileSize ? Number(latestMinio.fileSize) : null,
-      startedAt: latestMinio.startedAt.toISOString(),
-      completedAt: latestMinio.completedAt?.toISOString() ?? null,
-      errorMessage: latestMinio.errorMessage,
+    storage: latestStorage ? {
+      id: latestStorage.id,
+      status: latestStorage.status,
+      filePath: latestStorage.filePath,
+      fileSize: latestStorage.fileSize ? Number(latestStorage.fileSize) : null,
+      startedAt: latestStorage.startedAt.toISOString(),
+      completedAt: latestStorage.completedAt?.toISOString() ?? null,
+      errorMessage: latestStorage.errorMessage,
     } : null,
     byType,
   };

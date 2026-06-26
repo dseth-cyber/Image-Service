@@ -95,6 +95,20 @@ async function deleteImageHandler(request: FastifyRequest, reply: FastifyReply) 
   return reply.status(204).send();
 }
 
+async function bulkReprocessAllHandler(request: FastifyRequest, reply: FastifyReply) {
+  const result = await imagesService.bulkReprocessAll();
+  const user = (request as any).user;
+  createAuditLog({
+    userId: user?.id,
+    action: 'image_bulk_reprocess',
+    entity: 'image',
+    entityId: 'all',
+    description: `Bulk reprocess queued: ${result.queued}/${result.total} images`,
+    ipAddress: request.ip,
+  }).catch(() => {});
+  return reply.status(200).send(result);
+}
+
 async function reprocessHandler(request: FastifyRequest, reply: FastifyReply) {
   const { id } = request.params as { id: string };
   const result = await imagesService.reprocessImage(id);
@@ -199,6 +213,12 @@ export async function imageRoutes(app: FastifyInstance): Promise<void> {
     '/:id',
     { preHandler: [app.authenticate, requirePermission('search:delete')] },
     deleteImageHandler,
+  );
+
+  app.post(
+    '/reprocess-all',
+    { preHandler: [app.authenticate, requirePermission('processing:create')] },
+    bulkReprocessAllHandler,
   );
 
   app.post(

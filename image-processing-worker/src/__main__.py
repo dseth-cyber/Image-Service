@@ -6,7 +6,7 @@ from src.config import settings
 from src.logger import setup_logging, logger
 from src.worker import ProcessingWorker
 from src.health import HealthServer, health_state
-from src.minio_storage import MinioClient
+from src.storage_client import StorageClient
 from src.api_client import ApiClient
 
 
@@ -18,7 +18,6 @@ async def main() -> None:
         worker_id=settings.worker_id,
         redis_host=settings.redis_host,
         api_url=settings.api_base_url,
-        minio_endpoint=settings.minio_endpoint,
     )
 
     health_server = HealthServer()
@@ -50,7 +49,6 @@ async def main() -> None:
 
 
 async def check_dependencies() -> None:
-    # Initial sleep to allow other containers to start up
     await asyncio.sleep(5)
     while True:
         try:
@@ -61,12 +59,12 @@ async def check_dependencies() -> None:
             logger.error("Redis health check failed", error=str(e))
 
         try:
-            minio_client = MinioClient()
-            minio_ok = await minio_client.health_check()
-            health_state.minio_ok = minio_ok
+            storage = StorageClient()
+            storage_ok = await storage.health_check()
+            health_state.storage_ok = storage_ok
         except Exception as e:
-            health_state.minio_ok = False
-            logger.error("MinIO health check failed", error=str(e))
+            health_state.storage_ok = False
+            logger.error("Storage health check failed", error=str(e))
 
         try:
             api_client = ApiClient()
@@ -76,13 +74,13 @@ async def check_dependencies() -> None:
             health_state.api_ok = False
             logger.error("API health check failed", error=str(e))
 
-        all_ok = health_state.redis_ok and health_state.minio_ok and health_state.api_ok
+        all_ok = health_state.redis_ok and health_state.storage_ok and health_state.api_ok
         health_state.status = "ok" if all_ok else "degraded"
 
         logger.debug(
             "Dependency check complete",
             redis=health_state.redis_ok,
-            minio=health_state.minio_ok,
+            storage=health_state.storage_ok,
             api=health_state.api_ok,
         )
         await asyncio.sleep(30)

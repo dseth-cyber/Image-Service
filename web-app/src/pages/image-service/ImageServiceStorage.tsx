@@ -144,7 +144,7 @@ export default function ImageServiceStorage() {
     try {
       await imageServiceApi.updateSystemConfigs({ dashboard_layout_storage: JSON.stringify(layouts) });
       toast.success(t('imageService.overview.defaultLayoutSaved'));
-    } catch { toast.error(t('common.error')); }
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
   };
 
   const tickFill = themeConfig.name === 'light' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)';

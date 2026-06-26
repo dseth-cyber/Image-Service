@@ -185,8 +185,8 @@ async function main() {
       name: 'Primary Storage',
       type: 's3',
       config: {
-        bucket: process.env.MINIO_BUCKET || 'images',
-        endpoint: process.env.MINIO_ENDPOINT || 'image-minio',
+        bucket: process.env.MINIO_BUCKET || 'image-service',
+        endpoint: process.env.MINIO_ENDPOINT || 'minio',
         port: parseInt(process.env.MINIO_PORT || '9000', 10),
         useSSL: process.env.MINIO_USE_SSL === 'true',
         accessKey: process.env.MINIO_ACCESS_KEY || 'minioadmin',
@@ -199,6 +199,29 @@ async function main() {
     },
   });
   console.log(`  Storage provider: ${storageProvider.name} (${storageProvider.type})`);
+
+  const seaweedProvider = await prisma.storageProvider.upsert({
+    where: { id: '00000000-0000-0000-0000-000000000021' },
+    update: {},
+    create: {
+      id: '00000000-0000-0000-0000-000000000021',
+      name: 'SeaweedFS Storage',
+      type: 'seaweedfs',
+      config: {
+        bucket: process.env.SEAWEEDFS_BUCKET || 'image-service',
+        endpoint: 'seaweedfs-filer',
+        port: 8333,
+        useSSL: false,
+        accessKey: process.env.SEAWEEDFS_ACCESS_KEY || 'seaweedadmin',
+        secretKey: process.env.SEAWEEDFS_SECRET_KEY || 'seaweedadmin',
+      },
+      isDefault: false,
+      isActive: true,
+      priority: 2,
+      description: 'SeaweedFS distributed storage (S3-compatible)',
+    },
+  });
+  console.log(`  Storage provider: ${seaweedProvider.name} (${seaweedProvider.type})`);
 
   const camera = await prisma.camera.upsert({
     where: { id: '00000000-0000-0000-0000-000000000010' },

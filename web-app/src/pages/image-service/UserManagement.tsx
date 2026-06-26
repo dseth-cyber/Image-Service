@@ -6,7 +6,7 @@ import { useToast } from '@/contexts/ToastContext'
 import { imageServiceApi } from '@/services/imageServiceApi'
 import { formatDateTime } from '@/utils/dateUtils'
 import { Modal, Button, SearchableSelect, TableSkeleton } from '@/components/ui'
-import { Users, Plus, Edit, Trash2, ChevronUp, ChevronDown, ChevronsUpDown, ShieldAlert, Key, Globe, Layout, CheckSquare, Square, Info } from 'lucide-react'
+import { Users, Plus, Edit, Trash2, ChevronUp, ChevronDown, ChevronsUpDown, ShieldAlert, Key, Globe, Layout, CheckSquare, Square, Info, ToggleLeft, ToggleRight } from 'lucide-react'
 
 const ROLE_COLORS: Record<string, string> = {
   admin: 'bg-red-500/20 text-red-400 border border-red-500/30',
@@ -17,15 +17,15 @@ const ROLE_COLORS: Record<string, string> = {
 const PERMISSION_MODULES = [
   {
     key: 'overview',
-    labelTh: 'หน้าหลัก / แดชบอร์ด',
-    labelEn: 'Dashboard / Overview',
+    labelTh: 'ภาพรวม',
+    labelEn: 'Overview',
     permissions: [
       { key: 'overview:read', labelTh: 'ดูหน้าแดชบอร์ด', labelEn: 'View Dashboard' }
     ]
   },
   {
     key: 'cameras',
-    labelTh: 'กล้องวงจรปิด',
+    labelTh: 'กล้อง',
     labelEn: 'Cameras',
     permissions: [
       { key: 'cameras:read', labelTh: 'ดูรายการกล้อง', labelEn: 'View Cameras' },
@@ -36,8 +36,8 @@ const PERMISSION_MODULES = [
   },
   {
     key: 'search',
-    labelTh: 'ค้นหาและจัดการรูปภาพ',
-    labelEn: 'Image Search & Metadata',
+    labelTh: 'ค้นหา',
+    labelEn: 'Search',
     permissions: [
       { key: 'search:read', labelTh: 'ค้นหารูปภาพ / ดาวน์โหลด', labelEn: 'Search & Download Images' },
       { key: 'search:update', labelTh: 'แก้ไขแท็ก / เมทาดาตา', labelEn: 'Update Tags / Metadata' },
@@ -46,8 +46,8 @@ const PERMISSION_MODULES = [
   },
   {
     key: 'processing',
-    labelTh: 'ประมวลผลงาน',
-    labelEn: 'Processing Jobs',
+    labelTh: 'ประมวลผล',
+    labelEn: 'Processing',
     permissions: [
       { key: 'processing:read', labelTh: 'ดูสถานะการประมวลผล', labelEn: 'View Processing Status' },
       { key: 'processing:create', labelTh: 'สั่งประมวลผลซ้ำ / ปฏิเสธงาน', labelEn: 'Retry / Reject Jobs' }
@@ -55,8 +55,8 @@ const PERMISSION_MODULES = [
   },
   {
     key: 'dead-letter',
-    labelTh: 'คิวงานที่ล้มเหลว (DLQ)',
-    labelEn: 'Dead Letter Queue (DLQ)',
+    labelTh: 'คิวงานเสีย',
+    labelEn: 'Dead Letter Queue',
     permissions: [
       { key: 'dead-letter:read', labelTh: 'ดูรายการ DLQ', labelEn: 'View DLQ' },
       { key: 'dead-letter:create', labelTh: 'สั่งประมวลผลซ้ำ / ล้างคิว', labelEn: 'Retry / Clear DLQ' }
@@ -64,7 +64,7 @@ const PERMISSION_MODULES = [
   },
   {
     key: 'storage',
-    labelTh: 'พื้นที่จัดเก็บ / Storage Providers',
+    labelTh: 'พื้นที่เก็บ / ผู้ให้บริการจัดเก็บ / โปรไฟล์จัดเก็บ',
     labelEn: 'Storage / Providers / Profiles',
     permissions: [
       { key: 'storage:read', labelTh: 'ดูสถิติพื้นที่ / Providers / Profiles / Migrations', labelEn: 'View Storage Stats / Providers / Profiles / Migrations' },
@@ -75,24 +75,24 @@ const PERMISSION_MODULES = [
   },
   {
     key: 'logs',
-    labelTh: 'บันทึกการทำงานของระบบ (Logs)',
-    labelEn: 'System Logs',
+    labelTh: 'บันทึก',
+    labelEn: 'Logs',
     permissions: [
       { key: 'logs:read', labelTh: 'ดูรายการ Logs', labelEn: 'View Logs' }
     ]
   },
   {
     key: 'audit-log',
-    labelTh: 'บันทึกการเข้าใช้งานระบบ (Audit Log)',
-    labelEn: 'Audit Logs',
+    labelTh: 'บันทึกการตรวจสอบ',
+    labelEn: 'Audit Log',
     permissions: [
       { key: 'audit-log:read', labelTh: 'ดู Audit Logs', labelEn: 'View Audit Logs' }
     ]
   },
   {
     key: 'backup',
-    labelTh: 'สำรองและกู้คืนข้อมูล',
-    labelEn: 'Backup & Restore',
+    labelTh: 'สำรองข้อมูล',
+    labelEn: 'Backup',
     permissions: [
       { key: 'backup:read', labelTh: 'ดูประวัติสำรองข้อมูล', labelEn: 'View Backup History' },
       { key: 'backup:create', labelTh: 'สั่งสำรองข้อมูล / ทดสอบกู้คืน', labelEn: 'Run Backup / Restore Test' }
@@ -100,8 +100,8 @@ const PERMISSION_MODULES = [
   },
   {
     key: 'retention',
-    labelTh: 'นโยบายการจัดเก็บรักษาข้อมูล',
-    labelEn: 'Retention Policies',
+    labelTh: 'นโยบาย',
+    labelEn: 'Retention',
     permissions: [
       { key: 'retention:read', labelTh: 'ดูนโยบาย', labelEn: 'View Policies' },
       { key: 'retention:create', labelTh: 'สร้างนโยบายใหม่', labelEn: 'Create Policy' },
@@ -111,8 +111,8 @@ const PERMISSION_MODULES = [
   },
   {
     key: 'alerts',
-    labelTh: 'การแจ้งเตือนและการจัดการกฎ',
-    labelEn: 'Alerts & Rules',
+    labelTh: 'การแจ้งเตือน',
+    labelEn: 'Alerts',
     permissions: [
       { key: 'alerts:read', labelTh: 'ดูการแจ้งเตือน', labelEn: 'View Alerts & Rules' },
       { key: 'alerts:create', labelTh: 'เพิ่มกฎแจ้งเตือนใหม่', labelEn: 'Create Alert Rule' },
@@ -121,8 +121,8 @@ const PERMISSION_MODULES = [
   },
   {
     key: 'masterdata',
-    labelTh: 'ข้อมูลหลักระบบ (Masterdata)',
-    labelEn: 'Masterdata Management',
+    labelTh: 'ข้อมูลหลัก',
+    labelEn: 'Masterdata',
     permissions: [
       { key: 'masterdata:read', labelTh: 'ดูข้อมูลหลัก', labelEn: 'View Masterdata' },
       { key: 'masterdata:create', labelTh: 'เพิ่มข้อมูลหลัก', labelEn: 'Create Masterdata' },
@@ -132,8 +132,8 @@ const PERMISSION_MODULES = [
   },
   {
     key: 'api-keys',
-    labelTh: 'จัดการ API Keys',
-    labelEn: 'API Keys Management',
+    labelTh: 'คีย์ API',
+    labelEn: 'API Keys',
     permissions: [
       { key: 'api-keys:read', labelTh: 'ดูรายการ API Keys', labelEn: 'View API Keys' },
       { key: 'api-keys:create', labelTh: 'สร้าง API Key', labelEn: 'Create API Key' },
@@ -143,31 +143,48 @@ const PERMISSION_MODULES = [
   },
   {
     key: 'telegram-bot',
-    labelTh: 'ตั้งค่า Telegram Bot',
-    labelEn: 'Telegram Bot Settings',
+    labelTh: 'Telegram Bot',
+    labelEn: 'Telegram Bot',
     permissions: [
       { key: 'telegram-bot:read', labelTh: 'ดูการตั้งค่าบอท', labelEn: 'View Telegram Bot' },
       { key: 'telegram-bot:update', labelTh: 'แก้ไขการตั้งค่าบอท', labelEn: 'Update Telegram Bot' }
     ]
   },
   {
+    key: 'settings',
+    labelTh: 'ตั้งค่า',
+    labelEn: 'Settings',
+    permissions: [
+      { key: 'settings:read', labelTh: 'ดูตั้งค่า', labelEn: 'View Settings' },
+      { key: 'settings:update', labelTh: 'แก้ไขตั้งค่า', labelEn: 'Update Settings' }
+    ]
+  },
+  {
     key: 'system-config',
-    labelTh: 'ตั้งค่าระบบทั่วไป',
+    labelTh: 'ตั้งค่าระบบ',
     labelEn: 'System Config',
     permissions: [
-      { key: 'system-config:read', labelTh: 'ดูการตั้งค่าระบบ', labelEn: 'View System Config' },
-      { key: 'system-config:update', labelTh: 'แก้ไขการตั้งค่าระบบ', labelEn: 'Update System Config' }
+      { key: 'system-config:read', labelTh: 'ดูตั้งค่าระบบ', labelEn: 'View System Config' },
+      { key: 'system-config:update', labelTh: 'แก้ไขตั้งค่าระบบ', labelEn: 'Update System Config' }
     ]
   },
   {
     key: 'users',
-    labelTh: 'จัดการผู้ใช้งานและสิทธิ์',
-    labelEn: 'User & Role Management',
+    labelTh: 'ผู้ใช้',
+    labelEn: 'Users',
     permissions: [
       { key: 'users:read', labelTh: 'ดูรายชื่อผู้ใช้งานและบทบาท', labelEn: 'View Users & Roles' },
       { key: 'users:create', labelTh: 'สร้างผู้ใช้งานและบทบาทใหม่', labelEn: 'Create Users & Roles' },
       { key: 'users:update', labelTh: 'แก้ไขผู้ใช้งานและบทบาท', labelEn: 'Update Users & Roles' },
       { key: 'users:delete', labelTh: 'ลบผู้ใช้งานและบทบาท', labelEn: 'Delete Users & Roles' }
+    ]
+  },
+  {
+    key: 'roadmap',
+    labelTh: 'โรดแมป',
+    labelEn: 'Roadmap',
+    permissions: [
+      { key: 'roadmap:read', labelTh: 'ดูแผนการพัฒนา', labelEn: 'View Roadmap' }
     ]
   },
   {
@@ -306,16 +323,24 @@ export default function UserManagement() {
       }
       setUserModal({ open: false })
       queryClient.invalidateQueries({ queryKey: ['users'] })
-    } catch { toast.error(t('common.error')) }
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')) }
     finally { setSubmittingUser(false) }
   }
 
-  const handleDeactivateUser = async (id: string) => {
+  const handleToggleUser = async (id: string, currentEnabled: boolean) => {
+    try {
+      await imageServiceApi.updateUser(id, { enabled: !currentEnabled })
+      toast.success(!currentEnabled ? t('imageService.users.activated') : t('imageService.users.deactivated'))
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')) }
+  }
+
+  const handleDeleteUser = async (id: string) => {
     try {
       await imageServiceApi.deactivateUser(id)
-      toast.success(t('imageService.users.deactivated'))
+      toast.success(t('imageService.users.deleted'))
       queryClient.invalidateQueries({ queryKey: ['users'] })
-    } catch { toast.error(t('common.error')) }
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')) }
   }
 
   const handleUserPermissionToggle = (permKey: string, checked: boolean) => {
@@ -366,8 +391,7 @@ export default function UserManagement() {
       setRoleModal({ open: false })
       queryClient.invalidateQueries({ queryKey: ['roles'] })
     } catch (e: any) {
-      const err = e.response?.data?.message || t('common.error')
-      toast.error(err)
+      if (!e?._handled) toast.error(e.response?.data?.message || t('common.error'))
     } finally { setSubmittingRole(false) }
   }
 
@@ -377,8 +401,7 @@ export default function UserManagement() {
       toast.success(t('common.saveSuccess') || 'Role deleted successfully')
       queryClient.invalidateQueries({ queryKey: ['roles'] })
     } catch (e: any) {
-      const err = e.response?.data?.message || t('common.error')
-      toast.error(err)
+      if (!e?._handled) toast.error(e.response?.data?.message || t('common.error'))
     }
   }
 
@@ -508,11 +531,16 @@ export default function UserManagement() {
                           <td className="px-4 py-3">
                             <div className="flex items-center justify-center gap-1">
                               <button onClick={() => openEditUser(item)}
-                                className="p-2 rounded-lg hover:bg-blue-500/20"><Edit size={15} className="text-blue-400" /></button>
-                              {item.enabled && (
-                                <button onClick={() => handleDeactivateUser(item.id)}
-                                  className="p-2 rounded-lg hover:bg-red-500/20"><Trash2 size={15} className="text-red-400" /></button>
-                              )}
+                                className="p-2 rounded-lg hover:bg-blue-500/20" title={t('common.edit')}><Edit size={15} className="text-blue-400" /></button>
+                              <button onClick={() => handleToggleUser(item.id, item.enabled)}
+                                className={`p-2 rounded-lg ${item.enabled ? 'hover:bg-yellow-500/20' : 'hover:bg-green-500/20'}`}
+                                title={item.enabled ? t('imageService.users.disable') : t('imageService.users.enable')}>
+                                {item.enabled
+                                  ? <ToggleRight size={15} className="text-green-400" />
+                                  : <ToggleLeft size={15} className="text-gray-400" />}
+                              </button>
+                              <button onClick={() => handleDeleteUser(item.id)}
+                                className="p-2 rounded-lg hover:bg-red-500/20" title={t('imageService.users.deleteUser')}><Trash2 size={15} className="text-red-400" /></button>
                             </div>
                           </td>
                         </tr>

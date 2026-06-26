@@ -7,6 +7,7 @@ import { useToast } from '@/contexts/ToastContext'
 import { useQuery } from '@tanstack/react-query'
 import { imageServiceApi } from '@/services/imageServiceApi'
 import { Button, Modal } from '@/components/ui'
+import { setForbiddenHandler } from '@/lib/axios'
 import LoginPage from '@/pages/auth/LoginPage'
 import ImageServiceOverview from '@/pages/image-service/ImageServiceOverview'
 import ImageServiceCameras from '@/pages/image-service/ImageServiceCameras'
@@ -359,6 +360,12 @@ export default function App() {
   const location = useLocation()
   const [passwordModalOpen, setPasswordModalOpen] = useState(false)
   const [aboutModalOpen, setAboutModalOpen] = useState(false)
+
+  useEffect(() => {
+    setForbiddenHandler((msg) => {
+      toast.error(t('imageService.auth.forbidden') || `ไม่มีสิทธิ์: ${msg}`)
+    })
+  }, [t, toast])
 
   // Synchronize theme based on login status and user preference
   useEffect(() => {

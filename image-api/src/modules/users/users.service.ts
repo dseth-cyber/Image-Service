@@ -67,9 +67,10 @@ export async function updateUser(id: string, input: UpdateUserInput) {
 
 export async function deactivateUser(id: string) {
   const prisma = getPrisma();
-  return prisma.user.update({
-    where: { id },
-    data: { enabled: false },
-    select: { id: true, username: true, email: true, role: true, customPermissions: true, enabled: true, lastLogin: true, createdAt: true, updatedAt: true },
-  });
+
+  await prisma.refreshToken.deleteMany({ where: { userId: id } });
+  await prisma.auditLog.updateMany({ where: { userId: id }, data: { userId: null } });
+  await prisma.user.delete({ where: { id } });
+
+  return { id, deleted: true };
 }

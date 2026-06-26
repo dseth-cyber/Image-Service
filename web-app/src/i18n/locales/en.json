@@ -77,6 +77,9 @@
       "deleteSuccess": "Image deleted successfully",
       "reprocess": "Reprocess",
       "reprocessQueued": "Image queued for reprocessing",
+      "reprocessSelected": "Reprocess Selected",
+      "selected": "{{count}} selected",
+      "clearSelection": "Clear selection",
       "tagKey": "Tag Key",
       "tagValue": "Tag Value",
       "tagKeyPlaceholder": "key...",
@@ -423,7 +426,7 @@
       "title": "Backup & Restore",
       "subtitle": "Database and object storage backup management",
       "databaseBackup": "Database Backup",
-      "minioBackup": "MinIO Backup",
+      "storageBackup": "Storage Backup",
       "runNow": "Run Now",
       "status": "Status",
       "fileSize": "File Size",
@@ -439,7 +442,7 @@
       "loading": "Loading...",
       "noRecords": "No backup records",
       "typeDatabase": "Database",
-      "typeMinio": "MinIO",
+      "typeStorage": "Storage",
       "testRestore": "Test restore",
       "statusCompleted": "Completed",
       "statusFailed": "Failed",
@@ -447,8 +450,8 @@
       "statusPending": "Pending",
       "dbBackupCompleted": "Database backup completed",
       "dbBackupFailed": "Database backup failed",
-      "minioBackupCompleted": "MinIO backup completed",
-      "minioBackupFailed": "MinIO backup failed",
+      "storageBackupCompleted": "Storage backup completed",
+      "storageBackupFailed": "Storage backup failed",
       "restoreTestSuccess": "Restore test: {{message}}",
       "restoreTestFailed": "Restore test failed: {{message}}",
       "restoreTestError": "Restore test error"
@@ -501,6 +504,7 @@
       "passwordMismatch": "Passwords do not match",
       "unauthorized": "Access Denied",
       "unauthorizedDesc": "You do not have permission to view this resource. Please contact system administrator.",
+      "forbidden": "You do not have permission to perform this action",
       "passwordTooShort": "Password must be at least 6 characters",
       "noAccount": "Don't have an account? Register here"
     },
@@ -670,6 +674,11 @@
       "created": "User created",
       "updated": "User updated",
       "deactivated": "User deactivated",
+      "activated": "User activated",
+      "deleted": "User deleted",
+      "enable": "Enable",
+      "disable": "Disable",
+      "deleteUser": "Delete User",
       "roleAdmin": "Admin",
       "roleOperator": "Operator",
       "roleViewer": "Viewer",
@@ -1034,7 +1043,9 @@
         "telegram-bot": "Telegram Bot Settings",
         "system-config": "System Config",
         "users": "User & Role Management",
-        "health": "System Health & Services"
+        "health": "System Health & Services",
+        "settings": "General Settings",
+        "roadmap": "Development Roadmap"
       },
       "actions": {
         "overview_read": "View Dashboard",
@@ -1080,7 +1091,10 @@
         "users_create": "Create Users & Roles",
         "users_update": "Update Users & Roles",
         "users_delete": "Delete Users & Roles",
-        "health_read": "View System Health"
+        "health_read": "View System Health",
+        "settings_read": "View Settings Page",
+        "settings_update": "Update Settings",
+        "roadmap_read": "View Roadmap"
       }
     }
   },
@@ -1125,7 +1139,7 @@
     "browse": "Browse",
     "back": "Back",
     "clearData": "Clear All Data",
-    "clearDataWarning": "This will permanently delete ALL images, processing jobs, audit logs, MinIO objects, and Redis queue data. Cameras, users, roles, and system configuration will NOT be affected. This action CANNOT be undone.",
+    "clearDataWarning": "This will permanently delete ALL images, processing jobs, audit logs, Storage objects, and Redis queue data. Cameras, users, roles, and system configuration will NOT be affected. This action CANNOT be undone.",
     "clearDataConfirmLabel": "Type DELETE to confirm",
     "clearDataPasswordLabel": "Enter your password",
     "clearDataSubmit": "Clear All Data",

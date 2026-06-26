@@ -11,6 +11,8 @@ export interface HealthResult {
 export interface StatsResult {
   objectCount: number;
   usedBytes: number;
+  totalBytes: number;
+  freeBytes: number;
 }
 
 export interface S3Config {

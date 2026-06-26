@@ -39,6 +39,15 @@ async function testHandler(request: FastifyRequest, reply: FastifyReply) {
   return reply.status(200).send(result);
 }
 
+async function getDefaultHandler(_request: FastifyRequest, reply: FastifyReply) {
+  const providers = await providersService.listProviders();
+  const defaultProvider = providers.find((p: any) => p.isDefault) ?? providers[0] ?? null;
+  if (!defaultProvider) {
+    return reply.status(404).send({ error: 'No storage provider configured' });
+  }
+  return reply.status(200).send(defaultProvider);
+}
+
 async function metricsHandler(request: FastifyRequest, reply: FastifyReply) {
   const { id } = request.params as { id: string };
   const metrics = await providersService.getProviderMetrics(id);
@@ -47,6 +56,7 @@ async function metricsHandler(request: FastifyRequest, reply: FastifyReply) {
 
 export async function storageProviderRoutes(app: FastifyInstance): Promise<void> {
   app.get('/', { preHandler: [app.authenticate, requirePermission('storage:read')] }, listHandler);
+  app.get('/default', { preHandler: [app.authenticate] }, getDefaultHandler);
   app.get('/:id', { preHandler: [app.authenticate, requirePermission('storage:read')] }, getByIdHandler);
   app.post('/', { preHandler: [app.authenticate, requirePermission('storage:create')] }, createHandler);
   app.patch('/:id', { preHandler: [app.authenticate, requirePermission('storage:update')] }, updateHandler);

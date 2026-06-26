@@ -16,7 +16,7 @@ class HealthState:
         self.jobs_failed: int = 0
         self.last_job_time: float | None = None
         self.redis_ok: bool = False
-        self.minio_ok: bool = False
+        self.storage_ok: bool = False
         self.api_ok: bool = False
 
     def to_dict(self) -> dict:
@@ -33,7 +33,7 @@ class HealthState:
                 "lastJobTime": self.last_job_time,
                 "checks": {
                     "redis": "ok" if self.redis_ok else "down",
-                    "minio": "ok" if self.minio_ok else "down",
+                    "storage": "ok" if self.storage_ok else "down",
                     "api": "ok" if self.api_ok else "down",
                 },
             },

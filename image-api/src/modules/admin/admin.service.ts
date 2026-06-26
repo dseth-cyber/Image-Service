@@ -56,6 +56,6 @@ export async function clearAllData(userId: string, input: { password: string }) 
     userId,
     action: 'clear_all_data',
     entity: 'system',
-    description: 'All processing data cleared (images, image_files, processing_jobs, audit_logs, MinIO objects, Redis queues)',
+    description: 'All processing data cleared (images, image_files, processing_jobs, audit_logs, storage objects, Redis queues)',
   });
 }

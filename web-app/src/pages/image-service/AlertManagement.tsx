@@ -58,7 +58,7 @@ export default function AlertManagement() {
       await imageServiceApi.acknowledgeAlert(id)
       toast.success(t('imageService.alerts.acknowledged'))
       queryClient.invalidateQueries({ queryKey: ['alerts'] })
-    } catch { toast.error(t('common.error')) }
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')) }
   }
 
   const handleResolve = async (id: string) => {
@@ -66,7 +66,7 @@ export default function AlertManagement() {
       await imageServiceApi.resolveAlert(id)
       toast.success(t('imageService.alerts.resolved'))
       queryClient.invalidateQueries({ queryKey: ['alerts'] })
-    } catch { toast.error(t('common.error')) }
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')) }
   }
 
   const thCls = (col: string) =>

@@ -5,6 +5,9 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
+let _toastForbidden: ((msg: string) => void) | null = null
+export function setForbiddenHandler(fn: (msg: string) => void) { _toastForbidden = fn }
+
 let isRefreshing = false
 let failedQueue: Array<{ resolve: (token: string) => void; reject: (err: unknown) => void }> = []
 
@@ -26,6 +29,13 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
+    if (error.response?.status === 403) {
+      const msg = error.response?.data?.message || 'Permission denied'
+      if (_toastForbidden) _toastForbidden(msg)
+      error._handled = true
+      return Promise.reject(error)
+    }
+
     const originalRequest = error.config
     if (error.response?.status !== 401 || originalRequest._retry) return Promise.reject(error)
     if (originalRequest.url?.includes('/auth/')) return Promise.reject(error)

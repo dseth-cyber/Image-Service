@@ -1,4 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { requirePermission } from '../../middleware/rbac.js';
 import * as apiKeysService from './api-keys.service.js';
 
 async function listHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -48,9 +49,9 @@ async function deleteHandler(request: FastifyRequest, reply: FastifyReply) {
 }
 
 export async function apiKeyRoutes(app: FastifyInstance): Promise<void> {
-  app.get('/', { preHandler: [app.authenticate] }, listHandler);
-  app.get('/:id', { preHandler: [app.authenticate] }, getByIdHandler);
-  app.post('/', { preHandler: [app.authenticate] }, createHandler);
-  app.patch('/:id', { preHandler: [app.authenticate] }, updateHandler);
-  app.delete('/:id', { preHandler: [app.authenticate] }, deleteHandler);
+  app.get('/', { preHandler: [app.authenticate, requirePermission('api-keys:read')] }, listHandler);
+  app.get('/:id', { preHandler: [app.authenticate, requirePermission('api-keys:read')] }, getByIdHandler);
+  app.post('/', { preHandler: [app.authenticate, requirePermission('api-keys:create')] }, createHandler);
+  app.patch('/:id', { preHandler: [app.authenticate, requirePermission('api-keys:update')] }, updateHandler);
+  app.delete('/:id', { preHandler: [app.authenticate, requirePermission('api-keys:delete')] }, deleteHandler);
 }

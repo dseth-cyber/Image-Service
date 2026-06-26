@@ -54,6 +54,7 @@ export default function ImageServiceSearch() {
   const [newTagValue, setNewTagValue] = useState('');
   const [thumbError, setThumbError] = useState(false);
   const [thumbSrc, setThumbSrc] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const { data: cameras = [] } = useQuery({
     queryKey: ['cameras'],
@@ -137,12 +138,42 @@ export default function ImageServiceSearch() {
     }
   }, [t, toast]);
 
+  const handleReprocess = useCallback(async (id: string) => {
+    try {
+      await imageServiceApi.reprocessImage(id);
+      toast.success(t('imageService.search.reprocessQueued'));
+      queryClient.invalidateQueries({ queryKey: ['images'] });
+      queryClient.invalidateQueries({ queryKey: ['image-detail', id] });
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
+  }, [t, toast, queryClient]);
+
+  const handleBulkReprocess = useCallback(async () => {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    let ok = 0;
+    for (const id of ids) {
+      try { await imageServiceApi.reprocessImage(id); ok++; } catch { /* skip */ }
+    }
+    toast.success(`${t('imageService.search.reprocessQueued')} (${ok}/${ids.length})`);
+    setSelected(new Set());
+    queryClient.invalidateQueries({ queryKey: ['images'] });
+  }, [selected, t, toast, queryClient]);
+
+  const toggleSelect = (id: string) => {
+    setSelected(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s; });
+  };
+
+  const toggleSelectAll = () => {
+    if (selected.size === items.length) setSelected(new Set());
+    else setSelected(new Set(items.map((i: any) => i.id)));
+  };
+
   const handleDelete = async (id: string) => {
     try {
       await imageServiceApi.deleteImage(id);
       toast.success(t('imageService.search.deleteSuccess'));
       queryClient.invalidateQueries({ queryKey: ['images'] });
-    } catch { toast.error(t('common.error')); }
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
   };
 
   const thCls = (col: string) =>
@@ -216,12 +247,32 @@ export default function ImageServiceSearch() {
         )}
       </div>
 
+      {selected.size > 0 && (
+        <div className={`${themeConfig.card} rounded-lg px-4 py-2.5 mb-3 flex items-center gap-3`}>
+          <span className={`text-xs ${themeConfig.text.primary}`}>
+            {t('imageService.search.selected', { count: selected.size })}
+          </span>
+          <button onClick={handleBulkReprocess}
+            className="px-3 py-1.5 rounded-md text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-1.5">
+            <RefreshCw size={12} /> {t('imageService.search.reprocessSelected')}
+          </button>
+          <button onClick={() => setSelected(new Set())}
+            className={`px-3 py-1.5 rounded-md text-xs ${themeConfig.text.secondary} hover:bg-white/5`}>
+            {t('imageService.search.clearSelection')}
+          </button>
+        </div>
+      )}
+
       {isLoading ? <TableSkeleton rows={8} /> : (
         <>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className={themeConfig.tableHeader}>
                 <tr>
+                  <th className="px-2 py-3 w-8">
+                    <input type="checkbox" checked={items.length > 0 && selected.size === items.length}
+                      onChange={toggleSelectAll} className="rounded border-gray-500 cursor-pointer" />
+                  </th>
                   <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>#</th>
                   <th onClick={() => handleSort('originalFilename')} className={thCls('originalFilename')}>
                     <div className="flex items-center gap-1">{t('imageService.cameras.cameraName')}
@@ -245,6 +296,10 @@ export default function ImageServiceSearch() {
               <tbody className={`divide-y ${themeConfig.tableDivide}`}>
                 {items.map((item: any, idx: number) => (
                   <tr key={item.id} className={`border-b ${themeConfig.tableBorder} ${themeConfig.tableRow}`}>
+                    <td className="px-2 py-3 w-8">
+                      <input type="checkbox" checked={selected.has(item.id)}
+                        onChange={() => toggleSelect(item.id)} className="rounded border-gray-500 cursor-pointer" />
+                    </td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>{(page - 1) * 20 + idx + 1}</td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>
                       {(() => { const { basename, subFolder } = parseFilePath(item.originalFilename); return (
@@ -276,6 +331,8 @@ export default function ImageServiceSearch() {
                       <div className="flex items-center justify-center gap-1">
                         <button onClick={() => setDetailId(item.id)}
                           className="p-2 rounded-lg hover:bg-blue-500/20"><Eye size={15} className="text-blue-500" /></button>
+                        <button onClick={() => handleReprocess(item.id)}
+                          className="p-2 rounded-lg hover:bg-amber-500/20" title={t('imageService.search.reprocess')}><RefreshCw size={15} className="text-amber-500" /></button>
                         <button onClick={() => handleDelete(item.id)}
                           className="p-2 rounded-lg hover:bg-red-500/20"><Trash2 size={15} className="text-red-500" /></button>
                       </div>
@@ -395,7 +452,7 @@ export default function ImageServiceSearch() {
                           toast.success(t('imageService.search.tagDeleted'));
                           queryClient.invalidateQueries({ queryKey: ['image-detail', detailId] });
                           queryClient.invalidateQueries({ queryKey: ['images'] });
-                        } catch { toast.error(t('common.error')); }
+                        } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
                       }}
                         className="hover:text-red-400 transition-colors">
                         <X size={11} />
@@ -419,7 +476,7 @@ export default function ImageServiceSearch() {
                           setNewTagValue('');
                           queryClient.invalidateQueries({ queryKey: ['image-detail', detailId] });
                           queryClient.invalidateQueries({ queryKey: ['images'] });
-                        } catch { toast.error(t('common.error')); }
+                        } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
                       }
                     }} />
                   <button onClick={async () => {
@@ -431,7 +488,7 @@ export default function ImageServiceSearch() {
                       setNewTagValue('');
                       queryClient.invalidateQueries({ queryKey: ['image-detail', detailId] });
                       queryClient.invalidateQueries({ queryKey: ['images'] });
-                    } catch { toast.error(t('common.error')); }
+                    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
                   }}
                     className="p-1.5 rounded-md bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 transition-colors disabled:opacity-30"
                     disabled={!newTagKey || !newTagValue}>
@@ -449,7 +506,7 @@ export default function ImageServiceSearch() {
                   toast.success(t('imageService.search.reprocessQueued'));
                   queryClient.invalidateQueries({ queryKey: ['images'] });
                   queryClient.invalidateQueries({ queryKey: ['image-detail', detailId] });
-                } catch { toast.error(t('common.error')); }
+                } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
               }} className="!bg-amber-600 hover:!bg-amber-700 text-white">
                 <RefreshCw size={14} className="mr-1.5" /> {t('imageService.search.reprocess')}
               </Button>

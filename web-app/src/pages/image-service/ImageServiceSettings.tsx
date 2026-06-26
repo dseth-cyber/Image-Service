@@ -119,7 +119,7 @@ export default function ImageServiceSettings() {
       setSaving(true);
       saveSettings({ pollInterval, retryMax, alertEmail, webhookUrl });
       toast.success(t('common.saveSuccess'));
-    } catch { toast.error(t('common.error')); }
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
     finally { setSaving(false); }
   };
 

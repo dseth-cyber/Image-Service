@@ -10,7 +10,7 @@ from src.config import settings
 from src.logger import logger
 from src.models import ProcessingJob
 from src.processor import process_tiff, ProcessingError
-from src.minio_storage import MinioClient
+from src.storage_client import StorageClient
 from src.api_client import ApiClient
 from src.kafka import KafkaEventProducer
 
@@ -18,7 +18,7 @@ from src.kafka import KafkaEventProducer
 class ProcessingWorker:
     def __init__(self):
         self._redis: Redis | None = None
-        self.minio = MinioClient()
+        self.storage = StorageClient()
         self.api = ApiClient()
         self.kafka = KafkaEventProducer()
         self._running = True
@@ -49,14 +49,22 @@ class ProcessingWorker:
             concurrency=settings.processing_concurrency,
         )
 
-        await self.minio.ensure_bucket()
-        try:
-            provider = await self.api.get_default_storage_provider()
-            self._provider_id = provider.get("id")
-            self.api._provider_id = self._provider_id
-            logger.info("Using storage provider", provider_id=self._provider_id, name=provider.get("name"))
-        except Exception as e:
-            logger.warning("Failed to get default storage provider — proceeding without provider_id", error=str(e))
+        for attempt in range(10):
+            try:
+                provider = await self.api.get_default_storage_provider()
+                self._provider_id = provider.get("id")
+                self.api._provider_id = self._provider_id
+                self.storage.configure_from_provider(provider)
+                logger.info("Using storage provider", provider_id=self._provider_id, name=provider.get("name"), type=provider.get("type"))
+                break
+            except Exception as e:
+                if attempt < 9:
+                    logger.info("Waiting for API...", attempt=attempt + 1, error=str(e))
+                    await asyncio.sleep(3)
+                else:
+                    logger.warning("Failed to get default storage provider — using env var fallback", error=str(e))
+
+        await self.storage.ensure_bucket()
 
         try:
             await self.kafka.start()
@@ -164,9 +172,9 @@ class ProcessingWorker:
                 if os.path.exists(local_path):
                     os.unlink(local_path)
 
-            await self.minio.upload_tiff(result.raw_object_key, raw_data)
-            await self.minio.upload_png(result.png_object_key, png_data)
-            await self.minio.upload_thumbnail(
+            await self.storage.upload_tiff(result.raw_object_key, raw_data)
+            await self.storage.upload_png(result.png_object_key, png_data)
+            await self.storage.upload_thumbnail(
                 result.thumbnail_object_key, thumb_data
             )
 

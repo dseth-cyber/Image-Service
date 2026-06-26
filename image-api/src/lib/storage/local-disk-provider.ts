@@ -108,6 +108,15 @@ export class LocalDiskProvider implements StorageProvider {
     };
 
     walk(this.config.basePath);
-    return { objectCount, usedBytes };
+
+    let totalBytes = 0;
+    let freeBytes = 0;
+    try {
+      const diskStats = fs.statfsSync(this.config.basePath);
+      totalBytes = diskStats.bsize * diskStats.blocks;
+      freeBytes = diskStats.bsize * diskStats.bavail;
+    } catch { /* statfsSync not available or path error */ }
+
+    return { objectCount, usedBytes, totalBytes, freeBytes };
   }
 }

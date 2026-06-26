@@ -365,7 +365,7 @@ function StorageProviderFormModal({ isOpen, onClose, editTarget }: { isOpen: boo
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>{t('imageService.storageProviders.endpoint')}</label>
-                <input type="text" value={endpoint} onChange={e => setEndpoint(e.target.value)} className={inputClass} placeholder={type === 'seaweedfs' ? 'seaweedfs-filer' : 'image-minio'} />
+                <input type="text" value={endpoint} onChange={e => setEndpoint(e.target.value)} className={inputClass} placeholder={type === 'seaweedfs' ? 'seaweedfs-filer' : 'minio'} />
               </div>
               <div>
                 <label className={labelClass}>{t('imageService.storageProviders.port')}</label>

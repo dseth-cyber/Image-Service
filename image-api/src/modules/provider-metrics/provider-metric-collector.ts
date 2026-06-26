@@ -18,6 +18,16 @@ export async function collectMetrics(): Promise<{ provider: string; ok: boolean;
       const stats = await p.stats();
       const latencyMs = Date.now() - start;
 
+      let totalBytes = stats.totalBytes;
+      let freeBytes = stats.freeBytes;
+      if (totalBytes === 0) {
+        const dbRecord = await prisma.storageProvider.findUnique({ where: { id: p.id }, select: { capacityBytes: true } });
+        if (dbRecord?.capacityBytes) {
+          totalBytes = Number(dbRecord.capacityBytes);
+          freeBytes = Math.max(0, totalBytes - stats.usedBytes);
+        }
+      }
+
       await prisma.storageProviderMetric.create({
         data: {
           providerId: p.id,
@@ -25,6 +35,8 @@ export async function collectMetrics(): Promise<{ provider: string; ok: boolean;
           latencyMs,
           objectCount: stats.objectCount,
           usedBytes: stats.usedBytes,
+          totalBytes,
+          freeBytes,
           errorMessage: health.error,
         },
       });
@@ -58,9 +70,13 @@ export function startMetricCollector(): void {
 
   logger.info('Provider metric collector scheduled (every 15 minutes)');
 
-  collectMetrics().catch((err) => {
-    logger.error({ err }, 'Initial metric collection failed');
-  });
+  setTimeout(() => {
+    collectMetrics().then((results) => {
+      logger.info({ results }, 'Initial metric collection done');
+    }).catch((err) => {
+      logger.error({ err }, 'Initial metric collection failed');
+    });
+  }, 5000);
 }
 
 export function stopMetricCollector(): void {

@@ -234,8 +234,8 @@ export function createImageServiceApi(api: any) {
     runDatabaseBackup: () =>
       api.post(`${BASE}/backup/run/database`).then((r: any) => r.data),
 
-    runMinioBackup: () =>
-      api.post(`${BASE}/backup/run/minio`).then((r: any) => r.data),
+    runStorageBackup: () =>
+      api.post(`${BASE}/backup/run/storage`).then((r: any) => r.data),
 
     runRestoreTest: (id: string) =>
       api.post(`${BASE}/backup/${id}/restore-test`).then((r: any) => r.data),

@@ -45,7 +45,7 @@ export default function ImageServiceCameraDetail() {
       await imageServiceApi.scanCamera(id);
       toast.success(t('imageService.cameras.scanTriggered'));
       setTimeout(() => queryClient.invalidateQueries({ queryKey: ['camera', id] }), 3000);
-    } catch { toast.error(t('common.error')); }
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
     finally { setScanning(false); }
   };
 

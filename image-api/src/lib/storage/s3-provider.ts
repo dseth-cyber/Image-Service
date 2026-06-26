@@ -82,6 +82,6 @@ export class S3Provider implements StorageProvider {
       objectCount++;
       usedBytes += Number((obj as any).size ?? 0);
     }
-    return { objectCount, usedBytes };
+    return { objectCount, usedBytes, totalBytes: 0, freeBytes: 0 };
   }
 }

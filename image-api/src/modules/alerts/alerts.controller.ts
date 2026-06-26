@@ -1,4 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { requirePermission } from '../../middleware/rbac.js';
 import * as alertsService from './alerts.service.js';
 
 async function createHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -47,9 +48,9 @@ async function resolveHandler(request: FastifyRequest, reply: FastifyReply) {
 }
 
 export async function alertRoutes(app: FastifyInstance): Promise<void> {
-  app.post('/', { preHandler: [app.authenticate] }, createHandler);
-  app.get('/', { preHandler: [app.authenticate] }, listHandler);
-  app.get('/:id', { preHandler: [app.authenticate] }, getByIdHandler);
-  app.patch('/:id/acknowledge', { preHandler: [app.authenticate] }, acknowledgeHandler);
-  app.patch('/:id/resolve', { preHandler: [app.authenticate] }, resolveHandler);
+  app.post('/', { preHandler: [app.authenticate, requirePermission('alerts:create')] }, createHandler);
+  app.get('/', { preHandler: [app.authenticate, requirePermission('alerts:read')] }, listHandler);
+  app.get('/:id', { preHandler: [app.authenticate, requirePermission('alerts:read')] }, getByIdHandler);
+  app.patch('/:id/acknowledge', { preHandler: [app.authenticate, requirePermission('alerts:update')] }, acknowledgeHandler);
+  app.patch('/:id/resolve', { preHandler: [app.authenticate, requirePermission('alerts:update')] }, resolveHandler);
 }

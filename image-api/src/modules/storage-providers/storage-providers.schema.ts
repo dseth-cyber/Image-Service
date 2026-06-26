@@ -41,6 +41,7 @@ export const createProviderSchema = z.object({
   isDefault: z.coerce.boolean().optional().default(false),
   priority: z.coerce.number().int().min(0).optional().default(0),
   description: z.string().optional(),
+  capacityBytes: z.coerce.number().int().nonnegative().optional(),
 });
 
 export const updateProviderSchema = z.object({
@@ -50,6 +51,7 @@ export const updateProviderSchema = z.object({
   priority: z.coerce.number().int().min(0).optional(),
   description: z.string().optional(),
   isActive: z.coerce.boolean().optional(),
+  capacityBytes: z.coerce.number().int().nonnegative().nullable().optional(),
 });
 
 export type CreateProviderInput = z.infer<typeof createProviderSchema>;

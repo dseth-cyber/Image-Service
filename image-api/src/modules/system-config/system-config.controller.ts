@@ -1,4 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { requirePermission } from '../../middleware/rbac.js';
 import * as configService from './system-config.service.js';
 
 async function getAllHandler(_request: FastifyRequest, reply: FastifyReply) {
@@ -14,7 +15,6 @@ async function updateHandler(request: FastifyRequest, reply: FastifyReply) {
 
 export async function systemConfigRoutes(app: FastifyInstance): Promise<void> {
   app.get('/', getAllHandler);
-  app.post('/bulk-update', { preHandler: [app.authenticate] }, updateHandler);
-  // legacy PATCH kept for backward compatibility
-  app.patch('/', { preHandler: [app.authenticate] }, updateHandler);
+  app.post('/bulk-update', { preHandler: [app.authenticate, requirePermission('system-config:update')] }, updateHandler);
+  app.patch('/', { preHandler: [app.authenticate, requirePermission('system-config:update')] }, updateHandler);
 }

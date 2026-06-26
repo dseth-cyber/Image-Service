@@ -77,7 +77,7 @@ async function streamHandler(_request: FastifyRequest, reply: FastifyReply) {
 
   await tick();
 
-  const statsTimer = setInterval(tick, 5_000);
+  const statsTimer = setInterval(tick, 2_000);
   const heartbeat = setInterval(() => push('heartbeat', { ts: Date.now() }), 15_000);
 
   reply.raw.on('close', () => {

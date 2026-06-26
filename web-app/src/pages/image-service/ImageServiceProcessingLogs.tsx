@@ -88,7 +88,7 @@ export default function ImageServiceProcessingLogs() {
       await imageServiceApi.retryJob(jobId);
       toast.success(t('imageService.processingLogs.retrySuccess'));
       queryClient.invalidateQueries({ queryKey: ['processing-logs'] });
-    } catch { toast.error(t('common.error')); }
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
   };
 
   const thCls = (col: string) =>

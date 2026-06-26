@@ -1,4 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { requirePermission } from '../../middleware/rbac.js';
 import * as masterdataService from './masterdata.service.js';
 
 async function listHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -68,9 +69,9 @@ async function deleteHandler(request: FastifyRequest, reply: FastifyReply) {
 }
 
 export async function masterdataRoutes(app: FastifyInstance): Promise<void> {
-  app.get('/', { preHandler: [app.authenticate] }, listHandler);
-  app.get('/:id', { preHandler: [app.authenticate] }, getByIdHandler);
-  app.post('/', { preHandler: [app.authenticate] }, createHandler);
-  app.patch('/:id', { preHandler: [app.authenticate] }, updateHandler);
-  app.delete('/:id', { preHandler: [app.authenticate] }, deleteHandler);
+  app.get('/', { preHandler: [app.authenticate, requirePermission('masterdata:read')] }, listHandler);
+  app.get('/:id', { preHandler: [app.authenticate, requirePermission('masterdata:read')] }, getByIdHandler);
+  app.post('/', { preHandler: [app.authenticate, requirePermission('masterdata:create')] }, createHandler);
+  app.patch('/:id', { preHandler: [app.authenticate, requirePermission('masterdata:update')] }, updateHandler);
+  app.delete('/:id', { preHandler: [app.authenticate, requirePermission('masterdata:delete')] }, deleteHandler);
 }

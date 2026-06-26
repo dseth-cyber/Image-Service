@@ -243,9 +243,28 @@ export async function submitProcessingResult(id: string, input: ProcessingResult
   if (input.tiffMetadata !== undefined) imageData.tiffMetadata = input.tiffMetadata as never;
 
   if (input.files && input.files.length > 0) {
+    let fallbackProviderId: string | null = null;
+    if (!input.files[0].storageProviderId) {
+      const s3Provider = await prisma.storageProvider.findFirst({
+        where: { type: 's3', isActive: true, deletedAt: null },
+        orderBy: { priority: 'asc' },
+        select: { id: true },
+      });
+      fallbackProviderId = s3Provider?.id ?? null;
+    }
+
     await Promise.all(input.files.map(file =>
-      prisma.imageFile.create({
-        data: {
+      prisma.imageFile.upsert({
+        where: { imageId_fileType: { imageId: id, fileType: file.fileType as any } },
+        update: {
+          bucket: file.bucket ?? 'images',
+          objectKey: file.objectKey,
+          storageClass: file.storageClass ?? 'hot',
+          fileSizeBytes: BigInt(file.fileSizeBytes),
+          mimeType: file.mimeType ?? null,
+          storageProviderId: file.storageProviderId ?? fallbackProviderId,
+        },
+        create: {
           imageId: id,
           fileType: file.fileType,
           bucket: file.bucket ?? 'images',
@@ -253,7 +272,7 @@ export async function submitProcessingResult(id: string, input: ProcessingResult
           storageClass: file.storageClass ?? 'hot',
           fileSizeBytes: BigInt(file.fileSizeBytes),
           mimeType: file.mimeType ?? null,
-          storageProviderId: file.storageProviderId ?? null,
+          storageProviderId: file.storageProviderId ?? fallbackProviderId,
         },
       }),
     ));
@@ -381,4 +400,57 @@ export async function reprocessImage(id: string) {
   logger.info({ imageId: id, jobId }, 'Image queued for reprocessing');
 
   return { id, status: 'pending', jobId };
+}
+
+export async function bulkReprocessAll() {
+  const prisma = getPrisma();
+
+  const images = await prisma.image.findMany({
+    where: { status: { not: 'deleted' } },
+    include: { camera: true, imageFiles: true },
+  });
+
+  const redis = getRedisClient();
+  let queued = 0;
+
+  for (const image of images) {
+    for (const file of image.imageFiles) {
+      try {
+        const provider = file.storageProviderId
+          ? storageRouter.get(file.storageProviderId)
+          : storageRouter.getDefault();
+        await provider.delete(file.objectKey);
+      } catch { /* skip */ }
+    }
+
+    await prisma.imageFile.deleteMany({ where: { imageId: image.id } });
+
+    await prisma.image.update({
+      where: { id: image.id },
+      data: { status: 'pending', processedAt: null },
+    });
+
+    const smbSharePath = image.camera.smbSharePath.replace(/\/+$/, '');
+    const cleanFilename = image.originalFilename.replace(/^[\\/]+/, '').replace(/\\/g, '/');
+    const smbPath = `${smbSharePath}/${cleanFilename}`;
+
+    const jobId = `bulk-reprocess-${image.id}-${Date.now()}`;
+    const jobData = JSON.stringify({
+      imageId: image.id,
+      cameraId: image.cameraId,
+      smbPath,
+      originalFilename: image.originalFilename,
+      fileSizeBytes: Number(image.fileSizeBytes),
+      checksumMd5: image.checksumMd5 ?? '',
+      checksumSha256: image.checksumSha256 ?? undefined,
+      capturedAt: image.capturedAt.toISOString(),
+    });
+
+    await redis.hset(`bull:image-processing:${jobId}`, 'data', jobData);
+    await redis.lpush('bull:image-processing:wait', jobId);
+    queued++;
+  }
+
+  logger.info({ queued, total: images.length }, 'Bulk reprocess queued');
+  return { queued, total: images.length };
 }

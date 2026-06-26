@@ -1,4 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { requirePermission } from '../../middleware/rbac.js';
 import * as settingsService from './system-settings.service.js';
 
 const TELEGRAM_KEYS = ['telegram_bot_token', 'telegram_chat_id', 'telegram_api_base_url', 'telegram_api_token'];
@@ -20,6 +21,6 @@ async function updateTelegramSettings(request: FastifyRequest, reply: FastifyRep
 }
 
 export async function systemSettingsRoutes(app: FastifyInstance): Promise<void> {
-  app.get('/telegram', { preHandler: [app.authenticate] }, getTelegramSettings);
-  app.patch('/telegram', { preHandler: [app.authenticate] }, updateTelegramSettings);
+  app.get('/telegram', { preHandler: [app.authenticate, requirePermission('telegram-bot:read')] }, getTelegramSettings);
+  app.patch('/telegram', { preHandler: [app.authenticate, requirePermission('telegram-bot:update')] }, updateTelegramSettings);
 }

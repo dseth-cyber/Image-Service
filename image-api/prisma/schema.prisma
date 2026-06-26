@@ -224,6 +224,8 @@ model StorageProviderMetric {
   latencyMs       Int      @default(0) @map("latency_ms")
   objectCount     BigInt   @default(0) @map("object_count")
   usedBytes       BigInt   @default(0) @map("used_bytes")
+  totalBytes      BigInt   @default(0) @map("total_bytes")
+  freeBytes       BigInt   @default(0) @map("free_bytes")
   errorMessage    String?  @map("error_message") @db.Text
   collectedAt     DateTime @default(now()) @map("collected_at")
 

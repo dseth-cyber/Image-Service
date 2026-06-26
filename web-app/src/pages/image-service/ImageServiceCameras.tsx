@@ -99,7 +99,7 @@ export default function ImageServiceCameras() {
       }
       queryClient.invalidateQueries({ queryKey: ['cameras-list'] });
       setModal({ open: false });
-    } catch { toast.error(t('common.error')); }
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
     finally { setSubmitting(false); }
   };
 
@@ -108,7 +108,7 @@ export default function ImageServiceCameras() {
       await imageServiceApi.deactivateCamera(id);
       toast.success(t('imageService.cameras.deactivated'));
       queryClient.invalidateQueries({ queryKey: ['cameras-list'] });
-    } catch { toast.error(t('common.error')); }
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
   };
 
   const [scanning, setScanning] = useState(false);
@@ -120,7 +120,7 @@ export default function ImageServiceCameras() {
       await imageServiceApi.scanNow();
       toast.success(t('imageService.cameras.scanTriggered'));
       setTimeout(() => queryClient.invalidateQueries({ queryKey: ['cameras-list'] }), 3000);
-    } catch { toast.error(t('common.error')); }
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
     finally { setScanning(false); }
   };
 
@@ -130,7 +130,7 @@ export default function ImageServiceCameras() {
       await imageServiceApi.scanCamera(id);
       toast.success(t('imageService.cameras.scanTriggered'));
       setTimeout(() => queryClient.invalidateQueries({ queryKey: ['cameras-list'] }), 3000);
-    } catch { toast.error(t('common.error')); }
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
     finally {
       setScanningCameras(prev => { const next = new Set(prev); next.delete(id); return next; });
     }
@@ -175,7 +175,7 @@ export default function ImageServiceCameras() {
         });
         setBrowseItems(res.entries ?? []);
         setBrowsePath(parts.slice(1).join('/') + '/');
-      } catch { toast.error(t('common.error')); }
+      } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
       finally { setBrowseLoading(false); }
     } else {
       setBrowseStep('shares');
@@ -188,7 +188,7 @@ export default function ImageServiceCameras() {
           smbDomain: form.smbDomain || undefined,
         });
         setBrowseShares(res.shares ?? []);
-      } catch { toast.error(t('common.error')); }
+      } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
       finally { setBrowseLoading(false); }
     }
   };
@@ -207,7 +207,7 @@ export default function ImageServiceCameras() {
       });
       setBrowseItems(res.entries ?? []);
       setBrowsePath(share + '/');
-    } catch { toast.error(t('common.error')); }
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
     finally { setBrowseLoading(false); }
   };
 
@@ -227,7 +227,7 @@ export default function ImageServiceCameras() {
       });
       setBrowseItems(res.entries ?? []);
       setBrowsePath(newPath + '/');
-    } catch { toast.error(t('common.error')); }
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
     finally { setBrowseLoading(false); }
   };
 

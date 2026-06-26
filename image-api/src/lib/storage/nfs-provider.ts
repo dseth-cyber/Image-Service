@@ -97,9 +97,9 @@ export class NFSProvider implements StorageProvider {
           objectCount++;
         } catch { /* skip */ }
       }
-      return { objectCount, usedBytes };
+      return { objectCount, usedBytes, totalBytes: 0, freeBytes: 0 };
     } catch {
-      return { objectCount: 0, usedBytes: 0 };
+      return { objectCount: 0, usedBytes: 0, totalBytes: 0, freeBytes: 0 };
     }
   }
 }

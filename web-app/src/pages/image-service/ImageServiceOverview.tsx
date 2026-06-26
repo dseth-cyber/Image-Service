@@ -435,29 +435,44 @@ export default function ImageServiceOverview() {
           <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>
             {t('imageService.overview.providerTitle')}
           </h3>
-          <div className="space-y-2 flex-1 overflow-y-auto">
-            {Array.isArray(providers) && providers.length > 0 ? providers.map((p: any) => (
-              <div key={p.id} className="flex items-center justify-between text-xs py-1.5 px-2 rounded-lg bg-white/5">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${p.isActive ? 'bg-green-400' : 'bg-red-400'}`} />
-                  <span className={`font-medium truncate ${themeConfig.text.primary}`}>{p.name}</span>
-                  <span className={`text-xs font-mono ${themeConfig.text.secondary}`}>({p.type})</span>
+          <div className="space-y-3 flex-1 overflow-y-auto">
+            {Array.isArray(providers) && providers.length > 0 ? providers.map((p: any) => {
+              const used = p.latestMetric?.usedBytes ?? 0;
+              const total = p.latestMetric?.totalBytes || p.capacityBytes || 0;
+              const pct = total > 0 ? Math.min(100, (used / total) * 100) : 0;
+              const barColor = pct > 85 ? '#ef4444' : pct > 70 ? '#f59e0b' : '#06b6d4';
+              return (
+                <div key={p.id} className="px-2 py-1.5 rounded-lg bg-white/5">
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${p.isActive ? 'bg-green-400' : 'bg-red-400'}`} />
+                      <span className={`font-medium truncate ${themeConfig.text.primary}`}>{p.name}</span>
+                      <span className={`font-mono ${themeConfig.text.secondary}`}>({p.type})</span>
+                    </div>
+                    <span className={`flex-shrink-0 ml-2 ${p.isDefault ? 'text-yellow-400' : themeConfig.text.secondary}`}>
+                      {p.isDefault ? t('imageService.overview.default') : ''}
+                    </span>
+                  </div>
+                  {total > 0 ? (
+                    <>
+                      <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: barColor }} />
+                      </div>
+                      <div className="flex justify-between text-[10px] mt-0.5">
+                        <span className={themeConfig.text.secondary}>{formatBytes(used)} / {formatBytes(total)}</span>
+                        <span style={{ color: barColor }}>{pct.toFixed(1)}%</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className={`text-[10px] ${themeConfig.text.secondary}`}>{formatBytes(used)}</div>
+                  )}
                 </div>
-                <span className={`text-xs flex-shrink-0 ml-2 ${p.isDefault ? 'text-yellow-400' : themeConfig.text.secondary}`}>
-                  {p.isDefault ? t('imageService.overview.default') : ''}
-                </span>
-              </div>
-            )) : (
+              );
+            }) : (
               <p className={`text-xs ${themeConfig.text.secondary} text-center py-4`}>
                 {t('imageService.overview.noProviders')}
               </p>
             )}
-          </div>
-          <div className="mt-2 pt-2 border-t border-white/5 flex justify-between text-xs">
-            <span className={themeConfig.text.secondary}>{t('imageService.overview.storageUsed')}</span>
-            <span className={`font-bold ${themeConfig.text.primary}`}>
-              {formatBytes(overview?.storageUsed ?? 0)}
-            </span>
           </div>
         </div>
       </ResponsiveGridLayout>

@@ -10,10 +10,37 @@ import type { S3Config, LocalDiskConfig, SMBConfig, NFSConfig } from '../../lib/
 
 export async function listProviders() {
   const prisma = getPrisma();
-  return prisma.storageProvider.findMany({
+  const providers = await prisma.storageProvider.findMany({
     where: { deletedAt: null },
     orderBy: [{ priority: 'asc' }, { name: 'asc' }],
   });
+
+  const providerIds = providers.map((p) => p.id);
+  const latestMetrics = await Promise.all(
+    providerIds.map((id) =>
+      prisma.storageProviderMetric.findFirst({
+        where: { providerId: id },
+        orderBy: { collectedAt: 'desc' },
+        select: { usedBytes: true, totalBytes: true, freeBytes: true, objectCount: true, status: true, latencyMs: true, collectedAt: true },
+      }),
+    ),
+  );
+
+  return providers.map((p, i) => ({
+    ...p,
+    capacityBytes: p.capacityBytes ? Number(p.capacityBytes) : null,
+    latestMetric: latestMetrics[i]
+      ? {
+          usedBytes: Number(latestMetrics[i]!.usedBytes),
+          totalBytes: Number(latestMetrics[i]!.totalBytes),
+          freeBytes: Number(latestMetrics[i]!.freeBytes),
+          objectCount: Number(latestMetrics[i]!.objectCount),
+          status: latestMetrics[i]!.status,
+          latencyMs: latestMetrics[i]!.latencyMs,
+          collectedAt: latestMetrics[i]!.collectedAt,
+        }
+      : null,
+  }));
 }
 
 export async function getProviderById(id: string) {
@@ -72,6 +99,7 @@ export async function createProvider(input: CreateProviderInput) {
       isDefault: input.isDefault ?? false,
       priority: input.priority ?? 0,
       description: input.description,
+      capacityBytes: input.capacityBytes != null ? BigInt(input.capacityBytes) : null,
     },
   });
 
@@ -118,6 +146,7 @@ export async function updateProvider(id: string, input: UpdateProviderInput) {
   if (input.priority !== undefined) data.priority = input.priority;
   if (input.description !== undefined) data.description = input.description;
   if (input.isActive !== undefined) data.isActive = input.isActive;
+  if (input.capacityBytes !== undefined) data.capacityBytes = input.capacityBytes != null ? BigInt(input.capacityBytes) : null;
 
   if (input.isDefault === true) {
     data.isDefault = true;

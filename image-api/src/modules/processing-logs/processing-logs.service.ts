@@ -433,11 +433,47 @@ export async function getTrends(period: string) {
 }
 
 export async function getStreamData() {
-  const [stats, logsResult] = await Promise.all([
-    getProcessingStats(),
-    searchProcessingLogs({ page: 1, limit: 20, sort: 'queuedAt', order: 'desc' }),
+  const prisma = getPrisma();
+
+  const [statusCounts, logs, queue] = await Promise.all([
+    prisma.processingJob.groupBy({
+      by: ['status'],
+      _count: { id: true },
+    }),
+    prisma.processingJob.findMany({
+      orderBy: { queuedAt: 'desc' },
+      take: 20,
+      select: {
+        id: true, imageId: true, jobType: true, status: true, workerId: true,
+        errorMessage: true, retryCount: true, queuedAt: true, startedAt: true, completedAt: true,
+      },
+    }),
+    getQueueMetrics(),
   ]);
-  return { stats, logs: logsResult.data };
+
+  const byStatus: Record<string, number> = {};
+  for (const s of statusCounts) byStatus[s.status] = s._count.id;
+
+  const total = Object.values(byStatus).reduce((a, b) => a + b, 0);
+  const stats = {
+    total,
+    completed: byStatus['completed'] ?? 0,
+    failed: (byStatus['failed'] ?? 0) + (byStatus['dead_letter'] ?? 0),
+    running: byStatus['running'] ?? 0,
+    queued: byStatus['queued'] ?? 0,
+    queue,
+  };
+
+  const mapped = logs.map((j) => ({
+    id: j.id, imageId: j.imageId, jobType: j.jobType, status: j.status,
+    workerId: j.workerId, errorMessage: j.errorMessage, retryCount: j.retryCount,
+    queuedAt: j.queuedAt.toISOString(),
+    startedAt: j.startedAt?.toISOString() ?? null,
+    completedAt: j.completedAt?.toISOString() ?? null,
+    durationMs: j.startedAt && j.completedAt ? j.completedAt.getTime() - j.startedAt.getTime() : null,
+  }));
+
+  return { stats, logs: mapped };
 }
 
 export async function retryJob(jobId: string) {

@@ -63,13 +63,13 @@ export default function BackupDashboard() {
     onError: () => toast.error(t('imageService.backup.dbBackupFailed')),
   });
 
-  const minioMutation = useMutation({
-    mutationFn: () => imageServiceApi.runMinioBackup(),
+  const storageMutation = useMutation({
+    mutationFn: () => imageServiceApi.runStorageBackup(),
     onSuccess: (res: any) => {
-      toast.success(res.status === 'completed' ? t('imageService.backup.minioBackupCompleted') : t('imageService.backup.minioBackupFailed'));
+      toast.success(res.status === 'completed' ? t('imageService.backup.storageBackupCompleted') : t('imageService.backup.storageBackupFailed'));
       queryClient.invalidateQueries({ queryKey: ['backup-status'] });
     },
-    onError: () => toast.error(t('imageService.backup.minioBackupFailed')),
+    onError: () => toast.error(t('imageService.backup.storageBackupFailed')),
   });
 
   const restoreMutation = useMutation({
@@ -136,32 +136,32 @@ export default function BackupDashboard() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <HardDrive size={18} className="text-purple-400" />
-              <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.backup.minioBackup')}</h3>
+              <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.backup.storageBackup')}</h3>
             </div>
-            <Button size="sm" variant="ghost" onClick={() => minioMutation.mutate()} disabled={minioMutation.isPending}>
+            <Button size="sm" variant="ghost" onClick={() => storageMutation.mutate()} disabled={storageMutation.isPending}>
               <Play size={14} className="mr-1" />
               {t('imageService.backup.runNow')}
             </Button>
           </div>
 
-          {status?.minio ? (
+          {status?.storage ? (
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className={labelClass}>{t('imageService.backup.status')}</span>
-                {statusBadge(status.minio.status, themeConfig, t)}
+                {statusBadge(status.storage.status, themeConfig, t)}
               </div>
               <div className="flex justify-between">
                 <span className={labelClass}>{t('imageService.backup.fileSize')}</span>
-                <span className={valueClass}>{formatBytes(status.minio.fileSize)}</span>
+                <span className={valueClass}>{formatBytes(status.storage.fileSize)}</span>
               </div>
               <div className="flex justify-between">
                 <span className={labelClass}>{t('imageService.backup.lastBackup')}</span>
                 <span className={`text-xs ${themeConfig.text.secondary}`}>
-                  {status.minio.completedAt ? formatDateTime(status.minio.completedAt, i18n.language) : '—'}
+                  {status.storage.completedAt ? formatDateTime(status.storage.completedAt, i18n.language) : '—'}
                 </span>
               </div>
-              {status.minio.errorMessage && (
-                <div className="text-xs text-red-400 mt-2">{status.minio.errorMessage}</div>
+              {status.storage.errorMessage && (
+                <div className="text-xs text-red-400 mt-2">{status.storage.errorMessage}</div>
               )}
             </div>
           ) : (
@@ -215,7 +215,7 @@ function BackupHistoryTable({ themeConfig, onRestoreTest }: { themeConfig: any; 
             <tr key={r.id} className="hover:bg-white/[0.02] transition-colors">
               <td className={tableCellClass}>
                 <span className={`px-2 py-0.5 rounded text-xs font-medium ${r.type === 'database' ? 'bg-blue-500/10 text-blue-400' : 'bg-purple-500/10 text-purple-400'}`}>
-                  {t(r.type === 'database' ? 'imageService.backup.typeDatabase' : 'imageService.backup.typeMinio')}
+                  {t(r.type === 'database' ? 'imageService.backup.typeDatabase' : 'imageService.backup.typeStorage')}
                 </span>
               </td>
               <td className={tableCellClass}>{statusBadge(r.status, themeConfig, t)}</td>
