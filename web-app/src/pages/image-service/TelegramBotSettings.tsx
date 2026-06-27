@@ -43,7 +43,7 @@ export default function TelegramBotSettings() {
       toast.success(t('common.saveSuccess'));
       queryClient.invalidateQueries({ queryKey: ['telegram-settings'] });
     },
-    onError: () => toast.error(t('common.error')),
+    onError: (e: any) => { if (!e?._handled) toast.error(t('common.error')); },
   });
 
   const handleSave = () => {

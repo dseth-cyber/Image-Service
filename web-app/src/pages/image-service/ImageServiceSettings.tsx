@@ -65,13 +65,13 @@ export default function ImageServiceSettings() {
   const createRuleMutation = useMutation({
     mutationFn: (data: any) => imageServiceApi.createAlertRule(data),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['alert-rules'] }); toast.success('Rule created'); setRuleModal({ open: false }); },
-    onError: () => toast.error(t('common.error')),
+    onError: (e: any) => { if (!e?._handled) toast.error(t('common.error')); },
   });
 
   const deleteRuleMutation = useMutation({
     mutationFn: (id: string) => imageServiceApi.deleteAlertRule(id),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['alert-rules'] }); toast.success('Rule deleted'); },
-    onError: () => toast.error(t('common.error')),
+    onError: (e: any) => { if (!e?._handled) toast.error(t('common.error')); },
   });
 
   const handleSaveRule = () => {
@@ -87,7 +87,7 @@ export default function ImageServiceSettings() {
         queryClient.invalidateQueries({ queryKey: ['alert-rules'] });
         toast.success('Rule updated');
         setRuleModal({ open: false });
-      }).catch(() => toast.error(t('common.error')));
+      }).catch((e: any) => { if (!e?._handled) toast.error(t('common.error')); });
     } else {
       createRuleMutation.mutate(data);
     }

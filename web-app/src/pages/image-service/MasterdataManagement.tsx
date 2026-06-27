@@ -43,19 +43,19 @@ export default function MasterdataManagement() {
   const createMutation = useMutation({
     mutationFn: (d: any) => imageServiceApi.createMasterdata(d),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['masterdata'] }); toast.success(t('common.saveSuccess')); setModal({ open: false }); },
-    onError: () => toast.error(t('common.error')),
+    onError: (e: any) => { if (!e?._handled) toast.error(t('common.error')); },
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => imageServiceApi.updateMasterdata(id, data),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['masterdata'] }); toast.success(t('common.saveSuccess')); setModal({ open: false }); },
-    onError: () => toast.error(t('common.error')),
+    onError: (e: any) => { if (!e?._handled) toast.error(t('common.error')); },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => imageServiceApi.deleteMasterdata(id),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['masterdata'] }); toast.success(t('common.saveSuccess')); },
-    onError: () => toast.error(t('common.error')),
+    onError: (e: any) => { if (!e?._handled) toast.error(t('common.error')); },
   });
 
   const openNew = () => {

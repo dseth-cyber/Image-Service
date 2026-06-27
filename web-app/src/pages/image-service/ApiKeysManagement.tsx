@@ -43,13 +43,13 @@ export default function ApiKeysManagement() {
       queryClient.invalidateQueries({ queryKey: ['api-keys'] });
       toast.success('API key created');
     },
-    onError: () => toast.error(t('common.error')),
+    onError: (e: any) => { if (!e?._handled) toast.error(t('common.error')); },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => imageServiceApi.deleteApiKey(id),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['api-keys'] }); toast.success('API key deleted'); },
-    onError: () => toast.error(t('common.error')),
+    onError: (e: any) => { if (!e?._handled) toast.error(t('common.error')); },
   });
 
   const toggleSort = (key: string) => {

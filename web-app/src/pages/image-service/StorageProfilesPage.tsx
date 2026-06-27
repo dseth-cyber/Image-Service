@@ -33,7 +33,7 @@ export default function StorageProfilesPage() {
       toast.success('Profile deleted')
       setDeleteTarget(null)
     },
-    onError: (err: any) => toast.error(err?.response?.data?.message || t('common.error')),
+    onError: (err: any) => { if (!err?._handled) toast.error(err?.response?.data?.message || t('common.error')); },
   })
 
   const handleEdit = (profile: any) => {
@@ -173,7 +173,7 @@ function StorageProfileFormModal({ isOpen, onClose, editTarget, providers }: { i
       toast.success('Profile created')
       onClose()
     },
-    onError: (err: any) => toast.error(err?.response?.data?.message || t('common.error')),
+    onError: (err: any) => { if (!err?._handled) toast.error(err?.response?.data?.message || t('common.error')); },
     onSettled: () => setSubmitting(false),
   })
 
@@ -184,7 +184,7 @@ function StorageProfileFormModal({ isOpen, onClose, editTarget, providers }: { i
       toast.success('Profile updated')
       onClose()
     },
-    onError: (err: any) => toast.error(err?.response?.data?.message || t('common.error')),
+    onError: (err: any) => { if (!err?._handled) toast.error(err?.response?.data?.message || t('common.error')); },
     onSettled: () => setSubmitting(false),
   })
 

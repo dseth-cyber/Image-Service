@@ -9,7 +9,7 @@ async function searchHandler(request: FastifyRequest, reply: FastifyReply) {
 
   const [cameras, images, alerts, users] = await Promise.all([
     prisma.camera.findMany({
-      where: { name: { contains: q, mode: 'insensitive' } },
+      where: { OR: [{ name: { contains: q, mode: 'insensitive' } }, { ipAddress: { contains: q } }] },
       select: { id: true, name: true, status: true, ipAddress: true },
       take: 5,
     }),
@@ -32,10 +32,10 @@ async function searchHandler(request: FastifyRequest, reply: FastifyReply) {
 
   return reply.send({
     results: [
-      ...cameras.map(c => ({ type: 'camera', id: c.id, title: c.name, subtitle: `${c.status} · ${c.ipAddress}`, url: '/image-service/cameras' })),
-      ...images.map(i => ({ type: 'image', id: i.id, title: i.originalFilename, subtitle: i.status, url: `/image-service/search` })),
-      ...alerts.map(a => ({ type: 'alert', id: a.id, title: a.title, subtitle: a.severity, url: '/image-service/alerts' })),
-      ...users.map(u => ({ type: 'user', id: u.id, title: u.username, subtitle: u.role, url: '/image-service/users' })),
+      ...cameras.map(c => ({ type: 'camera', id: c.id, title: c.name, subtitle: `${c.status} · ${c.ipAddress}`, url: `/image-service/cameras?q=${encodeURIComponent(c.name)}` })),
+      ...images.map(i => ({ type: 'image', id: i.id, title: i.originalFilename, subtitle: i.status, url: `/image-service/search?q=${encodeURIComponent(q)}` })),
+      ...alerts.map(a => ({ type: 'alert', id: a.id, title: a.title, subtitle: a.severity, url: `/image-service/alerts?q=${encodeURIComponent(a.title)}` })),
+      ...users.map(u => ({ type: 'user', id: u.id, title: u.username, subtitle: u.role, url: `/image-service/users?q=${encodeURIComponent(u.username)}` })),
     ],
   });
 }

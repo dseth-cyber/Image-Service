@@ -286,7 +286,7 @@ function StorageProviderFormModal({ isOpen, onClose, editTarget }: { isOpen: boo
       toast.success(t('imageService.storageProviders.created'))
       onClose()
     },
-    onError: (err: any) => toast.error(err?.response?.data?.message || t('common.error')),
+    onError: (err: any) => { if (!err?._handled) toast.error(err?.response?.data?.message || t('common.error')); },
     onSettled: () => setSubmitting(false),
   })
 
@@ -297,7 +297,7 @@ function StorageProviderFormModal({ isOpen, onClose, editTarget }: { isOpen: boo
       toast.success(t('imageService.storageProviders.updated'))
       onClose()
     },
-    onError: (err: any) => toast.error(err?.response?.data?.message || t('common.error')),
+    onError: (err: any) => { if (!err?._handled) toast.error(err?.response?.data?.message || t('common.error')); },
     onSettled: () => setSubmitting(false),
   })
 

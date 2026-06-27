@@ -225,6 +225,7 @@ export default function UserManagement() {
   const [activeTab, setActiveTab] = useState<'users' | 'roles'>('users')
 
   // Users Page/Sort state
+  const [userSearch] = useState(() => new URLSearchParams(window.location.search).get('q') || '')
   const [userPage, setUserPage] = useState(1)
   const [userSortCol, setUserSortCol] = useState('username')
   const [userSortDir, setUserSortDir] = useState<'asc' | 'desc'>('asc')
@@ -249,6 +250,10 @@ export default function UserManagement() {
     enabled: activeTab === 'users',
   })
 
+  const filteredUsers = userSearch
+    ? (usersData?.items ?? []).filter((u: any) => u.username?.toLowerCase().includes(userSearch.toLowerCase()) || u.email?.toLowerCase().includes(userSearch.toLowerCase()))
+    : (usersData?.items ?? [])
+
   // Load Roles Query (Cached/Fetched small payload)
   const { data: rolesData, isLoading: isLoadingRoles } = useQuery({
     queryKey: ['roles'],
@@ -256,7 +261,7 @@ export default function UserManagement() {
     staleTime: 1000 * 30,
   })
 
-  const usersList = usersData?.items ?? []
+  const usersList = filteredUsers
   const usersTotalPages = usersData?.totalPages ?? 0
   const rolesList = rolesData ?? []
 

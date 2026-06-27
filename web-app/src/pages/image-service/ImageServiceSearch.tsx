@@ -39,7 +39,10 @@ export default function ImageServiceSearch() {
   const queryClient = useQueryClient();
 
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('q') || '';
+  });
   const [cameraId, setCameraId] = useState('');
   const [status, setStatus] = useState('');
   const [from, setFrom] = useState('');

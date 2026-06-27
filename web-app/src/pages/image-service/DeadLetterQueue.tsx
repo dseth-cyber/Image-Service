@@ -26,7 +26,7 @@ export default function DeadLetterQueue() {
       toast.success('Job queued for retry');
       queryClient.invalidateQueries({ queryKey: ['dlq-summary'] });
     },
-    onError: () => toast.error('Failed to retry job'),
+    onError: (e: any) => { if (!e?._handled) toast.error('Failed to retry job'); },
   });
 
   const rejectMutation = useMutation({
@@ -35,7 +35,7 @@ export default function DeadLetterQueue() {
       toast.success('Job rejected');
       queryClient.invalidateQueries({ queryKey: ['dlq-summary'] });
     },
-    onError: () => toast.error('Failed to reject job'),
+    onError: (e: any) => { if (!e?._handled) toast.error('Failed to reject job'); },
   });
 
   const bulkRetryMutation = useMutation({
@@ -44,7 +44,7 @@ export default function DeadLetterQueue() {
       toast.success(`${res.updated} jobs sent for retry`);
       queryClient.invalidateQueries({ queryKey: ['dlq-summary'] });
     },
-    onError: () => toast.error('Failed to bulk retry'),
+    onError: (e: any) => { if (!e?._handled) toast.error('Failed to bulk retry'); },
   });
 
   const bulkRejectMutation = useMutation({
@@ -53,7 +53,7 @@ export default function DeadLetterQueue() {
       toast.success(`${res.updated} jobs rejected`);
       queryClient.invalidateQueries({ queryKey: ['dlq-summary'] });
     },
-    onError: () => toast.error('Failed to bulk reject'),
+    onError: (e: any) => { if (!e?._handled) toast.error('Failed to bulk reject'); },
   });
 
   const jobs = dlq?.jobs ?? [];

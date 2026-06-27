@@ -41,7 +41,7 @@ export default function SystemConfigPage() {
       setClearPassword('');
       queryClient.invalidateQueries({ queryKey: ['system-config'] });
     },
-    onError: () => toast.error(t('common.clearDataError')),
+    onError: (e: any) => { if (!e?._handled) toast.error(t('common.clearDataError')); },
   });
 
   const handleClearData = () => {
@@ -74,7 +74,7 @@ export default function SystemConfigPage() {
       toast.success(t('common.saveSuccess'));
       queryClient.invalidateQueries({ queryKey: ['system-config'] });
     },
-    onError: () => toast.error(t('common.error')),
+    onError: (e: any) => { if (!e?._handled) toast.error(t('common.error')); },
   });
 
   const handleSave = () => {

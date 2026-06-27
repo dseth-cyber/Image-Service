@@ -60,7 +60,7 @@ export default function BackupDashboard() {
       toast.success(res.status === 'completed' ? t('imageService.backup.dbBackupCompleted') : t('imageService.backup.dbBackupFailed'));
       queryClient.invalidateQueries({ queryKey: ['backup-status'] });
     },
-    onError: () => toast.error(t('imageService.backup.dbBackupFailed')),
+    onError: (e: any) => { if (!e?._handled) toast.error(t('imageService.backup.dbBackupFailed')); },
   });
 
   const storageMutation = useMutation({
@@ -69,7 +69,7 @@ export default function BackupDashboard() {
       toast.success(res.status === 'completed' ? t('imageService.backup.storageBackupCompleted') : t('imageService.backup.storageBackupFailed'));
       queryClient.invalidateQueries({ queryKey: ['backup-status'] });
     },
-    onError: () => toast.error(t('imageService.backup.storageBackupFailed')),
+    onError: (e: any) => { if (!e?._handled) toast.error(t('imageService.backup.storageBackupFailed')); },
   });
 
   const restoreMutation = useMutation({
@@ -77,7 +77,7 @@ export default function BackupDashboard() {
     onSuccess: (res: any) => {
       toast.success(res.success ? t('imageService.backup.restoreTestSuccess', { message: res.message }) : t('imageService.backup.restoreTestFailed', { message: res.message }));
     },
-    onError: () => toast.error(t('imageService.backup.restoreTestError')),
+    onError: (e: any) => { if (!e?._handled) toast.error(t('imageService.backup.restoreTestError')); },
   });
 
   const cardClass = `${themeConfig.card} rounded-lg p-5`;

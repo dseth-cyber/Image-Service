@@ -14,6 +14,19 @@ export interface CreateAlertInput {
 
 export async function createAlert(input: CreateAlertInput) {
   const prisma = getPrisma();
+
+  if (input.source) {
+    const existing = await prisma.alert.findFirst({
+      where: {
+        alertType: input.alertType,
+        source: input.source,
+        resolvedAt: null,
+        createdAt: { gte: new Date(Date.now() - 30 * 60 * 1000) },
+      },
+    });
+    if (existing) return existing;
+  }
+
   const alert = await prisma.alert.create({
     data: {
       alertType: input.alertType,
