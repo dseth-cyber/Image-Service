@@ -1078,6 +1078,48 @@
         "✅ Offline/Online Alerts with downtime tracking",
         "✅ Auto Resolve when camera back online",
         "✅ Configurable via system config"
+      ],
+      "phase24": "P15 — Security Hardening",
+      "phase24Desc": "Fix security vulnerabilities — encrypt SMB passwords, remove default secrets, auth on metrics",
+      "phase24Status": "Planned",
+      "phase24Tasks": [
+        "Encrypt SMB passwords with AES using ENCRYPTION_KEY",
+        "Remove default JWT_SECRET / ENCRYPTION_KEY — fail-fast in production",
+        "Add auth to /metrics endpoint or restrict to internal network",
+        "Restrict CORS origin to actual frontend domain",
+        "Separate rate limit for /auth/login (5 attempts/min/IP)",
+        "Add Security headers: HSTS, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection"
+      ],
+      "phase25": "P16 — Performance & Scalability",
+      "phase25Desc": "Optimize for 100+ cameras — Frontend code-splitting, Worker plugin, Migration batching",
+      "phase25Status": "Planned",
+      "phase25Tasks": [
+        "Frontend Code-Splitting — React.lazy() to reduce initial bundle",
+        "Worker Plugin Architecture — add processors (AI, OCR, Face Blur) via config",
+        "Worker Provider Refresh — periodic provider config reload without restart",
+        "Migration Engine Batching — batch/streaming for large datasets",
+        "SSE Auto-Reconnect — auto-reconnect with exponential backoff",
+        "Horizontal Worker Scaling — multiple processing workers in parallel"
+      ],
+      "phase26": "P17 — Integration & Extensibility",
+      "phase26Desc": "External system integration — Webhook, Multi-tenancy, Priority Queue",
+      "phase26Status": "Planned",
+      "phase26Tasks": [
+        "Webhook Callback — notify external URL on image processed / camera offline",
+        "Priority Queue — urgent images skip queue",
+        "Multi-tenancy — separate tenants (factory/branch) on shared DB",
+        "Database Migration UI — view migration version status from admin page"
+      ],
+      "phase27": "P18 — Cloudflare Tunnel & External Access",
+      "phase27Desc": "External access via Cloudflare Tunnel — no open ports on firewall, auto SSL, WAF, DDoS protection",
+      "phase27Status": "Planned",
+      "phase27Tasks": [
+        "Install cloudflared in docker-compose with Cloudflare Tunnel (outbound only)",
+        "Configure subdomain e.g. images.yourdomain.com → Cloudflare → Tunnel → nginx",
+        "Cloudflare Auto SSL cert (external) + Self-signed (internal LAN)",
+        "Cloudflare WAF + DDoS Protection (Free Plan)",
+        "Close Port 443/80 inbound on FortiGate — outbound HTTPS only",
+        "Configure Cloudflare Access (Zero Trust) for external user restrictions"
       ]
     },
     "permissions": {

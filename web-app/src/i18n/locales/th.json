@@ -1081,6 +1081,48 @@
         "✅ Downtime Tracking — บันทึก CameraEvent",
         "✅ Auto Resolve เมื่อกล้องกลับมา online",
         "✅ Config — camera_offline_threshold_minutes"
+      ],
+      "phase24": "P15 — Security Hardening",
+      "phase24Desc": "แก้ช่องโหว่ด้านความปลอดภัย — เข้ารหัส SMB password, ลบ default secrets, เพิ่ม auth ให้ metrics endpoint",
+      "phase24Status": "วางแผนไว้",
+      "phase24Tasks": [
+        "เข้ารหัส SMB password ด้วย AES จริง (ใช้ ENCRYPTION_KEY ที่มีอยู่แล้ว)",
+        "ลบ default JWT_SECRET / ENCRYPTION_KEY — บังคับตั้งค่าใน production",
+        "เพิ่ม auth ให้ /metrics endpoint หรือจำกัดเฉพาะ internal network",
+        "จำกัด CORS origin เฉพาะ domain ที่ใช้จริง",
+        "Rate limit แยกสำหรับ /auth/login (5 ครั้ง/นาที/IP)",
+        "เพิ่ม Security headers: HSTS, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection"
+      ],
+      "phase25": "P16 — Performance & Scalability",
+      "phase25Desc": "เพิ่มประสิทธิภาพสำหรับ 100+ กล้อง — Frontend code-splitting, Worker plugin, Migration batching",
+      "phase25Status": "วางแผนไว้",
+      "phase25Tasks": [
+        "Frontend Code-Splitting — React.lazy() ลดขนาด bundle เริ่มต้น",
+        "Worker Plugin Architecture — เพิ่ม processor ใหม่ (AI, OCR, Face Blur) ผ่าน config ไม่ต้องแก้โค้ด",
+        "Worker Provider Refresh — ดึง provider config ใหม่จาก API เป็นระยะ ไม่ต้อง restart",
+        "Migration Engine Batching — ย้ายไฟล์แบบ batch/streaming สำหรับ dataset ขนาดใหญ่",
+        "SSE Auto-Reconnect — reconnect อัตโนมัติเมื่อ disconnect พร้อม exponential backoff",
+        "Horizontal Worker Scaling — รองรับหลาย processing worker พร้อมกัน"
+      ],
+      "phase26": "P17 — Integration & Extensibility",
+      "phase26Desc": "รองรับการเชื่อมต่อระบบภายนอก — Webhook, Multi-tenancy, Priority Queue",
+      "phase26Status": "วางแผนไว้",
+      "phase26Tasks": [
+        "Webhook Callback — แจ้ง URL ภายนอกเมื่อภาพ process เสร็จ / กล้อง offline",
+        "Priority Queue — ภาพเร่งด่วนข้าม queue ได้",
+        "Multi-tenancy — แยก tenant (โรงงาน/สาขา) ใช้ DB เดียวกัน",
+        "Database Migration UI — ดูสถานะ migration version จากหน้า admin"
+      ],
+      "phase27": "P18 — Cloudflare Tunnel & External Access",
+      "phase27Desc": "เข้าใช้งานจากภายนอกผ่าน Cloudflare Tunnel — ไม่ต้องเปิด port บน Firewall, SSL auto cert + WAF + DDoS protection",
+      "phase27Status": "วางแผนไว้",
+      "phase27Tasks": [
+        "ติดตั้ง cloudflared ใน docker-compose เชื่อมต่อ Cloudflare Tunnel (outbound only)",
+        "ตั้งค่า Subdomain เช่น images.yourdomain.com → Cloudflare → Tunnel → nginx",
+        "Cloudflare Auto SSL cert (external) + Self-signed (internal LAN)",
+        "Cloudflare WAF + DDoS Protection (Free Plan)",
+        "ปิด Port 443/80 inbound บน FortiGate — ใช้ outbound HTTPS เท่านั้น",
+        "ตั้งค่า Cloudflare Access (Zero Trust) สำหรับจำกัดผู้ใช้ภายนอก"
       ]
     },
     "permissions": {
