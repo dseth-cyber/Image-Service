@@ -36,7 +36,7 @@ export const registerImageSchema = z.object({
 });
 
 export const processingResultFileSchema = z.object({
-  fileType: z.enum(['raw', 'processed', 'thumbnail', 'metadata_json']),
+  fileType: z.string().min(1).max(32),
   fileSizeBytes: z.number().int().nonnegative(),
   mimeType: z.string().optional(),
   objectKey: z.string().min(1),

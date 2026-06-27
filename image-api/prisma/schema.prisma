@@ -44,6 +44,10 @@ enum FileType {
   processed
   thumbnail
   metadata_json
+  ai
+  ocr
+  face_blur
+  custom
 
   @@map("file_type")
 }
@@ -338,7 +342,7 @@ model Image {
 model ImageFile {
   id                String          @id @default(uuid()) @db.Uuid
   imageId           String          @map("image_id") @db.Uuid
-  fileType          FileType        @map("file_type")
+  fileType       FileType     @map("file_type")
   bucket            String          @db.VarChar(128)
   objectKey         String          @db.Text
   storageClass      StorageClass    @default(hot) @map("storage_class")
@@ -347,11 +351,16 @@ model ImageFile {
   mimeType          String?         @map("mime_type") @db.VarChar(128)
   storageProviderId String?         @map("storage_provider_id") @db.Uuid
   storageProfileId  String?         @map("storage_profile_id") @db.Uuid
+  processorName     String?         @map("processor_name") @db.VarChar(64)
+  processorParams   Json?           @map("processor_params")
+  parentFileId      String?         @map("parent_file_id") @db.Uuid
   createdAt         DateTime        @default(now()) @map("created_at")
 
   image           Image            @relation(fields: [imageId], references: [id])
   storageProvider StorageProvider? @relation(fields: [storageProviderId], references: [id])
   storageProfile  StorageProfile?  @relation(fields: [storageProfileId], references: [id])
+  parentFile      ImageFile?       @relation("FileVersions", fields: [parentFileId], references: [id])
+  childFiles      ImageFile[]      @relation("FileVersions")
 
   @@unique([imageId, fileType])
   @@map("image_files")

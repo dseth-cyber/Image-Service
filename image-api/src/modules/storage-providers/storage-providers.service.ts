@@ -232,9 +232,10 @@ export async function getProviderMetrics(id: string) {
   return metrics;
 }
 
-function buildProviderInstance(id: string, name: string, type: 's3' | 'local' | 'smb' | 'nfs', config: any) {
+function buildProviderInstance(id: string, name: string, type: string, config: any) {
   switch (type) {
     case 's3':
+    case 'seaweedfs':
       return new S3Provider(id, name, config as S3Config);
     case 'local':
       return new LocalDiskProvider(id, name, config as LocalDiskConfig);

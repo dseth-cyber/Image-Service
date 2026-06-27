@@ -35,7 +35,9 @@ import adminRoutes from './modules/admin/admin.controller.js';
 import { startRetentionSweeper, stopRetentionSweeper } from './modules/retention-sweeper/retention-sweeper.controller.js';
 import { startDlqReprocessor, stopDlqReprocessor } from './modules/processing-logs/dlq-reprocessor.js';
 import { startMetricCollector, stopMetricCollector } from './modules/provider-metrics/provider-metric-collector.js';
+import { startCameraHealthMonitor, stopCameraHealthMonitor } from './modules/cameras/camera-health-monitor.js';
 import { workerUploadRoutes } from './modules/images/worker-upload.controller.js';
+import { metricsRoutes } from './modules/metrics/metrics.controller.js';
 import { storageRouter } from './lib/storage/storage-router.js';
 import { getPrisma } from './lib/prisma.js';
 
@@ -117,6 +119,7 @@ export async function buildApp() {
       await api.register(storageProfileRoutes, { prefix: '/api/v1/storage-profiles' });
       await api.register(migrationRoutes, { prefix: '/api/v1/migrations' });
       await api.register(workerUploadRoutes, { prefix: '/api/v1/images' });
+      await api.register(metricsRoutes, { prefix: '/api/v1/metrics' });
     },
   );
 
@@ -138,6 +141,7 @@ export async function startApp() {
   startDlqReprocessor();
   startBackupScheduler();
   startMetricCollector();
+  startCameraHealthMonitor();
 
   try {
     const prisma = getPrisma();
@@ -168,6 +172,7 @@ export async function startApp() {
     stopDlqReprocessor();
     stopBackupScheduler();
     stopMetricCollector();
+    stopCameraHealthMonitor();
     await app.close();
     process.exit(0);
   };

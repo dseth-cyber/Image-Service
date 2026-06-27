@@ -14,6 +14,7 @@ const DEFAULT_CONFIGS: Record<string, { value: string; description: string; valu
   max_storage_gb: { value: '1000', description: 'Global max storage capacity in GB for forecast', valueType: 'number', category: 'storage' },
   max_storage_per_camera_gb: { value: '100', description: 'Per-camera max storage capacity in GB for forecast', valueType: 'number', category: 'storage' },
   dlq_alert_threshold: { value: '10', description: 'Dead letter queue count threshold for alert', valueType: 'number', category: 'alert' },
+  camera_offline_threshold_minutes: { value: '5', description: 'Minutes without poll before camera is considered offline', valueType: 'number', category: 'alert' },
   dashboard_layout_overview: { value: '', description: 'Default dashboard layout for new users (JSON)', valueType: 'json', category: 'dashboard' },
   dashboard_layout_processing: { value: '', description: 'Default processing monitor layout for new users (JSON)', valueType: 'json', category: 'dashboard' },
   dashboard_layout_storage: { value: '', description: 'Default storage layout for new users (JSON)', valueType: 'json', category: 'dashboard' },

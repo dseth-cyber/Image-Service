@@ -717,7 +717,14 @@
       "activeCameras": "Active Cameras",
       "openAlerts": "Open Alerts",
       "version": "Version",
-      "serviceDetails": "Service Details"
+      "serviceDetails": "Service Details",
+      "pipeline": "Pipeline Status",
+      "pipelineSyncWorker": "Sync Worker",
+      "pipelineProcessingWorker": "Processing Worker",
+      "pipelineCamera": "Camera",
+      "pipelineRedisQueue": "Redis Queue",
+      "pipelineStorage": "Storage",
+      "pipelineDatabase": "Database"
     },
     "apiKeys": {
       "title": "API Keys",

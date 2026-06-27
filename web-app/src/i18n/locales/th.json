@@ -717,7 +717,14 @@
       "activeCameras": "กล้องที่ใช้งาน",
       "openAlerts": "การแจ้งเตือนที่เปิด",
       "version": "เวอร์ชัน",
-      "serviceDetails": "รายละเอียดบริการ"
+      "serviceDetails": "รายละเอียดบริการ",
+      "pipeline": "สถานะ Pipeline",
+      "pipelineSyncWorker": "Sync Worker",
+      "pipelineProcessingWorker": "Processing Worker",
+      "pipelineCamera": "กล้อง",
+      "pipelineRedisQueue": "Redis Queue",
+      "pipelineStorage": "Storage",
+      "pipelineDatabase": "Database"
     },
     "apiKeys": {
       "title": "คีย์ API",
@@ -1027,6 +1034,35 @@
       "✅ UI Dashboard — แสดงแยก card ต่อ provider พร้อม capacity bar: ชื่อ, ประเภท, ใช้ไป/ความจุ, %",
       "✅ แจ้งเตือนเมื่อพื้นที่เหลือน้อยกว่า threshold (warning 75% / critical 90%)",
       "ค่า config ขีดจำกัดพื้นที่ เป็น fallback เมื่อดึงจริงไม่ได้"
+    ],
+    "phase20": "P11 — Observability (Prometheus + Grafana + Loki)",
+    "phase20Desc": "ระบบ Monitoring และ Log Aggregation สำหรับ scale 30-100+ กล้อง",
+    "phase20Status": "เปิดใช้งานแล้ว",
+    "phase20Tasks": [
+      "✅ Prometheus — เก็บ metrics จาก image-api ทุก 15 วินาที (24+ metrics)",
+      "✅ Grafana — 4 Dashboards: Overview, Camera Deep Dive, Storage Deep Dive, System Resources",
+      "✅ Grafana Image Renderer — render ภาพ dashboard สำหรับ alert/export",
+      "✅ Grafana Playlist — หมุน 4 dashboards อัตโนมัติทุก 30 วินาที",
+      "✅ Loki — Log aggregation พร้อมใช้",
+      "✅ Per-Camera Metrics — camera_status, camera_images_total, camera_last_poll_seconds แยกแต่ละกล้อง",
+      "✅ Camera Status Table — ดูสถานะแต่ละกล้อง (active/error/offline) ใน Grafana",
+      "✅ System Metrics — CPU cores, load avg, RAM, disk, DB connections, process memory"
+    ],
+    "phase21": "P12 — Health Pipeline Dashboard",
+    "phase21Desc": "แสดง flow diagram: Camera → Sync → Queue → Worker → Storage → DB พร้อมสถานะ + latency จริง",
+    "phase21Status": "เปิดใช้งานแล้ว",
+    "phase21Tasks": [
+      "✅ Pipeline Flow Diagram — แสดง flow Camera → Sync → Queue → Worker → Storage → DB พร้อมสีเขียว/แดง",
+      "✅ Animated connecting lines — เส้นเชื่อมระหว่าง node มี animation เมื่อ active",
+      "✅ Real-time status — ข้อมูลจาก health API auto-refresh ทุก 15 วินาที"
+    ],
+    "phase22": "P13 — Dynamic Object Versioning",
+    "phase22Desc": "ขยาย FileType enum รองรับ AI processing ในอนาคต + version chain",
+    "phase22Status": "เปิดใช้งานแล้ว",
+    "phase22Tasks": [
+      "✅ Extended FileType — เพิ่ม ai, ocr, face_blur, custom ใน enum",
+      "✅ Version Fields — processorName, processorParams, parentFileId สำหรับ version chain",
+      "✅ Zod Schema — fileType เปลี่ยนเป็น string(1-32) รองรับค่าใหม่"
     ]
   },
   "permissions": {

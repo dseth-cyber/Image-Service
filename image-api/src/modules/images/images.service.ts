@@ -266,7 +266,7 @@ export async function submitProcessingResult(id: string, input: ProcessingResult
         },
         create: {
           imageId: id,
-          fileType: file.fileType,
+          fileType: file.fileType as any,
           bucket: file.bucket ?? 'images',
           objectKey: file.objectKey,
           storageClass: file.storageClass ?? 'hot',

@@ -1009,6 +1009,36 @@
       "UI 仪表板 — 按提供者显示独立卡片：名称、类型、容量、已用、剩余",
       "剩余空间低于阈值时发出警报",
       "系统配置存储限制作为无法自动检测时的备选"
+    ],
+    "phase20": "P11 — 可观测性 (Prometheus + Grafana + Loki)",
+    "phase20Desc": "监控和日志聚合系统，支持30+摄像头规模 — 历史指标、时间序列、集中式日志",
+    "phase20Status": "计划中",
+    "phase20Tasks": [
+      "Prometheus — 从 image-api、processing-worker、sync-worker 采集指标（请求延迟、队列深度、错误率）",
+      "Grafana — 仪表板显示哪个 Worker 慢、队列积压多久、存储延迟、NAS 响应时间",
+      "Loki — 所有容器日志聚合，单一界面可搜索",
+      "OpenTelemetry — 分布式追踪，从 SMB 扫描 → 队列 → 处理 → 上传 → API 上报",
+      "Alert Manager — 指标异常时通过 Telegram/LINE 通知（Worker 慢、队列积压、错误激增）"
+    ],
+    "phase21": "P12 — 健康流水线仪表板",
+    "phase21Desc": "流程图：摄像头 → 同步 Worker → Redis 队列 → 处理 Worker → 存储 → 数据库，每个节点实时状态和延迟",
+    "phase21Status": "计划中",
+    "phase21Tasks": [
+      "流水线流程图 — 摄像头 → 同步 → 队列 → Worker → 存储 → DB，绿色/红色状态指示",
+      "摄像头健康 — 每个摄像头状态（在线/离线、上次轮询、错误数）",
+      "Worker 健康 — 每个 Worker 统计（作业/分钟、平均时长、错误率）",
+      "瓶颈检测 — 自动检测流水线中最慢的节点",
+      "DLQ 保护 — 防止 Worker 重试循环：损坏 TIFF → 重试3次 → 死信队列 → 告警 → 不自动重处理"
+    ],
+    "phase22": "P13 — 动态对象版本管理",
+    "phase22Desc": "将 FileType 从固定枚举（raw/processed/thumbnail）改为动态字符串，支持未来 AI 处理",
+    "phase22Status": "计划中",
+    "phase22Tasks": [
+      "动态 FileType — 从枚举改为字符串字段，添加新类型无需迁移数据库",
+      "对象版本链 — original → processed → thumbnail → ai → ocr → face_blur 版本链",
+      "处理流水线插件 — 通过配置添加新处理步骤（AI 裁剪、OCR、人脸模糊），无需修改代码",
+      "版本元数据 — 每个版本存储处理器名称、参数、创建时间、父版本",
+      "UI 文件浏览器 — 显示每张图片的版本树，可单独下载每个版本"
     ]
   },
   "permissions": {

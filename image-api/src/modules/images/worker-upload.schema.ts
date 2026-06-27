@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const workerUploadSchema = z.object({
   imageId: z.string().uuid(),
-  fileType: z.enum(['raw', 'processed', 'thumbnail', 'metadata_json']),
+  fileType: z.string().min(1).max(32),
   objectKey: z.string().min(1),
   storageProviderId: z.string().uuid(),
   fileSizeBytes: z.number().int().nonnegative(),

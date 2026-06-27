@@ -1009,6 +1009,36 @@
       "UI Dashboard — provider တစ်ခုချင်းအတွက် card ခွဲပြ: အမည်, အမျိုးအစား, ပမာဏ, သုံးပြီး, ကျန်",
       "ကျန်နေရာ threshold ထက်နည်းပါက သတိပေးချက်ပို့",
       "အလိုအလျောက်ဖတ်မရပါက system config ပမာဏကန့်သတ်ချက်ကို fallback အဖြစ်သုံး"
+    ],
+    "phase20": "P11 — Observability (Prometheus + Grafana + Loki)",
+    "phase20Desc": "ကင်မရာ 30+ အတွက် Monitoring နှင့် Log Aggregation စနစ် — မှတ်တမ်း metrics၊ time-series၊ log စုစည်းမှု",
+    "phase20Status": "စီစဉ်ထားသည်",
+    "phase20Tasks": [
+      "Prometheus — image-api၊ processing-worker၊ sync-worker မှ metrics စုဆောင်း (request latency၊ queue depth၊ error rate)",
+      "Grafana — Worker ဘယ်ခုနှေးလဲ၊ Queue ကြာချိန်၊ Storage latency၊ NAS response time ပြသမည့် Dashboard",
+      "Loki — container အားလုံးမှ log စုစည်း၊ UI တစ်ခုတည်းမှ ရှာနိုင်",
+      "OpenTelemetry — SMB scan → Queue → Process → Upload → API report distributed tracing",
+      "Alert Manager — metrics ပုံမှန်မဟုတ်သောအခါ Telegram/LINE ဖြင့် အကြောင်းကြား"
+    ],
+    "phase21": "P12 — Health Pipeline Dashboard",
+    "phase21Desc": "Flow diagram: Camera → Sync Worker → Redis Queue → Processing Worker → Storage → DB node တစ်ခုချင်း real-time status နှင့် latency",
+    "phase21Status": "စီစဉ်ထားသည်",
+    "phase21Tasks": [
+      "Pipeline Flow Diagram — Camera → Sync → Queue → Worker → Storage → DB အစိမ်း/အနီ status ပြသ",
+      "Camera Health — ကင်မရာတစ်ခုချင်း status (online/offline၊ last poll၊ error count)",
+      "Worker Health — Worker တစ်ခုချင်း stats (jobs/min၊ avg duration၊ error rate)",
+      "Bottleneck Detection — pipeline တွင် အနှေးဆုံးအချက်ကို အလိုအလျောက် ရှာဖွေ",
+      "DLQ Guard — Worker retry loop ကာကွယ်: TIFF ပျက်စီး → ၃ ကြိမ် retry → dead-letter → alert → auto-reprocess မလုပ်"
+    ],
+    "phase22": "P13 — Dynamic Object Versioning",
+    "phase22Desc": "FileType ကို fixed enum (raw/processed/thumbnail) မှ dynamic string သို့ ပြောင်း၊ AI processing အတွက် ပြင်ဆင်",
+    "phase22Status": "စီစဉ်ထားသည်",
+    "phase22Tasks": [
+      "Dynamic FileType — enum မှ string field သို့ ပြောင်း၊ schema migration မလိုဘဲ type အသစ်ထည့်နိုင်",
+      "Object Version Chain — original → processed → thumbnail → ai → ocr → face_blur version chain",
+      "Processing Pipeline Plugin — config ဖြင့် processing step အသစ်ထည့် (AI Crop၊ OCR၊ Face Blur)၊ code ပြင်ရန်မလို",
+      "Version Metadata — version တစ်ခုချင်းတွင် processor name၊ parameters၊ created_at၊ parent_version သိမ်း",
+      "UI File Browser — ပုံတစ်ပုံချင်း version tree ပြသ၊ version တစ်ခုချင်း download ရနိုင်"
     ]
   },
   "permissions": {

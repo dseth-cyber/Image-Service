@@ -35,6 +35,9 @@ const PHASE_ICONS: Record<string, any> = {
   phase17: Layers,
   phase18: Server,
   phase19: HardDrive,
+  phase20: Activity,
+  phase21: Wifi,
+  phase22: Layers,
 }
 
 const PHASES = [
@@ -58,6 +61,9 @@ const PHASES = [
   { key: 'phase17', status: 'Launched', priority: 'P9.2' },
   { key: 'phase18', status: 'Launched', priority: 'P9.3' },
   { key: 'phase19', status: 'Launched', priority: 'P10' },
+  { key: 'phase20', status: 'Launched', priority: 'P11' },
+  { key: 'phase21', status: 'Launched', priority: 'P12' },
+  { key: 'phase22', status: 'Launched', priority: 'P13' },
 ]
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -81,6 +87,9 @@ const PRIORITY_COLORS: Record<string, string> = {
   'P9.2': 'bg-indigo-500/20 text-indigo-400',
   'P9.3': 'bg-indigo-500/20 text-indigo-400',
   P10: 'bg-emerald-500/20 text-emerald-400',
+  P11: 'bg-rose-500/20 text-rose-400',
+  P12: 'bg-sky-500/20 text-sky-400',
+  P13: 'bg-amber-500/20 text-amber-400',
 }
 
 const STATUS_WEIGHTS: Record<string, number> = {
