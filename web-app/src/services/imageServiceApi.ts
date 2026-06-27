@@ -302,6 +302,15 @@ export function createImageServiceApi(api: any) {
     cancelMigrationJob: (id: string) =>
       api.post(`${BASE}/migrations/${id}/cancel`).then((r: any) => r.data),
 
+    // Universal Search
+    universalSearch: (q: string) =>
+      api.get(`${BASE}/search`, { params: { q } }).then((r: any) => r.data),
+
+    // Alerts bulk actions
+    clearAllAlerts: () => api.post(`${BASE}/alerts/clear-all`).then((r: any) => r.data),
+    acknowledgeAllAlerts: () => api.post(`${BASE}/alerts/acknowledge-all`).then((r: any) => r.data),
+    getUnacknowledgedCount: () => api.get(`${BASE}/alerts/unacknowledged-count`).then((r: any) => r.data),
+
     // Admin
     clearAllData: (data: { password: string; confirmation: string }) =>
       api.post(`${BASE}/admin/clear-all-data`, data).then((r: any) => r.data),

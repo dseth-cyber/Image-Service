@@ -657,7 +657,9 @@
       "resolvedAt": "Resolved At",
       "acknowledge": "Acknowledge",
       "resolve": "Resolve",
-      "acknowledged": "Alert acknowledged"
+      "acknowledged": "Alert acknowledged",
+      "clearAll": "Clear All",
+      "clearAllSuccess": "Cleared {{count}} alerts"
     },
     "users": {
       "title": "User Management",
@@ -981,62 +983,99 @@
         "Monthly restore test automation",
         "Backup status dashboard"
       ],
-    "phase15": "P9 — Storage Provider Abstraction",
-    "phase15Desc": "StorageProvider Interface, S3 (MinIO, SeaweedFS), LocalDisk with sharding, StorageRouter, worker upload refactor",
-    "phase15Status": "In Progress",
-    "phase15Tasks": [
-      "StorageProvider Interface — unified save/getStream/delete/health API",
-      "S3Provider — wraps existing MinIO/SeaweedFS client, works with any S3-compatible storage",
-      "LocalDiskProvider — YYYY/MM/DD/fileType/hashPrefix sharding for 10M+ files",
-      "StorageRouter — in-memory registry, getDefault(), refresh() on mutation",
-      "Refactor MinIO calls in images, retention, admin, backup, health → StorageRouter",
-      "Worker writes directly to provider, sends metadata-only to API",
-      "Prisma: storage_providers table, image_files.storageProviderId + storageProfileId + checksumSha256",
-      "Auto-seed 'Primary Storage' from env on first deploy"
-    ],
-    "phase16": "P9.1 — Storage Management & Migration",
-    "phase16Desc": "Admin UI for Storage Providers, Migration Engine, Health Monitoring",
-    "phase16Status": "Planned",
-    "phase16Tasks": [
-      "Storage Providers CRUD page — add/edit/delete providers from UI",
-      "Test Connection — validates provider endpoint + credentials",
-      "Set Default Provider — changes where new files go",
-      "Provider Health Dashboard — capacity bar, latency, status per provider",
-      "StorageProviderMetric — auto-collect health/stats every 15m",
-      "Migration Engine — move data between providers via BullMQ background job",
-      "Migration Dashboard — progress, history, cancel/retry"
-    ],
-    "phase17": "P9.2 — Storage Profiles",
-    "phase17Desc": "Policy-based routing to different storage backends per use case",
-    "phase17Status": "Planned",
-    "phase17Tasks": [
-      "Storage Profiles — Profile entity with provider routing rules",
-      "Policy-based routing — Default, Reject Archive, AI Dataset, OCR Archive",
-      "ImageFile.storageProfileId — link to profile",
-      "Admin UI for profile CRUD"
-    ],
-    "phase18": "P9.3 — SMB / NFS / SeaweedFS Providers",
-    "phase18Desc": "Direct NAS support via SMB, NFS, and SeaweedFS (S3-compatible) storage backends",
-    "phase18Status": "Planned",
-    "phase18Tasks": [
-      "SMBProvider — direct write to NAS via SMB protocol",
-      "NFSProvider — direct write to NAS via NFS mount",
-      "SeaweedFSProvider — uses existing S3Provider (S3-compatible API, zero config change)",
-      "Extends StorageProvider interface — zero business logic changes"
-    ],
-    "phase19": "P10 — Storage Capacity Monitor",
-    "phase19Desc": "Show real capacity per Storage Provider — Server local disk, MinIO/S3, NAS automatically with manual fallback for NAS",
-    "phase19Status": "Launched",
-    "phase19Tasks": [
-      "✅ S3/MinIO — auto-fetch bucket size + capacity from API (fallback capacityBytes from DB)",
-      "✅ Local Disk — read real disk space via statfsSync (total/used/free)",
-      "✅ NAS (SMB/NFS) — manual capacity setting per Storage Provider (capacityBytes field)",
-      "✅ UI Dashboard — capacity bar per provider: name, type, used/total, %",
-      "✅ Alert when storage exceeds threshold (warning 75% / critical 90%)",
-      "System config storage limit as fallback when auto-detection unavailable"
-    ]
-  },
-  "permissions": {
+      "phase15": "P9 — Storage Provider Abstraction",
+      "phase15Desc": "StorageProvider Interface, S3 (MinIO, SeaweedFS), LocalDisk with sharding, StorageRouter, worker upload refactor",
+      "phase15Status": "Launched",
+      "phase15Tasks": [
+        "StorageProvider Interface — unified save/getStream/delete/health API",
+        "S3Provider — wraps existing MinIO/SeaweedFS client, works with any S3-compatible storage",
+        "LocalDiskProvider — YYYY/MM/DD/fileType/hashPrefix sharding for 10M+ files",
+        "StorageRouter — in-memory registry, getDefault(), refresh() on mutation",
+        "Refactor MinIO calls in images, retention, admin, backup, health → StorageRouter",
+        "Worker writes directly to provider, sends metadata-only to API",
+        "Prisma: storage_providers table, image_files.storageProviderId + storageProfileId + checksumSha256",
+        "Auto-seed 'Primary Storage' from env on first deploy"
+      ],
+      "phase16": "P9.1 — Storage Management & Migration",
+      "phase16Desc": "Admin UI for Storage Providers, Migration Engine, Health Monitoring",
+      "phase16Status": "Launched",
+      "phase16Tasks": [
+        "Storage Providers CRUD page — add/edit/delete providers from UI",
+        "Test Connection — validates provider endpoint + credentials",
+        "Set Default Provider — changes where new files go",
+        "Provider Health Dashboard — capacity bar, latency, status per provider",
+        "StorageProviderMetric — auto-collect health/stats every 15m",
+        "Migration Engine — move data between providers via BullMQ background job",
+        "Migration Dashboard — progress, history, cancel/retry"
+      ],
+      "phase17": "P9.2 — Storage Profiles",
+      "phase17Desc": "Policy-based routing to different storage backends per use case",
+      "phase17Status": "Launched",
+      "phase17Tasks": [
+        "Storage Profiles — Profile entity with provider routing rules",
+        "Policy-based routing — Default, Reject Archive, AI Dataset, OCR Archive",
+        "ImageFile.storageProfileId — link to profile",
+        "Admin UI for profile CRUD"
+      ],
+      "phase18": "P9.3 — SMB / NFS / SeaweedFS Providers",
+      "phase18Desc": "Direct NAS support via SMB, NFS, and SeaweedFS (S3-compatible) storage backends",
+      "phase18Status": "Launched",
+      "phase18Tasks": [
+        "SMBProvider — direct write to NAS via SMB protocol",
+        "NFSProvider — direct write to NAS via NFS mount",
+        "SeaweedFSProvider — uses existing S3Provider (S3-compatible API, zero config change)",
+        "Extends StorageProvider interface — zero business logic changes"
+      ],
+      "phase19": "P10 — Storage Capacity Monitor",
+      "phase19Desc": "Show real capacity per Storage Provider — Server local disk, MinIO/S3, NAS automatically with manual fallback for NAS",
+      "phase19Status": "Launched",
+      "phase19Tasks": [
+        "✅ S3/MinIO — auto-fetch bucket size + capacity from API (fallback capacityBytes from DB)",
+        "✅ Local Disk — read real disk space via statfsSync (total/used/free)",
+        "✅ NAS (SMB/NFS) — manual capacity setting per Storage Provider (capacityBytes field)",
+        "✅ UI Dashboard — capacity bar per provider: name, type, used/total, %",
+        "✅ Alert when storage exceeds threshold (warning 75% / critical 90%)",
+        "✅ System config storage limit as fallback when auto-detection unavailable"
+      ],
+      "phase20": "P11 — Observability (Prometheus + Grafana + Loki)",
+      "phase20Desc": "Monitoring and Log Aggregation for 30-100+ cameras",
+      "phase20Status": "Launched",
+      "phase20Tasks": [
+        "✅ Prometheus — scrape 24+ metrics every 15s",
+        "✅ Grafana — 4 Dashboards with Playlist rotation",
+        "✅ Grafana Image Renderer for alert/export",
+        "✅ Loki — Log aggregation ready",
+        "✅ Per-Camera Metrics — status, images, last poll per camera",
+        "✅ System Metrics — CPU, RAM, disk, DB connections"
+      ],
+      "phase21": "P12 — Health Pipeline Dashboard",
+      "phase21Desc": "Flow diagram: Camera → Sync → Queue → Worker → Storage → DB with real-time status",
+      "phase21Status": "Launched",
+      "phase21Tasks": [
+        "✅ Pipeline Flow Diagram with green/red status",
+        "✅ Animated connecting lines",
+        "✅ Real-time auto-refresh every 15s"
+      ],
+      "phase22": "P13 — Dynamic Object Versioning",
+      "phase22Desc": "Extended FileType enum for future AI processing + version chain",
+      "phase22Status": "Launched",
+      "phase22Tasks": [
+        "✅ Extended FileType — ai, ocr, face_blur, custom",
+        "✅ Version Fields — processorName, processorParams, parentFileId",
+        "✅ Zod Schema — fileType as string(1-32)"
+      ],
+      "phase23": "P14 — Camera Health Monitor & Alerting",
+      "phase23Desc": "Auto-check camera status every 1 minute, alert on offline, track downtime",
+      "phase23Status": "Launched",
+      "phase23Tasks": [
+        "✅ Camera Health Monitor — cron every 1 minute",
+        "✅ Offline Detection — threshold configurable (default 5 min)",
+        "✅ Offline/Online Alerts with downtime tracking",
+        "✅ Auto Resolve when camera back online",
+        "✅ Configurable via system config"
+      ]
+    },
+    "permissions": {
       "modules": {
         "overview": "Dashboard / Overview",
         "cameras": "Cameras",

@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { requirePermission } from '../../middleware/rbac.js';
+import { getPrisma } from '../../lib/prisma.js';
 import * as alertsService from './alerts.service.js';
 
 async function createHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -47,10 +48,38 @@ async function resolveHandler(request: FastifyRequest, reply: FastifyReply) {
   return reply.send(alert);
 }
 
+async function acknowledgeAllHandler(request: FastifyRequest, reply: FastifyReply) {
+  const prisma = getPrisma();
+  const user = (request as any).user;
+  const result = await prisma.alert.updateMany({
+    where: { acknowledgedAt: null },
+    data: { acknowledgedAt: new Date(), acknowledgedBy: user?.username ?? 'system' },
+  });
+  return reply.send({ acknowledged: result.count });
+}
+
+async function clearAllHandler(request: FastifyRequest, reply: FastifyReply) {
+  const prisma = getPrisma();
+  const result = await prisma.alert.updateMany({
+    where: { resolvedAt: null },
+    data: { resolvedAt: new Date(), resolvedBy: (request as any).user?.username ?? 'system' },
+  });
+  return reply.send({ cleared: result.count });
+}
+
+async function unacknowledgedCountHandler(_request: FastifyRequest, reply: FastifyReply) {
+  const prisma = getPrisma();
+  const count = await prisma.alert.count({ where: { acknowledgedAt: null } });
+  return reply.send({ count });
+}
+
 export async function alertRoutes(app: FastifyInstance): Promise<void> {
   app.post('/', { preHandler: [app.authenticate, requirePermission('alerts:create')] }, createHandler);
   app.get('/', { preHandler: [app.authenticate, requirePermission('alerts:read')] }, listHandler);
   app.get('/:id', { preHandler: [app.authenticate, requirePermission('alerts:read')] }, getByIdHandler);
   app.patch('/:id/acknowledge', { preHandler: [app.authenticate, requirePermission('alerts:update')] }, acknowledgeHandler);
   app.patch('/:id/resolve', { preHandler: [app.authenticate, requirePermission('alerts:update')] }, resolveHandler);
+  app.post('/acknowledge-all', { preHandler: [app.authenticate] }, acknowledgeAllHandler);
+  app.get('/unacknowledged-count', { preHandler: [app.authenticate] }, unacknowledgedCountHandler);
+  app.post('/clear-all', { preHandler: [app.authenticate, requirePermission('alerts:update')] }, clearAllHandler);
 }

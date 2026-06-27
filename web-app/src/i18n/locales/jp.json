@@ -644,7 +644,9 @@
       "resolvedAt": "解決日時",
       "acknowledge": "確認",
       "resolve": "解決",
-      "acknowledged": "アラートを確認しました"
+      "acknowledged": "アラートを確認しました",
+      "clearAll": "全てクリア",
+      "clearAllSuccess": "{{count}} 件のアラートをクリアしました"
     },
     "users": {
       "title": "ユーザー管理",
@@ -956,92 +958,102 @@
         "毎月の自動復元テスト",
         "バックアップステータスダッシュボード"
       ],
-    "phase15": "P9 — ストレージプロバイダ抽象化",
-    "phase15Desc": "StorageProvider インターフェース、S3 (MinIO, SeaweedFS)、シャーディング付きLocalDisk、StorageRouter、Workerアップロードリファクタ",
-    "phase15Status": "進行中",
-    "phase15Tasks": [
-      "StorageProvider インターフェース — 統一された save/getStream/delete/health API",
-      "S3Provider — 既存の MinIO/SeaweedFS クライアントをラップ、全 S3 互換ストレージで動作",
-      "LocalDiskProvider — YYYY/MM/DD/fileType/hashPrefix シャーディング、1000万+ファイル対応",
-      "StorageRouter — インメモリレジストリ、getDefault()、変更時に refresh()",
-      "images/retention/admin/backup/health の全 MinIO 呼び出しを StorageRouter に置き換え",
-      "Worker はプロバイダに直接書き込み、API にはメタデータのみ送信",
-      "Prisma: storage_providers テーブル、image_files に storageProviderId + storageProfileId + checksumSha256 追加",
-      "初回デプロイ時に環境変数から 'Primary Storage' を自動シード"
-    ],
-    "phase16": "P9.1 — ストレージ管理と移行",
-    "phase16Desc": "ストレージプロバイダ管理UI、移行エンジン、ヘルスモニタリング",
-    "phase16Status": "計画済み",
-    "phase16Tasks": [
-      "ストレージプロバイダ CRUD ページ — UI からプロバイダの追加/編集/削除",
-      "接続テスト — エンドポイントと認証情報を検証",
-      "デフォルトプロバイダ設定 — 新規ファイルの書き込み先を変更",
-      "プロバイダ健全性ダッシュボード — 容量バー、レイテンシ、ステータス",
-      "StorageProviderMetric — 15分ごとに自動でヘルス/統計情報を収集",
-      "移行エンジン — BullMQ バックグラウンドジョブでプロバイダ間のデータ移動",
-      "移行ダッシュボード — 進捗、履歴、キャンセル/リトライ"
-    ],
-    "phase17": "P9.2 — ストレージプロファイル",
-    "phase17Desc": "ユースケースに応じたポリシーベースのストレージルーティング",
-    "phase17Status": "計画済み",
-    "phase17Tasks": [
-      "ストレージプロファイル — プロバイダルーティングルールを持つエンティティ",
-      "ポリシーベースルーティング — デフォルト、リジェクトアーカイブ、AIデータセット、OCRアーカイブ",
-      "ImageFile.storageProfileId — プロファイルへのリンク",
-      "プロファイル管理UI"
-    ],
-    "phase18": "P9.3 — SMB/NFS/SeaweedFS プロバイダ",
-    "phase18Desc": "SMB、NFS、SeaweedFS (S3互換) による NAS 直接サポート",
-    "phase18Status": "計画済み",
-    "phase18Tasks": [
-      "SMBProvider — SMB プロトコルで NAS に直接書き込み",
-      "NFSProvider — NFS マウントで NAS に直接書き込み",
-      "SeaweedFSProvider — 既存の S3Provider を利用 (S3互換API、設定変更不要)",
-      "StorageProvider インターフェースを拡張 — ビジネスロジックの変更は不要"
-    ],
-    "phase19": "P10 — ストレージ容量モニター",
-    "phase19Desc": "各ストレージプロバイダーの実容量を表示 — サーバーローカルディスク、MinIO/S3、NAS を自動取得、NAS は手動設定に対応",
-    "phase19Status": "計画中",
-    "phase19Tasks": [
-      "S3/MinIO — API からバケットサイズと容量を自動取得",
-      "ローカルディスク — df から実ディスク容量を読み取り (合計/使用中/空き)",
-      "NAS (SMB/NFS) — ストレージプロバイダーごとに容量を手動設定",
-      "UI ダッシュボード — プロバイダーごとにカード表示：名前、タイプ、容量、使用量、残量",
-      "残容量が閾値を下回った場合にアラート通知",
-      "自動検出できない場合のフォールバックとしてシステム設定の容量制限を使用"
-    ],
-    "phase20": "P11 — オブザーバビリティ (Prometheus + Grafana + Loki)",
-    "phase20Desc": "30台以上のカメラ規模向けの監視・ログ集約システム — 履歴メトリクス、時系列、一元化ログ",
-    "phase20Status": "計画中",
-    "phase20Tasks": [
-      "Prometheus — image-api、processing-worker、sync-worker からメトリクス収集（リクエスト遅延、キュー深度、エラー率）",
-      "Grafana — どの Worker が遅いか、キュー滞留時間、ストレージ遅延、NAS 応答時間を表示するダッシュボード",
-      "Loki — 全コンテナのログ集約、単一UIで検索可能",
-      "OpenTelemetry — SMBスキャン → キュー → 処理 → アップロード → API報告の分散トレーシング",
-      "Alert Manager — メトリクス異常時に Telegram/LINE で通知（Worker 遅延、キュー滞留、エラー急増）"
-    ],
-    "phase21": "P12 — ヘルスパイプラインダッシュボード",
-    "phase21Desc": "フロー図：カメラ → 同期 Worker → Redis キュー → 処理 Worker → ストレージ → DB、各ノードのリアルタイムステータスと遅延",
-    "phase21Status": "計画中",
-    "phase21Tasks": [
-      "パイプラインフロー図 — カメラ → 同期 → キュー → Worker → ストレージ → DB、緑/赤ステータス表示",
-      "カメラヘルス — カメラごとのステータス（オンライン/オフライン、最終ポーリング、エラー数）",
-      "Worker ヘルス — Worker ごとの統計（ジョブ/分、平均処理時間、エラー率）",
-      "ボトルネック検出 — パイプラインで最も遅いポイントを自動検出",
-      "DLQ ガード — Worker リトライループ防止：破損 TIFF → 3回リトライ → デッドレター → アラート → 自動再処理なし"
-    ],
-    "phase22": "P13 — 動的オブジェクトバージョニング",
-    "phase22Desc": "FileType を固定 enum（raw/processed/thumbnail）から動的文字列に変更、将来の AI 処理に対応",
-    "phase22Status": "計画中",
-    "phase22Tasks": [
-      "動的 FileType — enum から文字列フィールドに変更、スキーマ移行なしで新タイプ追加",
-      "オブジェクトバージョンチェーン — original → processed → thumbnail → ai → ocr → face_blur バージョンチェーン",
-      "処理パイプラインプラグイン — 設定で新しい処理ステップ追加（AI クロップ、OCR、顔ぼかし）、コード変更不要",
-      "バージョンメタデータ — 各バージョンにプロセッサ名、パラメータ、作成日時、親バージョンを保存",
-      "UI ファイルブラウザ — 画像ごとのバージョンツリー表示、各バージョン個別ダウンロード"
-    ]
-  },
-  "permissions": {
+      "phase15": "P9 — ストレージプロバイダ抽象化",
+      "phase15Desc": "StorageProvider インターフェース、S3 (MinIO, SeaweedFS)、シャーディング付きLocalDisk、StorageRouter、Workerアップロードリファクタ",
+      "phase15Status": "リリース済み",
+      "phase15Tasks": [
+        "StorageProvider インターフェース — 統一された save/getStream/delete/health API",
+        "S3Provider — 既存の MinIO/SeaweedFS クライアントをラップ、全 S3 互換ストレージで動作",
+        "LocalDiskProvider — YYYY/MM/DD/fileType/hashPrefix シャーディング、1000万+ファイル対応",
+        "StorageRouter — インメモリレジストリ、getDefault()、変更時に refresh()",
+        "images/retention/admin/backup/health の全 MinIO 呼び出しを StorageRouter に置き換え",
+        "Worker はプロバイダに直接書き込み、API にはメタデータのみ送信",
+        "Prisma: storage_providers テーブル、image_files に storageProviderId + storageProfileId + checksumSha256 追加",
+        "初回デプロイ時に環境変数から 'Primary Storage' を自動シード"
+      ],
+      "phase16": "P9.1 — ストレージ管理と移行",
+      "phase16Desc": "ストレージプロバイダ管理UI、移行エンジン、ヘルスモニタリング",
+      "phase16Status": "リリース済み",
+      "phase16Tasks": [
+        "ストレージプロバイダ CRUD ページ — UI からプロバイダの追加/編集/削除",
+        "接続テスト — エンドポイントと認証情報を検証",
+        "デフォルトプロバイダ設定 — 新規ファイルの書き込み先を変更",
+        "プロバイダ健全性ダッシュボード — 容量バー、レイテンシ、ステータス",
+        "StorageProviderMetric — 15分ごとに自動でヘルス/統計情報を収集",
+        "移行エンジン — BullMQ バックグラウンドジョブでプロバイダ間のデータ移動",
+        "移行ダッシュボード — 進捗、履歴、キャンセル/リトライ"
+      ],
+      "phase17": "P9.2 — ストレージプロファイル",
+      "phase17Desc": "ユースケースに応じたポリシーベースのストレージルーティング",
+      "phase17Status": "リリース済み",
+      "phase17Tasks": [
+        "ストレージプロファイル — プロバイダルーティングルールを持つエンティティ",
+        "ポリシーベースルーティング — デフォルト、リジェクトアーカイブ、AIデータセット、OCRアーカイブ",
+        "ImageFile.storageProfileId — プロファイルへのリンク",
+        "プロファイル管理UI"
+      ],
+      "phase18": "P9.3 — SMB/NFS/SeaweedFS プロバイダ",
+      "phase18Desc": "SMB、NFS、SeaweedFS (S3互換) による NAS 直接サポート",
+      "phase18Status": "リリース済み",
+      "phase18Tasks": [
+        "SMBProvider — SMB プロトコルで NAS に直接書き込み",
+        "NFSProvider — NFS マウントで NAS に直接書き込み",
+        "SeaweedFSProvider — 既存の S3Provider を利用 (S3互換API、設定変更不要)",
+        "StorageProvider インターフェースを拡張 — ビジネスロジックの変更は不要"
+      ],
+      "phase19": "P10 — ストレージ容量モニター",
+      "phase19Desc": "各ストレージプロバイダーの実容量を表示 — サーバーローカルディスク、MinIO/S3、NAS を自動取得、NAS は手動設定に対応",
+      "phase19Status": "計画中",
+      "phase19Tasks": [
+        "S3/MinIO — API からバケットサイズと容量を自動取得",
+        "ローカルディスク — df から実ディスク容量を読み取り (合計/使用中/空き)",
+        "NAS (SMB/NFS) — ストレージプロバイダーごとに容量を手動設定",
+        "UI ダッシュボード — プロバイダーごとにカード表示：名前、タイプ、容量、使用量、残量",
+        "残容量が閾値を下回った場合にアラート通知",
+        "自動検出できない場合のフォールバックとしてシステム設定の容量制限を使用"
+      ],
+      "phase20": "P11 — オブザーバビリティ (Prometheus + Grafana + Loki)",
+      "phase20Desc": "30台以上のカメラ規模向けの監視・ログ集約システム — 履歴メトリクス、時系列、一元化ログ",
+      "phase20Status": "計画中",
+      "phase20Tasks": [
+        "Prometheus — image-api、processing-worker、sync-worker からメトリクス収集（リクエスト遅延、キュー深度、エラー率）",
+        "Grafana — どの Worker が遅いか、キュー滞留時間、ストレージ遅延、NAS 応答時間を表示するダッシュボード",
+        "Loki — 全コンテナのログ集約、単一UIで検索可能",
+        "OpenTelemetry — SMBスキャン → キュー → 処理 → アップロード → API報告の分散トレーシング",
+        "Alert Manager — メトリクス異常時に Telegram/LINE で通知（Worker 遅延、キュー滞留、エラー急増）"
+      ],
+      "phase21": "P12 — ヘルスパイプラインダッシュボード",
+      "phase21Desc": "フロー図：カメラ → 同期 Worker → Redis キュー → 処理 Worker → ストレージ → DB、各ノードのリアルタイムステータスと遅延",
+      "phase21Status": "計画中",
+      "phase21Tasks": [
+        "パイプラインフロー図 — カメラ → 同期 → キュー → Worker → ストレージ → DB、緑/赤ステータス表示",
+        "カメラヘルス — カメラごとのステータス（オンライン/オフライン、最終ポーリング、エラー数）",
+        "Worker ヘルス — Worker ごとの統計（ジョブ/分、平均処理時間、エラー率）",
+        "ボトルネック検出 — パイプラインで最も遅いポイントを自動検出",
+        "DLQ ガード — Worker リトライループ防止：破損 TIFF → 3回リトライ → デッドレター → アラート → 自動再処理なし"
+      ],
+      "phase22": "P13 — 動的オブジェクトバージョニング",
+      "phase22Desc": "FileType を固定 enum（raw/processed/thumbnail）から動的文字列に変更、将来の AI 処理に対応",
+      "phase22Status": "計画中",
+      "phase22Tasks": [
+        "動的 FileType — enum から文字列フィールドに変更、スキーマ移行なしで新タイプ追加",
+        "オブジェクトバージョンチェーン — original → processed → thumbnail → ai → ocr → face_blur バージョンチェーン",
+        "処理パイプラインプラグイン — 設定で新しい処理ステップ追加（AI クロップ、OCR、顔ぼかし）、コード変更不要",
+        "バージョンメタデータ — 各バージョンにプロセッサ名、パラメータ、作成日時、親バージョンを保存",
+        "UI ファイルブラウザ — 画像ごとのバージョンツリー表示、各バージョン個別ダウンロード"
+      ],
+      "phase23": "P14 — Camera Health Monitor & Alerting",
+      "phase23Desc": "Auto-check camera status every 1 minute",
+      "phase23Status": "Launched",
+      "phase23Tasks": [
+        "✅ Camera Health Monitor",
+        "✅ Offline/Online Alerts",
+        "✅ Downtime Tracking",
+        "✅ Auto Resolve",
+        "✅ Configurable threshold"
+      ]
+    },
+    "permissions": {
       "modules": {
         "overview": "ダッシュボード / 概要",
         "cameras": "カメラ",

@@ -68,7 +68,6 @@ export async function checkCameraHealth(): Promise<void> {
     }
 
     if (prevStatus === 'offline' && currentStatus === 'online') {
-      const downtimeMs = timeSinceLastPoll;
       logger.info({ camera: cam.name, cameraId: cam.id }, 'Camera came back online');
 
       await prisma.cameraEvent.create({

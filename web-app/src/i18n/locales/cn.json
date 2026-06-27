@@ -644,7 +644,9 @@
       "resolvedAt": "解决时间",
       "acknowledge": "确认",
       "resolve": "解决",
-      "acknowledged": "告警已确认"
+      "acknowledged": "告警已确认",
+      "clearAll": "全部清除",
+      "clearAllSuccess": "已清除 {{count}} 条告警"
     },
     "users": {
       "title": "用户管理",
@@ -956,92 +958,102 @@
         "每月自动恢复测试",
         "备份状态仪表板"
       ],
-    "phase15": "P9 — 存储提供者抽象层",
-    "phase15Desc": "StorageProvider 接口、S3 (MinIO, SeaweedFS)、带分片的本地磁盘、StorageRouter、Worker上传重构",
-    "phase15Status": "进行中",
-    "phase15Tasks": [
-      "StorageProvider 接口 — 统一的 save/getStream/delete/health API",
-      "S3Provider — 封装现有 MinIO/SeaweedFS 客户端，兼容所有 S3 存储",
-      "LocalDiskProvider — YYYY/MM/DD/fileType/hashPrefix 分片方案，支持千万级文件",
-      "StorageRouter — 内存注册表，getDefault()，变更时 refresh()",
-      "重构 images/retention/admin/backup/health 中所有 MinIO 调用 → StorageRouter",
-      "Worker 直接写入存储，仅向 API 发送元数据",
-      "Prisma: storage_providers 表，image_files 增加 storageProviderId + storageProfileId + checksumSha256",
-      "首次部署时从环境变量自动创建 'Primary Storage'"
-    ],
-    "phase16": "P9.1 — 存储管理与迁移",
-    "phase16Desc": "存储提供者管理页面、迁移引擎、健康监控",
-    "phase16Status": "已计划",
-    "phase16Tasks": [
-      "存储提供者 CRUD 页面 — 从 UI 添加/编辑/删除",
-      "连接测试 — 验证存储端点和凭证",
-      "设置默认提供者 — 改变新文件写入位置",
-      "提供者健康仪表板 — 容量条、延迟、状态",
-      "StorageProviderMetric — 每15分钟自动收集健康/统计信息",
-      "迁移引擎 — 通过 BullMQ 后台任务在提供者间迁移数据",
-      "迁移仪表板 — 进度、历史、取消/重试"
-    ],
-    "phase17": "P9.2 — 存储配置文件",
-    "phase17Desc": "根据不同用例将存储路由到不同的后端",
-    "phase17Status": "已计划",
-    "phase17Tasks": [
-      "存储配置文件 — 带提供者路由规则的实体",
-      "基于策略的路由 — 默认、废品归档、AI数据集、OCR归档",
-      "ImageFile.storageProfileId — 链接到配置文件",
-      "配置文件管理界面"
-    ],
-    "phase18": "P9.3 — SMB/NFS/SeaweedFS 存储提供者",
-    "phase18Desc": "通过 SMB、NFS 和 SeaweedFS (S3兼容) 直接支持 NAS",
-    "phase18Status": "已计划",
-    "phase18Tasks": [
-      "SMBProvider — 通过 SMB 直接写入 NAS",
-      "NFSProvider — 通过 NFS 直接写入 NAS",
-      "SeaweedFSProvider — 使用现有 S3Provider (S3兼容API，无需更改配置)",
-      "扩展 StorageProvider 接口 — 零业务逻辑变更"
-    ],
-    "phase19": "P10 — 存储容量监控",
-    "phase19Desc": "显示每个存储提供者的真实容量 — 服务器本地磁盘、MinIO/S3、NAS 自动检测，NAS 支持手动配置",
-    "phase19Status": "计划中",
-    "phase19Tasks": [
-      "S3/MinIO — 自动从 API 获取 bucket 大小和容量",
-      "本地磁盘 — 通过 df 读取真实磁盘空间 (总量/已用/可用)",
-      "NAS (SMB/NFS) — 按存储提供者手动设置容量",
-      "UI 仪表板 — 按提供者显示独立卡片：名称、类型、容量、已用、剩余",
-      "剩余空间低于阈值时发出警报",
-      "系统配置存储限制作为无法自动检测时的备选"
-    ],
-    "phase20": "P11 — 可观测性 (Prometheus + Grafana + Loki)",
-    "phase20Desc": "监控和日志聚合系统，支持30+摄像头规模 — 历史指标、时间序列、集中式日志",
-    "phase20Status": "计划中",
-    "phase20Tasks": [
-      "Prometheus — 从 image-api、processing-worker、sync-worker 采集指标（请求延迟、队列深度、错误率）",
-      "Grafana — 仪表板显示哪个 Worker 慢、队列积压多久、存储延迟、NAS 响应时间",
-      "Loki — 所有容器日志聚合，单一界面可搜索",
-      "OpenTelemetry — 分布式追踪，从 SMB 扫描 → 队列 → 处理 → 上传 → API 上报",
-      "Alert Manager — 指标异常时通过 Telegram/LINE 通知（Worker 慢、队列积压、错误激增）"
-    ],
-    "phase21": "P12 — 健康流水线仪表板",
-    "phase21Desc": "流程图：摄像头 → 同步 Worker → Redis 队列 → 处理 Worker → 存储 → 数据库，每个节点实时状态和延迟",
-    "phase21Status": "计划中",
-    "phase21Tasks": [
-      "流水线流程图 — 摄像头 → 同步 → 队列 → Worker → 存储 → DB，绿色/红色状态指示",
-      "摄像头健康 — 每个摄像头状态（在线/离线、上次轮询、错误数）",
-      "Worker 健康 — 每个 Worker 统计（作业/分钟、平均时长、错误率）",
-      "瓶颈检测 — 自动检测流水线中最慢的节点",
-      "DLQ 保护 — 防止 Worker 重试循环：损坏 TIFF → 重试3次 → 死信队列 → 告警 → 不自动重处理"
-    ],
-    "phase22": "P13 — 动态对象版本管理",
-    "phase22Desc": "将 FileType 从固定枚举（raw/processed/thumbnail）改为动态字符串，支持未来 AI 处理",
-    "phase22Status": "计划中",
-    "phase22Tasks": [
-      "动态 FileType — 从枚举改为字符串字段，添加新类型无需迁移数据库",
-      "对象版本链 — original → processed → thumbnail → ai → ocr → face_blur 版本链",
-      "处理流水线插件 — 通过配置添加新处理步骤（AI 裁剪、OCR、人脸模糊），无需修改代码",
-      "版本元数据 — 每个版本存储处理器名称、参数、创建时间、父版本",
-      "UI 文件浏览器 — 显示每张图片的版本树，可单独下载每个版本"
-    ]
-  },
-  "permissions": {
+      "phase15": "P9 — 存储提供者抽象层",
+      "phase15Desc": "StorageProvider 接口、S3 (MinIO, SeaweedFS)、带分片的本地磁盘、StorageRouter、Worker上传重构",
+      "phase15Status": "已上线",
+      "phase15Tasks": [
+        "StorageProvider 接口 — 统一的 save/getStream/delete/health API",
+        "S3Provider — 封装现有 MinIO/SeaweedFS 客户端，兼容所有 S3 存储",
+        "LocalDiskProvider — YYYY/MM/DD/fileType/hashPrefix 分片方案，支持千万级文件",
+        "StorageRouter — 内存注册表，getDefault()，变更时 refresh()",
+        "重构 images/retention/admin/backup/health 中所有 MinIO 调用 → StorageRouter",
+        "Worker 直接写入存储，仅向 API 发送元数据",
+        "Prisma: storage_providers 表，image_files 增加 storageProviderId + storageProfileId + checksumSha256",
+        "首次部署时从环境变量自动创建 'Primary Storage'"
+      ],
+      "phase16": "P9.1 — 存储管理与迁移",
+      "phase16Desc": "存储提供者管理页面、迁移引擎、健康监控",
+      "phase16Status": "已上线",
+      "phase16Tasks": [
+        "存储提供者 CRUD 页面 — 从 UI 添加/编辑/删除",
+        "连接测试 — 验证存储端点和凭证",
+        "设置默认提供者 — 改变新文件写入位置",
+        "提供者健康仪表板 — 容量条、延迟、状态",
+        "StorageProviderMetric — 每15分钟自动收集健康/统计信息",
+        "迁移引擎 — 通过 BullMQ 后台任务在提供者间迁移数据",
+        "迁移仪表板 — 进度、历史、取消/重试"
+      ],
+      "phase17": "P9.2 — 存储配置文件",
+      "phase17Desc": "根据不同用例将存储路由到不同的后端",
+      "phase17Status": "已上线",
+      "phase17Tasks": [
+        "存储配置文件 — 带提供者路由规则的实体",
+        "基于策略的路由 — 默认、废品归档、AI数据集、OCR归档",
+        "ImageFile.storageProfileId — 链接到配置文件",
+        "配置文件管理界面"
+      ],
+      "phase18": "P9.3 — SMB/NFS/SeaweedFS 存储提供者",
+      "phase18Desc": "通过 SMB、NFS 和 SeaweedFS (S3兼容) 直接支持 NAS",
+      "phase18Status": "已上线",
+      "phase18Tasks": [
+        "SMBProvider — 通过 SMB 直接写入 NAS",
+        "NFSProvider — 通过 NFS 直接写入 NAS",
+        "SeaweedFSProvider — 使用现有 S3Provider (S3兼容API，无需更改配置)",
+        "扩展 StorageProvider 接口 — 零业务逻辑变更"
+      ],
+      "phase19": "P10 — 存储容量监控",
+      "phase19Desc": "显示每个存储提供者的真实容量 — 服务器本地磁盘、MinIO/S3、NAS 自动检测，NAS 支持手动配置",
+      "phase19Status": "计划中",
+      "phase19Tasks": [
+        "S3/MinIO — 自动从 API 获取 bucket 大小和容量",
+        "本地磁盘 — 通过 df 读取真实磁盘空间 (总量/已用/可用)",
+        "NAS (SMB/NFS) — 按存储提供者手动设置容量",
+        "UI 仪表板 — 按提供者显示独立卡片：名称、类型、容量、已用、剩余",
+        "剩余空间低于阈值时发出警报",
+        "系统配置存储限制作为无法自动检测时的备选"
+      ],
+      "phase20": "P11 — 可观测性 (Prometheus + Grafana + Loki)",
+      "phase20Desc": "监控和日志聚合系统，支持30+摄像头规模 — 历史指标、时间序列、集中式日志",
+      "phase20Status": "计划中",
+      "phase20Tasks": [
+        "Prometheus — 从 image-api、processing-worker、sync-worker 采集指标（请求延迟、队列深度、错误率）",
+        "Grafana — 仪表板显示哪个 Worker 慢、队列积压多久、存储延迟、NAS 响应时间",
+        "Loki — 所有容器日志聚合，单一界面可搜索",
+        "OpenTelemetry — 分布式追踪，从 SMB 扫描 → 队列 → 处理 → 上传 → API 上报",
+        "Alert Manager — 指标异常时通过 Telegram/LINE 通知（Worker 慢、队列积压、错误激增）"
+      ],
+      "phase21": "P12 — 健康流水线仪表板",
+      "phase21Desc": "流程图：摄像头 → 同步 Worker → Redis 队列 → 处理 Worker → 存储 → 数据库，每个节点实时状态和延迟",
+      "phase21Status": "计划中",
+      "phase21Tasks": [
+        "流水线流程图 — 摄像头 → 同步 → 队列 → Worker → 存储 → DB，绿色/红色状态指示",
+        "摄像头健康 — 每个摄像头状态（在线/离线、上次轮询、错误数）",
+        "Worker 健康 — 每个 Worker 统计（作业/分钟、平均时长、错误率）",
+        "瓶颈检测 — 自动检测流水线中最慢的节点",
+        "DLQ 保护 — 防止 Worker 重试循环：损坏 TIFF → 重试3次 → 死信队列 → 告警 → 不自动重处理"
+      ],
+      "phase22": "P13 — 动态对象版本管理",
+      "phase22Desc": "将 FileType 从固定枚举（raw/processed/thumbnail）改为动态字符串，支持未来 AI 处理",
+      "phase22Status": "计划中",
+      "phase22Tasks": [
+        "动态 FileType — 从枚举改为字符串字段，添加新类型无需迁移数据库",
+        "对象版本链 — original → processed → thumbnail → ai → ocr → face_blur 版本链",
+        "处理流水线插件 — 通过配置添加新处理步骤（AI 裁剪、OCR、人脸模糊），无需修改代码",
+        "版本元数据 — 每个版本存储处理器名称、参数、创建时间、父版本",
+        "UI 文件浏览器 — 显示每张图片的版本树，可单独下载每个版本"
+      ],
+      "phase23": "P14 — Camera Health Monitor & Alerting",
+      "phase23Desc": "Auto-check camera status every 1 minute",
+      "phase23Status": "Launched",
+      "phase23Tasks": [
+        "✅ Camera Health Monitor",
+        "✅ Offline/Online Alerts",
+        "✅ Downtime Tracking",
+        "✅ Auto Resolve",
+        "✅ Configurable threshold"
+      ]
+    },
+    "permissions": {
       "modules": {
         "overview": "仪表板 / 概览",
         "cameras": "摄像头",

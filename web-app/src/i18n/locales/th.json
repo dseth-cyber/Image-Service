@@ -657,7 +657,9 @@
       "resolvedAt": "แก้ไขเมื่อ",
       "acknowledge": "รับทราบ",
       "resolve": "แก้ไข",
-      "acknowledged": "รับทราบการแจ้งเตือนแล้ว"
+      "acknowledged": "รับทราบการแจ้งเตือนแล้ว",
+      "clearAll": "ล้างทั้งหมด",
+      "clearAllSuccess": "ล้างการแจ้งเตือน {{count}} รายการแล้ว"
     },
     "users": {
       "title": "จัดการผู้ใช้",
@@ -981,91 +983,102 @@
         "ทดสอบ Restore อัตโนมัติทุกเดือน",
         "Dashboard สถานะ Backup"
       ],
-    "phase15": "P9 — Storage Provider Abstraction",
-    "phase15Desc": "Interface StorageProvider, S3 (MinIO, SeaweedFS), LocalDisk พร้อม Sharding, StorageRouter, ปรับปรุง Worker Upload",
-    "phase15Status": "กำลังดำเนินการ",
-    "phase15Tasks": [
-      "StorageProvider Interface — API เดียว save/getStream/delete/health สำหรับทุก Provider",
-      "S3Provider — ห่อ MinIO/SeaweedFS Client เดิม รองรับ S3-compatible storage ทั้งหมด",
-      "LocalDiskProvider — Sharding แบบ YYYY/MM/DD/fileType/hashPrefix รองรับ 10 ล้าน+ ไฟล์",
-      "StorageRouter — Registry ในหน่วยความจำ, getDefault(), refresh() เมื่อมีการเปลี่ยนแปลง",
-      "ปรับปรุงการเรียก MinIO ใน images, retention, admin, backup, health → StorageRouter",
-      "Worker เขียนไฟล์ไปยัง Provider โดยตรง, ส่ง Metadata-only ไปยัง API",
-      "Prisma: ตาราง storage_providers, image_files.storageProviderId + storageProfileId + checksumSha256",
-      "Auto-seed 'Primary Storage' จาก Environment Variables ครั้งแรกที่ Deploy"
-    ],
-    "phase16": "P9.1 — การจัดการ Storage และ Migration",
-    "phase16Desc": "UI จัดการ Storage Provider, ระบบย้ายข้อมูล (Migration Engine), การตรวจสอบสถานะ",
-    "phase16Status": "วางแผนไว้",
-    "phase16Tasks": [
-      "หน้า Storage Providers — เพิ่ม/แก้ไข/ลบ Provider จาก UI",
-      "Test Connection — ตรวจสอบการเชื่อมต่อ Provider",
-      "Set Default Provider — เปลี่ยนตำแหน่งบันทึกไฟล์ใหม่",
-      "Provider Health Dashboard — แถบความจุ, latency, สถานะ Provider",
-      "StorageProviderMetric — เก็บข้อมูลสุขภาพอัตโนมัติทุก 15 นาที",
-      "Migration Engine — ย้ายข้อมูลระหว่าง Provider ผ่าน Background Job (BullMQ)",
-      "Migration Dashboard — ความคืบหน้า, ประวัติ, ยกเลิก/ลองใหม่"
-    ],
-    "phase17": "P9.2 — Storage Profiles",
-    "phase17Desc": "การจัดเส้นทางตามนโยบายไปยัง Storage Backend ที่แตกต่างกัน",
-    "phase17Status": "วางแผนไว้",
-    "phase17Tasks": [
-      "Storage Profiles — Entity Profile พร้อมกฎการจัดเส้นทางไปยัง Provider",
-      "Policy-based routing — Default, Reject Archive, AI Dataset, OCR Archive",
-      "ImageFile.storageProfileId — เชื่อมโยงไปยัง Profile",
-      "UI จัดการ Profile"
-    ],
-    "phase18": "P9.3 — SMB / NFS / SeaweedFS Providers",
-    "phase18Desc": "รองรับ NAS โดยตรงผ่าน SMB, NFS และ SeaweedFS (S3-compatible)",
-    "phase18Status": "วางแผนไว้",
-    "phase18Tasks": [
-      "SMBProvider — เขียนไฟล์ไปยัง NAS โดยตรงผ่าน SMB",
-      "NFSProvider — เขียนไฟล์ไปยัง NAS โดยตรงผ่าน NFS",
-      "SeaweedFSProvider — ใช้ S3Provider เดิม (S3-compatible API, ไม่ต้องเปลี่ยน Config)",
-      "ต่อขยายจาก StorageProvider Interface — ไม่ต้องเปลี่ยน Business Logic"
-    ],
-    "phase19": "P10 — Storage Capacity Monitor",
-    "phase19Desc": "แสดงความจุจริงของแต่ละ Storage Provider — Server local disk, MinIO/S3, NAS แบบอัตโนมัติ พร้อม fallback ตั้งค่า manual สำหรับ NAS",
-    "phase19Status": "เปิดใช้งานแล้ว",
-    "phase19Tasks": [
-      "✅ S3/MinIO — ดึง bucket size + capacity จาก API อัตโนมัติ (fallback capacityBytes จาก DB)",
-      "✅ Local Disk — อ่านพื้นที่ดิสก์จริงจาก statfsSync (total/used/free)",
-      "✅ NAS (SMB/NFS) — ตั้งค่า capacity manual ต่อ Storage Provider (capacityBytes field)",
-      "✅ UI Dashboard — แสดงแยก card ต่อ provider พร้อม capacity bar: ชื่อ, ประเภท, ใช้ไป/ความจุ, %",
-      "✅ แจ้งเตือนเมื่อพื้นที่เหลือน้อยกว่า threshold (warning 75% / critical 90%)",
-      "ค่า config ขีดจำกัดพื้นที่ เป็น fallback เมื่อดึงจริงไม่ได้"
-    ],
-    "phase20": "P11 — Observability (Prometheus + Grafana + Loki)",
-    "phase20Desc": "ระบบ Monitoring และ Log Aggregation สำหรับ scale 30-100+ กล้อง",
-    "phase20Status": "เปิดใช้งานแล้ว",
-    "phase20Tasks": [
-      "✅ Prometheus — เก็บ metrics จาก image-api ทุก 15 วินาที (24+ metrics)",
-      "✅ Grafana — 4 Dashboards: Overview, Camera Deep Dive, Storage Deep Dive, System Resources",
-      "✅ Grafana Image Renderer — render ภาพ dashboard สำหรับ alert/export",
-      "✅ Grafana Playlist — หมุน 4 dashboards อัตโนมัติทุก 30 วินาที",
-      "✅ Loki — Log aggregation พร้อมใช้",
-      "✅ Per-Camera Metrics — camera_status, camera_images_total, camera_last_poll_seconds แยกแต่ละกล้อง",
-      "✅ Camera Status Table — ดูสถานะแต่ละกล้อง (active/error/offline) ใน Grafana",
-      "✅ System Metrics — CPU cores, load avg, RAM, disk, DB connections, process memory"
-    ],
-    "phase21": "P12 — Health Pipeline Dashboard",
-    "phase21Desc": "แสดง flow diagram: Camera → Sync → Queue → Worker → Storage → DB พร้อมสถานะ + latency จริง",
-    "phase21Status": "เปิดใช้งานแล้ว",
-    "phase21Tasks": [
-      "✅ Pipeline Flow Diagram — แสดง flow Camera → Sync → Queue → Worker → Storage → DB พร้อมสีเขียว/แดง",
-      "✅ Animated connecting lines — เส้นเชื่อมระหว่าง node มี animation เมื่อ active",
-      "✅ Real-time status — ข้อมูลจาก health API auto-refresh ทุก 15 วินาที"
-    ],
-    "phase22": "P13 — Dynamic Object Versioning",
-    "phase22Desc": "ขยาย FileType enum รองรับ AI processing ในอนาคต + version chain",
-    "phase22Status": "เปิดใช้งานแล้ว",
-    "phase22Tasks": [
-      "✅ Extended FileType — เพิ่ม ai, ocr, face_blur, custom ใน enum",
-      "✅ Version Fields — processorName, processorParams, parentFileId สำหรับ version chain",
-      "✅ Zod Schema — fileType เปลี่ยนเป็น string(1-32) รองรับค่าใหม่"
-    ]
-  },
-  "permissions": {
+      "phase15": "P9 — Storage Provider Abstraction",
+      "phase15Desc": "Interface StorageProvider, S3 (MinIO, SeaweedFS), LocalDisk พร้อม Sharding, StorageRouter, ปรับปรุง Worker Upload",
+      "phase15Status": "เปิดใช้งานแล้ว",
+      "phase15Tasks": [
+        "StorageProvider Interface — API เดียว save/getStream/delete/health สำหรับทุก Provider",
+        "S3Provider — ห่อ MinIO/SeaweedFS Client เดิม รองรับ S3-compatible storage ทั้งหมด",
+        "LocalDiskProvider — Sharding แบบ YYYY/MM/DD/fileType/hashPrefix รองรับ 10 ล้าน+ ไฟล์",
+        "StorageRouter — Registry ในหน่วยความจำ, getDefault(), refresh() เมื่อมีการเปลี่ยนแปลง",
+        "ปรับปรุงการเรียก MinIO ใน images, retention, admin, backup, health → StorageRouter",
+        "Worker เขียนไฟล์ไปยัง Provider โดยตรง, ส่ง Metadata-only ไปยัง API",
+        "Prisma: ตาราง storage_providers, image_files.storageProviderId + storageProfileId + checksumSha256",
+        "Auto-seed 'Primary Storage' จาก Environment Variables ครั้งแรกที่ Deploy"
+      ],
+      "phase16": "P9.1 — การจัดการ Storage และ Migration",
+      "phase16Desc": "UI จัดการ Storage Provider, ระบบย้ายข้อมูล (Migration Engine), การตรวจสอบสถานะ",
+      "phase16Status": "เปิดใช้งานแล้ว",
+      "phase16Tasks": [
+        "หน้า Storage Providers — เพิ่ม/แก้ไข/ลบ Provider จาก UI",
+        "Test Connection — ตรวจสอบการเชื่อมต่อ Provider",
+        "Set Default Provider — เปลี่ยนตำแหน่งบันทึกไฟล์ใหม่",
+        "Provider Health Dashboard — แถบความจุ, latency, สถานะ Provider",
+        "StorageProviderMetric — เก็บข้อมูลสุขภาพอัตโนมัติทุก 15 นาที",
+        "Migration Engine — ย้ายข้อมูลระหว่าง Provider ผ่าน Background Job (BullMQ)",
+        "Migration Dashboard — ความคืบหน้า, ประวัติ, ยกเลิก/ลองใหม่"
+      ],
+      "phase17": "P9.2 — Storage Profiles",
+      "phase17Desc": "การจัดเส้นทางตามนโยบายไปยัง Storage Backend ที่แตกต่างกัน",
+      "phase17Status": "เปิดใช้งานแล้ว",
+      "phase17Tasks": [
+        "Storage Profiles — Entity Profile พร้อมกฎการจัดเส้นทางไปยัง Provider",
+        "Policy-based routing — Default, Reject Archive, AI Dataset, OCR Archive",
+        "ImageFile.storageProfileId — เชื่อมโยงไปยัง Profile",
+        "UI จัดการ Profile"
+      ],
+      "phase18": "P9.3 — SMB / NFS / SeaweedFS Providers",
+      "phase18Desc": "รองรับ NAS โดยตรงผ่าน SMB, NFS และ SeaweedFS (S3-compatible)",
+      "phase18Status": "เปิดใช้งานแล้ว",
+      "phase18Tasks": [
+        "SMBProvider — เขียนไฟล์ไปยัง NAS โดยตรงผ่าน SMB",
+        "NFSProvider — เขียนไฟล์ไปยัง NAS โดยตรงผ่าน NFS",
+        "SeaweedFSProvider — ใช้ S3Provider เดิม (S3-compatible API, ไม่ต้องเปลี่ยน Config)",
+        "ต่อขยายจาก StorageProvider Interface — ไม่ต้องเปลี่ยน Business Logic"
+      ],
+      "phase19": "P10 — Storage Capacity Monitor",
+      "phase19Desc": "แสดงความจุจริงของแต่ละ Storage Provider — Server local disk, MinIO/S3, NAS แบบอัตโนมัติ พร้อม fallback ตั้งค่า manual สำหรับ NAS",
+      "phase19Status": "เปิดใช้งานแล้ว",
+      "phase19Tasks": [
+        "✅ S3/MinIO — ดึง bucket size + capacity จาก API อัตโนมัติ (fallback capacityBytes จาก DB)",
+        "✅ Local Disk — อ่านพื้นที่ดิสก์จริงจาก statfsSync (total/used/free)",
+        "✅ NAS (SMB/NFS) — ตั้งค่า capacity manual ต่อ Storage Provider (capacityBytes field)",
+        "✅ UI Dashboard — แสดงแยก card ต่อ provider พร้อม capacity bar: ชื่อ, ประเภท, ใช้ไป/ความจุ, %",
+        "✅ แจ้งเตือนเมื่อพื้นที่เหลือน้อยกว่า threshold (warning 75% / critical 90%)",
+        "✅ ค่า config ขีดจำกัดพื้นที่ เป็น fallback เมื่อดึงจริงไม่ได้"
+      ],
+      "phase20": "P11 — Observability (Prometheus + Grafana + Loki)",
+      "phase20Desc": "ระบบ Monitoring และ Log Aggregation สำหรับ scale 30-100+ กล้อง",
+      "phase20Status": "เปิดใช้งานแล้ว",
+      "phase20Tasks": [
+        "✅ Prometheus — เก็บ metrics จาก image-api ทุก 15 วินาที (24+ metrics)",
+        "✅ Grafana — 4 Dashboards: Overview, Camera Deep Dive, Storage Deep Dive, System Resources",
+        "✅ Grafana Image Renderer — render ภาพ dashboard สำหรับ alert/export",
+        "✅ Grafana Playlist — หมุน 4 dashboards อัตโนมัติทุก 30 วินาที",
+        "✅ Loki — Log aggregation พร้อมใช้",
+        "✅ Per-Camera Metrics — camera_status, camera_images_total, camera_last_poll_seconds แยกแต่ละกล้อง",
+        "✅ Camera Status Table — ดูสถานะแต่ละกล้อง (active/error/offline) ใน Grafana",
+        "✅ System Metrics — CPU cores, load avg, RAM, disk, DB connections, process memory"
+      ],
+      "phase21": "P12 — Health Pipeline Dashboard",
+      "phase21Desc": "แสดง flow diagram: Camera → Sync → Queue → Worker → Storage → DB พร้อมสถานะ + latency จริง",
+      "phase21Status": "เปิดใช้งานแล้ว",
+      "phase21Tasks": [
+        "✅ Pipeline Flow Diagram — แสดง flow Camera → Sync → Queue → Worker → Storage → DB พร้อมสีเขียว/แดง",
+        "✅ Animated connecting lines — เส้นเชื่อมระหว่าง node มี animation เมื่อ active",
+        "✅ Real-time status — ข้อมูลจาก health API auto-refresh ทุก 15 วินาที"
+      ],
+      "phase22": "P13 — Dynamic Object Versioning",
+      "phase22Desc": "ขยาย FileType enum รองรับ AI processing ในอนาคต + version chain",
+      "phase22Status": "เปิดใช้งานแล้ว",
+      "phase22Tasks": [
+        "✅ Extended FileType — เพิ่ม ai, ocr, face_blur, custom ใน enum",
+        "✅ Version Fields — processorName, processorParams, parentFileId สำหรับ version chain",
+        "✅ Zod Schema — fileType เปลี่ยนเป็น string(1-32) รองรับค่าใหม่"
+      ],
+      "phase23": "P14 — Camera Health Monitor & Alerting",
+      "phase23Desc": "ตรวจสอบสถานะกล้องอัตโนมัติทุก 1 นาที แจ้งเตือนเมื่อ offline พร้อมบันทึก downtime",
+      "phase23Status": "เปิดใช้งานแล้ว",
+      "phase23Tasks": [
+        "✅ Camera Health Monitor — cron ทุก 1 นาที",
+        "✅ Offline Detection — threshold ตั้งค่าได้ (default 5 นาที)",
+        "✅ Offline/Online Alert + แจ้ง Telegram/LINE",
+        "✅ Downtime Tracking — บันทึก CameraEvent",
+        "✅ Auto Resolve เมื่อกล้องกลับมา online",
+        "✅ Config — camera_offline_threshold_minutes"
+      ]
+    },
+    "permissions": {
       "modules": {
         "overview": "แดชบอร์ด / ภาพรวม",
         "cameras": "กล้องวงจรปิด",

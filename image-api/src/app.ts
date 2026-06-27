@@ -32,6 +32,7 @@ import { backupRoutes } from './modules/backup/backup.controller.js';
 import { startBackupScheduler, stopBackupScheduler } from './modules/backup/backup-scheduler.js';
 import { smbRoutes } from './modules/smb/smb.controller.js';
 import adminRoutes from './modules/admin/admin.controller.js';
+import { searchRoutes } from './modules/search/search.controller.js';
 import { startRetentionSweeper, stopRetentionSweeper } from './modules/retention-sweeper/retention-sweeper.controller.js';
 import { startDlqReprocessor, stopDlqReprocessor } from './modules/processing-logs/dlq-reprocessor.js';
 import { startMetricCollector, stopMetricCollector } from './modules/provider-metrics/provider-metric-collector.js';
@@ -120,6 +121,7 @@ export async function buildApp() {
       await api.register(migrationRoutes, { prefix: '/api/v1/migrations' });
       await api.register(workerUploadRoutes, { prefix: '/api/v1/images' });
       await api.register(metricsRoutes, { prefix: '/api/v1/metrics' });
+      await api.register(searchRoutes, { prefix: '/api/v1/search' });
     },
   );
 

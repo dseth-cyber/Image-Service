@@ -38,6 +38,7 @@ const PHASE_ICONS: Record<string, any> = {
   phase20: Activity,
   phase21: Wifi,
   phase22: Layers,
+  phase23: Camera,
 }
 
 const PHASES = [
@@ -64,6 +65,7 @@ const PHASES = [
   { key: 'phase20', status: 'Launched', priority: 'P11' },
   { key: 'phase21', status: 'Launched', priority: 'P12' },
   { key: 'phase22', status: 'Launched', priority: 'P13' },
+  { key: 'phase23', status: 'Launched', priority: 'P14' },
 ]
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -90,6 +92,7 @@ const PRIORITY_COLORS: Record<string, string> = {
   P11: 'bg-rose-500/20 text-rose-400',
   P12: 'bg-sky-500/20 text-sky-400',
   P13: 'bg-amber-500/20 text-amber-400',
+  P14: 'bg-lime-500/20 text-lime-400',
 }
 
 const STATUS_WEIGHTS: Record<string, number> = {
@@ -330,7 +333,7 @@ export default function ImageServiceRoadmap() {
                     </span>
                   </div>
                   <div className="mt-2 ml-9 space-y-0.5">
-                    {(t(`imageService.roadmap.${p.key}Tasks`, { returnObjects: true }) as string[]).map((task: string, ti: number) => (
+                    {(Array.isArray(t(`imageService.roadmap.${p.key}Tasks`, { returnObjects: true })) ? t(`imageService.roadmap.${p.key}Tasks`, { returnObjects: true }) as string[] : []).map((task: string, ti: number) => (
                       <p key={ti} className={`text-xs ${themeConfig.text.secondary} flex items-start gap-1.5`}>
                         <span className="text-cyan-400 mt-0.5">▸</span>
                         {task}

@@ -6,7 +6,7 @@ import { useToast } from '@/contexts/ToastContext'
 import { imageServiceApi } from '@/services/imageServiceApi'
 import { formatDateTime } from '@/utils/dateUtils'
 import { Modal, Button, SearchableSelect, TableSkeleton } from '@/components/ui'
-import { Search, Bell, Eye, CheckCircle, XCircle, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
+import { Search, Bell, Eye, CheckCircle, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, Trash2 } from 'lucide-react'
 
 const SEVERITY_COLORS: Record<string, string> = {
   critical: 'bg-red-500/20 text-red-400',
@@ -102,6 +102,19 @@ export default function AlertManagement() {
           <div className="w-40">
             <SearchableSelect value={resolved} onChange={v => { setResolved(v); setPage(1) }}
               placeholder={t('imageService.alerts.status')} options={resolvedOptions} />
+          </div>
+          <div className="ml-auto">
+            <Button variant="secondary" onClick={async () => {
+              try {
+                const res = await imageServiceApi.clearAllAlerts()
+                toast.success(t('imageService.alerts.clearAllSuccess', { count: res.cleared }))
+                queryClient.invalidateQueries({ queryKey: ['alerts'] })
+                queryClient.invalidateQueries({ queryKey: ['navbar-alerts'] })
+              } catch (e: any) { if (!e?._handled) toast.error(t('common.error')) }
+            }}>
+              <Trash2 size={14} className="mr-1.5 inline" />
+              {t('imageService.alerts.clearAll') || 'Clear All'}
+            </Button>
           </div>
         </div>
       </div>

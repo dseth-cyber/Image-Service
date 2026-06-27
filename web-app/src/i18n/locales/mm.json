@@ -442,8 +442,8 @@
       "statusPending": "စောင့်ဆိုင်းနေသည်",
       "dbBackupCompleted": "ဒေတာဘေ့စ် မိတ္တူကူးခြင်းပြီးစီး",
       "dbBackupFailed": "ဒေတာဘေ့စ် မိတ္တူကူးခြင်းမအောင်မြင်",
-      "storageBackupCompleted": "Storage backup completed",
-      "storageBackupFailed": "Storage backup failed",
+      "storageBackupCompleted": "သိုလှောင်မှု မိတ္တူကူးခြင်းပြီးစီး",
+      "storageBackupFailed": "သိုလှောင်မှု မိတ္တူကူးခြင်းမအောင်မြင်",
       "restoreTestSuccess": "ပြန်လည်ရယူခြင်းစမ်းသပ်မှု: {{message}}",
       "restoreTestFailed": "ပြန်လည်ရယူခြင်းစမ်းသပ်မှုမအောင်မြင်: {{message}}",
       "restoreTestError": "ပြန်လည်ရယူခြင်းစမ်းသပ်မှုအမှား"
@@ -517,9 +517,9 @@
       "telegramBot": "Telegram ဘော့",
       "masterdata": "မာစတာဒေတာ",
       "systemConfig": "စနစ်ဖွဲ့စည်းမှု",
-      "deadLetter": "Dead Letter Queue",
+      "deadLetter": "ပျက်စီးစာတန်းစီ",
       "auditLog": "စစ်ဆေးမှတ်တမ်း",
-      "backup": "Backup",
+      "backup": "မိတ္တူသိမ်းခြင်း",
       "storageProviders": "သိုလှောင်မှုဝန်ဆောင်မှုပေးသူ",
       "storageProfiles": "သိုလှောင်မှုပရိုဖိုင်",
       "migrations": "ရွှေ့ပြောင်းခြင်း"
@@ -644,7 +644,9 @@
       "resolvedAt": "ဖြေရှင်းချိန်",
       "acknowledge": "လက်ခံ",
       "resolve": "ဖြေရှင်း",
-      "acknowledged": "သတိပေးချက်လက်ခံပြီး"
+      "acknowledged": "သတိပေးချက်လက်ခံပြီး",
+      "clearAll": "အားလုံးရှင်းလင်းရန်",
+      "clearAllSuccess": "သတိပေးချက် {{count}} ခုကို ရှင်းလင်းပြီး"
     },
     "users": {
       "title": "အသုံးပြုသူစီမံခန့်ခွဲမှု",
@@ -956,92 +958,102 @@
         "လစဉ် အလိုအလျောက် Restore စမ်းသပ်ခြင်း",
         "Backup အခြေအနေ ဒက်ရှ်ဘုတ်"
       ],
-    "phase15": "P9 — Storage Provider Abstraction",
-    "phase15Desc": "StorageProvider Interface, S3 (MinIO, SeaweedFS), LocalDisk with sharding, StorageRouter, worker upload refactor",
-    "phase15Status": "လုပ်ဆောင်နေသည်",
-    "phase15Tasks": [
-      "StorageProvider Interface — save/getStream/delete/health API တစ်စုတည်း",
-      "S3Provider — MinIO/SeaweedFS client ကိုထုတ်ပေးထားပြီး S3-compatible storage အားလုံးနှင့်အလုပ်လုပ်နိုင်",
-      "LocalDiskProvider — YYYY/MM/DD/fileType/hashPrefix sharding ဖြင့် သန်း ၁၀+ ဖိုင်များကိုလက်ခံနိုင်",
-      "StorageRouter — in-memory registry, getDefault(), refresh() on mutation",
-      "MinIO calls များကို images, retention, admin, backup, health → StorageRouter သို့ပြောင်းလဲခြင်း",
-      "Worker က provider သို့တိုက်ရိုက်ရေးသည်၊ API သို့ metadata သာပို့သည်",
-      "Prisma: storage_providers ဇယား, image_files.storageProviderId + storageProfileId + checksumSha256",
-      "ပထမဆုံး deploy လုပ်သည့်အခါ env မှ 'Primary Storage' ကို auto-seed လုပ်သည်"
-    ],
-    "phase16": "P9.1 — Storage Management & Migration",
-    "phase16Desc": "Storage Providers UI, Migration Engine, Health Monitoring",
-    "phase16Status": "စီစဉ်ထား",
-    "phase16Tasks": [
-      "Storage Providers CRUD စာမျက်နှာ — provider များကို UI မှထည့်/ပြင်/ဖျက်နိုင်",
-      "Test Connection — provider endpoint နှင့် credentials ကိုစစ်ဆေးသည်",
-      "Set Default Provider — ဖိုင်အသစ်များသိုလှောင်မည့်နေရာကိုပြောင်းလဲသည်",
-      "Provider Health Dashboard — capacity bar, latency, status per provider",
-      "StorageProviderMetric — ၁၅ မိနစ်တိုင်း health/stats ကို auto-collect လုပ်သည်",
-      "Migration Engine — BullMQ background job ဖြင့် provider များကြားဒေတာရွှေ့ပြောင်းခြင်း",
-      "Migration Dashboard — တိုးတက်မှု, မှတ်တမ်း, ပယ်ဖျက်/ပြန်ကြိုးစား"
-    ],
-    "phase17": "P9.2 — Storage Profiles",
-    "phase17Desc": "Policy-based routing ဖြင့် storage backend အမျိုးမျိုးသို့ပို့ဆောင်ခြင်း",
-    "phase17Status": "စီစဉ်ထား",
-    "phase17Tasks": [
-      "Storage Profiles — provider routing rules ပါသော Profile entity",
-      "Policy-based routing — Default, Reject Archive, AI Dataset, OCR Archive",
-      "ImageFile.storageProfileId — link to profile",
-      "Admin UI for profile CRUD"
-    ],
-    "phase18": "P9.3 — SMB / NFS / SeaweedFS Providers",
-    "phase18Desc": "SMB, NFS နှင့် SeaweedFS (S3-compatible) မှတစ်ဆင့် NAS ကိုတိုက်ရိုက်ပံ့ပိုးခြင်း",
-    "phase18Status": "စီစဉ်ထား",
-    "phase18Tasks": [
-      "SMBProvider — SMB protocol ဖြင့် NAS သို့တိုက်ရိုက်ရေးသည်",
-      "NFSProvider — NFS mount ဖြင့် NAS သို့တိုက်ရိုက်ရေးသည်",
-      "SeaweedFSProvider — ရှိပြီး S3Provider ကိုသုံးသည် (S3-compatible API, config ပြောင်းစရာမလို)",
-      "StorageProvider interface မှ extend — business logic ပြောင်းရန်မလို"
-    ],
-    "phase19": "P10 — သိုလှောင်မှုပမာဏ စောင့်ကြည့်ရေး",
-    "phase19Desc": "Storage Provider တစ်ခုချင်းစီ၏ အမှန်တကယ်ပမာဏပြသခြင်း — Server local disk, MinIO/S3, NAS အလိုအလျောက်ဖတ်ယူ၊ NAS အတွက် manual ဖြင့်သတ်မှတ်",
-    "phase19Status": "စီစဉ်ထားသည်",
-    "phase19Tasks": [
-      "S3/MinIO — API မှ bucket size နှင့် capacity အလိုအလျောက်ရယူ",
-      "Local Disk — df မှ disk space အမှန်ဖတ်ယူ (စုစု/သုံးပြီး/ကျန်)",
-      "NAS (SMB/NFS) — Storage Provider တစ်ခုချင်းအတွက် capacity manual သတ်မှတ်",
-      "UI Dashboard — provider တစ်ခုချင်းအတွက် card ခွဲပြ: အမည်, အမျိုးအစား, ပမာဏ, သုံးပြီး, ကျန်",
-      "ကျန်နေရာ threshold ထက်နည်းပါက သတိပေးချက်ပို့",
-      "အလိုအလျောက်ဖတ်မရပါက system config ပမာဏကန့်သတ်ချက်ကို fallback အဖြစ်သုံး"
-    ],
-    "phase20": "P11 — Observability (Prometheus + Grafana + Loki)",
-    "phase20Desc": "ကင်မရာ 30+ အတွက် Monitoring နှင့် Log Aggregation စနစ် — မှတ်တမ်း metrics၊ time-series၊ log စုစည်းမှု",
-    "phase20Status": "စီစဉ်ထားသည်",
-    "phase20Tasks": [
-      "Prometheus — image-api၊ processing-worker၊ sync-worker မှ metrics စုဆောင်း (request latency၊ queue depth၊ error rate)",
-      "Grafana — Worker ဘယ်ခုနှေးလဲ၊ Queue ကြာချိန်၊ Storage latency၊ NAS response time ပြသမည့် Dashboard",
-      "Loki — container အားလုံးမှ log စုစည်း၊ UI တစ်ခုတည်းမှ ရှာနိုင်",
-      "OpenTelemetry — SMB scan → Queue → Process → Upload → API report distributed tracing",
-      "Alert Manager — metrics ပုံမှန်မဟုတ်သောအခါ Telegram/LINE ဖြင့် အကြောင်းကြား"
-    ],
-    "phase21": "P12 — Health Pipeline Dashboard",
-    "phase21Desc": "Flow diagram: Camera → Sync Worker → Redis Queue → Processing Worker → Storage → DB node တစ်ခုချင်း real-time status နှင့် latency",
-    "phase21Status": "စီစဉ်ထားသည်",
-    "phase21Tasks": [
-      "Pipeline Flow Diagram — Camera → Sync → Queue → Worker → Storage → DB အစိမ်း/အနီ status ပြသ",
-      "Camera Health — ကင်မရာတစ်ခုချင်း status (online/offline၊ last poll၊ error count)",
-      "Worker Health — Worker တစ်ခုချင်း stats (jobs/min၊ avg duration၊ error rate)",
-      "Bottleneck Detection — pipeline တွင် အနှေးဆုံးအချက်ကို အလိုအလျောက် ရှာဖွေ",
-      "DLQ Guard — Worker retry loop ကာကွယ်: TIFF ပျက်စီး → ၃ ကြိမ် retry → dead-letter → alert → auto-reprocess မလုပ်"
-    ],
-    "phase22": "P13 — Dynamic Object Versioning",
-    "phase22Desc": "FileType ကို fixed enum (raw/processed/thumbnail) မှ dynamic string သို့ ပြောင်း၊ AI processing အတွက် ပြင်ဆင်",
-    "phase22Status": "စီစဉ်ထားသည်",
-    "phase22Tasks": [
-      "Dynamic FileType — enum မှ string field သို့ ပြောင်း၊ schema migration မလိုဘဲ type အသစ်ထည့်နိုင်",
-      "Object Version Chain — original → processed → thumbnail → ai → ocr → face_blur version chain",
-      "Processing Pipeline Plugin — config ဖြင့် processing step အသစ်ထည့် (AI Crop၊ OCR၊ Face Blur)၊ code ပြင်ရန်မလို",
-      "Version Metadata — version တစ်ခုချင်းတွင် processor name၊ parameters၊ created_at၊ parent_version သိမ်း",
-      "UI File Browser — ပုံတစ်ပုံချင်း version tree ပြသ၊ version တစ်ခုချင်း download ရနိုင်"
-    ]
-  },
-  "permissions": {
+      "phase15": "P9 — Storage Provider Abstraction",
+      "phase15Desc": "StorageProvider Interface, S3 (MinIO, SeaweedFS), LocalDisk with sharding, StorageRouter, worker upload refactor",
+      "phase15Status": "စတင်အသုံးပြုပြီး",
+      "phase15Tasks": [
+        "StorageProvider Interface — save/getStream/delete/health API တစ်စုတည်း",
+        "S3Provider — MinIO/SeaweedFS client ကိုထုတ်ပေးထားပြီး S3-compatible storage အားလုံးနှင့်အလုပ်လုပ်နိုင်",
+        "LocalDiskProvider — YYYY/MM/DD/fileType/hashPrefix sharding ဖြင့် သန်း ၁၀+ ဖိုင်များကိုလက်ခံနိုင်",
+        "StorageRouter — in-memory registry, getDefault(), refresh() on mutation",
+        "MinIO calls များကို images, retention, admin, backup, health → StorageRouter သို့ပြောင်းလဲခြင်း",
+        "Worker က provider သို့တိုက်ရိုက်ရေးသည်၊ API သို့ metadata သာပို့သည်",
+        "Prisma: storage_providers ဇယား, image_files.storageProviderId + storageProfileId + checksumSha256",
+        "ပထမဆုံး deploy လုပ်သည့်အခါ env မှ 'Primary Storage' ကို auto-seed လုပ်သည်"
+      ],
+      "phase16": "P9.1 — Storage Management & Migration",
+      "phase16Desc": "Storage Providers UI, Migration Engine, Health Monitoring",
+      "phase16Status": "စတင်အသုံးပြုပြီး",
+      "phase16Tasks": [
+        "Storage Providers CRUD စာမျက်နှာ — provider များကို UI မှထည့်/ပြင်/ဖျက်နိုင်",
+        "Test Connection — provider endpoint နှင့် credentials ကိုစစ်ဆေးသည်",
+        "Set Default Provider — ဖိုင်အသစ်များသိုလှောင်မည့်နေရာကိုပြောင်းလဲသည်",
+        "Provider Health Dashboard — capacity bar, latency, status per provider",
+        "StorageProviderMetric — ၁၅ မိနစ်တိုင်း health/stats ကို auto-collect လုပ်သည်",
+        "Migration Engine — BullMQ background job ဖြင့် provider များကြားဒေတာရွှေ့ပြောင်းခြင်း",
+        "Migration Dashboard — တိုးတက်မှု, မှတ်တမ်း, ပယ်ဖျက်/ပြန်ကြိုးစား"
+      ],
+      "phase17": "P9.2 — Storage Profiles",
+      "phase17Desc": "Policy-based routing ဖြင့် storage backend အမျိုးမျိုးသို့ပို့ဆောင်ခြင်း",
+      "phase17Status": "စတင်အသုံးပြုပြီး",
+      "phase17Tasks": [
+        "Storage Profiles — provider routing rules ပါသော Profile entity",
+        "Policy-based routing — Default, Reject Archive, AI Dataset, OCR Archive",
+        "ImageFile.storageProfileId — link to profile",
+        "Admin UI for profile CRUD"
+      ],
+      "phase18": "P9.3 — SMB / NFS / SeaweedFS Providers",
+      "phase18Desc": "SMB, NFS နှင့် SeaweedFS (S3-compatible) မှတစ်ဆင့် NAS ကိုတိုက်ရိုက်ပံ့ပိုးခြင်း",
+      "phase18Status": "စတင်အသုံးပြုပြီး",
+      "phase18Tasks": [
+        "SMBProvider — SMB protocol ဖြင့် NAS သို့တိုက်ရိုက်ရေးသည်",
+        "NFSProvider — NFS mount ဖြင့် NAS သို့တိုက်ရိုက်ရေးသည်",
+        "SeaweedFSProvider — ရှိပြီး S3Provider ကိုသုံးသည် (S3-compatible API, config ပြောင်းစရာမလို)",
+        "StorageProvider interface မှ extend — business logic ပြောင်းရန်မလို"
+      ],
+      "phase19": "P10 — သိုလှောင်မှုပမာဏ စောင့်ကြည့်ရေး",
+      "phase19Desc": "Storage Provider တစ်ခုချင်းစီ၏ အမှန်တကယ်ပမာဏပြသခြင်း — Server local disk, MinIO/S3, NAS အလိုအလျောက်ဖတ်ယူ၊ NAS အတွက် manual ဖြင့်သတ်မှတ်",
+      "phase19Status": "စီစဉ်ထားသည်",
+      "phase19Tasks": [
+        "S3/MinIO — API မှ bucket size နှင့် capacity အလိုအလျောက်ရယူ",
+        "Local Disk — df မှ disk space အမှန်ဖတ်ယူ (စုစု/သုံးပြီး/ကျန်)",
+        "NAS (SMB/NFS) — Storage Provider တစ်ခုချင်းအတွက် capacity manual သတ်မှတ်",
+        "UI Dashboard — provider တစ်ခုချင်းအတွက် card ခွဲပြ: အမည်, အမျိုးအစား, ပမာဏ, သုံးပြီး, ကျန်",
+        "ကျန်နေရာ threshold ထက်နည်းပါက သတိပေးချက်ပို့",
+        "✅ အလိုအလျောက်ဖတ်မရပါက system config ပမာဏကန့်သတ်ချက်ကို fallback အဖြစ်သုံး"
+      ],
+      "phase20": "P11 — Observability (Prometheus + Grafana + Loki)",
+      "phase20Desc": "ကင်မရာ 30+ အတွက် Monitoring နှင့် Log Aggregation စနစ် — မှတ်တမ်း metrics၊ time-series၊ log စုစည်းမှု",
+      "phase20Status": "စီစဉ်ထားသည်",
+      "phase20Tasks": [
+        "Prometheus — image-api၊ processing-worker၊ sync-worker မှ metrics စုဆောင်း (request latency၊ queue depth၊ error rate)",
+        "Grafana — Worker ဘယ်ခုနှေးလဲ၊ Queue ကြာချိန်၊ Storage latency၊ NAS response time ပြသမည့် Dashboard",
+        "Loki — container အားလုံးမှ log စုစည်း၊ UI တစ်ခုတည်းမှ ရှာနိုင်",
+        "OpenTelemetry — SMB scan → Queue → Process → Upload → API report distributed tracing",
+        "Alert Manager — metrics ပုံမှန်မဟုတ်သောအခါ Telegram/LINE ဖြင့် အကြောင်းကြား"
+      ],
+      "phase21": "P12 — Health Pipeline Dashboard",
+      "phase21Desc": "Flow diagram: Camera → Sync Worker → Redis Queue → Processing Worker → Storage → DB node တစ်ခုချင်း real-time status နှင့် latency",
+      "phase21Status": "စီစဉ်ထားသည်",
+      "phase21Tasks": [
+        "Pipeline Flow Diagram — Camera → Sync → Queue → Worker → Storage → DB အစိမ်း/အနီ status ပြသ",
+        "Camera Health — ကင်မရာတစ်ခုချင်း status (online/offline၊ last poll၊ error count)",
+        "Worker Health — Worker တစ်ခုချင်း stats (jobs/min၊ avg duration၊ error rate)",
+        "Bottleneck Detection — pipeline တွင် အနှေးဆုံးအချက်ကို အလိုအလျောက် ရှာဖွေ",
+        "DLQ Guard — Worker retry loop ကာကွယ်: TIFF ပျက်စီး → ၃ ကြိမ် retry → dead-letter → alert → auto-reprocess မလုပ်"
+      ],
+      "phase22": "P13 — Dynamic Object Versioning",
+      "phase22Desc": "FileType ကို fixed enum (raw/processed/thumbnail) မှ dynamic string သို့ ပြောင်း၊ AI processing အတွက် ပြင်ဆင်",
+      "phase22Status": "စီစဉ်ထားသည်",
+      "phase22Tasks": [
+        "Dynamic FileType — enum မှ string field သို့ ပြောင်း၊ schema migration မလိုဘဲ type အသစ်ထည့်နိုင်",
+        "Object Version Chain — original → processed → thumbnail → ai → ocr → face_blur version chain",
+        "Processing Pipeline Plugin — config ဖြင့် processing step အသစ်ထည့် (AI Crop၊ OCR၊ Face Blur)၊ code ပြင်ရန်မလို",
+        "Version Metadata — version တစ်ခုချင်းတွင် processor name၊ parameters၊ created_at၊ parent_version သိမ်း",
+        "UI File Browser — ပုံတစ်ပုံချင်း version tree ပြသ၊ version တစ်ခုချင်း download ရနိုင်"
+      ],
+      "phase23": "P14 — Camera Health Monitor & Alerting",
+      "phase23Desc": "Auto-check camera status every 1 minute",
+      "phase23Status": "Launched",
+      "phase23Tasks": [
+        "✅ Camera Health Monitor",
+        "✅ Offline/Online Alerts",
+        "✅ Downtime Tracking",
+        "✅ Auto Resolve",
+        "✅ Configurable threshold"
+      ]
+    },
+    "permissions": {
       "modules": {
         "overview": "ဒက်ရှ်ဘုတ် / ခြုံငုံသုံးသပ်ချက်",
         "cameras": "ကင်မရာများ",
