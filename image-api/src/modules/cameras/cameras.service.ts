@@ -98,6 +98,7 @@ export async function updateCamera(id: string, input: UpdateCameraInput) {
   if (input.captureMode !== undefined) data.captureMode = input.captureMode;
   if (input.retentionPolicyId !== undefined) data.retentionPolicyId = input.retentionPolicyId;
   if (input.enabled !== undefined) data.enabled = input.enabled;
+  if (input.status !== undefined) data.status = input.status;
   if (input.lastPolledAt !== undefined) data.lastPolledAt = new Date(input.lastPolledAt);
   if (input.metadata !== undefined) data.metadata = input.metadata as object;
 
@@ -106,6 +107,21 @@ export async function updateCamera(id: string, input: UpdateCameraInput) {
     data,
     include: { retentionPolicy: true },
   });
+
+  if (input.status !== undefined && input.status !== existing.status) {
+    const eventType = input.status === 'active' ? 'online' as const
+      : input.status === 'maintenance' ? 'maintenance_start' as const
+      : 'offline' as const;
+
+    await prisma.cameraEvent.create({
+      data: {
+        cameraId: id,
+        eventType,
+        message: `Camera "${existing.name}" status changed: ${existing.status} → ${input.status}`,
+        metadata: { previousStatus: existing.status, newStatus: input.status, changedBy: (input as any)._changedBy ?? 'system' },
+      },
+    });
+  }
 
   return updated;
 }

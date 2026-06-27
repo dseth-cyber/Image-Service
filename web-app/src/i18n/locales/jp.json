@@ -41,7 +41,7 @@
       "currentLabel": "当期",
       "previousLabel": "前期",
       "dailyImages": "日別画像数",
-      "dailyStorage": "日別ストレージ (MB)",
+      "dailyStorage": "日別ストレージ (GB)",
       "period": {
         "7d": "7日",
         "14d": "14日",

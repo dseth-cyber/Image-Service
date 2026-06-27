@@ -41,7 +41,7 @@
       "currentLabel": "Current Period",
       "previousLabel": "Previous Period",
       "dailyImages": "Daily Images",
-      "dailyStorage": "Daily Storage (MB)",
+      "dailyStorage": "Daily Storage (GB)",
       "period": {
         "7d": "7 Days",
         "14d": "14 Days",
@@ -149,7 +149,10 @@
       "size": "Size",
       "capturedAt": "Captured At",
       "recentImages": "Recent Images",
-      "statusProcessed": "Processed"
+      "statusProcessed": "Processed",
+      "changeStatus": "Change Status",
+      "statusChanged": "Camera status changed successfully",
+      "maintenanceDesc": "Camera will stop polling during maintenance"
     },
     "storage": {
       "title": "Storage Monitoring",
@@ -742,7 +745,9 @@
       "inactive": "Inactive",
       "total": "Total {{count}} keys",
       "generate": "Generate Key",
-      "noKeys": "No API keys found"
+      "noKeys": "No API keys found",
+      "createdBy": "Created By",
+      "selectPermission": "Please select at least 1 permission"
     },
     "roadmap": {
       "title": "Roadmap",

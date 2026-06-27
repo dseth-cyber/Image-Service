@@ -12,10 +12,10 @@ export interface CreateAlertInput {
   details?: Record<string, unknown>;
 }
 
-export async function createAlert(input: CreateAlertInput) {
+export async function createAlert(input: CreateAlertInput & { skipDedup?: boolean }) {
   const prisma = getPrisma();
 
-  if (input.source) {
+  if (input.source && !input.skipDedup) {
     const existing = await prisma.alert.findFirst({
       where: {
         alertType: input.alertType,

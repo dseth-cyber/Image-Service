@@ -41,7 +41,7 @@
       "currentLabel": "รอบปัจจุบัน",
       "previousLabel": "รอบก่อนหน้า",
       "dailyImages": "ภาพรายวัน",
-      "dailyStorage": "พื้นที่รายวัน (MB)",
+      "dailyStorage": "พื้นที่รายวัน (GB)",
       "period": {
         "7d": "7 วัน",
         "14d": "14 วัน",
@@ -149,7 +149,10 @@
       "size": "ขนาด",
       "capturedAt": "วันที่ถ่าย",
       "recentImages": "ภาพล่าสุด",
-      "statusProcessed": "ประมวลผลแล้ว"
+      "statusProcessed": "ประมวลผลแล้ว",
+      "changeStatus": "เปลี่ยนสถานะ",
+      "statusChanged": "เปลี่ยนสถานะกล้องสำเร็จ",
+      "maintenanceDesc": "กล้องจะหยุด poll ระหว่างซ่อมบำรุง"
     },
     "storage": {
       "title": "พื้นที่เก็บข้อมูล",
@@ -742,7 +745,9 @@
       "inactive": "ไม่ได้ใช้งาน",
       "total": "ทั้งหมด {{count}} คีย์",
       "generate": "สร้างคีย์",
-      "noKeys": "ไม่พบคีย์ API"
+      "noKeys": "ไม่พบคีย์ API",
+      "createdBy": "สร้างโดย",
+      "selectPermission": "กรุณาเลือกสิทธิ์อย่างน้อย 1 รายการ"
     },
     "roadmap": {
       "title": "โรดแมป",

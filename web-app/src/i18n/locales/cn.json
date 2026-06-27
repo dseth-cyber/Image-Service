@@ -41,7 +41,7 @@
       "currentLabel": "当前周期",
       "previousLabel": "上一周期",
       "dailyImages": "每日图像",
-      "dailyStorage": "每日存储 (MB)",
+      "dailyStorage": "每日存储 (GB)",
       "period": {
         "7d": "7 天",
         "14d": "14 天",

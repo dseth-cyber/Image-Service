@@ -13,6 +13,18 @@ import { TableSkeleton } from '@/components/ui/TableSkeleton';
 
 type SortDir = 'asc' | 'desc';
 
+const PERMISSION_OPTIONS = [
+  { key: 'overview:read', label: 'Overview' },
+  { key: 'cameras:read', label: 'Cameras (read)' },
+  { key: 'search:read', label: 'Images (read)' },
+  { key: 'search:update', label: 'Images (update)' },
+  { key: 'processing:read', label: 'Processing (read)' },
+  { key: 'storage:read', label: 'Storage (read)' },
+  { key: 'alerts:read', label: 'Alerts (read)' },
+  { key: 'health:read', label: 'Health (read)' },
+  { key: '*', label: 'Full Access (*)' },
+];
+
 export default function ApiKeysManagement() {
   const { t, i18n } = useTranslation();
   const { themeConfig } = useTheme();
@@ -21,7 +33,7 @@ export default function ApiKeysManagement() {
 
   const [page, setPage] = useState(1);
   const [modal, setModal] = useState<{ open: boolean; editing?: any }>({ open: false });
-  const [form, setForm] = useState({ name: '', permissions: '*' as string, expiresAt: '' });
+  const [form, setForm] = useState({ name: '', permissions: ['*'] as string[], expiresAt: '' });
   const [createdKey, setCreatedKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [sortKey, setSortKey] = useState<string>('createdAt');
@@ -43,13 +55,13 @@ export default function ApiKeysManagement() {
       queryClient.invalidateQueries({ queryKey: ['api-keys'] });
       toast.success('API key created');
     },
-    onError: (e: any) => { if (!e?._handled) toast.error(t('common.error')); },
+    onError: () => toast.error(t('common.error')),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => imageServiceApi.deleteApiKey(id),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['api-keys'] }); toast.success('API key deleted'); },
-    onError: (e: any) => { if (!e?._handled) toast.error(t('common.error')); },
+    onError: () => toast.error(t('common.error')),
   });
 
   const toggleSort = (key: string) => {
@@ -69,10 +81,27 @@ export default function ApiKeysManagement() {
     return sortDir === 'asc' ? (av ?? '') > (bv ?? '') ? 1 : -1 : (av ?? '') > (bv ?? '') ? -1 : 1;
   });
 
+  const handlePermissionToggle = (key: string, checked: boolean) => {
+    if (key === '*') {
+      // If Full Access is toggled on, set permissions to just ['*']
+      // If toggled off, clear all
+      setForm(f => ({ ...f, permissions: checked ? ['*'] : [] }));
+    } else {
+      setForm(f => {
+        let next = checked
+          ? [...f.permissions.filter(p => p !== '*'), key]
+          : f.permissions.filter(p => p !== key);
+        // Remove duplicates
+        next = [...new Set(next)];
+        return { ...f, permissions: next };
+      });
+    }
+  };
+
   const handleCreate = () => {
     createMutation.mutate({
       name: form.name,
-      permissions: form.permissions.split(',').map((s: string) => s.trim()),
+      permissions: form.permissions,
       expiresAt: form.expiresAt || undefined,
     });
   };
@@ -100,7 +129,7 @@ export default function ApiKeysManagement() {
           <h1 className={`text-2xl font-bold ${themeConfig.text.primary}`}>{t('imageService.apiKeys.title')}</h1>
           <p className={`text-sm mt-1 ${themeConfig.text.secondary}`}>{t('imageService.apiKeys.subtitle')}</p>
         </div>
-        <Button onClick={() => { setForm({ name: '', permissions: '*', expiresAt: '' }); setCreatedKey(null); setModal({ open: true }); }}>
+        <Button onClick={() => { setForm({ name: '', permissions: ['*'], expiresAt: '' }); setCreatedKey(null); setModal({ open: true }); }}>
           <Plus size={16} className="mr-1.5" /> {t('imageService.apiKeys.createKey')}
         </Button>
       </div>
@@ -115,6 +144,7 @@ export default function ApiKeysManagement() {
                   <th className={thClass} onClick={() => toggleSort('tokenPrefix')}>{t('imageService.apiKeys.key')}<SortIcon k="tokenPrefix" /></th>
                   <th className={thClass} onClick={() => toggleSort('enabled')}>{t('imageService.apiKeys.status')}<SortIcon k="enabled" /></th>
                   <th className={thClass} onClick={() => toggleSort('permissions')}>{t('imageService.apiKeys.permissions')}<SortIcon k="permissions" /></th>
+                  <th className={thClass} onClick={() => toggleSort('createdBy')}>{t('imageService.apiKeys.createdBy')}<SortIcon k="createdBy" /></th>
                   <th className={thClass} onClick={() => toggleSort('createdAt')}>{t('imageService.apiKeys.createdAt')}<SortIcon k="createdAt" /></th>
                   <th className={thClass} onClick={() => toggleSort('expiresAt')}>{t('imageService.apiKeys.expiresAt')}<SortIcon k="expiresAt" /></th>
                   <th className={`px-4 py-3 text-center text-sm font-semibold ${themeConfig.text.primary}`}>{t('common.actions')}</th>
@@ -122,7 +152,7 @@ export default function ApiKeysManagement() {
               </thead>
               <tbody>
                 {sorted.length === 0 ? (
-                  <tr><td colSpan={7} className={`px-4 py-8 text-center text-sm ${themeConfig.text.secondary}`}>{t('common.noData')}</td></tr>
+                  <tr><td colSpan={8} className={`px-4 py-8 text-center text-sm ${themeConfig.text.secondary}`}>{t('common.noData')}</td></tr>
                 ) : sorted.map((keyItem: any) => (
                   <tr key={keyItem.id} className={`border-t ${themeConfig.tableBorder} hover:bg-white/5 transition-colors`}>
                     <td className={`px-4 py-3 text-sm font-medium ${themeConfig.text.primary}`}>{keyItem.name}</td>
@@ -148,6 +178,9 @@ export default function ApiKeysManagement() {
                     </td>
                     <td className={`px-4 py-3 text-sm font-mono ${themeConfig.text.secondary}`}>
                       {(keyItem.permissions ?? []).join(', ')}
+                    </td>
+                    <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>
+                      {keyItem.createdBy || '—'}
                     </td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>
                       {fmtDate(keyItem.createdAt)}
@@ -232,12 +265,30 @@ export default function ApiKeysManagement() {
             </div>
             <div>
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.apiKeys.permissions')}</label>
-              <input value={form.permissions} onChange={e => setForm(f => ({ ...f, permissions: e.target.value }))}
-                placeholder="* or camera:read,image:write"
-                className={`w-full px-4 py-2.5 rounded-md text-sm border font-mono ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-cyan-500/50`} />
-              <p className={`text-xs mt-1 ${themeConfig.text.secondary}`}>
-                Comma-separated. Use <span className="font-mono text-cyan-400">*</span> for full access.
-              </p>
+              <div className="grid grid-cols-2 gap-2 p-3 rounded-lg border border-white/10 bg-black/20">
+                {PERMISSION_OPTIONS.map(opt => {
+                  const isFullAccess = form.permissions.includes('*');
+                  const isChecked = opt.key === '*' ? isFullAccess : (isFullAccess || form.permissions.includes(opt.key));
+                  const isDisabled = opt.key !== '*' && isFullAccess;
+                  return (
+                    <label key={opt.key} className={`flex items-center gap-2.5 p-1.5 rounded hover:bg-white/5 cursor-pointer text-xs ${isDisabled ? 'opacity-60' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        disabled={isDisabled}
+                        onChange={e => handlePermissionToggle(opt.key, e.target.checked)}
+                        className="rounded border-white/30 bg-white/10 text-cyan-500 focus:ring-cyan-500/50"
+                      />
+                      <span className={`${themeConfig.text.primary} ${opt.key === '*' ? 'font-semibold text-cyan-400' : ''}`}>
+                        {opt.label}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+              {form.permissions.length === 0 && (
+                <p className="text-xs mt-1 text-red-400">{t('imageService.apiKeys.selectPermission')}</p>
+              )}
             </div>
             <div>
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.apiKeys.expiresAt')}</label>
@@ -247,7 +298,7 @@ export default function ApiKeysManagement() {
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="secondary" onClick={() => setModal({ open: false })}>{t('common.cancel')}</Button>
-              <Button onClick={handleCreate} disabled={!form.name || createMutation.isPending}>
+              <Button onClick={handleCreate} disabled={!form.name || form.permissions.length === 0 || createMutation.isPending}>
                 {createMutation.isPending ? t('common.saving') : t('imageService.apiKeys.generate')}
               </Button>
             </div>

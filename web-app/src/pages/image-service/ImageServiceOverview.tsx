@@ -156,7 +156,7 @@ export default function ImageServiceOverview() {
 
   const stats = [
     { label: t('imageService.overview.totalImages'), value: overview?.totalImages?.toLocaleString() ?? '—', icon: Image, color: '#06b6d4' },
-    { label: t('imageService.overview.activeCameras'), value: overview?.activeCameras ?? '—', icon: Camera, color: '#10b981' },
+    { label: t('imageService.overview.activeCameras'), value: `${overview?.activeCameras ?? 0} / ${(overview?.activeCameras ?? 0) + (overview?.inactiveCameras ?? 0) + (overview?.errorCameras ?? 0) + (overview?.maintenanceCameras ?? 0)}`, icon: Camera, color: '#10b981' },
     { label: t('imageService.overview.storageUsed'), value: overview?.storageUsed != null ? `${formatBytes(overview.storageUsed)} / ${formatBytes(overview.storageTotal ?? 0)}` : '—', icon: HardDrive, color: '#8b5cf6' },
     { label: t('imageService.overview.processingRate'), value: overview?.processingRate != null ? `${overview.processingRate}${t('imageService.overview.perHour')}` : '—', icon: Activity, color: '#f59e0b' },
   ];
@@ -298,37 +298,45 @@ export default function ImageServiceOverview() {
           <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>
             {t('imageService.overview.cameraStatus')}
           </h3>
-          <ResponsiveContainer width="100%" height="100%" className="flex-1 min-h-0">
-            <PieChart>
-              <Pie data={[
-                { name: t('imageService.cameras.active'), value: overview?.activeCameras ?? 0 },
-                { name: t('imageService.cameras.inactive'), value: overview?.inactiveCameras ?? 0 },
-                { name: t('imageService.cameras.error'), value: overview?.errorCameras ?? 0 },
-              ]} cx="50%" cy="55%" innerRadius={50} outerRadius={70}
-                paddingAngle={3} dataKey="value" nameKey="name"
-                label={({ name, value }: any) => `${name}: ${value}`}>
-                {PIE_COLORS.slice(0, 3).map((c, i) => (
-                  <Cell key={i} fill={c} />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="mt-3 space-y-1.5">
-            {[
-              { name: t('imageService.cameras.active'), value: overview?.activeCameras ?? 0, color: '#06b6d4' },
-              { name: t('imageService.cameras.inactive'), value: overview?.inactiveCameras ?? 0, color: '#8b5cf6' },
-              { name: t('imageService.cameras.error'), value: overview?.errorCameras ?? 0, color: '#f59e0b' },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className={themeConfig.text.primary}>{item.name}</span>
+          {(() => {
+            const camData = [
+              { name: t('imageService.cameras.active'), value: overview?.activeCameras ?? 0, color: '#10b981' },
+              { name: t('imageService.cameras.maintenance'), value: overview?.maintenanceCameras ?? 0, color: '#f59e0b' },
+              { name: t('imageService.cameras.inactive'), value: overview?.inactiveCameras ?? 0, color: '#6b7280' },
+              { name: t('imageService.cameras.error'), value: overview?.errorCameras ?? 0, color: '#ef4444' },
+            ];
+            const totalCams = camData.reduce((s, d) => s + d.value, 0);
+            return (
+              <>
+                <ResponsiveContainer width="100%" height="100%" className="flex-1 min-h-0">
+                  <PieChart>
+                    <Pie data={camData.filter(d => d.value > 0)} cx="50%" cy="55%" innerRadius={50} outerRadius={70}
+                      paddingAngle={3} dataKey="value" nameKey="name"
+                      label={({ name, value }: any) => `${name}: ${value}`}>
+                      {camData.filter(d => d.value > 0).map((d, i) => (
+                        <Cell key={i} fill={d.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="mt-3 space-y-1.5">
+                  {camData.map((item, i) => {
+                    const pct = totalCams > 0 ? ((item.value / totalCams) * 100).toFixed(0) : '0';
+                    return (
+                      <div key={i} className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                          <span className={themeConfig.text.primary}>{item.name}</span>
+                        </div>
+                        <span className={themeConfig.text.primary}>{item.value} <span className={themeConfig.text.secondary}>({pct}%)</span></span>
+                      </div>
+                    );
+                  })}
                 </div>
-                <span className={themeConfig.text.primary}>{item.value.toLocaleString()}</span>
-              </div>
-            ))}
-          </div>
+              </>
+            );
+          })()}
         </div>
 
         <div key="byCamera" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>

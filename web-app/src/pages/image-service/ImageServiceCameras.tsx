@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/contexts/ToastContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { hasPermission } from '@/App';
 import { imageServiceApi } from '@/services/imageServiceApi';
 import { formatDateTime } from '@/utils/dateUtils';
 import { Search, Plus, ChevronUp, ChevronDown, ChevronsUpDown,
@@ -32,6 +34,8 @@ export default function ImageServiceCameras() {
   const toast = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const canUpdate = hasPermission(user, 'cameras:update');
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -109,6 +113,28 @@ export default function ImageServiceCameras() {
       toast.success(t('imageService.cameras.deactivated'));
       queryClient.invalidateQueries({ queryKey: ['cameras-list'] });
     } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
+  };
+
+  const [statusDropdownId, setStatusDropdownId] = useState<string | null>(null);
+  const [changingStatus, setChangingStatus] = useState<Set<string>>(new Set());
+
+  const STATUS_OPTIONS: { value: string; label: string; bg: string; icon: any }[] = [
+    { value: 'active', label: t('imageService.cameras.active'), bg: 'bg-green-500/20 text-green-400 hover:bg-green-500/30', icon: Wifi },
+    { value: 'maintenance', label: t('imageService.cameras.maintenance'), bg: 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30', icon: Wrench },
+    { value: 'inactive', label: t('imageService.cameras.inactive'), bg: 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30', icon: WifiOff },
+  ];
+
+  const handleChangeStatus = async (id: string, newStatus: string) => {
+    setChangingStatus(prev => new Set(prev).add(id));
+    setStatusDropdownId(null);
+    try {
+      await imageServiceApi.updateCamera(id, { status: newStatus });
+      toast.success(t('imageService.cameras.statusChanged'));
+      queryClient.invalidateQueries({ queryKey: ['cameras-list'] });
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
+    finally {
+      setChangingStatus(prev => { const next = new Set(prev); next.delete(id); return next; });
+    }
   };
 
   const [scanning, setScanning] = useState(false);
@@ -330,10 +356,54 @@ export default function ImageServiceCameras() {
                     </td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>{camera.ipAddress}</td>
                     <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center gap-1 ${statusStyle.bg}`}>
-                        <StatusIcon size={11} />
-                        {t(`imageService.cameras.${camera.status}`)}
-                      </span>
+                      <div className="relative">
+                        <button
+                          data-status-btn={camera.id}
+                          onClick={() => canUpdate && setStatusDropdownId(statusDropdownId === camera.id ? null : camera.id)}
+                          disabled={changingStatus.has(camera.id) || !canUpdate}
+                          className={`px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center gap-1 transition-all ${canUpdate ? 'cursor-pointer hover:ring-1 hover:ring-white/20' : 'cursor-default'} ${statusStyle.bg}`}
+                          title={canUpdate ? t('imageService.cameras.changeStatus') : ''}
+                        >
+                          {changingStatus.has(camera.id) ? (
+                            <RefreshCw size={11} className="animate-spin" />
+                          ) : (
+                            <StatusIcon size={11} />
+                          )}
+                          {t(`imageService.cameras.${camera.status}`)}
+                          {canUpdate && <ChevronDown size={10} className="ml-0.5 opacity-60" />}
+                        </button>
+                        {statusDropdownId === camera.id && (
+                          <>
+                            <div className="fixed inset-0 z-40" onClick={() => setStatusDropdownId(null)} />
+                            <div className="fixed z-50 rounded-lg border border-white/20 bg-slate-800 shadow-2xl min-w-[180px] py-1"
+                              style={{ top: (document.querySelector(`[data-status-btn="${camera.id}"]`) as HTMLElement)?.getBoundingClientRect().bottom + 4, left: (document.querySelector(`[data-status-btn="${camera.id}"]`) as HTMLElement)?.getBoundingClientRect().left }}>
+                              {STATUS_OPTIONS.map(opt => {
+                                const OptIcon = opt.icon;
+                                const isCurrent = camera.status === opt.value;
+                                return (
+                                  <button
+                                    key={opt.value}
+                                    onClick={() => !isCurrent && handleChangeStatus(camera.id, opt.value)}
+                                    disabled={isCurrent}
+                                    className={`w-full text-left px-3 py-2 text-xs flex items-center gap-2 transition-colors ${isCurrent ? 'opacity-50 cursor-default' : 'hover:bg-white/5 cursor-pointer'}`}
+                                  >
+                                    <span className={`inline-flex items-center gap-1.5 ${opt.bg.split(' ').filter(c => c.startsWith('text-')).join(' ')}`}>
+                                      <OptIcon size={12} />
+                                      {opt.label}
+                                    </span>
+                                    {isCurrent && <CheckCircle size={11} className="ml-auto text-cyan-400" />}
+                                  </button>
+                                );
+                              })}
+                              {camera.status !== 'maintenance' && (
+                                <div className={`px-3 py-1.5 text-[10px] border-t border-white/5 ${themeConfig.text.secondary}`}>
+                                  {t('imageService.cameras.maintenanceDesc')}
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>
                       {camera.lastPolledAt ? formatDateTime(camera.lastPolledAt, i18n.language) : '—'}

@@ -251,10 +251,12 @@ export async function getProcessingStats() {
   let activeCameras = 0;
   let inactiveCameras = 0;
   let errorCameras = 0;
+  let maintenanceCameras = 0;
   for (const c of cameraCounts) {
     if (c.status === 'active') activeCameras = c._count.id;
     else if (c.status === 'inactive') inactiveCameras = c._count.id;
     else if (c.status === 'error') errorCameras = c._count.id;
+    else if (c.status === 'maintenance') maintenanceCameras = c._count.id;
   }
 
   // Storage by type
@@ -330,6 +332,7 @@ export async function getProcessingStats() {
     activeCameras,
     inactiveCameras,
     errorCameras,
+    maintenanceCameras,
     storageUsed,
     storageTotal: (Number(configs.max_storage_gb?.value ?? 1000)) * 1024 * 1024 * 1024,
     processingRate,
