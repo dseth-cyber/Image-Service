@@ -694,8 +694,8 @@ export default function ImageServiceCameras() {
 
       {/* Camera Trash Modal */}
       <Modal isOpen={trashOpen} onClose={() => { setTrashOpen(false); setShowEmptyConfirm(false); setEmptyTrashPassword(''); }}
-        title={t('imageService.cameras.cameraTrash')}>
-        <div className="space-y-4 p-1">
+        title={t('imageService.cameras.cameraTrash')} size="4xl">
+        <div className="space-y-4 p-1 max-w-full">
           {trashLoading ? (
             <div className="flex items-center justify-center py-8">
               <RefreshCw size={20} className="animate-spin text-cyan-400" />

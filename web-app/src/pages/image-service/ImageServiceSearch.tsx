@@ -729,8 +729,8 @@ export default function ImageServiceSearch() {
       </Modal>
 
       {/* Trash Bin Modal */}
-      <Modal isOpen={trashOpen} onClose={() => { setTrashOpen(false); setShowEmptyConfirm(false); setEmptyTrashPassword(''); }} title={t('imageService.search.trashTitle')}>
-        <div className="space-y-4 p-1 max-w-3xl min-w-[600px]">
+      <Modal isOpen={trashOpen} onClose={() => { setTrashOpen(false); setShowEmptyConfirm(false); setEmptyTrashPassword(''); }} title={t('imageService.search.trashTitle')} size="4xl">
+        <div className="space-y-4 p-1 max-w-full">
           {trashLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full" />
