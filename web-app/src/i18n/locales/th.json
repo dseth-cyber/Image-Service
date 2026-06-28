@@ -752,7 +752,17 @@
       "pipelineCamera": "กล้อง",
       "pipelineRedisQueue": "Redis Queue",
       "pipelineStorage": "Storage",
-      "pipelineDatabase": "Database"
+      "pipelineDatabase": "Database",
+      "serverResources": "ทรัพยากรเซิร์ฟเวอร์",
+      "memory": "หน่วยความจำ",
+      "disk": "ดิสก์",
+      "queueStatus": "สถานะคิว",
+      "queueJobs": "คิว (รอ/กำลังทำ)",
+      "systemInfo": "ข้อมูลระบบ",
+      "verification": "ตรวจสอบระบบ",
+      "runVerification": "เริ่มตรวจสอบ",
+      "verificationMethod": "ทดสอบ API ทุก endpoint ผ่าน HTTPS — ตรวจสอบ end-to-end ว่าทุกฟังก์ชันทำงานได้จริง",
+      "verificationHint": "กดปุ่ม \"เริ่มตรวจสอบ\" เพื่อทดสอบทุก endpoint ของระบบ"
     },
     "apiKeys": {
       "title": "คีย์ API",

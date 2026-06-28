@@ -752,7 +752,17 @@
       "pipelineCamera": "Camera",
       "pipelineRedisQueue": "Redis Queue",
       "pipelineStorage": "Storage",
-      "pipelineDatabase": "Database"
+      "pipelineDatabase": "Database",
+      "serverResources": "Server Resources",
+      "memory": "Memory",
+      "disk": "Disk",
+      "queueStatus": "Queue Status",
+      "queueJobs": "Queue (Wait/Active)",
+      "systemInfo": "System Information",
+      "verification": "System Verification",
+      "runVerification": "Run Verification",
+      "verificationMethod": "End-to-end API verification via HTTPS — tests all endpoints to confirm every feature is operational",
+      "verificationHint": "Click \"Run Verification\" to test all system endpoints"
     },
     "apiKeys": {
       "title": "API Keys",
