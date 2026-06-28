@@ -265,8 +265,8 @@ export async function getProcessingStats() {
     value: Number(f._count.id ?? 0),
   }));
 
-  // Storage used from storage metrics
-  const storageUsed = storageMetrics.bucketSize;
+  // Storage used — same calculation as /storage/summary for consistency
+  const storageUsed = fileTypeStats.reduce((s, f) => s + Number(f._sum?.fileSizeBytes ?? 0n), 0);
 
   // Processing rate (last hour)
   const hourlyJobs = await prisma.processingJob.count({
