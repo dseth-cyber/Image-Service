@@ -252,7 +252,7 @@ const VERIFY_ENDPOINTS = [
   { name: 'Health', path: '/health', noAuth: true },
   { name: 'DLQ', path: '/processing-logs/dlq/summary' },
   { name: 'Trends', path: '/processing-logs/trends?period=7d' },
-  { name: 'Metrics', path: '/metrics', noAuth: true },
+  { name: 'Metrics', path: '/metrics' },
 ]
 
 function VerificationCard() {

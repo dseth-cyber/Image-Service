@@ -402,6 +402,113 @@ export async function reprocessImage(id: string) {
   return { id, status: 'pending', jobId };
 }
 
+export async function bulkDeletePreview(days: number) {
+  const prisma = getPrisma();
+  const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  const count = await prisma.image.count({
+    where: { capturedAt: { lt: cutoff }, status: { not: 'deleted' } },
+  });
+  return { days, cutoffDate: cutoff.toISOString(), count };
+}
+
+export async function bulkDeleteByAge(days: number, username: string) {
+  const prisma = getPrisma();
+  const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+  const result = await prisma.image.updateMany({
+    where: { capturedAt: { lt: cutoff }, status: { not: 'deleted' } },
+    data: { status: 'deleted', deletedAt: new Date() },
+  });
+
+  // Create alert notification
+  const { createAlert } = await import('../alerts/alerts.service.js');
+  createAlert({
+    alertType: 'storage_warning',
+    severity: 'info',
+    title: `Bulk delete: ${result.count} images older than ${days} days`,
+    message: `${username} deleted ${result.count} images captured before ${cutoff.toISOString().split('T')[0]}`,
+    details: { days, deleted: result.count, deletedBy: username },
+    skipDedup: true,
+  }).catch(() => {});
+
+  logger.info({ days, deleted: result.count, deletedBy: username }, 'Bulk delete completed');
+
+  return { deleted: result.count, days, cutoffDate: cutoff.toISOString() };
+}
+
+export async function listDeletedImages(params: { page?: number; limit?: number }) {
+  const prisma = getPrisma();
+  const page = params.page ?? 1;
+  const limit = params.limit ?? 20;
+
+  const [total, rows] = await Promise.all([
+    prisma.image.count({ where: { status: 'deleted' } }),
+    prisma.image.findMany({
+      where: { status: 'deleted' },
+      orderBy: { deletedAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+      select: {
+        id: true,
+        originalFilename: true,
+        cameraId: true,
+        fileSizeBytes: true,
+        capturedAt: true,
+        deletedAt: true,
+        camera: { select: { name: true } },
+      },
+    }),
+  ]);
+
+  return {
+    data: rows.map(r => ({ ...mapBigInt(r) as Record<string, unknown> })),
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  };
+}
+
+export async function restoreImage(id: string) {
+  const prisma = getPrisma();
+  const image = await prisma.image.findUnique({ where: { id } });
+  if (!image || image.status !== 'deleted') throw new NotFoundError('Image', id);
+
+  return prisma.image.update({
+    where: { id },
+    data: { status: 'completed', deletedAt: null },
+  });
+}
+
+export async function restoreAllImages() {
+  const prisma = getPrisma();
+  const result = await prisma.image.updateMany({
+    where: { status: 'deleted' },
+    data: { status: 'completed', deletedAt: null },
+  });
+  return { restored: result.count };
+}
+
+export async function emptyTrash() {
+  const prisma = getPrisma();
+  // Get all deleted images
+  const deleted = await prisma.image.findMany({
+    where: { status: 'deleted' },
+    select: { id: true },
+  });
+
+  const ids = deleted.map(d => d.id);
+  if (ids.length === 0) return { deleted: 0 };
+
+  // Delete image files records first
+  await prisma.imageFile.deleteMany({ where: { imageId: { in: ids } } });
+  // Delete image tags
+  await prisma.imageTag.deleteMany({ where: { imageId: { in: ids } } });
+  // Delete processing jobs
+  await prisma.processingJob.deleteMany({ where: { imageId: { in: ids } } });
+  // Delete images permanently
+  const result = await prisma.image.deleteMany({ where: { id: { in: ids } } });
+
+  return { deleted: result.count };
+}
+
 export async function bulkReprocessAll() {
   const prisma = getPrisma();
 

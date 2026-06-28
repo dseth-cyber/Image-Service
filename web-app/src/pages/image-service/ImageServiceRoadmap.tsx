@@ -70,9 +70,9 @@ const PHASES = [
   { key: 'phase21', status: 'Launched', priority: 'P12' },
   { key: 'phase22', status: 'Launched', priority: 'P13' },
   { key: 'phase23', status: 'Launched', priority: 'P14' },
-  { key: 'phase24', status: 'Planned', priority: 'P15' },
-  { key: 'phase25', status: 'Planned', priority: 'P16' },
-  { key: 'phase26', status: 'Planned', priority: 'P17' },
+  { key: 'phase24', status: 'Launched', priority: 'P15' },
+  { key: 'phase25', status: 'Launched', priority: 'P16' },
+  { key: 'phase26', status: 'Launched', priority: 'P17' },
   { key: 'phase27', status: 'Planned', priority: 'P18' },  // Cloudflare Tunnel — last
 ]
 

@@ -5,6 +5,7 @@ import { requirePermission } from '../../middleware/rbac.js';
 import { getRedisClient } from '../../lib/redis.js';
 import { createAuditLog } from '../audit/audit.service.js';
 import { createAlert } from '../alerts/alerts.service.js';
+import { sendWebhook } from '../../lib/webhook.js';
 
 async function listHandler(request: FastifyRequest, reply: FastifyReply) {
   const filters = cameraQuerySchema.parse(request.query);
@@ -55,6 +56,8 @@ async function updateHandler(request: FastifyRequest, reply: FastifyReply) {
       details: { cameraId: id, cameraName: camera.name, previousStatus: beforeCamera.status, newStatus: input.status, changedBy: user?.username },
       skipDedup: true,
     });
+
+    sendWebhook('camera.status_changed', { cameraId: id, cameraName: camera.name, previousStatus: beforeCamera.status, newStatus: input.status, changedBy: user?.username }).catch(() => {});
   } else if (Object.keys(input).length > 0) {
     createAuditLog({
       userId: user?.id,

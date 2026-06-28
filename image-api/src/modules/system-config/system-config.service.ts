@@ -19,6 +19,9 @@ const DEFAULT_CONFIGS: Record<string, { value: string; description: string; valu
   dashboard_layout_processing: { value: '', description: 'Default processing monitor layout for new users (JSON)', valueType: 'json', category: 'dashboard' },
   dashboard_layout_storage: { value: '', description: 'Default storage layout for new users (JSON)', valueType: 'json', category: 'dashboard' },
 
+  webhook_url: { value: '', description: 'Webhook URL to notify on events (image processed, camera offline)', valueType: 'string', category: 'general' },
+  webhook_secret: { value: '', description: 'Webhook secret for HMAC signature', valueType: 'string', category: 'general' },
+
   // General settings — managed via UI
   system_logo: { value: '', description: 'System logo (base64 data URL)', valueType: 'string', category: 'general' },
   system_name: { value: 'Image Service', description: 'Application name', valueType: 'string', category: 'general' },

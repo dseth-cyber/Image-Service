@@ -701,7 +701,17 @@
       "activeCameras": "アクティブカメラ",
       "openAlerts": "未解決アラート",
       "version": "バージョン",
-      "serviceDetails": "サービス詳細"
+      "serviceDetails": "サービス詳細",
+      "serverResources": "サーバーリソース",
+      "memory": "メモリ",
+      "disk": "ディスク",
+      "queueStatus": "キューステータス",
+      "queueJobs": "キュー (待機/処理中)",
+      "systemInfo": "システム情報",
+      "verification": "システム検証",
+      "runVerification": "検証開始",
+      "verificationMethod": "HTTPS経由のエンドツーエンドAPI検証 — すべてのエンドポイントをテスト",
+      "verificationHint": "「検証開始」をクリックしてすべてのエンドポイントをテスト"
     },
     "apiKeys": {
       "title": "API キー",
@@ -1054,34 +1064,34 @@
       ],
       "phase24": "P15 — Security Hardening",
       "phase24Desc": "Fix security vulnerabilities",
-      "phase24Status": "Planned",
+      "phase24Status": "Launched",
       "phase24Tasks": [
-        "Encrypt SMB passwords",
-        "Remove default secrets",
-        "Auth on /metrics",
-        "Restrict CORS",
-        "Rate limit login",
-        "Security headers"
+        "✅ Encrypt SMB passwords",
+        "✅ Remove default secrets",
+        "✅ Auth on /metrics",
+        "✅ Restrict CORS",
+        "✅ Rate limit login",
+        "✅ Security headers"
       ],
       "phase25": "P17 — Performance & Scalability",
       "phase25Desc": "Optimize for 100+ cameras",
-      "phase25Status": "Planned",
+      "phase25Status": "Launched",
       "phase25Tasks": [
-        "Code-Splitting",
-        "Worker Plugin",
-        "Provider Refresh",
-        "Migration Batching",
-        "SSE Reconnect",
-        "Horizontal Scaling"
+        "✅ Code-Splitting",
+        "✅ Worker Plugin",
+        "✅ Provider Refresh",
+        "✅ Migration Batching",
+        "✅ SSE Reconnect",
+        "✅ Horizontal Scaling"
       ],
       "phase26": "P18 — Integration & Extensibility",
       "phase26Desc": "External system integration",
-      "phase26Status": "Planned",
+      "phase26Status": "Launched",
       "phase26Tasks": [
-        "Webhook",
-        "Priority Queue",
-        "Multi-tenancy",
-        "Migration UI"
+        "✅ Webhook",
+        "✅ Priority Queue",
+        "✅ Multi-tenancy",
+        "✅ Migration UI"
       ],
       "phase27": "P16 — Cloudflare Tunnel & External Access",
       "phase27Desc": "External access via Cloudflare Tunnel",

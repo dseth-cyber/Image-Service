@@ -137,6 +137,7 @@ export default function ImageServiceProcessingMonitor() {
     }
   }, [initialLogs]);
   const esRef = useRef<EventSource | null>(null);
+  const reconnectDelay = useRef(1000);
 
   const handleLayoutChange = useCallback((_l: any, allLayouts: any) => {
     setLayouts(allLayouts);
@@ -173,7 +174,10 @@ export default function ImageServiceProcessingMonitor() {
     const es = new EventSource('/image-service/api/v1/processing-logs/stream');
     esRef.current = es;
 
-    es.onopen = () => setConnected(true);
+    es.onopen = () => {
+      setConnected(true);
+      reconnectDelay.current = 1000; // Reset on successful connect
+    };
 
     es.addEventListener('stats', (e) => {
       try {
@@ -198,8 +202,16 @@ export default function ImageServiceProcessingMonitor() {
 
     es.onerror = () => {
       setConnected(false);
+      esRef.current?.close();
+      // Exponential backoff reconnect
+      setTimeout(() => {
+        if (autoRefresh) {
+          connect();
+          reconnectDelay.current = Math.min(reconnectDelay.current * 2, 30000);
+        }
+      }, reconnectDelay.current);
     };
-  }, []);
+  }, [autoRefresh]);
 
   useEffect(() => {
     if (autoRefresh) connect();

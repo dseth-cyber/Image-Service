@@ -23,6 +23,25 @@ export function createImageServiceApi(api: any) {
 
     reprocessImage: (id: string) => api.post(`${BASE}/images/${id}/reprocess`).then((r: any) => r.data),
 
+    bulkDeletePreview: (days: number) =>
+      api.get(`${BASE}/images/bulk-delete-preview`, { params: { days } }).then((r: any) => r.data),
+
+    bulkDeleteByAge: (days: number, password: string) =>
+      api.post(`${BASE}/images/bulk-delete`, { days, password }).then((r: any) => r.data),
+
+    // Trash
+    getTrashImages: (params?: { page?: number; limit?: number }) =>
+      api.get(`${BASE}/images/trash`, { params }).then((r: any) => r.data),
+
+    restoreImage: (id: string) =>
+      api.post(`${BASE}/images/${id}/restore`).then((r: any) => r.data),
+
+    restoreAllImages: () =>
+      api.post(`${BASE}/images/trash/restore-all`).then((r: any) => r.data),
+
+    emptyTrash: (password: string) =>
+      api.post(`${BASE}/images/trash/empty`, { password }).then((r: any) => r.data),
+
     // Cameras
     getCameras: (params?: { status?: string; enabled?: boolean }) =>
       api.get(`${BASE}/cameras`, { params }).then((r: any) => r.data),

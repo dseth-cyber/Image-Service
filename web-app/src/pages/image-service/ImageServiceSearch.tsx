@@ -3,12 +3,15 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useToast } from '@/contexts/ToastContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { hasPermission } from '@/App';
 import { imageServiceApi } from '@/services/imageServiceApi';
 import { formatDateTime } from '@/utils/dateUtils';
 import { Modal, Button, SearchableSelect, TableSkeleton } from '@/components/ui';
 import {
   Search, ChevronUp, ChevronDown, ChevronsUpDown, Eye, Trash2,
   Download, Image, FileImage, Tag, Info, X, Filter, Plus, RefreshCw, FolderOpen,
+  AlertTriangle, Undo2,
 } from 'lucide-react';
 
 function parseFilePath(originalFilename: string): { basename: string; subFolder: string } {
@@ -37,6 +40,7 @@ export default function ImageServiceSearch() {
   const { themeConfig } = useTheme();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState(() => {
@@ -58,6 +62,18 @@ export default function ImageServiceSearch() {
   const [thumbError, setThumbError] = useState(false);
   const [thumbSrc, setThumbSrc] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeleteDays, setBulkDeleteDays] = useState(30);
+  const [bulkDeletePreview, setBulkDeletePreview] = useState<{ count: number; cutoffDate: string } | null>(null);
+  const [bulkDeletePassword, setBulkDeletePassword] = useState('');
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [bulkDeleteLoadingPreview, setBulkDeleteLoadingPreview] = useState(false);
+  const [trashOpen, setTrashOpen] = useState(false);
+  const [trashData, setTrashData] = useState<any>(null);
+  const [trashPage, setTrashPage] = useState(1);
+  const [trashLoading, setTrashLoading] = useState(false);
+  const [emptyTrashPassword, setEmptyTrashPassword] = useState('');
+  const [showEmptyConfirm, setShowEmptyConfirm] = useState(false);
 
   const { data: cameras = [] } = useQuery({
     queryKey: ['cameras'],
@@ -179,6 +195,112 @@ export default function ImageServiceSearch() {
     } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
   };
 
+  const BULK_DELETE_DAY_OPTIONS = [7, 14, 30, 60, 90, 120, 240, 365];
+
+  const fetchBulkDeletePreview = useCallback(async (days: number) => {
+    setBulkDeleteLoadingPreview(true);
+    setBulkDeletePreview(null);
+    try {
+      const result = await imageServiceApi.bulkDeletePreview(days);
+      setBulkDeletePreview(result);
+    } catch {
+      toast.error(t('common.error'));
+    } finally {
+      setBulkDeleteLoadingPreview(false);
+    }
+  }, [t, toast]);
+
+  const handleOpenBulkDelete = useCallback(() => {
+    setBulkDeleteOpen(true);
+    setBulkDeletePassword('');
+    setBulkDeletePreview(null);
+    setBulkDeleteDays(30);
+    fetchBulkDeletePreview(30);
+  }, [fetchBulkDeletePreview]);
+
+  const handleBulkDeleteDaysChange = useCallback((days: number) => {
+    setBulkDeleteDays(days);
+    fetchBulkDeletePreview(days);
+  }, [fetchBulkDeletePreview]);
+
+  const handleBulkDelete = useCallback(async () => {
+    if (!bulkDeletePassword || !bulkDeletePreview) return;
+    setBulkDeleting(true);
+    try {
+      const result = await imageServiceApi.bulkDeleteByAge(bulkDeleteDays, bulkDeletePassword);
+      toast.success(t('imageService.search.bulkDeleteSuccess', { count: result.deleted }));
+      setBulkDeleteOpen(false);
+      setBulkDeletePassword('');
+      setBulkDeletePreview(null);
+      queryClient.invalidateQueries({ queryKey: ['images'] });
+    } catch (e: any) {
+      if (e?.response?.status === 401) {
+        toast.error(t('imageService.search.bulkDeleteWrongPassword'));
+      } else if (!e?._handled) {
+        toast.error(t('common.error'));
+      }
+    } finally {
+      setBulkDeleting(false);
+    }
+  }, [bulkDeleteDays, bulkDeletePassword, bulkDeletePreview, t, toast, queryClient]);
+
+  // Trash Bin handlers
+  const fetchTrash = useCallback(async (pg: number = 1) => {
+    setTrashLoading(true);
+    try {
+      const result = await imageServiceApi.getTrashImages({ page: pg, limit: 20 });
+      setTrashData(result);
+      setTrashPage(pg);
+    } catch {
+      toast.error(t('common.error'));
+    } finally {
+      setTrashLoading(false);
+    }
+  }, [t, toast]);
+
+  const handleOpenTrash = useCallback(() => {
+    setTrashOpen(true);
+    setShowEmptyConfirm(false);
+    setEmptyTrashPassword('');
+    fetchTrash(1);
+  }, [fetchTrash]);
+
+  const handleRestoreImage = useCallback(async (id: string) => {
+    try {
+      await imageServiceApi.restoreImage(id);
+      toast.success(t('imageService.search.restoreSuccess'));
+      fetchTrash(trashPage);
+      queryClient.invalidateQueries({ queryKey: ['images'] });
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
+  }, [trashPage, t, toast, queryClient, fetchTrash]);
+
+  const handleRestoreAll = useCallback(async () => {
+    try {
+      const result = await imageServiceApi.restoreAllImages();
+      toast.success(t('imageService.search.restoreAllSuccess', { count: result.restored }));
+      fetchTrash(1);
+      queryClient.invalidateQueries({ queryKey: ['images'] });
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
+  }, [t, toast, queryClient, fetchTrash]);
+
+  const handleEmptyTrash = useCallback(async () => {
+    if (!emptyTrashPassword) return;
+    try {
+      const result = await imageServiceApi.emptyTrash(emptyTrashPassword);
+      toast.success(t('imageService.search.emptyTrashSuccess', { count: result.deleted }));
+      setShowEmptyConfirm(false);
+      setEmptyTrashPassword('');
+      fetchTrash(1);
+      queryClient.invalidateQueries({ queryKey: ['images'] });
+    } catch (e: any) {
+      if (e?.response?.status === 401) {
+        toast.error(t('imageService.search.bulkDeleteWrongPassword'));
+      } else if (!e?._handled) {
+        toast.error(t('common.error'));
+      }
+    }
+  }, [emptyTrashPassword, t, toast, queryClient, fetchTrash]);
+
   const thCls = (col: string) =>
     `px-4 py-3 text-left text-sm font-semibold cursor-pointer select-none hover:text-cyan-300 ${themeConfig.text.primary}`;
 
@@ -212,6 +334,16 @@ export default function ImageServiceSearch() {
           <button onClick={() => setShowFilters(!showFilters)}
             className={`px-3 py-2 rounded-md text-xs flex items-center gap-1.5 border ${themeConfig.inputBorder} ${themeConfig.text.primary}`}>
             <Filter size={13} /> {t('imageService.search.filter')}
+          </button>
+          {hasPermission(user, 'search:delete') && (
+            <button onClick={handleOpenBulkDelete}
+              className="px-3 py-2 rounded-md text-xs flex items-center gap-1.5 border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors">
+              <Trash2 size={13} /> {t('imageService.search.bulkDelete')}
+            </button>
+          )}
+          <button onClick={handleOpenTrash}
+            className="px-3 py-2 rounded-md text-xs flex items-center gap-1.5 border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 transition-colors">
+            <Trash2 size={13} /> {t('imageService.search.trashBin')}
           </button>
         </div>
 
@@ -519,6 +651,205 @@ export default function ImageServiceSearch() {
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* Bulk Delete Modal */}
+      <Modal isOpen={bulkDeleteOpen} onClose={() => setBulkDeleteOpen(false)} title={t('imageService.search.bulkDeleteTitle')}>
+        <div className="space-y-5 p-1 max-w-md">
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+            <AlertTriangle size={18} className="text-amber-400 flex-shrink-0 mt-0.5" />
+            <p className={`text-xs ${themeConfig.text.secondary}`}>
+              {t('imageService.search.bulkDeleteSoftNote')}
+            </p>
+          </div>
+
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${themeConfig.text.primary}`}>
+              {t('imageService.search.bulkDeleteDays')}
+            </label>
+            <select
+              value={bulkDeleteDays}
+              onChange={e => handleBulkDeleteDaysChange(Number(e.target.value))}
+              className={`w-full px-3 py-2 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-cyan-500/50`}
+            >
+              {BULK_DELETE_DAY_OPTIONS.map(d => (
+                <option key={d} value={d}>{d} {t('imageService.search.days')}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className={`p-3 rounded-lg ${themeConfig.card} border ${themeConfig.inputBorder}`}>
+            {bulkDeleteLoadingPreview ? (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin w-4 h-4 border-2 border-cyan-500 border-t-transparent rounded-full" />
+                <span className={`text-sm ${themeConfig.text.secondary}`}>...</span>
+              </div>
+            ) : bulkDeletePreview ? (
+              <p className={`text-sm font-medium ${bulkDeletePreview.count > 0 ? 'text-red-400' : themeConfig.text.primary}`}>
+                {t('imageService.search.bulkDeletePreview', {
+                  count: bulkDeletePreview.count.toLocaleString(),
+                  date: bulkDeletePreview.cutoffDate.split('T')[0],
+                })}
+              </p>
+            ) : null}
+          </div>
+
+          <div>
+            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+              {t('imageService.search.bulkDeleteConfirm')}
+            </label>
+            <input
+              type="password"
+              value={bulkDeletePassword}
+              onChange={e => setBulkDeletePassword(e.target.value)}
+              placeholder={t('imageService.search.bulkDeletePassword')}
+              className={`w-full px-3 py-2 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-red-500/50`}
+              onKeyDown={e => { if (e.key === 'Enter' && bulkDeletePassword && bulkDeletePreview && bulkDeletePreview.count > 0) handleBulkDelete(); }}
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-3 border-t" style={{ borderColor: trackColor }}>
+            <Button variant="secondary" onClick={() => setBulkDeleteOpen(false)}>
+              {t('common.close')}
+            </Button>
+            <button
+              onClick={handleBulkDelete}
+              disabled={bulkDeleting || !bulkDeletePassword || !bulkDeletePreview || bulkDeletePreview.count === 0}
+              className="px-4 py-2 rounded-md text-sm font-medium bg-red-600 hover:bg-red-700 text-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 transition-colors"
+            >
+              {bulkDeleting ? (
+                <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+              ) : (
+                <Trash2 size={14} />
+              )}
+              {t('imageService.search.bulkDelete')}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Trash Bin Modal */}
+      <Modal isOpen={trashOpen} onClose={() => { setTrashOpen(false); setShowEmptyConfirm(false); setEmptyTrashPassword(''); }} title={t('imageService.search.trashTitle')}>
+        <div className="space-y-4 p-1 max-w-3xl min-w-[600px]">
+          {trashLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full" />
+            </div>
+          ) : trashData && trashData.data?.length > 0 ? (
+            <>
+              <p className={`text-sm font-medium ${themeConfig.text.secondary}`}>
+                {t('imageService.search.trashCount', { count: trashData.pagination?.total ?? trashData.data.length })}
+              </p>
+
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className={themeConfig.tableHeader}>
+                    <tr>
+                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.primary}`}>#</th>
+                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.primary}`}>{t('imageService.search.filename')}</th>
+                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.primary}`}>{t('imageService.cameras.cameraName')}</th>
+                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.primary}`}>{t('imageService.search.size')}</th>
+                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.primary}`}>{t('imageService.search.deletedAt')}</th>
+                      <th className={`px-3 py-2 text-center text-xs font-semibold ${themeConfig.text.primary}`}>{t('common.actions')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className={`divide-y ${themeConfig.tableDivide}`}>
+                    {trashData.data.map((item: any, idx: number) => (
+                      <tr key={item.id} className={`border-b ${themeConfig.tableBorder} ${themeConfig.tableRow}`}>
+                        <td className={`px-3 py-2 text-xs ${themeConfig.text.primary}`}>{(trashPage - 1) * 20 + idx + 1}</td>
+                        <td className={`px-3 py-2 text-xs ${themeConfig.text.primary}`}>
+                          {parseFilePath(item.originalFilename).basename}
+                        </td>
+                        <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                          {item.camera?.name ?? '—'}
+                        </td>
+                        <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                          {item.fileSizeBytes ? (Number(item.fileSizeBytes) / 1024 / 1024).toFixed(1) + ' MB' : '—'}
+                        </td>
+                        <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                          {item.deletedAt ? formatDateTime(item.deletedAt, i18n.language) : '—'}
+                        </td>
+                        <td className="px-3 py-2">
+                          <div className="flex items-center justify-center">
+                            <button onClick={() => handleRestoreImage(item.id)}
+                              className="p-1.5 rounded-lg hover:bg-green-500/20 text-green-400"
+                              title={t('imageService.search.restore')}>
+                              <Undo2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {trashData.pagination && trashData.pagination.totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2">
+                  <button disabled={trashPage <= 1} onClick={() => fetchTrash(trashPage - 1)}
+                    className={`px-3 py-1.5 rounded-lg text-xs border ${themeConfig.inputBorder} ${themeConfig.text.primary} disabled:opacity-30`}>
+                    {t('common.prev')}
+                  </button>
+                  <span className={`text-xs ${themeConfig.text.secondary}`}>{trashPage} / {trashData.pagination.totalPages}</span>
+                  <button disabled={trashPage >= trashData.pagination.totalPages} onClick={() => fetchTrash(trashPage + 1)}
+                    className={`px-3 py-1.5 rounded-lg text-xs border ${themeConfig.inputBorder} ${themeConfig.text.primary} disabled:opacity-30`}>
+                    {t('common.next')}
+                  </button>
+                </div>
+              )}
+
+              {showEmptyConfirm && (
+                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 space-y-3">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle size={16} className="text-red-400 flex-shrink-0 mt-0.5" />
+                    <p className={`text-xs ${themeConfig.text.secondary}`}>
+                      {t('imageService.search.emptyTrashConfirm')}
+                    </p>
+                  </div>
+                  <input
+                    type="password"
+                    value={emptyTrashPassword}
+                    onChange={e => setEmptyTrashPassword(e.target.value)}
+                    placeholder={t('imageService.search.emptyTrashPassword')}
+                    className={`w-full px-3 py-2 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-red-500/50`}
+                    onKeyDown={e => { if (e.key === 'Enter' && emptyTrashPassword) handleEmptyTrash(); }}
+                  />
+                  <div className="flex gap-2">
+                    <button onClick={() => { setShowEmptyConfirm(false); setEmptyTrashPassword(''); }}
+                      className={`px-3 py-1.5 rounded-md text-xs ${themeConfig.text.secondary} hover:bg-white/5`}>
+                      {t('common.close')}
+                    </button>
+                    <button onClick={handleEmptyTrash} disabled={!emptyTrashPassword}
+                      className="px-3 py-1.5 rounded-md text-xs font-medium bg-red-600 hover:bg-red-700 text-white disabled:opacity-40 flex items-center gap-1.5">
+                      <Trash2 size={12} /> {t('imageService.search.emptyTrash')}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-3 border-t" style={{ borderColor: trackColor }}>
+                <Button variant="secondary" onClick={() => { setTrashOpen(false); setShowEmptyConfirm(false); setEmptyTrashPassword(''); }}>
+                  {t('common.close')}
+                </Button>
+                <button onClick={handleRestoreAll}
+                  className="px-4 py-2 rounded-md text-sm font-medium bg-green-600 hover:bg-green-700 text-white flex items-center gap-1.5 transition-colors">
+                  <Undo2 size={14} /> {t('imageService.search.restoreAll')}
+                </button>
+                {hasPermission(user, 'search:delete') && !showEmptyConfirm && (
+                  <button onClick={() => setShowEmptyConfirm(true)}
+                    className="px-4 py-2 rounded-md text-sm font-medium bg-red-600 hover:bg-red-700 text-white flex items-center gap-1.5 transition-colors">
+                    <Trash2 size={14} /> {t('imageService.search.emptyTrash')}
+                  </button>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className={`text-center py-12 ${themeConfig.text.secondary}`}>
+              <Trash2 size={48} className="mx-auto mb-3 opacity-20" />
+              <p className="text-sm">{t('imageService.search.trashEmpty')}</p>
+            </div>
+          )}
+        </div>
       </Modal>
     </div>
   );

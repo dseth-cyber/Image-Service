@@ -66,7 +66,14 @@ async function logoutHandler(request: FastifyRequest, reply: FastifyReply) {
 }
 
 export async function authRoutes(app: FastifyInstance): Promise<void> {
-  app.post('/login', loginHandler);
+  app.post('/login', {
+    config: {
+      rateLimit: {
+        max: 10,
+        timeWindow: '1 minute',
+      },
+    },
+  }, loginHandler);
   app.post('/refresh', refreshHandler);
   app.get('/me', { preHandler: [app.authenticate] }, meHandler);
   app.post('/logout', { preHandler: [app.authenticate] }, logoutHandler);

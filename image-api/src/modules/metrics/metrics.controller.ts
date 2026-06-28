@@ -4,6 +4,7 @@ import fs from 'fs';
 import { getPrisma } from '../../lib/prisma.js';
 import { getRedisClient } from '../../lib/redis.js';
 import { storageRouter } from '../../lib/storage/storage-router.js';
+import { config } from '../../config/index.js';
 
 let httpRequestCount = 0;
 
@@ -205,6 +206,23 @@ async function getMetrics(_request: FastifyRequest, reply: FastifyReply) {
   return reply.status(200).send(lines.join('\n') + '\n');
 }
 
+const metricsAuth = async (request: FastifyRequest, reply: FastifyReply) => {
+  // Allow access via service API key header
+  const serviceKey = request.headers['x-service-api-key'];
+  if (serviceKey && config.serviceApiKey && serviceKey === config.serviceApiKey) return;
+
+  // Allow Prometheus scraper access
+  const userAgent = request.headers['user-agent'] || '';
+  if (userAgent.includes('Prometheus')) return;
+
+  // Fall back to JWT authentication
+  try {
+    await request.jwtVerify();
+  } catch {
+    return reply.status(401).send({ error: 'Unauthorized' });
+  }
+};
+
 export async function metricsRoutes(app: FastifyInstance): Promise<void> {
-  app.get('/', getMetrics);
+  app.get('/', { preHandler: [metricsAuth] }, getMetrics);
 }

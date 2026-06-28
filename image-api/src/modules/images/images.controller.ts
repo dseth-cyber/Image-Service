@@ -95,6 +95,41 @@ async function deleteImageHandler(request: FastifyRequest, reply: FastifyReply) 
   return reply.status(204).send();
 }
 
+async function bulkDeletePreviewHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { days } = request.query as { days: string };
+  const d = parseInt(days, 10);
+  if (!d || d < 1) return reply.status(400).send({ error: 'Invalid days parameter' });
+  const result = await imagesService.bulkDeletePreview(d);
+  return reply.status(200).send(result);
+}
+
+async function bulkDeleteHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { days, password } = request.body as { days: number; password: string };
+  const user = (request as any).user;
+
+  // Verify password
+  const authService = await import('../auth/auth.service.js');
+  try {
+    await authService.login({ username: user.username, password });
+  } catch {
+    return reply.status(401).send({ error: 'Invalid password' });
+  }
+
+  const result = await imagesService.bulkDeleteByAge(days, user.username);
+
+  createAuditLog({
+    userId: user.id,
+    action: 'bulk_delete',
+    entity: 'image',
+    entityId: `age>${days}d`,
+    description: `Bulk deleted ${result.deleted} images older than ${days} days by ${user.username}`,
+    metadata: { days, deleted: result.deleted },
+    ipAddress: request.ip,
+  }).catch(() => {});
+
+  return reply.status(200).send(result);
+}
+
 async function bulkReprocessAllHandler(request: FastifyRequest, reply: FastifyReply) {
   const result = await imagesService.bulkReprocessAll();
   const user = (request as any).user;
@@ -122,6 +157,42 @@ async function reprocessHandler(request: FastifyRequest, reply: FastifyReply) {
     ipAddress: request.ip,
   }).catch(() => {});
   return reply.status(200).send(result);
+}
+
+async function trashListHandler(request: FastifyRequest, reply: FastifyReply) {
+  const query = request.query as { page?: string; limit?: string };
+  const result = await imagesService.listDeletedImages({
+    page: query.page ? parseInt(query.page) : 1,
+    limit: query.limit ? parseInt(query.limit) : 20,
+  });
+  return reply.send(result);
+}
+
+async function restoreHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as { id: string };
+  await imagesService.restoreImage(id);
+  const user = (request as any).user;
+  createAuditLog({ userId: user?.id, action: 'image_restore', entity: 'image', entityId: id, description: `Image ${id} restored from trash by ${user?.username}`, ipAddress: request.ip }).catch(() => {});
+  return reply.send({ restored: true });
+}
+
+async function restoreAllHandler(request: FastifyRequest, reply: FastifyReply) {
+  const result = await imagesService.restoreAllImages();
+  const user = (request as any).user;
+  createAuditLog({ userId: user?.id, action: 'image_restore_all', entity: 'image', entityId: 'all', description: `Restored ${result.restored} images from trash by ${user?.username}`, ipAddress: request.ip }).catch(() => {});
+  return reply.send(result);
+}
+
+async function emptyTrashHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { password } = request.body as { password: string };
+  const user = (request as any).user;
+  // Verify password
+  const authService = await import('../auth/auth.service.js');
+  try { await authService.login({ username: user.username, password }); } catch { return reply.status(401).send({ error: 'Invalid password' }); }
+
+  const result = await imagesService.emptyTrash();
+  createAuditLog({ userId: user?.id, action: 'trash_empty', entity: 'image', entityId: 'all', description: `Permanently deleted ${result.deleted} images from trash by ${user?.username}`, ipAddress: request.ip }).catch(() => {});
+  return reply.send(result);
 }
 
 async function getFileStreamHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -180,6 +251,36 @@ export async function imageRoutes(app: FastifyInstance): Promise<void> {
   );
 
   app.get(
+    '/trash',
+    { preHandler: [app.authenticate, requirePermission('search:read')] },
+    trashListHandler,
+  );
+
+  app.post(
+    '/trash/restore-all',
+    { preHandler: [app.authenticate, requirePermission('search:delete')] },
+    restoreAllHandler,
+  );
+
+  app.post(
+    '/trash/empty',
+    { preHandler: [app.authenticate, requirePermission('search:delete')] },
+    emptyTrashHandler,
+  );
+
+  app.get(
+    '/bulk-delete-preview',
+    { preHandler: [app.authenticate, requirePermission('search:delete')] },
+    bulkDeletePreviewHandler,
+  );
+
+  app.post(
+    '/bulk-delete',
+    { preHandler: [app.authenticate, requirePermission('search:delete')] },
+    bulkDeleteHandler,
+  );
+
+  app.get(
     '/:id',
     { preHandler: [app.authenticate] },
     getByIdHandler,
@@ -213,6 +314,12 @@ export async function imageRoutes(app: FastifyInstance): Promise<void> {
     '/:id',
     { preHandler: [app.authenticate, requirePermission('search:delete')] },
     deleteImageHandler,
+  );
+
+  app.post(
+    '/:id/restore',
+    { preHandler: [app.authenticate, requirePermission('search:delete')] },
+    restoreHandler,
   );
 
   app.post(

@@ -1,5 +1,6 @@
 import { getPrisma } from '../../lib/prisma.js';
 import { NotFoundError, ConflictError } from '../../lib/errors.js';
+import { encrypt, decrypt } from '../../lib/encryption.js';
 import type { CreateCameraInput, UpdateCameraInput } from './cameras.schema.js';
 
 export async function listCameras(filters?: { status?: string; enabled?: boolean }) {
@@ -15,7 +16,13 @@ export async function listCameras(filters?: { status?: string; enabled?: boolean
     orderBy: { name: 'asc' },
   });
 
-  return cameras;
+  // Decrypt SMB passwords for workers that need plaintext credentials
+  return cameras.map((c) => ({
+    ...c,
+    smbPasswordEncrypted: c.smbPasswordEncrypted
+      ? decrypt(c.smbPasswordEncrypted)
+      : c.smbPasswordEncrypted,
+  }));
 }
 
 export async function getCameraById(id: string) {
@@ -30,7 +37,13 @@ export async function getCameraById(id: string) {
     throw new NotFoundError('Camera', id);
   }
 
-  return camera;
+  // Decrypt SMB password for workers that need plaintext credentials
+  return {
+    ...camera,
+    smbPasswordEncrypted: camera.smbPasswordEncrypted
+      ? decrypt(camera.smbPasswordEncrypted)
+      : camera.smbPasswordEncrypted,
+  };
 }
 
 export async function createCamera(input: CreateCameraInput) {
@@ -46,6 +59,10 @@ export async function createCamera(input: CreateCameraInput) {
     throw new ConflictError(`Camera with name '${input.name}' already exists`);
   }
 
+  const encryptedPassword = input.smbPasswordEncrypted
+    ? encrypt(input.smbPasswordEncrypted)
+    : input.smbPasswordEncrypted;
+
   const camera = await prisma.camera.create({
     data: {
       name: input.name,
@@ -54,7 +71,7 @@ export async function createCamera(input: CreateCameraInput) {
       smbSharePath: input.smbSharePath,
       smbDomain: input.smbDomain,
       smbUsername: input.smbUsername,
-      smbPasswordEncrypted: input.smbPasswordEncrypted,
+      smbPasswordEncrypted: encryptedPassword,
       smbSubdirectoryPattern: input.smbSubdirectoryPattern,
       pollIntervalSeconds: input.pollIntervalSeconds,
       timezone: input.timezone,
@@ -91,7 +108,7 @@ export async function updateCamera(id: string, input: UpdateCameraInput) {
   if (input.smbSharePath !== undefined) data.smbSharePath = input.smbSharePath;
   if (input.smbDomain !== undefined) data.smbDomain = input.smbDomain;
   if (input.smbUsername !== undefined) data.smbUsername = input.smbUsername;
-  if (input.smbPasswordEncrypted !== undefined) data.smbPasswordEncrypted = input.smbPasswordEncrypted;
+  if (input.smbPasswordEncrypted !== undefined) data.smbPasswordEncrypted = encrypt(input.smbPasswordEncrypted);
   if (input.smbSubdirectoryPattern !== undefined) data.smbSubdirectoryPattern = input.smbSubdirectoryPattern;
   if (input.pollIntervalSeconds !== undefined) data.pollIntervalSeconds = input.pollIntervalSeconds;
   if (input.timezone !== undefined) data.timezone = input.timezone;

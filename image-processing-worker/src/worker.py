@@ -73,6 +73,8 @@ class ProcessingWorker:
 
         semaphore = asyncio.Semaphore(settings.processing_concurrency)
 
+        asyncio.create_task(self._refresh_provider())
+
         while self._running:
             try:
                 job_id = await self.redis.blmove(
@@ -110,6 +112,21 @@ class ProcessingWorker:
         if self._redis is not None:
             await self._redis.aclose()
             self._redis = None
+
+    async def _refresh_provider(self) -> None:
+        """Periodically re-fetch the default storage provider config (every 5 min)."""
+        while self._running:
+            await asyncio.sleep(300)  # 5 minutes
+            try:
+                provider = await self.api.get_default_storage_provider()
+                new_id = provider.get("id")
+                if new_id != self._provider_id:
+                    self._provider_id = new_id
+                    self.api._provider_id = new_id
+                    self.storage.configure_from_provider(provider)
+                    logger.info("Storage provider refreshed", provider_id=new_id, name=provider.get("name"))
+            except Exception as e:
+                logger.debug("Provider refresh skipped", error=str(e))
 
     async def _process_with_semaphore(
         self, semaphore: asyncio.Semaphore, job_id: str

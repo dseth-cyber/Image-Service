@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useTheme, themes } from '@/contexts/ThemeContext'
@@ -9,28 +9,30 @@ import { imageServiceApi } from '@/services/imageServiceApi'
 import { Button, Modal } from '@/components/ui'
 import { setForbiddenHandler } from '@/lib/axios'
 import LoginPage from '@/pages/auth/LoginPage'
-import ImageServiceOverview from '@/pages/image-service/ImageServiceOverview'
-import ImageServiceCameras from '@/pages/image-service/ImageServiceCameras'
-import ImageServiceCameraDetail from '@/pages/image-service/ImageServiceCameraDetail'
-import ImageServiceSearch from '@/pages/image-service/ImageServiceSearch'
-import ImageServiceProcessingMonitor from '@/pages/image-service/ImageServiceProcessingMonitor'
-import ImageServiceStorage from '@/pages/image-service/ImageServiceStorage'
-import ImageServiceProcessingLogs from '@/pages/image-service/ImageServiceProcessingLogs'
-import ImageServiceRetention from '@/pages/image-service/ImageServiceRetention'
-import ImageServiceRoadmap from '@/pages/image-service/ImageServiceRoadmap'
-import ImageServiceSettings from '@/pages/image-service/ImageServiceSettings'
-import AlertManagement from '@/pages/image-service/AlertManagement'
-import UserManagement from '@/pages/image-service/UserManagement'
-import HealthStatus from '@/pages/image-service/HealthStatus'
-import TelegramBotSettings from '@/pages/image-service/TelegramBotSettings'
-import ApiKeysManagement from '@/pages/image-service/ApiKeysManagement'
-import MasterdataManagement from '@/pages/image-service/MasterdataManagement'
-import SystemConfigPage from '@/pages/image-service/SystemConfigPage'
-import DeadLetterQueue from '@/pages/image-service/DeadLetterQueue'
-import AuditLogViewer from '@/pages/image-service/AuditLogViewer'
-import BackupDashboard from '@/pages/image-service/BackupDashboard'
-import StorageProvidersPage from '@/pages/image-service/StorageProvidersPage'
-import StorageProfilesPage from '@/pages/image-service/StorageProfilesPage'
+
+// Lazy-loaded page components for code-splitting
+const ImageServiceOverview = lazy(() => import('@/pages/image-service/ImageServiceOverview'))
+const ImageServiceCameras = lazy(() => import('@/pages/image-service/ImageServiceCameras'))
+const ImageServiceCameraDetail = lazy(() => import('@/pages/image-service/ImageServiceCameraDetail'))
+const ImageServiceSearch = lazy(() => import('@/pages/image-service/ImageServiceSearch'))
+const ImageServiceProcessingMonitor = lazy(() => import('@/pages/image-service/ImageServiceProcessingMonitor'))
+const ImageServiceStorage = lazy(() => import('@/pages/image-service/ImageServiceStorage'))
+const ImageServiceProcessingLogs = lazy(() => import('@/pages/image-service/ImageServiceProcessingLogs'))
+const ImageServiceRetention = lazy(() => import('@/pages/image-service/ImageServiceRetention'))
+const ImageServiceRoadmap = lazy(() => import('@/pages/image-service/ImageServiceRoadmap'))
+const ImageServiceSettings = lazy(() => import('@/pages/image-service/ImageServiceSettings'))
+const AlertManagement = lazy(() => import('@/pages/image-service/AlertManagement'))
+const UserManagement = lazy(() => import('@/pages/image-service/UserManagement'))
+const HealthStatus = lazy(() => import('@/pages/image-service/HealthStatus'))
+const TelegramBotSettings = lazy(() => import('@/pages/image-service/TelegramBotSettings'))
+const ApiKeysManagement = lazy(() => import('@/pages/image-service/ApiKeysManagement'))
+const MasterdataManagement = lazy(() => import('@/pages/image-service/MasterdataManagement'))
+const SystemConfigPage = lazy(() => import('@/pages/image-service/SystemConfigPage'))
+const DeadLetterQueue = lazy(() => import('@/pages/image-service/DeadLetterQueue'))
+const AuditLogViewer = lazy(() => import('@/pages/image-service/AuditLogViewer'))
+const BackupDashboard = lazy(() => import('@/pages/image-service/BackupDashboard'))
+const StorageProvidersPage = lazy(() => import('@/pages/image-service/StorageProvidersPage'))
+const StorageProfilesPage = lazy(() => import('@/pages/image-service/StorageProfilesPage'))
 import {
   Camera, LayoutDashboard, Search, Activity, HardDrive, FileText, Shield, Settings, Map,
   Globe, Palette, User, ChevronDown, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info, Server, Layers, Image,
@@ -687,6 +689,7 @@ export default function App() {
 
         {/* Main Content */}
         <main className="flex-1 overflow-auto">
+          <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="animate-spin w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full" /></div>}>
           <Routes>
             <Route path="/image-service/overview" element={
               hasPermission(user, 'overview:read') ? <ImageServiceOverview /> : <UnauthorizedPage />
@@ -757,6 +760,7 @@ export default function App() {
             <Route path="/" element={<Navigate to="/image-service/overview" replace />} />
             <Route path="*" element={<Navigate to="/image-service/overview" replace />} />
           </Routes>
+          </Suspense>
         </main>
       </div>
       <ChangePasswordModal isOpen={passwordModalOpen} onClose={() => setPasswordModalOpen(false)} />

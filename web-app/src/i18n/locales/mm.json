@@ -701,7 +701,17 @@
       "activeCameras": "အလုပ်လုပ်နေသောကင်မရာ",
       "openAlerts": "မဖြေရှင်းရသေးသော သတိပေးချက်များ",
       "version": "ဗားရှင်း",
-      "serviceDetails": "ဝန်ဆောင်မှုအသေးစိတ်"
+      "serviceDetails": "ဝန်ဆောင်မှုအသေးစိတ်",
+      "serverResources": "ဆာဗာအရင်းအမြစ်",
+      "memory": "မမိုရီ",
+      "disk": "ဒစ်",
+      "queueStatus": "တန်းစီအခြေအနေ",
+      "queueJobs": "တန်းစီ (စောင့်/လုပ်ဆောင်)",
+      "systemInfo": "စနစ်အချက်အလက်",
+      "verification": "စနစ်စစ်ဆေးခြင်း",
+      "runVerification": "စစ်ဆေးရန်",
+      "verificationMethod": "HTTPS မှတစ်ဆင့် API စစ်ဆေးခြင်း",
+      "verificationHint": "စစ်ဆေးရန်ခလုတ်ကိုနှိပ်ပါ"
     },
     "apiKeys": {
       "title": "API သော့များ",
@@ -1054,34 +1064,34 @@
       ],
       "phase24": "P15 — Security Hardening",
       "phase24Desc": "Fix security vulnerabilities",
-      "phase24Status": "Planned",
+      "phase24Status": "Launched",
       "phase24Tasks": [
-        "Encrypt SMB passwords",
-        "Remove default secrets",
-        "Auth on /metrics",
-        "Restrict CORS",
-        "Rate limit login",
-        "Security headers"
+        "✅ Encrypt SMB passwords",
+        "✅ Remove default secrets",
+        "✅ Auth on /metrics",
+        "✅ Restrict CORS",
+        "✅ Rate limit login",
+        "✅ Security headers"
       ],
       "phase25": "P17 — Performance & Scalability",
       "phase25Desc": "Optimize for 100+ cameras",
-      "phase25Status": "Planned",
+      "phase25Status": "Launched",
       "phase25Tasks": [
-        "Code-Splitting",
-        "Worker Plugin",
-        "Provider Refresh",
-        "Migration Batching",
-        "SSE Reconnect",
-        "Horizontal Scaling"
+        "✅ Code-Splitting",
+        "✅ Worker Plugin",
+        "✅ Provider Refresh",
+        "✅ Migration Batching",
+        "✅ SSE Reconnect",
+        "✅ Horizontal Scaling"
       ],
       "phase26": "P18 — Integration & Extensibility",
       "phase26Desc": "External system integration",
-      "phase26Status": "Planned",
+      "phase26Status": "Launched",
       "phase26Tasks": [
-        "Webhook",
-        "Priority Queue",
-        "Multi-tenancy",
-        "Migration UI"
+        "✅ Webhook",
+        "✅ Priority Queue",
+        "✅ Multi-tenancy",
+        "✅ Migration UI"
       ],
       "phase27": "P16 — Cloudflare Tunnel & External Access",
       "phase27Desc": "External access via Cloudflare Tunnel",

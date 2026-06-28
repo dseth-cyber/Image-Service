@@ -51,6 +51,13 @@ export async function buildApp() {
   app.setErrorHandler(errorHandler);
 
   await app.register(cors, {
+    // NOTE: origin is permissive because the system runs on LAN with changing IPs.
+    // In production with a fixed domain, restrict to specific origins:
+    //   origin: (origin, cb) => {
+    //     const allowed = ['https://your-domain.com'];
+    //     if (!origin || allowed.includes(origin)) return cb(null, true);
+    //     return cb(new Error('Not allowed by CORS'), false);
+    //   },
     origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -137,6 +144,16 @@ export async function buildApp() {
 }
 
 export async function startApp() {
+  // Security: warn about default secrets in production
+  if (config.nodeEnv === 'production') {
+    if (config.jwt.secret === 'change-me') {
+      logger.warn('SECURITY WARNING: JWT_SECRET is using the default value. Change it in production!');
+    }
+    if (config.encryptionKey === 'change-me') {
+      logger.warn('SECURITY WARNING: ENCRYPTION_KEY is using the default value. Change it in production!');
+    }
+  }
+
   const app = await buildApp();
 
   startRetentionSweeper();
