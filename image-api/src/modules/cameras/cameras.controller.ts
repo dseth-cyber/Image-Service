@@ -73,10 +73,119 @@ async function updateHandler(request: FastifyRequest, reply: FastifyReply) {
   return reply.status(200).send(camera);
 }
 
-async function deactivateHandler(request: FastifyRequest, reply: FastifyReply) {
+async function deleteCameraHandler(request: FastifyRequest, reply: FastifyReply) {
   const { id } = request.params as { id: string };
-  await camerasService.deactivateCamera(id);
-  return reply.status(204).send();
+  const { password } = request.body as { password: string };
+  const user = (request as any).user;
+
+  // Verify password
+  const authService = await import('../auth/auth.service.js');
+  try {
+    await authService.login({ username: user.username, password });
+  } catch {
+    return reply.status(401).send({ error: 'Invalid password' });
+  }
+
+  const camera = await camerasService.deleteCamera(id);
+
+  createAuditLog({
+    userId: user?.id,
+    action: 'camera_delete',
+    entity: 'camera',
+    entityId: id,
+    description: `Camera "${camera.name}" soft-deleted by ${user?.username ?? 'system'}`,
+    metadata: { cameraName: camera.name, ipAddress: camera.ipAddress },
+    ipAddress: request.ip,
+  }).catch(() => {});
+
+  await createAlert({
+    alertType: 'camera_offline',
+    severity: 'warning',
+    source: id,
+    title: `Camera deleted: ${camera.name}`,
+    message: `Camera "${camera.name}" was deleted by ${user?.username ?? 'system'}`,
+    details: { cameraId: id, cameraName: camera.name, deletedBy: user?.username },
+    skipDedup: true,
+  });
+
+  return reply.status(200).send({ deleted: true, camera });
+}
+
+async function permanentDeleteCameraHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as { id: string };
+  const { password } = request.body as { password: string };
+  const user = (request as any).user;
+
+  const authService = await import('../auth/auth.service.js');
+  try {
+    await authService.login({ username: user.username, password });
+  } catch {
+    return reply.status(401).send({ error: 'Invalid password' });
+  }
+
+  const camera = await camerasService.getCameraById(id);
+  await camerasService.permanentlyDeleteCamera(id);
+
+  createAuditLog({
+    userId: user?.id,
+    action: 'camera_permanent_delete',
+    entity: 'camera',
+    entityId: id,
+    description: `Camera "${camera.name}" permanently deleted by ${user?.username ?? 'system'}`,
+    metadata: { cameraName: camera.name, ipAddress: camera.ipAddress },
+    ipAddress: request.ip,
+  }).catch(() => {});
+
+  return reply.status(200).send({ deleted: true });
+}
+
+async function trashListHandler(_request: FastifyRequest, reply: FastifyReply) {
+  const cameras = await camerasService.listDeletedCameras();
+  return reply.status(200).send(cameras);
+}
+
+async function restoreCameraHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as { id: string };
+  const user = (request as any).user;
+
+  await camerasService.restoreCamera(id);
+
+  createAuditLog({
+    userId: user?.id,
+    action: 'camera_restore',
+    entity: 'camera',
+    entityId: id,
+    description: `Camera ${id} restored from trash by ${user?.username ?? 'system'}`,
+    ipAddress: request.ip,
+  }).catch(() => {});
+
+  return reply.status(200).send({ restored: true });
+}
+
+async function emptyCameraTrashHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { password } = request.body as { password: string };
+  const user = (request as any).user;
+
+  const authService = await import('../auth/auth.service.js');
+  try {
+    await authService.login({ username: user.username, password });
+  } catch {
+    return reply.status(401).send({ error: 'Invalid password' });
+  }
+
+  const result = await camerasService.emptyCameraTrash();
+
+  createAuditLog({
+    userId: user?.id,
+    action: 'camera_trash_empty',
+    entity: 'camera',
+    entityId: 'all',
+    description: `Permanently deleted ${result.deleted} cameras from trash by ${user?.username ?? 'system'}`,
+    metadata: { deleted: result.deleted },
+    ipAddress: request.ip,
+  }).catch(() => {});
+
+  return reply.status(200).send(result);
 }
 
 async function scanNowHandler(_request: FastifyRequest, reply: FastifyReply) {
@@ -104,10 +213,30 @@ export async function cameraRoutes(app: FastifyInstance): Promise<void> {
     { preHandler: [app.authenticate, requirePermission('cameras:update')] },
     scanNowHandler,
   );
+  app.get(
+    '/trash',
+    { preHandler: [app.authenticate, requirePermission('cameras:read')] },
+    trashListHandler,
+  );
+  app.post(
+    '/trash/empty',
+    { preHandler: [app.authenticate, requirePermission('cameras:delete')] },
+    emptyCameraTrashHandler,
+  );
   app.post(
     '/:id/scan',
     { preHandler: [app.authenticate, requirePermission('cameras:update')] },
     scanCameraHandler,
+  );
+  app.post(
+    '/:id/restore',
+    { preHandler: [app.authenticate, requirePermission('cameras:delete')] },
+    restoreCameraHandler,
+  );
+  app.delete(
+    '/:id/permanent',
+    { preHandler: [app.authenticate, requirePermission('cameras:delete')] },
+    permanentDeleteCameraHandler,
   );
   app.get(
     '/:id',
@@ -127,6 +256,6 @@ export async function cameraRoutes(app: FastifyInstance): Promise<void> {
   app.delete(
     '/:id',
     { preHandler: [app.authenticate, requirePermission('cameras:delete')] },
-    deactivateHandler,
+    deleteCameraHandler,
   );
 }

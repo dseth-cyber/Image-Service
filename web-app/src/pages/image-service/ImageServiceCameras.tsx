@@ -10,7 +10,7 @@ import { imageServiceApi } from '@/services/imageServiceApi';
 import { formatDateTime } from '@/utils/dateUtils';
 import { Search, Plus, ChevronUp, ChevronDown, ChevronsUpDown,
   Edit, Trash2, Eye, Camera, Activity, Wifi, WifiOff, AlertTriangle, Wrench,
-  FolderOpen, RefreshCw, CheckCircle, XCircle, ExternalLink, ChevronRight, Play } from 'lucide-react';
+  FolderOpen, RefreshCw, CheckCircle, XCircle, ExternalLink, ChevronRight, Play, Undo2 } from 'lucide-react';
 import { Modal, Button, SearchableSelect, TableSkeleton, ColumnSelector } from '@/components/ui';
 import { getLocalizedValue } from '@/utils/textUtils';
 
@@ -36,6 +36,7 @@ export default function ImageServiceCameras() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const canUpdate = hasPermission(user, 'cameras:update');
+  const canDelete = hasPermission(user, 'cameras:delete');
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -52,6 +53,18 @@ export default function ImageServiceCameras() {
   const [browseLoading, setBrowseLoading] = useState(false);
   const [browseShares, setBrowseShares] = useState<Array<{ name: string; description: string }>>([]);
   const [browseStep, setBrowseStep] = useState<'shares' | 'files'>('shares');
+
+  // Delete camera state
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; camera?: any }>({ open: false });
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleting, setDeleting] = useState(false);
+
+  // Camera trash state
+  const [trashOpen, setTrashOpen] = useState(false);
+  const [trashData, setTrashData] = useState<any[]>([]);
+  const [trashLoading, setTrashLoading] = useState(false);
+  const [showEmptyConfirm, setShowEmptyConfirm] = useState(false);
+  const [emptyTrashPassword, setEmptyTrashPassword] = useState('');
 
   const { data: cameras = [], isLoading } = useQuery({
     queryKey: ['cameras-list', search, statusFilter],
@@ -114,6 +127,72 @@ export default function ImageServiceCameras() {
       queryClient.invalidateQueries({ queryKey: ['cameras-list'] });
     } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
   };
+
+  const openDeleteModal = (camera: any) => {
+    setDeletePassword('');
+    setDeleteModal({ open: true, camera });
+  };
+
+  const handleDeleteCamera = useCallback(async () => {
+    if (!deleteModal.camera || !deletePassword) return;
+    setDeleting(true);
+    try {
+      await imageServiceApi.deleteCamera(deleteModal.camera.id, deletePassword);
+      toast.success(t('imageService.cameras.deleteCameraSuccess'));
+      setDeleteModal({ open: false });
+      setDeletePassword('');
+      queryClient.invalidateQueries({ queryKey: ['cameras-list'] });
+    } catch (e: any) {
+      if (e?.response?.status === 401) {
+        toast.error(t('imageService.cameras.wrongPassword'));
+      } else if (!e?._handled) {
+        toast.error(t('common.error'));
+      }
+    } finally { setDeleting(false); }
+  }, [deleteModal.camera, deletePassword, t, toast, queryClient]);
+
+  const fetchCameraTrash = useCallback(async () => {
+    setTrashLoading(true);
+    try {
+      const result = await imageServiceApi.getDeletedCameras();
+      setTrashData(result);
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
+    finally { setTrashLoading(false); }
+  }, [t, toast]);
+
+  const handleOpenCameraTrash = useCallback(() => {
+    setTrashOpen(true);
+    setShowEmptyConfirm(false);
+    setEmptyTrashPassword('');
+    fetchCameraTrash();
+  }, [fetchCameraTrash]);
+
+  const handleRestoreCamera = useCallback(async (id: string) => {
+    try {
+      await imageServiceApi.restoreCamera(id);
+      toast.success(t('imageService.cameras.restoreCameraSuccess'));
+      fetchCameraTrash();
+      queryClient.invalidateQueries({ queryKey: ['cameras-list'] });
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
+  }, [t, toast, queryClient, fetchCameraTrash]);
+
+  const handleEmptyCameraTrash = useCallback(async () => {
+    if (!emptyTrashPassword) return;
+    try {
+      const result = await imageServiceApi.emptyCameraTrash(emptyTrashPassword);
+      toast.success(t('imageService.cameras.emptyCameraTrashSuccess', { count: result.deleted }));
+      setShowEmptyConfirm(false);
+      setEmptyTrashPassword('');
+      fetchCameraTrash();
+      queryClient.invalidateQueries({ queryKey: ['cameras-list'] });
+    } catch (e: any) {
+      if (e?.response?.status === 401) {
+        toast.error(t('imageService.cameras.wrongPassword'));
+      } else if (!e?._handled) {
+        toast.error(t('common.error'));
+      }
+    }
+  }, [emptyTrashPassword, t, toast, queryClient, fetchCameraTrash]);
 
   const [statusDropdownId, setStatusDropdownId] = useState<string | null>(null);
   const [changingStatus, setChangingStatus] = useState<Set<string>>(new Set());
@@ -317,6 +396,12 @@ export default function ImageServiceCameras() {
             <RefreshCw size={16} className={`mr-1.5 ${scanning ? 'animate-spin' : ''}`} />
             {t('imageService.cameras.scanNow')}
           </Button>
+          {canDelete && (
+            <button onClick={handleOpenCameraTrash}
+              className="px-3 py-2 rounded-md text-xs flex items-center gap-1.5 border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 transition-colors">
+              <Trash2 size={13} /> {t('imageService.cameras.cameraTrash')}
+            </button>
+          )}
         </div>
       </div>
 
@@ -420,8 +505,13 @@ export default function ImageServiceCameras() {
                         </button>
                         <button onClick={() => openEdit(camera)}
                           className="p-2 rounded-lg hover:bg-yellow-500/20"><Edit size={15} className="text-yellow-500" /></button>
-                        <button onClick={() => handleDeactivate(camera.id)}
-                          className="p-2 rounded-lg hover:bg-red-500/20"><Trash2 size={15} className="text-red-500" /></button>
+                        {canDelete && (
+                          <button onClick={() => openDeleteModal(camera)}
+                            className="p-2 rounded-lg hover:bg-red-500/20"
+                            title={t('imageService.cameras.deleteCamera')}>
+                            <Trash2 size={15} className="text-red-500" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -563,6 +653,137 @@ export default function ImageServiceCameras() {
                 </div>
               ))}
             </>
+          )}
+        </div>
+      </Modal>
+
+      {/* Delete Camera Confirmation Modal */}
+      <Modal isOpen={deleteModal.open} onClose={() => { setDeleteModal({ open: false }); setDeletePassword(''); }}
+        title={t('imageService.cameras.deleteCamera')}>
+        <div className="space-y-4 p-1">
+          <div className="flex items-start gap-2">
+            <AlertTriangle size={16} className="text-red-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className={`text-sm ${themeConfig.text.primary}`}>
+                {deleteModal.camera?.name}
+              </p>
+              <p className={`text-xs mt-1 ${themeConfig.text.secondary}`}>
+                {t('imageService.cameras.deleteCameraConfirm')}
+              </p>
+            </div>
+          </div>
+          <input
+            type="password"
+            value={deletePassword}
+            onChange={e => setDeletePassword(e.target.value)}
+            placeholder={t('common.enterPassword')}
+            className={`w-full px-3 py-2 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-red-500/50`}
+            onKeyDown={e => { if (e.key === 'Enter' && deletePassword) handleDeleteCamera(); }}
+          />
+          <div className="flex justify-end gap-2 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+            <Button variant="secondary" onClick={() => { setDeleteModal({ open: false }); setDeletePassword(''); }}>
+              {t('common.cancel')}
+            </Button>
+            <button onClick={handleDeleteCamera} disabled={!deletePassword || deleting}
+              className="px-4 py-2 rounded-md text-sm font-medium bg-red-600 hover:bg-red-700 text-white disabled:opacity-40 flex items-center gap-1.5 transition-colors">
+              <Trash2 size={14} /> {deleting ? t('common.saving') : t('imageService.cameras.deleteCamera')}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Camera Trash Modal */}
+      <Modal isOpen={trashOpen} onClose={() => { setTrashOpen(false); setShowEmptyConfirm(false); setEmptyTrashPassword(''); }}
+        title={t('imageService.cameras.cameraTrash')}>
+        <div className="space-y-4 p-1">
+          {trashLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <RefreshCw size={20} className="animate-spin text-cyan-400" />
+            </div>
+          ) : trashData.length > 0 ? (
+            <>
+              <p className={`text-xs ${themeConfig.text.secondary}`}>
+                {t('imageService.cameras.cameraTrashCount', { count: trashData.length })}
+              </p>
+              <div className="overflow-x-auto max-h-64 overflow-y-auto">
+                <table className="w-full">
+                  <thead className={themeConfig.tableHeader}>
+                    <tr>
+                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.primary}`}>{t('imageService.cameras.cameraName')}</th>
+                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.primary}`}>{t('imageService.cameras.ipAddress')}</th>
+                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.primary}`}>{t('imageService.cameras.deleteCamera')}</th>
+                      <th className={`px-3 py-2 text-center text-xs font-semibold ${themeConfig.text.primary}`}>{t('common.actions')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className={`divide-y ${themeConfig.tableDivide}`}>
+                    {trashData.map((item: any) => (
+                      <tr key={item.id} className={themeConfig.tableRow}>
+                        <td className={`px-3 py-2 text-sm ${themeConfig.text.primary}`}>{item.name}</td>
+                        <td className={`px-3 py-2 text-sm ${themeConfig.text.secondary}`}>{item.ipAddress}</td>
+                        <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                          {item.deletedAt ? formatDateTime(item.deletedAt, i18n.language) : '—'}
+                        </td>
+                        <td className="px-3 py-2">
+                          <div className="flex items-center justify-center">
+                            <button onClick={() => handleRestoreCamera(item.id)}
+                              className="p-1.5 rounded-lg hover:bg-green-500/20 text-green-400"
+                              title={t('imageService.cameras.restoreCamera')}>
+                              <Undo2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {showEmptyConfirm && (
+                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 space-y-3">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle size={16} className="text-red-400 flex-shrink-0 mt-0.5" />
+                    <p className={`text-xs ${themeConfig.text.secondary}`}>
+                      {t('imageService.cameras.emptyCameraTrashConfirm')}
+                    </p>
+                  </div>
+                  <input
+                    type="password"
+                    value={emptyTrashPassword}
+                    onChange={e => setEmptyTrashPassword(e.target.value)}
+                    placeholder={t('common.enterPassword')}
+                    className={`w-full px-3 py-2 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-red-500/50`}
+                    onKeyDown={e => { if (e.key === 'Enter' && emptyTrashPassword) handleEmptyCameraTrash(); }}
+                  />
+                  <div className="flex gap-2">
+                    <button onClick={() => { setShowEmptyConfirm(false); setEmptyTrashPassword(''); }}
+                      className={`px-3 py-1.5 rounded-md text-xs ${themeConfig.text.secondary} hover:bg-white/5`}>
+                      {t('common.cancel')}
+                    </button>
+                    <button onClick={handleEmptyCameraTrash} disabled={!emptyTrashPassword}
+                      className="px-3 py-1.5 rounded-md text-xs font-medium bg-red-600 hover:bg-red-700 text-white disabled:opacity-40 flex items-center gap-1.5">
+                      <Trash2 size={12} /> {t('imageService.cameras.emptyCameraTrash')}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+                <Button variant="secondary" onClick={() => { setTrashOpen(false); setShowEmptyConfirm(false); setEmptyTrashPassword(''); }}>
+                  {t('common.close')}
+                </Button>
+                {canDelete && !showEmptyConfirm && (
+                  <button onClick={() => setShowEmptyConfirm(true)}
+                    className="px-4 py-2 rounded-md text-sm font-medium bg-red-600 hover:bg-red-700 text-white flex items-center gap-1.5 transition-colors">
+                    <Trash2 size={14} /> {t('imageService.cameras.emptyCameraTrash')}
+                  </button>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className={`text-center py-12 ${themeConfig.text.secondary}`}>
+              <Trash2 size={48} className="mx-auto mb-3 opacity-20" />
+              <p className="text-sm">{t('imageService.cameras.cameraTrashEmpty')}</p>
+            </div>
           )}
         </div>
       </Modal>

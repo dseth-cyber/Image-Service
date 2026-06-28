@@ -6,7 +6,7 @@ import type { CreateCameraInput, UpdateCameraInput } from './cameras.schema.js';
 export async function listCameras(filters?: { status?: string; enabled?: boolean }) {
   const prisma = getPrisma();
 
-  const where: Record<string, unknown> = {};
+  const where: Record<string, unknown> = { deletedAt: null };
   if (filters?.status) where.status = filters.status;
   if (filters?.enabled !== undefined) where.enabled = filters.enabled;
 
@@ -155,4 +155,66 @@ export async function deactivateCamera(id: string) {
     where: { id },
     data: { enabled: false, status: 'inactive' },
   });
+}
+
+export async function deleteCamera(id: string) {
+  const prisma = getPrisma();
+  const camera = await prisma.camera.findUnique({ where: { id } });
+  if (!camera) throw new NotFoundError('Camera', id);
+
+  // Soft delete — set enabled=false, status=inactive, mark deletedAt
+  await prisma.camera.update({
+    where: { id },
+    data: { enabled: false, status: 'inactive', deletedAt: new Date() },
+  });
+  return camera;
+}
+
+export async function restoreCamera(id: string) {
+  const prisma = getPrisma();
+  const camera = await prisma.camera.findUnique({ where: { id } });
+  if (!camera) throw new NotFoundError('Camera', id);
+
+  await prisma.camera.update({
+    where: { id },
+    data: { enabled: true, status: 'inactive', deletedAt: null },
+  });
+  return { restored: true };
+}
+
+export async function listDeletedCameras() {
+  const prisma = getPrisma();
+  return prisma.camera.findMany({
+    where: { deletedAt: { not: null } },
+    orderBy: { deletedAt: 'desc' },
+    select: { id: true, name: true, ipAddress: true, status: true, deletedAt: true },
+  });
+}
+
+export async function permanentlyDeleteCamera(id: string) {
+  const prisma = getPrisma();
+  const camera = await prisma.camera.findUnique({ where: { id } });
+  if (!camera) throw new NotFoundError('Camera', id);
+
+  // Delete related data first
+  await prisma.cameraEvent.deleteMany({ where: { cameraId: id } });
+  await prisma.storageSnapshot.deleteMany({ where: { cameraId: id } });
+  // Don't delete images — they belong to the system
+  await prisma.camera.delete({ where: { id } });
+  return { deleted: true };
+}
+
+export async function emptyCameraTrash() {
+  const prisma = getPrisma();
+  const deleted = await prisma.camera.findMany({
+    where: { deletedAt: { not: null } },
+    select: { id: true },
+  });
+  const ids = deleted.map(d => d.id);
+  if (ids.length === 0) return { deleted: 0 };
+
+  await prisma.cameraEvent.deleteMany({ where: { cameraId: { in: ids } } });
+  await prisma.storageSnapshot.deleteMany({ where: { cameraId: { in: ids } } });
+  const result = await prisma.camera.deleteMany({ where: { id: { in: ids } } });
+  return { deleted: result.count };
 }

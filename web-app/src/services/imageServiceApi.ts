@@ -56,6 +56,21 @@ export function createImageServiceApi(api: any) {
 
     deactivateCamera: (id: string) => api.delete(`${BASE}/cameras/${id}`),
 
+    deleteCamera: (id: string, password: string) =>
+      api.delete(`${BASE}/cameras/${id}`, { data: { password } }).then((r: any) => r.data),
+
+    deleteCameraPermanent: (id: string, password: string) =>
+      api.delete(`${BASE}/cameras/${id}/permanent`, { data: { password } }).then((r: any) => r.data),
+
+    getDeletedCameras: () =>
+      api.get(`${BASE}/cameras/trash`).then((r: any) => r.data),
+
+    restoreCamera: (id: string) =>
+      api.post(`${BASE}/cameras/${id}/restore`).then((r: any) => r.data),
+
+    emptyCameraTrash: (password: string) =>
+      api.post(`${BASE}/cameras/trash/empty`, { password }).then((r: any) => r.data),
+
     scanNow: () => api.post(`${BASE}/cameras/scan-now`).then((r: any) => r.data),
 
     scanCamera: (id: string) => api.post(`${BASE}/cameras/${id}/scan`).then((r: any) => r.data),
