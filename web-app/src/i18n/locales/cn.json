@@ -543,7 +543,9 @@
       "formDescription": "描述",
       "formSortOrder": "排序顺序",
       "formActive": "启用",
-      "nameLabel": "名称 ({{lang}})"
+      "nameLabel": "名称 ({{lang}})",
+      "tabCameraStatus": "摄像头状态",
+      "tabCaptureMode": "捕获模式"
     },
     "telegramBot": {
       "title": "Telegram 机器人设置",

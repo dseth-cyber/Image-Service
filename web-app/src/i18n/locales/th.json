@@ -656,7 +656,9 @@
       "formDescription": "คำอธิบาย",
       "formSortOrder": "ลำดับการจัดเรียง",
       "formActive": "ใช้งาน",
-      "nameLabel": "ชื่อ ({{lang}})"
+      "nameLabel": "ชื่อ ({{lang}})",
+      "tabCameraStatus": "สถานะกล้อง",
+      "tabCaptureMode": "โหมดการจับภาพ"
     },
     "telegramBot": {
       "title": "ตั้งค่า Telegram Bot",
@@ -1243,12 +1245,13 @@
         "✅ Downtime by Reason breakdown",
         "✅ Estimated Lost Images",
         "✅ Status Timeline (Gantt-like)",
-        "✅ Event History Table",
-        "✅ Camera Comparison Dashboard",
-        "✅ Incident Management — Status Change Dialog",
-        "✅ Resolution Dialog + Root Cause + CAPA",
-        "✅ Incident Number (INC-YYYY-XXXXXX)",
-        "✅ CameraDailySummary pre-aggregation table"
+        "✅ Event History Table + Camera Comparison",
+        "✅ Incident Management — Status Change Dialog + Resolution Dialog",
+        "✅ Incident Number (INC-YYYY-XXXXXX) + Root Cause + CAPA",
+        "✅ CameraDailySummary pre-aggregation table",
+        "✅ Dynamic Masterdata — สถานะกล้อง, โหมดจับภาพ, สาเหตุ, การแก้ไข ทั้งหมดจัดการจาก UI",
+        "✅ Seed ข้อมูลหลัก 9 ประเภท (71 records) ครบ 5 ภาษา",
+        "✅ เชื่อม camera_type → ฟอร์มกล้อง, capture_mode → ฟอร์มกล้อง"
       ]
     },
     "permissions": {

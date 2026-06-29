@@ -656,7 +656,9 @@
       "formDescription": "Description",
       "formSortOrder": "Sort Order",
       "formActive": "Active",
-      "nameLabel": "Name ({{lang}})"
+      "nameLabel": "Name ({{lang}})",
+      "tabCameraStatus": "Camera Status",
+      "tabCaptureMode": "Capture Mode"
     },
     "telegramBot": {
       "title": "Telegram Bot Settings",
@@ -1240,12 +1242,13 @@
         "✅ Downtime by Reason breakdown",
         "✅ Estimated Lost Images",
         "✅ Status Timeline (Gantt-like)",
-        "✅ Event History Table",
-        "✅ Camera Comparison Dashboard",
-        "✅ Incident Management — Status Change Dialog",
-        "✅ Resolution Dialog + Root Cause + CAPA",
-        "✅ Incident Number (INC-YYYY-XXXXXX)",
-        "✅ CameraDailySummary pre-aggregation table"
+        "✅ Event History Table + Camera Comparison",
+        "✅ Incident Management — Status Change Dialog + Resolution Dialog",
+        "✅ Incident Number (INC-YYYY-XXXXXX) + Root Cause + CAPA",
+        "✅ CameraDailySummary pre-aggregation table",
+        "✅ Dynamic Masterdata — all dropdowns managed from UI (9 types)",
+        "✅ Seeded 71 masterdata records across 9 types in 5 languages",
+        "✅ Connected camera_type + capture_mode to camera form"
       ]
     },
     "permissions": {

@@ -543,7 +543,9 @@
       "formDescription": "ဖော်ပြချက်",
       "formSortOrder": "စီအစဉ်",
       "formActive": "အသက်ဝင်",
-      "nameLabel": "အမည် ({{lang}})"
+      "nameLabel": "အမည် ({{lang}})",
+      "tabCameraStatus": "ကင်မရာအခြေအနေ",
+      "tabCaptureMode": "ရိုက်ယူမုဒ်"
     },
     "telegramBot": {
       "title": "Telegram ဘော့ဆက်တင်များ",

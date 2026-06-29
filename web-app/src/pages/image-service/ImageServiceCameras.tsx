@@ -86,6 +86,20 @@ export default function ImageServiceCameras() {
   });
   const cameraTypes = (cameraTypesRaw?.data ?? cameraTypesRaw ?? []) as any[];
 
+  const { data: cameraStatusesRaw } = useQuery({
+    queryKey: ['masterdata-camera-statuses'],
+    queryFn: () => imageServiceApi.getMasterdata({ type: 'camera_status' }),
+    staleTime: 1000 * 60 * 5,
+  });
+  const cameraStatuses = (cameraStatusesRaw?.data ?? cameraStatusesRaw ?? []) as any[];
+
+  const { data: captureModesRaw } = useQuery({
+    queryKey: ['masterdata-capture-modes'],
+    queryFn: () => imageServiceApi.getMasterdata({ type: 'capture_mode' }),
+    staleTime: 1000 * 60 * 5,
+  });
+  const captureModes = (captureModesRaw?.data ?? captureModesRaw ?? []) as any[];
+
   const handleSort = (col: string) => {
     if (col === 'actions' || col === 'no') return;
     if (sortCol === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
@@ -218,12 +232,14 @@ export default function ImageServiceCameras() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const STATUS_RADIO_OPTIONS: { value: string; label: string; bg: string; icon: any }[] = [
-    { value: 'active', label: t('imageService.cameras.active'), bg: 'bg-green-500/20 text-green-400', icon: Wifi },
-    { value: 'inactive', label: t('imageService.cameras.inactive'), bg: 'bg-gray-500/20 text-gray-400', icon: WifiOff },
-    { value: 'maintenance', label: t('imageService.cameras.maintenance'), bg: 'bg-yellow-500/20 text-yellow-400', icon: Wrench },
-    { value: 'error', label: t('imageService.cameras.error'), bg: 'bg-red-500/20 text-red-400', icon: AlertTriangle },
-  ];
+  const STATUS_ICON_MAP: Record<string, any> = { active: Wifi, inactive: WifiOff, maintenance: Wrench, error: AlertTriangle };
+  const STATUS_BG_MAP: Record<string, string> = { active: 'bg-green-500/20 text-green-400', inactive: 'bg-gray-500/20 text-gray-400', maintenance: 'bg-yellow-500/20 text-yellow-400', error: 'bg-red-500/20 text-red-400' };
+  const STATUS_RADIO_OPTIONS = cameraStatuses.filter((s: any) => s.isActive).map((s: any) => ({
+    value: s.code,
+    label: getLocalizedValue(s, i18n.language),
+    bg: STATUS_BG_MAP[s.code] ?? 'bg-purple-500/20 text-purple-400',
+    icon: STATUS_ICON_MAP[s.code] ?? Activity,
+  }));
 
   const openStatusDialog = (camera: any) => {
     if (camera.status === 'active' || camera.status !== 'active') {
@@ -458,9 +474,10 @@ export default function ImageServiceCameras() {
           <div className="w-36">
             <SearchableSelect value={statusFilter} onChange={setStatusFilter}
               placeholder={t('imageService.search.allStatus')}
-              options={['active', 'inactive', 'error', 'maintenance'].map(s => ({
-                value: s, label: t(`imageService.cameras.${s}`),
-              }))} />
+              options={cameraStatuses.filter((s: any) => s.isActive).length > 0
+                ? cameraStatuses.filter((s: any) => s.isActive).map((s: any) => ({ value: s.code, label: getLocalizedValue(s, i18n.language) }))
+                : ['active', 'inactive', 'error', 'maintenance'].map(s => ({ value: s, label: t(`imageService.cameras.${s}`) }))
+              } />
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -619,7 +636,10 @@ export default function ImageServiceCameras() {
               </label>
               <SearchableSelect value={form.captureMode} onChange={v => setForm(p => ({ ...p, captureMode: v }))}
                 placeholder={t('common.select')}
-                options={['periodic', 'on_demand', 'continuous'].map(m => ({ value: m, label: t(`imageService.cameras.captureMode${m.charAt(0).toUpperCase() + m.slice(1)}`) }))} />
+                options={captureModes.filter((cm: any) => cm.isActive).length > 0
+                  ? captureModes.filter((cm: any) => cm.isActive).map((cm: any) => ({ value: cm.code, label: getLocalizedValue(cm, i18n.language) }))
+                  : ['periodic', 'on_demand', 'continuous'].map(m => ({ value: m, label: t(`imageService.cameras.captureMode${m.charAt(0).toUpperCase() + m.slice(1)}`) }))
+                } />
             </div>
             <div>
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>

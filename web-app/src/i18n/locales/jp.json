@@ -543,7 +543,9 @@
       "formDescription": "説明",
       "formSortOrder": "並び順",
       "formActive": "有効",
-      "nameLabel": "名前 ({{lang}})"
+      "nameLabel": "名前 ({{lang}})",
+      "tabCameraStatus": "カメラステータス",
+      "tabCaptureMode": "キャプチャモード"
     },
     "telegramBot": {
       "title": "Telegram ボット設定",

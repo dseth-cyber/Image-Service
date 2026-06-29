@@ -261,6 +261,15 @@ async function main() {
     { type: 'camera_type', code: '3d_camera', nameTh: 'กล้อง 3D', nameEn: '3D Camera', nameCn: '3D相机', nameMm: '3D ကင်မရာ', nameJp: '3Dカメラ', sortOrder: 6 },
     { type: 'camera_type', code: 'ip_camera', nameTh: 'กล้อง IP', nameEn: 'IP Camera', nameCn: 'IP摄像机', nameMm: 'IP ကင်မရာ', nameJp: 'IPカメラ', sortOrder: 7 },
     { type: 'camera_type', code: 'other', nameTh: 'อื่นๆ', nameEn: 'Other', nameCn: '其他', nameMm: 'အခြား', nameJp: 'その他', sortOrder: 99 },
+    // camera_status
+    { type: 'camera_status', code: 'active', nameTh: 'ทำงาน', nameEn: 'Active', nameCn: '运行中', nameMm: 'အသက်ဝင်', nameJp: 'アクティブ', sortOrder: 1 },
+    { type: 'camera_status', code: 'inactive', nameTh: 'ไม่ทำงาน', nameEn: 'Inactive', nameCn: '未运行', nameMm: 'မလုပ်ဆောင်', nameJp: '非アクティブ', sortOrder: 2 },
+    { type: 'camera_status', code: 'maintenance', nameTh: 'ซ่อมบำรุง', nameEn: 'Maintenance', nameCn: '维护中', nameMm: 'ပြုပြင်ထိန်းသိမ်း', nameJp: 'メンテナンス', sortOrder: 3 },
+    { type: 'camera_status', code: 'error', nameTh: 'ข้อผิดพลาด', nameEn: 'Error', nameCn: '错误', nameMm: 'အမှား', nameJp: 'エラー', sortOrder: 4 },
+    // capture_mode
+    { type: 'capture_mode', code: 'periodic', nameTh: 'ตามระยะเวลา', nameEn: 'Periodic', nameCn: '定时', nameMm: 'အချိန်ကာလအလိုက်', nameJp: '定期', sortOrder: 1 },
+    { type: 'capture_mode', code: 'on_demand', nameTh: 'ตามคำสั่ง', nameEn: 'On Demand', nameCn: '按需', nameMm: 'လိုအပ်သလို', nameJp: 'オンデマンド', sortOrder: 2 },
+    { type: 'capture_mode', code: 'continuous', nameTh: 'ต่อเนื่อง', nameEn: 'Continuous', nameCn: '连续', nameMm: 'ဆက်တိုက်', nameJp: '連続', sortOrder: 3 },
     // image_category
     { type: 'image_category', code: 'quality_inspection', nameTh: 'ตรวจสอบคุณภาพ', nameEn: 'Quality Inspection', nameCn: '质量检查', nameMm: 'အရည်အသွေးစစ်ဆေးခြင်း', nameJp: '品質検査', sortOrder: 1 },
     { type: 'image_category', code: 'label_verification', nameTh: 'ตรวจสอบฉลาก', nameEn: 'Label Verification', nameCn: '标签验证', nameMm: 'တံဆိပ်စစ်ဆေးခြင်း', nameJp: 'ラベル検証', sortOrder: 2 },
