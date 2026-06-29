@@ -1,22 +1,5 @@
 import { getPrisma } from '../../lib/prisma.js';
 
-const REASON_OPTIONS = [
-  'scheduled_maintenance', 'power_failure', 'network_issue',
-  'lens_cleaning', 'firmware_update', 'cable_replacement',
-  'camera_malfunction', 'smb_unreachable', 'disk_full',
-  'authentication_failed', 'worker_down', 'human_error', 'other'
-];
-
-const ROOT_CAUSE_OPTIONS = [
-  'power', 'network', 'camera_hardware', 'storage', 'smb',
-  'worker', 'human_error', 'environment', 'unknown', 'other'
-];
-
-const RESOLUTION_OPTIONS = [
-  'completed', 'replaced_cable', 'restarted', 'power_reset',
-  'firmware_update', 'cleaned_lens', 'reconfigured', 'replaced_hardware', 'other'
-];
-
 async function generateIncidentNumber(): Promise<string> {
   const prisma = getPrisma();
   const year = new Date().getFullYear();
@@ -126,4 +109,12 @@ export async function getOpenIncidentForCamera(cameraId: string) {
   });
 }
 
-export { REASON_OPTIONS, ROOT_CAUSE_OPTIONS, RESOLUTION_OPTIONS };
+export async function getIncidentOptions() {
+  const prisma = getPrisma();
+  const [reasons, rootCauses, resolutions] = await Promise.all([
+    prisma.masterdata.findMany({ where: { type: 'incident_reason', isActive: true }, orderBy: { sortOrder: 'asc' } }),
+    prisma.masterdata.findMany({ where: { type: 'incident_root_cause', isActive: true }, orderBy: { sortOrder: 'asc' } }),
+    prisma.masterdata.findMany({ where: { type: 'incident_resolution', isActive: true }, orderBy: { sortOrder: 'asc' } }),
+  ]);
+  return { reasons, rootCauses, resolutions };
+}

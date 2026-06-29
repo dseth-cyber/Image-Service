@@ -7,13 +7,16 @@ import { imageServiceApi } from '@/services/imageServiceApi';
 import { Plus, Trash2, Pencil, CheckCircle, XCircle } from 'lucide-react';
 import { Button, Modal } from '@/components/ui';
 
-type TabType = 'camera_type' | 'image_category' | 'defect_type' | 'inspection_type';
+type TabType = 'camera_type' | 'image_category' | 'defect_type' | 'inspection_type' | 'incident_reason' | 'incident_root_cause' | 'incident_resolution';
 
 const TABS: { key: TabType; labelKey: string }[] = [
   { key: 'camera_type', labelKey: 'imageService.masterdataManagement.tabCameraType' },
   { key: 'image_category', labelKey: 'imageService.masterdataManagement.tabImageCategory' },
   { key: 'defect_type', labelKey: 'imageService.masterdataManagement.tabDefectType' },
   { key: 'inspection_type', labelKey: 'imageService.masterdataManagement.tabInspectionType' },
+  { key: 'incident_reason', labelKey: 'imageService.masterdataManagement.tabIncidentReason' },
+  { key: 'incident_root_cause', labelKey: 'imageService.masterdataManagement.tabIncidentRootCause' },
+  { key: 'incident_resolution', labelKey: 'imageService.masterdataManagement.tabIncidentResolution' },
 ];
 
 const LANG_FIELDS = ['nameTh', 'nameEn', 'nameCn', 'nameMm', 'nameJp'] as const;
@@ -87,7 +90,7 @@ export default function MasterdataManagement() {
         <p className={`text-sm mt-1 ${themeConfig.text.secondary}`}>{t('imageService.masterdataManagement.subtitle')}</p>
       </div>
 
-      <div className={`flex gap-1 mb-5 px-1 py-1 rounded-lg ${themeConfig.card}`}>
+      <div className={`flex flex-wrap gap-1 mb-5 px-1 py-1 rounded-lg ${themeConfig.card}`}>
         {TABS.map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === tab.key ? 'bg-cyan-500/15 text-cyan-300' : `${themeConfig.text.secondary} hover:text-white`}`}>

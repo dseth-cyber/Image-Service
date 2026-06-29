@@ -249,6 +249,78 @@ async function main() {
   });
   console.log(`  Test camera: ${camera.name}`);
 
+  // Seed Masterdata: incident_reason
+  console.log('Seeding masterdata (incident options)...');
+  const incidentReasons = [
+    { code: 'scheduled_maintenance', nameTh: 'ซ่อมบำรุงตามแผน', nameEn: 'Scheduled Maintenance', nameCn: '计划维护', nameMm: 'စီစဉ်ထားသော ပြုပြင်ထိန်းသိမ်းမှု', nameJp: '定期メンテナンス', sortOrder: 1 },
+    { code: 'power_failure', nameTh: 'ไฟฟ้าขัดข้อง', nameEn: 'Power Failure', nameCn: '电源故障', nameMm: 'ပါဝါချို့ယွင်းခြင်း', nameJp: '電源障害', sortOrder: 2 },
+    { code: 'network_issue', nameTh: 'ปัญหาเครือข่าย', nameEn: 'Network Issue', nameCn: '网络问题', nameMm: 'ကွန်ရက်ပြဿနာ', nameJp: 'ネットワーク障害', sortOrder: 3 },
+    { code: 'lens_cleaning', nameTh: 'ทำความสะอาดเลนส์', nameEn: 'Lens Cleaning', nameCn: '镜头清洁', nameMm: 'မှန်ဘီလူး သန့်ရှင်းရေး', nameJp: 'レンズ清掃', sortOrder: 4 },
+    { code: 'firmware_update', nameTh: 'อัปเดต Firmware', nameEn: 'Firmware Update', nameCn: '固件更新', nameMm: 'ဖမ်းဝဲ အပ်ဒိတ်', nameJp: 'ファームウェア更新', sortOrder: 5 },
+    { code: 'cable_replacement', nameTh: 'เปลี่ยนสาย', nameEn: 'Cable Replacement', nameCn: '更换电缆', nameMm: 'ကေဘယ်လဲလှယ်ခြင်း', nameJp: 'ケーブル交換', sortOrder: 6 },
+    { code: 'camera_malfunction', nameTh: 'กล้องชำรุด', nameEn: 'Camera Malfunction', nameCn: '相机故障', nameMm: 'ကင်မရာ ချို့ယွင်းခြင်း', nameJp: 'カメラ故障', sortOrder: 7 },
+    { code: 'smb_unreachable', nameTh: 'SMB ไม่สามารถเข้าถึง', nameEn: 'SMB Unreachable', nameCn: 'SMB无法访问', nameMm: 'SMB ချိတ်ဆက်၍မရ', nameJp: 'SMB接続不可', sortOrder: 8 },
+    { code: 'disk_full', nameTh: 'ดิสก์เต็ม', nameEn: 'Disk Full', nameCn: '磁盘已满', nameMm: 'ဒစ်ခ် ပြည့်နေသည်', nameJp: 'ディスク容量不足', sortOrder: 9 },
+    { code: 'authentication_failed', nameTh: 'ยืนยันตัวตนล้มเหลว', nameEn: 'Authentication Failed', nameCn: '认证失败', nameMm: 'အထောက်အထားစိစစ်ခြင်း မအောင်မြင်', nameJp: '認証失敗', sortOrder: 10 },
+    { code: 'worker_down', nameTh: 'Worker หยุดทำงาน', nameEn: 'Worker Down', nameCn: 'Worker停止工作', nameMm: 'Worker ရပ်တန့်သွားသည်', nameJp: 'Worker停止', sortOrder: 11 },
+    { code: 'human_error', nameTh: 'ความผิดพลาดของบุคคล', nameEn: 'Human Error', nameCn: '人为错误', nameMm: 'လူသားအမှား', nameJp: 'ヒューマンエラー', sortOrder: 12 },
+    { code: 'other', nameTh: 'อื่นๆ', nameEn: 'Other', nameCn: '其他', nameMm: 'အခြား', nameJp: 'その他', sortOrder: 99 },
+  ];
+
+  for (const entry of incidentReasons) {
+    await prisma.masterdata.upsert({
+      where: { type_code: { type: 'incident_reason', code: entry.code } },
+      update: { nameTh: entry.nameTh, nameEn: entry.nameEn, nameCn: entry.nameCn, nameMm: entry.nameMm, nameJp: entry.nameJp, sortOrder: entry.sortOrder, isActive: true },
+      create: { type: 'incident_reason', ...entry, isActive: true },
+    });
+  }
+  console.log(`  incident_reason: ${incidentReasons.length} entries`);
+
+  // Seed Masterdata: incident_root_cause
+  const incidentRootCauses = [
+    { code: 'power', nameTh: 'ระบบไฟฟ้า', nameEn: 'Power System', nameCn: '电力系统', nameMm: 'ပါဝါစနစ်', nameJp: '電力システム', sortOrder: 1 },
+    { code: 'network', nameTh: 'เครือข่าย', nameEn: 'Network', nameCn: '网络', nameMm: 'ကွန်ရက်', nameJp: 'ネットワーク', sortOrder: 2 },
+    { code: 'camera_hardware', nameTh: 'ฮาร์ดแวร์กล้อง', nameEn: 'Camera Hardware', nameCn: '相机硬件', nameMm: 'ကင်မရာ ဟာ့ဒ်ဝဲ', nameJp: 'カメラハードウェア', sortOrder: 3 },
+    { code: 'storage', nameTh: 'พื้นที่เก็บข้อมูล', nameEn: 'Storage', nameCn: '存储', nameMm: 'သိုလှောင်မှု', nameJp: 'ストレージ', sortOrder: 4 },
+    { code: 'smb', nameTh: 'SMB/แชร์ไฟล์', nameEn: 'SMB/File Share', nameCn: 'SMB/文件共享', nameMm: 'SMB/ဖိုင်မျှဝေ', nameJp: 'SMB/ファイル共有', sortOrder: 5 },
+    { code: 'worker', nameTh: 'Worker/ซอฟต์แวร์', nameEn: 'Worker/Software', nameCn: 'Worker/软件', nameMm: 'Worker/ဆော့ဖ်ဝဲ', nameJp: 'Worker/ソフトウェア', sortOrder: 6 },
+    { code: 'human_error', nameTh: 'ความผิดพลาดของบุคคล', nameEn: 'Human Error', nameCn: '人为错误', nameMm: 'လူသားအမှား', nameJp: 'ヒューマンエラー', sortOrder: 7 },
+    { code: 'environment', nameTh: 'สภาพแวดล้อม', nameEn: 'Environment', nameCn: '环境', nameMm: 'ပတ်ဝန်းကျင်', nameJp: '環境', sortOrder: 8 },
+    { code: 'unknown', nameTh: 'ไม่ทราบ', nameEn: 'Unknown', nameCn: '未知', nameMm: 'မသိ', nameJp: '不明', sortOrder: 9 },
+    { code: 'other', nameTh: 'อื่นๆ', nameEn: 'Other', nameCn: '其他', nameMm: 'အခြား', nameJp: 'その他', sortOrder: 99 },
+  ];
+
+  for (const entry of incidentRootCauses) {
+    await prisma.masterdata.upsert({
+      where: { type_code: { type: 'incident_root_cause', code: entry.code } },
+      update: { nameTh: entry.nameTh, nameEn: entry.nameEn, nameCn: entry.nameCn, nameMm: entry.nameMm, nameJp: entry.nameJp, sortOrder: entry.sortOrder, isActive: true },
+      create: { type: 'incident_root_cause', ...entry, isActive: true },
+    });
+  }
+  console.log(`  incident_root_cause: ${incidentRootCauses.length} entries`);
+
+  // Seed Masterdata: incident_resolution
+  const incidentResolutions = [
+    { code: 'completed', nameTh: 'ดำเนินการเสร็จสิ้น', nameEn: 'Completed', nameCn: '已完成', nameMm: 'ပြီးစီးပြီ', nameJp: '完了', sortOrder: 1 },
+    { code: 'replaced_cable', nameTh: 'เปลี่ยนสาย', nameEn: 'Replaced Cable', nameCn: '更换电缆', nameMm: 'ကေဘယ်လဲလှယ်ပြီး', nameJp: 'ケーブル交換済', sortOrder: 2 },
+    { code: 'restarted', nameTh: 'รีสตาร์ท', nameEn: 'Restarted', nameCn: '已重启', nameMm: 'ပြန်စတင်ပြီး', nameJp: '再起動済', sortOrder: 3 },
+    { code: 'power_reset', nameTh: 'รีเซ็ตไฟ', nameEn: 'Power Reset', nameCn: '电源重置', nameMm: 'ပါဝါပြန်ချိန်ပြီး', nameJp: '電源リセット', sortOrder: 4 },
+    { code: 'firmware_update', nameTh: 'อัปเดต Firmware', nameEn: 'Firmware Update', nameCn: '固件更新', nameMm: 'ဖမ်းဝဲ အပ်ဒိတ်', nameJp: 'ファームウェア更新', sortOrder: 5 },
+    { code: 'cleaned_lens', nameTh: 'ทำความสะอาดเลนส์', nameEn: 'Cleaned Lens', nameCn: '清洁镜头', nameMm: 'မှန်ဘီလူး သန့်ရှင်းပြီး', nameJp: 'レンズ清掃済', sortOrder: 6 },
+    { code: 'reconfigured', nameTh: 'ปรับค่าใหม่', nameEn: 'Reconfigured', nameCn: '重新配置', nameMm: 'ပြန်လည်ပြင်ဆင်ပြီး', nameJp: '再設定済', sortOrder: 7 },
+    { code: 'replaced_hardware', nameTh: 'เปลี่ยนฮาร์ดแวร์', nameEn: 'Replaced Hardware', nameCn: '更换硬件', nameMm: 'ဟာ့ဒ်ဝဲ လဲလှယ်ပြီး', nameJp: 'ハードウェア交換済', sortOrder: 8 },
+    { code: 'other', nameTh: 'อื่นๆ', nameEn: 'Other', nameCn: '其他', nameMm: 'အခြား', nameJp: 'その他', sortOrder: 99 },
+  ];
+
+  for (const entry of incidentResolutions) {
+    await prisma.masterdata.upsert({
+      where: { type_code: { type: 'incident_resolution', code: entry.code } },
+      update: { nameTh: entry.nameTh, nameEn: entry.nameEn, nameCn: entry.nameCn, nameMm: entry.nameMm, nameJp: entry.nameJp, sortOrder: entry.sortOrder, isActive: true },
+      create: { type: 'incident_resolution', ...entry, isActive: true },
+    });
+  }
+  console.log(`  incident_resolution: ${incidentResolutions.length} entries`);
+
   console.log('\nDefault credentials:');
   console.log('  admin    / admin123   (full access)');
   console.log('  operator / operator123 (read + write)');

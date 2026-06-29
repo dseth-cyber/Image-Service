@@ -204,22 +204,12 @@ export default function ImageServiceCameras() {
   const [resolveDialog, setResolveDialog] = useState<{ open: boolean; camera?: any }>({ open: false });
   const [resolveForm, setResolveForm] = useState({ resolution: '', rootCause: '', correctiveAction: '', preventiveAction: '' });
 
-  const REASON_OPTIONS = [
-    'scheduled_maintenance', 'power_failure', 'network_issue',
-    'lens_cleaning', 'firmware_update', 'cable_replacement',
-    'camera_malfunction', 'smb_unreachable', 'disk_full',
-    'authentication_failed', 'worker_down', 'human_error', 'other'
-  ];
-
-  const ROOT_CAUSE_OPTIONS = [
-    'power', 'network', 'camera_hardware', 'storage', 'smb',
-    'worker', 'human_error', 'environment', 'unknown', 'other'
-  ];
-
-  const RESOLUTION_OPTIONS = [
-    'completed', 'replaced_cable', 'restarted', 'power_reset',
-    'firmware_update', 'cleaned_lens', 'reconfigured', 'replaced_hardware', 'other'
-  ];
+  // Fetch incident options from masterdata
+  const { data: incidentOptions } = useQuery({
+    queryKey: ['incident-options'],
+    queryFn: () => imageServiceApi.getIncidentOptions(),
+    staleTime: 1000 * 60 * 5,
+  });
 
   const STATUS_RADIO_OPTIONS: { value: string; label: string; bg: string; icon: any }[] = [
     { value: 'active', label: t('imageService.cameras.active'), bg: 'bg-green-500/20 text-green-400', icon: Wifi },
@@ -880,8 +870,8 @@ export default function ImageServiceCameras() {
                 </label>
                 <SearchableSelect value={statusForm.reason} onChange={v => setStatusForm(p => ({ ...p, reason: v }))}
                   placeholder={t('imageService.incidents.reason')}
-                  options={REASON_OPTIONS.map(r => ({
-                    value: r, label: t(`imageService.incidents.reasons.${r}`),
+                  options={(incidentOptions?.reasons || []).map((r: any) => ({
+                    value: r.code, label: getLocalizedValue(r, i18n.language),
                   }))} />
               </div>
 
@@ -902,8 +892,8 @@ export default function ImageServiceCameras() {
                 </label>
                 <SearchableSelect value={statusForm.rootCause} onChange={v => setStatusForm(p => ({ ...p, rootCause: v }))}
                   placeholder={t('imageService.incidents.rootCause')}
-                  options={ROOT_CAUSE_OPTIONS.map(r => ({
-                    value: r, label: t(`imageService.incidents.rootCauses.${r}`),
+                  options={(incidentOptions?.rootCauses || []).map((r: any) => ({
+                    value: r.code, label: getLocalizedValue(r, i18n.language),
                   }))} />
               </div>
 
@@ -915,6 +905,11 @@ export default function ImageServiceCameras() {
                   <input type="datetime-local" value={statusForm.estimatedFinish}
                     onChange={e => setStatusForm(p => ({ ...p, estimatedFinish: e.target.value }))}
                     className={`w-full px-3 py-2 rounded-md text-sm ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`} />
+                  {statusForm.estimatedFinish && (
+                    <p className={`text-xs ${themeConfig.text.secondary} mt-1`}>
+                      {formatDateTime(statusForm.estimatedFinish, i18n.language)}
+                    </p>
+                  )}
                 </div>
               )}
             </>
@@ -949,17 +944,17 @@ export default function ImageServiceCameras() {
               {t('imageService.incidents.resolution')}
             </label>
             <div className="grid grid-cols-2 gap-1.5">
-              {RESOLUTION_OPTIONS.map(r => {
-                const selected = resolveForm.resolution === r;
+              {(incidentOptions?.resolutions || []).map((r: any) => {
+                const selected = resolveForm.resolution === r.code;
                 return (
-                  <button key={r} type="button"
-                    onClick={() => setResolveForm(p => ({ ...p, resolution: selected ? '' : r }))}
+                  <button key={r.code} type="button"
+                    onClick={() => setResolveForm(p => ({ ...p, resolution: selected ? '' : r.code }))}
                     className={`px-3 py-2 rounded-lg text-xs flex items-center gap-2 border transition-all text-left ${selected ? 'border-green-500 bg-green-500/10' : 'border-white/10 hover:border-white/20 hover:bg-white/5'}`}>
                     <span className={`w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0 ${selected ? 'border-green-400 bg-green-500/30' : 'border-white/30'}`}>
                       {selected && <CheckCircle size={10} className="text-green-400" />}
                     </span>
                     <span className={`${selected ? 'text-green-300' : themeConfig.text.primary}`}>
-                      {t(`imageService.incidents.resolutions.${r}`)}
+                      {getLocalizedValue(r, i18n.language)}
                     </span>
                   </button>
                 );
@@ -974,8 +969,8 @@ export default function ImageServiceCameras() {
             </label>
             <SearchableSelect value={resolveForm.rootCause} onChange={v => setResolveForm(p => ({ ...p, rootCause: v }))}
               placeholder={t('imageService.incidents.rootCause')}
-              options={ROOT_CAUSE_OPTIONS.map(r => ({
-                value: r, label: t(`imageService.incidents.rootCauses.${r}`),
+              options={(incidentOptions?.rootCauses || []).map((r: any) => ({
+                value: r.code, label: getLocalizedValue(r, i18n.language),
               }))} />
           </div>
 

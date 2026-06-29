@@ -291,11 +291,8 @@ async function resolveIncidentHandler(request: FastifyRequest, reply: FastifyRep
 }
 
 async function incidentOptionsHandler(_request: FastifyRequest, reply: FastifyReply) {
-  return reply.send({
-    reasons: incidentService.REASON_OPTIONS,
-    rootCauses: incidentService.ROOT_CAUSE_OPTIONS,
-    resolutions: incidentService.RESOLUTION_OPTIONS,
-  });
+  const options = await incidentService.getIncidentOptions();
+  return reply.send(options);
 }
 
 export async function cameraRoutes(app: FastifyInstance): Promise<void> {
