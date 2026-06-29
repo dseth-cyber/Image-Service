@@ -5,8 +5,12 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { useToast } from '@/contexts/ToastContext'
 import { imageServiceApi } from '@/services/imageServiceApi'
 import { formatDateTime } from '@/utils/dateUtils'
-import { Modal, Button, SearchableSelect, TableSkeleton } from '@/components/ui'
-import { Users, Plus, Edit, Trash2, ChevronUp, ChevronDown, ChevronsUpDown, ShieldAlert, Key, Globe, Layout, CheckSquare, Square, Info, ToggleLeft, ToggleRight } from 'lucide-react'
+import { Modal, Button, SearchableSelect, TableSkeleton, ExportButton } from '@/components/ui'
+import type { ExportSection } from '@/components/ui'
+import { Users, Plus, Edit, Trash2, ChevronUp, ChevronDown, ChevronsUpDown, ShieldAlert, Key, Globe, Layout, CheckSquare, Square, Info, ToggleLeft, ToggleRight, BarChart3, Clock, Activity, ArrowLeft } from 'lucide-react'
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from 'recharts'
 
 const ROLE_COLORS: Record<string, string> = {
   admin: 'bg-red-500/20 text-red-400 border border-red-500/30',
@@ -222,7 +226,13 @@ export default function UserManagement() {
   const toast = useToast()
   const queryClient = useQueryClient()
 
-  const [activeTab, setActiveTab] = useState<'users' | 'roles'>('users')
+  const [activeTab, setActiveTab] = useState<'users' | 'roles' | 'activity'>('users')
+
+  // Activity state
+  const [activityPeriod, setActivityPeriod] = useState('7d')
+  const [selectedActivityUser, setSelectedActivityUser] = useState<string | null>(null)
+  const [activitySortCol, setActivitySortCol] = useState('totalSessions')
+  const [activitySortDir, setActivitySortDir] = useState<'asc' | 'desc'>('desc')
 
   // Users Page/Sort state
   const [userSearch] = useState(() => new URLSearchParams(window.location.search).get('q') || '')
@@ -259,6 +269,22 @@ export default function UserManagement() {
     queryKey: ['roles'],
     queryFn: () => imageServiceApi.getRoles(),
     staleTime: 1000 * 30,
+  })
+
+  // Activity Summary Query
+  const { data: activitySummary, isLoading: isLoadingActivity } = useQuery({
+    queryKey: ['users-activity-summary', activityPeriod],
+    queryFn: () => imageServiceApi.getUsersActivitySummary(activityPeriod),
+    staleTime: 1000 * 30,
+    enabled: activeTab === 'activity',
+  })
+
+  // Single User Activity Query
+  const { data: userActivityData, isLoading: isLoadingUserActivity } = useQuery({
+    queryKey: ['user-activity', selectedActivityUser, activityPeriod],
+    queryFn: () => imageServiceApi.getUserActivity(selectedActivityUser!, activityPeriod),
+    staleTime: 1000 * 30,
+    enabled: activeTab === 'activity' && !!selectedActivityUser,
   })
 
   const usersList = filteredUsers
@@ -423,6 +449,51 @@ export default function UserManagement() {
     })
   }
 
+  const PERIODS = ['7d', '14d', '30d', '60d', '90d']
+
+  const formatDuration = (seconds: number) => {
+    if (seconds < 60) return `${seconds}s`
+    if (seconds < 3600) return `${Math.round(seconds / 60)}m`
+    const h = Math.floor(seconds / 3600)
+    const m = Math.round((seconds % 3600) / 60)
+    return `${h}h ${m}m`
+  }
+
+  const handleActivitySort = (col: string) => {
+    if (activitySortCol === col) setActivitySortDir(d => d === 'asc' ? 'desc' : 'asc')
+    else { setActivitySortCol(col); setActivitySortDir('desc') }
+  }
+
+  const sortedActivityUsers = [...(activitySummary?.users ?? [])].sort((a: any, b: any) => {
+    const av = a[activitySortCol] ?? 0, bv = b[activitySortCol] ?? 0
+    if (typeof av === 'number') return activitySortDir === 'asc' ? av - bv : bv - av
+    return activitySortDir === 'asc' ? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av))
+  })
+
+  const activityExportSections: ExportSection[] = activitySummary ? [
+    {
+      title: t('imageService.users.userActivity'),
+      columns: [
+        { key: 'idx', label: '#' },
+        { key: 'username', label: t('imageService.users.username') },
+        { key: 'role', label: t('imageService.users.role') },
+        { key: 'totalSessions', label: t('imageService.users.totalLogins') },
+        { key: 'totalDurationFmt', label: t('imageService.users.totalDuration') },
+        { key: 'avgDurationFmt', label: t('imageService.users.avgDuration') },
+        { key: 'lastLoginFmt', label: t('imageService.users.lastLogin') },
+      ],
+      data: (activitySummary.users ?? []).map((u: any, idx: number) => ({
+        idx: idx + 1,
+        username: u.username,
+        role: u.role,
+        totalSessions: u.totalSessions,
+        totalDurationFmt: formatDuration(u.totalDuration),
+        avgDurationFmt: formatDuration(u.avgDuration),
+        lastLoginFmt: u.lastLogin ? formatDateTime(u.lastLogin, i18n.language) : '-',
+      })),
+    },
+  ] : []
+
   const sortedUsers = [...usersList].sort((a: any, b: any) => {
     const av = a[userSortCol] ?? '', bv = b[userSortCol] ?? ''
     return userSortDir === 'asc' ? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av))
@@ -461,6 +532,15 @@ export default function UserManagement() {
         >
           <ShieldAlert size={16} />
           {t('imageService.users.tabs.roles') || 'Roles & Permissions'}
+        </button>
+        <button
+          onClick={() => { setActiveTab('activity'); setSelectedActivityUser(null) }}
+          className={`pb-3 text-sm font-semibold transition-all border-b-2 flex items-center gap-2 ${
+            activeTab === 'activity' ? 'border-cyan-400 text-cyan-300' : 'border-transparent text-gray-400 hover:text-gray-200'
+          }`}
+        >
+          <Activity size={16} />
+          {t('imageService.users.tabs.activity') || 'Activity Stats'}
         </button>
       </div>
 
@@ -632,6 +712,259 @@ export default function UserManagement() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Activity Tab Panel */}
+      {activeTab === 'activity' && (
+        <>
+          {/* Period selector + Export */}
+          <div className={`${themeConfig.card} rounded-lg p-4 mb-5 flex items-center justify-between overflow-visible`}>
+            <div className={`flex rounded-lg overflow-hidden border ${themeConfig.cardBorder ?? 'border-white/10'}`}>
+              {PERIODS.map((p) => (
+                <button
+                  key={p}
+                  onClick={() => { setActivityPeriod(p); setSelectedActivityUser(null) }}
+                  className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                    activityPeriod === p
+                      ? 'bg-cyan-500/20 text-cyan-300'
+                      : `${themeConfig.text.secondary} hover:bg-white/5`
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+            <ExportButton
+              filename={`user-activity-${activityPeriod}`}
+              title={t('imageService.users.userActivity')}
+              sections={activityExportSections}
+            />
+          </div>
+
+          {isLoadingActivity ? <TableSkeleton rows={6} /> : selectedActivityUser && userActivityData ? (
+            /* User Detail View */
+            <div>
+              <button
+                onClick={() => setSelectedActivityUser(null)}
+                className={`flex items-center gap-1.5 text-sm font-medium mb-4 ${themeConfig.text.secondary} hover:text-cyan-300 transition-colors`}
+              >
+                <ArrowLeft size={16} />
+                {t('imageService.users.userActivity')}
+              </button>
+
+              <h3 className={`text-lg font-semibold mb-4 ${themeConfig.text.primary}`}>
+                {t('imageService.users.userDetail')}: {activitySummary?.users?.find((u: any) => u.userId === selectedActivityUser)?.username ?? ''}
+              </h3>
+
+              {/* User Detail Summary Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className={`${themeConfig.card} rounded-lg p-4`}>
+                  <p className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.users.totalLogins')}</p>
+                  <p className={`text-2xl font-bold ${themeConfig.text.primary}`}>{userActivityData.totalSessions}</p>
+                </div>
+                <div className={`${themeConfig.card} rounded-lg p-4`}>
+                  <p className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.users.totalDuration')}</p>
+                  <p className={`text-2xl font-bold ${themeConfig.text.primary}`}>{formatDuration(userActivityData.totalDuration)}</p>
+                </div>
+                <div className={`${themeConfig.card} rounded-lg p-4`}>
+                  <p className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.users.avgSessionDuration')}</p>
+                  <p className={`text-2xl font-bold ${themeConfig.text.primary}`}>{formatDuration(userActivityData.avgDuration)}</p>
+                </div>
+                <div className={`${themeConfig.card} rounded-lg p-4`}>
+                  <p className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.users.peakHour')}</p>
+                  <p className={`text-2xl font-bold ${themeConfig.text.primary}`}>{String(userActivityData.peakHour).padStart(2, '0')}:00</p>
+                </div>
+              </div>
+
+              {/* Daily Login Chart */}
+              <div className={`${themeConfig.card} rounded-lg p-4 mb-6`}>
+                <h4 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>{t('imageService.users.dailyLogins')}</h4>
+                {userActivityData.dailyStats?.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={220}>
+                    <BarChart data={userActivityData.dailyStats}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                      <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} allowDecimals={false} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '12px' }}
+                        labelStyle={{ color: '#94a3b8' }}
+                      />
+                      <Bar dataKey="sessions" fill="#22d3ee" radius={[4, 4, 0, 0]} name={t('imageService.users.sessions')} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className={`text-sm ${themeConfig.text.secondary} text-center py-8`}>{t('imageService.users.noSessions')}</p>
+                )}
+              </div>
+
+              {/* Hourly Usage Heatmap */}
+              <div className={`${themeConfig.card} rounded-lg p-4 mb-6`}>
+                <h4 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>{t('imageService.users.hourlyUsage')}</h4>
+                {userActivityData.hourlyStats ? (
+                  <ResponsiveContainer width="100%" height={160}>
+                    <BarChart data={userActivityData.hourlyStats.map((count: number, hour: number) => ({ hour: `${String(hour).padStart(2, '0')}`, count }))}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="hour" tick={{ fontSize: 9, fill: '#94a3b8' }} />
+                      <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} allowDecimals={false} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '12px' }}
+                        labelStyle={{ color: '#94a3b8' }}
+                      />
+                      <Bar dataKey="count" fill="#a78bfa" radius={[3, 3, 0, 0]} name={t('imageService.users.sessions')} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : null}
+              </div>
+
+              {/* Session History Table */}
+              <div className={`${themeConfig.card} rounded-lg p-4`}>
+                <h4 className={`text-sm font-semibold mb-3 ${themeConfig.text.primary}`}>{t('imageService.users.sessionHistory')}</h4>
+                {userActivityData.sessions?.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className={themeConfig.tableHeader}>
+                        <tr>
+                          <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>#</th>
+                          <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.users.loginTime')}</th>
+                          <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.users.logoutTime')}</th>
+                          <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.users.duration')}</th>
+                          <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>IP</th>
+                        </tr>
+                      </thead>
+                      <tbody className={`divide-y ${themeConfig.tableDivide}`}>
+                        {userActivityData.sessions.map((s: any, idx: number) => (
+                          <tr key={s.id} className={`border-b ${themeConfig.tableBorder} ${themeConfig.tableRow}`}>
+                            <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>{idx + 1}</td>
+                            <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>{formatDateTime(s.loginAt, i18n.language)}</td>
+                            <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>{s.logoutAt ? formatDateTime(s.logoutAt, i18n.language) : '—'}</td>
+                            <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>{s.durationSeconds != null ? formatDuration(s.durationSeconds) : '—'}</td>
+                            <td className={`px-4 py-3 text-sm font-mono ${themeConfig.text.secondary}`}>{s.ipAddress || '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className={`text-sm ${themeConfig.text.secondary} text-center py-8`}>{t('imageService.users.noSessions')}</p>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* Activity Summary View */
+            <div>
+              {/* Summary Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className={`${themeConfig.card} rounded-lg p-4`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <BarChart3 size={14} className="text-cyan-400" />
+                    <p className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.users.totalLogins')}</p>
+                  </div>
+                  <p className={`text-2xl font-bold ${themeConfig.text.primary}`}>{activitySummary?.totalSessions ?? 0}</p>
+                </div>
+                <div className={`${themeConfig.card} rounded-lg p-4`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Users size={14} className="text-green-400" />
+                    <p className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.users.activeUsers')}</p>
+                  </div>
+                  <p className={`text-2xl font-bold ${themeConfig.text.primary}`}>{activitySummary?.activeUsers ?? 0}</p>
+                </div>
+                <div className={`${themeConfig.card} rounded-lg p-4`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Clock size={14} className="text-purple-400" />
+                    <p className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.users.avgSessionDuration')}</p>
+                  </div>
+                  <p className={`text-2xl font-bold ${themeConfig.text.primary}`}>{formatDuration(activitySummary?.avgDuration ?? 0)}</p>
+                </div>
+                <div className={`${themeConfig.card} rounded-lg p-4`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Activity size={14} className="text-orange-400" />
+                    <p className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.users.peakHour')}</p>
+                  </div>
+                  <p className={`text-2xl font-bold ${themeConfig.text.primary}`}>
+                    {activitySummary?.totalSessions > 0 ? `${String(activitySummary?.peakHour ?? 0).padStart(2, '0')}:00` : '—'}
+                  </p>
+                </div>
+              </div>
+
+              {/* User Activity Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className={themeConfig.tableHeader}>
+                    <tr>
+                      <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>#</th>
+                      <th onClick={() => handleActivitySort('username')} className={thCls('username')}>
+                        <div className="flex items-center gap-1">
+                          {t('imageService.users.username')}
+                          {activitySortCol === 'username' ? (
+                            activitySortDir === 'asc' ? <ChevronUp size={11} className="text-cyan-400" /> : <ChevronDown size={11} className="text-cyan-400" />
+                          ) : <ChevronsUpDown size={11} className="opacity-25" />}
+                        </div>
+                      </th>
+                      <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.users.role')}</th>
+                      <th onClick={() => handleActivitySort('totalSessions')} className={thCls('totalSessions')}>
+                        <div className="flex items-center gap-1">
+                          {t('imageService.users.totalLogins')}
+                          {activitySortCol === 'totalSessions' ? (
+                            activitySortDir === 'asc' ? <ChevronUp size={11} className="text-cyan-400" /> : <ChevronDown size={11} className="text-cyan-400" />
+                          ) : <ChevronsUpDown size={11} className="opacity-25" />}
+                        </div>
+                      </th>
+                      <th onClick={() => handleActivitySort('totalDuration')} className={thCls('totalDuration')}>
+                        <div className="flex items-center gap-1">
+                          {t('imageService.users.totalDuration')}
+                          {activitySortCol === 'totalDuration' ? (
+                            activitySortDir === 'asc' ? <ChevronUp size={11} className="text-cyan-400" /> : <ChevronDown size={11} className="text-cyan-400" />
+                          ) : <ChevronsUpDown size={11} className="opacity-25" />}
+                        </div>
+                      </th>
+                      <th onClick={() => handleActivitySort('avgDuration')} className={thCls('avgDuration')}>
+                        <div className="flex items-center gap-1">
+                          {t('imageService.users.avgDuration')}
+                          {activitySortCol === 'avgDuration' ? (
+                            activitySortDir === 'asc' ? <ChevronUp size={11} className="text-cyan-400" /> : <ChevronDown size={11} className="text-cyan-400" />
+                          ) : <ChevronsUpDown size={11} className="opacity-25" />}
+                        </div>
+                      </th>
+                      <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.users.lastLogin')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className={`divide-y ${themeConfig.tableDivide}`}>
+                    {sortedActivityUsers.map((item: any, idx: number) => {
+                      const roleObj = getRoleObjByCode(item.role)
+                      return (
+                        <tr
+                          key={item.userId}
+                          onClick={() => setSelectedActivityUser(item.userId)}
+                          className={`border-b ${themeConfig.tableBorder} ${themeConfig.tableRow} cursor-pointer hover:bg-cyan-500/5`}
+                        >
+                          <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>{idx + 1}</td>
+                          <td className={`px-4 py-3 text-sm font-medium ${themeConfig.text.primary}`}>{item.username}</td>
+                          <td className="px-4 py-3">
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${ROLE_COLORS[item.role] ?? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'}`}>
+                              {getRoleName(roleObj) || item.role}
+                            </span>
+                          </td>
+                          <td className={`px-4 py-3 text-sm font-semibold ${themeConfig.text.primary}`}>{item.totalSessions}</td>
+                          <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>{formatDuration(item.totalDuration)}</td>
+                          <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>{formatDuration(item.avgDuration)}</td>
+                          <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>
+                            {item.lastLogin ? formatDateTime(item.lastLogin, i18n.language) : '—'}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {sortedActivityUsers.length === 0 && (
+                <div className={`text-center py-12 ${themeConfig.text.secondary} text-sm`}>
+                  {t('imageService.users.noSessions')}
+                </div>
+              )}
             </div>
           )}
         </>

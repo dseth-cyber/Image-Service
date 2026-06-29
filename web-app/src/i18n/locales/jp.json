@@ -522,7 +522,8 @@
       "backup": "バックアップ",
       "storageProviders": "ストレージプロバイダー",
       "storageProfiles": "ストレージプロファイル",
-      "migrations": "移行"
+      "migrations": "移行",
+      "cameraAnalytics": "カメラ分析"
     },
     "masterdataManagement": {
       "title": "マスタデータ管理",
@@ -1172,6 +1173,45 @@
         "users_delete": "ユーザーと役割を削除",
         "health_read": "システムヘルスを表示"
       }
+    },
+    "analytics": {
+      "title": "カメラ可用性分析",
+      "subtitle": "Downtime、MTBF、MTTRとヘルススコアレポート",
+      "period": "期間",
+      "availability": "可用性",
+      "slaTarget": "SLA目標",
+      "slaMet": "SLA達成",
+      "slaNotMet": "SLA未達",
+      "mtbf": "MTBF",
+      "mtbfDesc": "平均故障間隔",
+      "mttr": "MTTR",
+      "mttrDesc": "平均修復時間",
+      "healthScore": "ヘルススコア",
+      "excellent": "優秀",
+      "good": "良好",
+      "warning": "警告",
+      "critical": "危険",
+      "uptime": "稼働時間",
+      "downtime": "停止時間",
+      "maintenance": "メンテナンス",
+      "offlineEvents": "オフライン回数",
+      "estimatedLostImages": "推定損失画像",
+      "imagesCaptured": "撮影画像数",
+      "timeline": "ステータスタイムライン",
+      "eventHistory": "ステータス変更履歴",
+      "fromStatus": "から",
+      "toStatus": "へ",
+      "reason": "理由",
+      "duration": "期間",
+      "changedBy": "変更者",
+      "noData": "データなし",
+      "hours": "時間",
+      "minutes": "分",
+      "days": "日",
+      "comparison": "カメラ比較",
+      "allCameras": "全カメラ",
+      "selectCamera": "カメラ選択",
+      "downtimeByReason": "停止理由分析"
     }
   },
   "common": {

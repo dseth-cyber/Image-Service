@@ -16,7 +16,7 @@ import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
-const LAYOUT_STORAGE_KEY = 'image_service_storage_layout_v2';
+const LAYOUT_STORAGE_KEY = 'image_service_storage_layout_v10';
 
 const DEFAULT_LAYOUTS: Record<string, any[]> = {
   lg: [
@@ -270,7 +270,7 @@ export default function ImageServiceStorage() {
         <ResponsiveGridLayout
           className="layout"
           layouts={layouts}
-          breakpoints={{ lg: 1200, md: 996, sm: 768 }}
+          breakpoints={{ lg: 900, md: 700, sm: 480 }}
           cols={{ lg: 12, md: 10, sm: 6 }}
           rowHeight={100}
           isDraggable={isEditing}

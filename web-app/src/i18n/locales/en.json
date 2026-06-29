@@ -794,8 +794,27 @@
       "roleOperator": "Operator",
       "roleViewer": "Viewer",
       "tabs": {
-        "roles": "Roles & Permissions"
+        "roles": "Roles & Permissions",
+        "activity": "Activity Stats"
       },
+      "manageTab": "Manage Users",
+      "activityTab": "Activity Stats",
+      "totalLogins": "Total Logins",
+      "activeUsers": "Active Users",
+      "avgSessionDuration": "Avg Session Duration",
+      "peakHour": "Peak Usage Hour",
+      "sessionHistory": "Session History",
+      "loginTime": "Login Time",
+      "logoutTime": "Logout Time",
+      "duration": "Duration",
+      "dailyLogins": "Daily Logins",
+      "hourlyUsage": "Hourly Usage",
+      "userActivity": "User Activity Stats",
+      "noSessions": "No session data available",
+      "totalDuration": "Total Duration",
+      "avgDuration": "Average",
+      "sessions": "sessions",
+      "userDetail": "User Detail",
       "totalRoles": "Total: {{count}} Roles",
       "roles": {
         "newRole": "Add New Role",

@@ -137,10 +137,29 @@ model User {
 
   refreshTokens RefreshToken[]
   auditLogs     AuditLog[]
+  sessions      UserSession[]
 
   roleRelation CustomRole? @relation(fields: [role], references: [code])
 
   @@map("users")
+}
+
+model UserSession {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  username        String    @db.VarChar(128)
+  loginAt         DateTime  @default(now()) @map("login_at")
+  logoutAt        DateTime? @map("logout_at")
+  lastActiveAt    DateTime  @default(now()) @map("last_active_at")
+  durationSeconds Int?      @map("duration_seconds")
+  ipAddress       String?   @map("ip_address") @db.VarChar(45)
+  userAgent       String?   @map("user_agent") @db.Text
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, loginAt(sort: Desc)])
+  @@map("user_sessions")
 }
 
 model RefreshToken {

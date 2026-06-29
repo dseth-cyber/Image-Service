@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { loginSchema, refreshSchema } from './auth.schema.js';
 import * as authService from './auth.service.js';
+import * as sessionService from './user-session.service.js';
 import { config } from '../../config/index.js';
 import type { AuthenticatedUser } from '../../types/index.js';
 import { getUserPermissions } from '../../middleware/rbac.js';
@@ -17,6 +18,16 @@ async function loginHandler(request: FastifyRequest, reply: FastifyReply) {
 
   const refreshToken = await authService.createRefreshToken(user.id);
   const permissions = await getUserPermissions(user.id);
+
+  // Track user session
+  const ipAddress = (request.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || request.ip;
+  const userAgent = request.headers['user-agent'] || undefined;
+  await sessionService.createSession({
+    userId: user.id,
+    username: user.username,
+    ipAddress,
+    userAgent,
+  }).catch(() => {});
 
   return reply.status(200).send({
     accessToken,
@@ -57,10 +68,15 @@ async function meHandler(request: FastifyRequest, reply: FastifyReply) {
 }
 
 async function logoutHandler(request: FastifyRequest, reply: FastifyReply) {
+  const user = request.user as unknown as AuthenticatedUser | null;
   const authHeader = request.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
     const token = authHeader.slice(7);
     await authService.revokeRefreshToken(token);
+  }
+  // End the user session
+  if (user?.id) {
+    await sessionService.endSession(user.id).catch(() => {});
   }
   return reply.status(204).send();
 }

@@ -794,8 +794,27 @@
       "roleOperator": "ผู้ปฏิบัติการ",
       "roleViewer": "ผู้ดู",
       "tabs": {
-        "roles": "บทบาทและสิทธิ์"
+        "roles": "บทบาทและสิทธิ์",
+        "activity": "สถิติการใช้งาน"
       },
+      "manageTab": "จัดการผู้ใช้",
+      "activityTab": "สถิติการใช้งาน",
+      "totalLogins": "เข้าสู่ระบบทั้งหมด",
+      "activeUsers": "ผู้ใช้ที่เข้าใช้",
+      "avgSessionDuration": "ระยะเวลาเฉลี่ย",
+      "peakHour": "ช่วงเวลาที่ใช้มากสุด",
+      "sessionHistory": "ประวัติการเข้าใช้",
+      "loginTime": "เวลาเข้า",
+      "logoutTime": "เวลาออก",
+      "duration": "ระยะเวลา",
+      "dailyLogins": "การเข้าใช้รายวัน",
+      "hourlyUsage": "การเข้าใช้ตามชั่วโมง",
+      "userActivity": "สถิติการใช้งานผู้ใช้",
+      "noSessions": "ไม่มีข้อมูลการเข้าใช้",
+      "totalDuration": "ระยะเวลารวม",
+      "avgDuration": "เฉลี่ย",
+      "sessions": "ครั้ง",
+      "userDetail": "รายละเอียดผู้ใช้",
       "totalRoles": "รวม: {{count}} บทบาท",
       "roles": {
         "newRole": "เพิ่มบทบาทใหม่",

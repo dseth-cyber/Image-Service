@@ -522,7 +522,8 @@
       "backup": "မိတ္တူသိမ်းခြင်း",
       "storageProviders": "သိုလှောင်မှုဝန်ဆောင်မှုပေးသူ",
       "storageProfiles": "သိုလှောင်မှုပရိုဖိုင်",
-      "migrations": "ရွှေ့ပြောင်းခြင်း"
+      "migrations": "ရွှေ့ပြောင်းခြင်း",
+      "cameraAnalytics": "ကင်မရာခွဲခြမ်းစိတ်ဖြာ"
     },
     "masterdataManagement": {
       "title": "မာစတာဒေတာစီမံခန့်ခွဲမှု",
@@ -1167,6 +1168,45 @@
         "users_delete": "အသုံးပြုသူและ အခန်းကဏ္ဍဖျက်ရန်",
         "health_read": "စနစ်ကျန်းမာရေးကြည့်ရှုရန်"
       }
+    },
+    "analytics": {
+      "title": "ကင်မရာအသုံးပြုနိုင်မှုခွဲခြမ်းစိတ်ဖြာ",
+      "subtitle": "Downtime, MTBF, MTTR",
+      "period": "ကာလ",
+      "availability": "အသုံးပြုနိုင်မှု",
+      "slaTarget": "SLA ပစ်မှတ်",
+      "slaMet": "SLA ပြည့်မီ",
+      "slaNotMet": "SLA မပြည့်မီ",
+      "mtbf": "MTBF",
+      "mtbfDesc": "ပျက်စီးမှုကြားပျမ်းမျှအချိန်",
+      "mttr": "MTTR",
+      "mttrDesc": "ပြုပြင်ရန်ပျမ်းမျှအချိန်",
+      "healthScore": "ကျန်းမာရေးအမှတ်",
+      "excellent": "အကောင်းဆုံး",
+      "good": "ကောင်း",
+      "warning": "သတိပေး",
+      "critical": "အရေးကြီး",
+      "uptime": "အလုပ်လုပ်ချိန်",
+      "downtime": "ရပ်နားချိန်",
+      "maintenance": "ပြုပြင်ထိန်းသိမ်း",
+      "offlineEvents": "အော့ဖ်လိုင်းအကြိမ်",
+      "estimatedLostImages": "ပျောက်ဆုံးပုံရိပ်",
+      "imagesCaptured": "ရိုက်ယူပုံရိပ်",
+      "timeline": "အချိန်လိုင်း",
+      "eventHistory": "ပြောင်းလဲမှုမှတ်တမ်း",
+      "fromStatus": "မှ",
+      "toStatus": "သို့",
+      "reason": "အကြောင်းပြ",
+      "duration": "ကြာချိန်",
+      "changedBy": "ပြောင်းလဲသူ",
+      "noData": "ဒေတာမရှိ",
+      "hours": "နာရီ",
+      "minutes": "မိနစ်",
+      "days": "ရက်",
+      "comparison": "ကင်မရာနှိုင်းယှဉ်",
+      "allCameras": "အားလုံး",
+      "selectCamera": "ကင်မရာရွေး",
+      "downtimeByReason": "ရပ်နားအကြောင်းပြ"
     }
   },
   "common": {

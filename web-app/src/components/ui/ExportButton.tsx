@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { Download, FileSpreadsheet, FileText, Loader2 } from 'lucide-react'
 
@@ -38,20 +39,8 @@ function exportExcel(sections: ExportSection[], filename: string) {
     }
 
     const ws = XLSX.utils.aoa_to_sheet(allRows)
-
     const maxCols = Math.max(...allRows.map(r => r.length))
     ws['!cols'] = Array.from({ length: maxCols }, () => ({ wch: 25 }))
-
-    const merges: any[] = []
-    let rowIdx = 0
-    for (let si = 0; si < sections.length; si++) {
-      if (si > 0) rowIdx++
-      if (maxCols > 1) merges.push({ s: { r: rowIdx, c: 0 }, e: { r: rowIdx, c: maxCols - 1 } })
-      rowIdx++
-      rowIdx += Math.max(sections[si].data.length, 1) + 1
-    }
-    ws['!merges'] = merges
-
     XLSX.utils.book_append_sheet(wb, ws, 'Report')
     XLSX.writeFile(wb, `${filename}.xlsx`)
   })
@@ -146,11 +135,23 @@ export function ExportButton({ filename, title, sections }: ExportButtonProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const btnRef = useRef<HTMLButtonElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState({ top: 0, right: 0 })
+
+  useEffect(() => {
+    if (open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect()
+      setPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+    }
+  }, [open])
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setOpen(false)
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node) &&
+          btnRef.current && !btnRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
     }
     if (open) {
       document.addEventListener('mousedown', handleClickOutside)
@@ -176,14 +177,16 @@ export function ExportButton({ filename, title, sections }: ExportButtonProps) {
   if (!hasData) return null
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button onClick={() => setOpen(!open)} disabled={exporting}
+    <>
+      <button ref={btnRef} onClick={() => setOpen(!open)} disabled={exporting}
         className="px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition-colors disabled:opacity-50">
         {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
         {exporting ? t('common.exporting') : t('common.export')}
       </button>
-      {open && (
-        <div className="absolute right-0 mt-1 w-48 rounded-lg bg-slate-800 border border-white/20 shadow-xl z-50 overflow-hidden">
+      {open && createPortal(
+        <div ref={dropdownRef}
+          style={{ position: 'fixed', top: pos.top, right: pos.right, zIndex: 99999 }}
+          className="w-48 rounded-lg bg-slate-800 border border-white/20 shadow-2xl overflow-hidden">
           <button onClick={() => handleExport('excel')}
             className="w-full text-left px-3 py-2.5 text-sm flex items-center gap-2 text-white/90 hover:bg-white/10 transition-colors">
             <FileSpreadsheet size={14} className="text-green-400" />
@@ -194,8 +197,9 @@ export function ExportButton({ filename, title, sections }: ExportButtonProps) {
             <FileText size={14} className="text-red-400" />
             {t('common.exportPdf')}
           </button>
-        </div>
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   )
 }

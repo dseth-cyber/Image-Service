@@ -195,6 +195,12 @@ export function createImageServiceApi(api: any) {
     deactivateUser: (id: string) =>
       api.delete(`${BASE}/users/${id}`).then((r: any) => r.data),
 
+    getUserActivity: (id: string, period?: string) =>
+      api.get(`${BASE}/users/${id}/activity`, { params: { period } }).then((r: any) => r.data),
+
+    getUsersActivitySummary: (period?: string) =>
+      api.get(`${BASE}/users/activity/summary`, { params: { period } }).then((r: any) => r.data),
+
     // Roles
     getRoles: () =>
       api.get(`${BASE}/roles`).then((r: any) => r.data),

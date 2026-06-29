@@ -522,7 +522,8 @@
       "backup": "备份",
       "storageProviders": "存储提供商",
       "storageProfiles": "存储配置",
-      "migrations": "迁移"
+      "migrations": "迁移",
+      "cameraAnalytics": "摄像头分析"
     },
     "masterdataManagement": {
       "title": "主数据管理",
@@ -1172,6 +1173,45 @@
         "users_delete": "删除用户与角色",
         "health_read": "查看系统健康状况"
       }
+    },
+    "analytics": {
+      "title": "摄像头可用性分析",
+      "subtitle": "Downtime, MTBF, MTTR 和健康评分报告",
+      "period": "时间段",
+      "availability": "可用性",
+      "slaTarget": "SLA目标",
+      "slaMet": "达到SLA",
+      "slaNotMet": "低于SLA",
+      "mtbf": "MTBF",
+      "mtbfDesc": "平均故障间隔时间",
+      "mttr": "MTTR",
+      "mttrDesc": "平均修复时间",
+      "healthScore": "健康评分",
+      "excellent": "优秀",
+      "good": "良好",
+      "warning": "警告",
+      "critical": "严重",
+      "uptime": "运行时间",
+      "downtime": "停机时间",
+      "maintenance": "维护",
+      "offlineEvents": "离线次数",
+      "estimatedLostImages": "预计丢失图片",
+      "imagesCaptured": "已捕获图片",
+      "timeline": "状态时间线",
+      "eventHistory": "状态变更历史",
+      "fromStatus": "从",
+      "toStatus": "到",
+      "reason": "原因",
+      "duration": "持续时间",
+      "changedBy": "变更人",
+      "noData": "无数据",
+      "hours": "小时",
+      "minutes": "分钟",
+      "days": "天",
+      "comparison": "摄像头对比",
+      "allCameras": "全部摄像头",
+      "selectCamera": "选择摄像头",
+      "downtimeByReason": "停机原因分析"
     }
   },
   "common": {
