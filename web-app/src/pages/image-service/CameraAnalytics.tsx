@@ -638,7 +638,7 @@ export default function CameraAnalytics() {
               </h3>
               {analytics.timeline && analytics.timeline.length > 0 ? (
                 <div className="space-y-2 flex-1 min-h-0">
-                  <div className="relative h-10 rounded-lg overflow-hidden flex">
+                  <div className="relative h-10 rounded-full overflow-hidden flex gap-[2px] bg-white/5">
                     {analytics.timeline.map((seg: any, idx: number) => {
                       const totalMs = analytics.timeline.reduce((sum: number, s: any) => sum + s.durationMs, 0)
                       const widthPct = (seg.durationMs / totalMs) * 100
@@ -654,8 +654,8 @@ export default function CameraAnalytics() {
                       return (
                         <div
                           key={idx}
-                          className={`${colorMap[seg.status] || 'bg-gray-500'} relative group cursor-pointer transition-opacity hover:opacity-80`}
-                          style={{ width: `${widthPct}%`, minWidth: widthPct > 1 ? undefined : '2px' }}
+                          className={`${colorMap[seg.status] || 'bg-gray-500'} relative group cursor-pointer transition-opacity hover:opacity-80 ${idx === 0 ? 'rounded-l-full' : ''} ${idx === analytics.timeline.length - 1 ? 'rounded-r-full' : ''}`}
+                          style={{ width: `${widthPct}%`, minWidth: widthPct > 1 ? undefined : '3px' }}
                           title={`${seg.status}: ${formatDurationLong(Math.round(seg.durationMs / 1000))}`}
                         >
                           <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
