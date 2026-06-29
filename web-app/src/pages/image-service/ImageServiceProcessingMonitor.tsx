@@ -25,21 +25,21 @@ const LAYOUT_STORAGE_KEY = 'image_service_processing_layout_v10';
 const DEFAULT_LAYOUTS: Record<string, any[]> = {
   lg: [
     { i: 'stats', x: 0, y: 0, w: 12, h: 1.5, minW: 6, minH: 1.5 },
-    { i: 'visualizer', x: 0, y: 1.5, w: 12, h: 2, minW: 6, minH: 1.5 },
+    { i: 'visualizer', x: 0, y: 1.5, w: 12, h: 2, minW: 3, minH: 1.5 },
     { i: 'jobStatus', x: 0, y: 3.5, w: 4, h: 3, minW: 3, minH: 2.5 },
     { i: 'byType', x: 4, y: 3.5, w: 4, h: 3, minW: 3, minH: 2.5 },
     { i: 'recentJobs', x: 8, y: 3.5, w: 4, h: 5, minW: 3, minH: 3 },
   ],
   md: [
     { i: 'stats', x: 0, y: 0, w: 10, h: 1.5, minW: 6, minH: 1.5 },
-    { i: 'visualizer', x: 0, y: 1.5, w: 10, h: 2, minW: 6, minH: 1.5 },
+    { i: 'visualizer', x: 0, y: 1.5, w: 10, h: 2, minW: 3, minH: 1.5 },
     { i: 'jobStatus', x: 0, y: 3.5, w: 5, h: 3, minW: 3, minH: 2.5 },
     { i: 'byType', x: 5, y: 3.5, w: 5, h: 3, minW: 3, minH: 2.5 },
     { i: 'recentJobs', x: 0, y: 6.5, w: 10, h: 5, minW: 3, minH: 3 },
   ],
   sm: [
     { i: 'stats', x: 0, y: 0, w: 6, h: 1.5, minW: 6, minH: 1.5 },
-    { i: 'visualizer', x: 0, y: 1.5, w: 6, h: 2, minW: 6, minH: 1.5 },
+    { i: 'visualizer', x: 0, y: 1.5, w: 6, h: 2, minW: 3, minH: 1.5 },
     { i: 'jobStatus', x: 0, y: 3.5, w: 6, h: 3, minW: 3, minH: 2.5 },
     { i: 'byType', x: 0, y: 6.5, w: 6, h: 3, minW: 3, minH: 2.5 },
     { i: 'recentJobs', x: 0, y: 9.5, w: 6, h: 5, minW: 3, minH: 3 },
