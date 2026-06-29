@@ -187,7 +187,8 @@
       "emptyCameraTrash": "ล้างถังขยะกล้อง",
       "emptyCameraTrashConfirm": "การล้างถังขยะจะลบกล้องถาวร ไม่สามารถกู้คืนได้",
       "emptyCameraTrashSuccess": "ล้างถังขยะกล้องสำเร็จ {{count}} รายการ",
-      "wrongPassword": "รหัสผ่านไม่ถูกต้อง"
+      "wrongPassword": "รหัสผ่านไม่ถูกต้อง",
+      "cameraType": "ประเภทกล้อง"
     },
     "incidents": {
       "title": "Incident Management",

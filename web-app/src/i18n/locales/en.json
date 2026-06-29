@@ -187,7 +187,8 @@
       "emptyCameraTrash": "Empty Camera Trash",
       "emptyCameraTrashConfirm": "Emptying trash will permanently delete cameras. This cannot be undone.",
       "emptyCameraTrashSuccess": "Permanently deleted {{count}} cameras from trash",
-      "wrongPassword": "Incorrect password"
+      "wrongPassword": "Incorrect password",
+      "cameraType": "Camera Type"
     },
     "incidents": {
       "title": "Incident Management",

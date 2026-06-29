@@ -25,7 +25,7 @@ const emptyForm = () => ({
   name: '', ipAddress: '', smbSharePath: '', smbDomain: '',
   smbUsername: '', smbPasswordEncrypted: '',
   pollIntervalSeconds: 30, captureMode: 'periodic',
-  retentionPolicyId: '', description: '',
+  cameraTypeCode: '', retentionPolicyId: '', description: '',
 });
 
 export default function ImageServiceCameras() {
@@ -79,6 +79,13 @@ export default function ImageServiceCameras() {
     staleTime: 1000 * 60 * 5,
   });
 
+  const { data: cameraTypesRaw } = useQuery({
+    queryKey: ['masterdata-camera-types'],
+    queryFn: () => imageServiceApi.getMasterdata({ type: 'camera_type' }),
+    staleTime: 1000 * 60 * 5,
+  });
+  const cameraTypes = (cameraTypesRaw?.data ?? cameraTypesRaw ?? []) as any[];
+
   const handleSort = (col: string) => {
     if (col === 'actions' || col === 'no') return;
     if (sortCol === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
@@ -91,8 +98,8 @@ export default function ImageServiceCameras() {
       name: item.name, ipAddress: item.ipAddress, smbSharePath: item.smbSharePath,
       smbDomain: item.smbDomain ?? '', smbUsername: item.smbUsername,
       smbPasswordEncrypted: '', pollIntervalSeconds: item.pollIntervalSeconds,
-      captureMode: item.captureMode, retentionPolicyId: item.retentionPolicyId,
-      description: item.description ?? '',
+      captureMode: item.captureMode, cameraTypeCode: item.cameraTypeCode ?? '',
+      retentionPolicyId: item.retentionPolicyId, description: item.description ?? '',
     });
     setModal({ open: true, item });
   };
@@ -597,6 +604,14 @@ export default function ImageServiceCameras() {
                   {testResult.message}
                 </p>
               )}
+            </div>
+            <div>
+              <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                {t('imageService.cameras.cameraType')}
+              </label>
+              <SearchableSelect value={form.cameraTypeCode} onChange={v => setForm(p => ({ ...p, cameraTypeCode: v }))}
+                placeholder={t('common.select')}
+                options={[{ value: '', label: '-' }, ...cameraTypes.filter((ct: any) => ct.isActive).map((ct: any) => ({ value: ct.code, label: getLocalizedValue(ct, i18n.language) }))]} />
             </div>
             <div>
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>

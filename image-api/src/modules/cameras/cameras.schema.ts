@@ -29,6 +29,7 @@ export const updateCameraSchema = z.object({
   pollIntervalSeconds: z.number().int().min(5).max(3600).optional(),
   timezone: z.string().max(64).optional(),
   captureMode: z.enum(['on_demand', 'periodic', 'continuous']).optional(),
+  cameraTypeCode: z.string().max(64).optional().nullable(),
   retentionPolicyId: z.string().uuid().optional(),
   enabled: z.boolean().optional(),
   status: z.enum(['active', 'inactive', 'error', 'maintenance']).optional(),
