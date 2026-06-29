@@ -1215,6 +1215,8 @@
     "clearDataPasswordLabel": "パスワードを入力",
     "clearDataSubmit": "全データをクリア",
     "clearDataSuccess": "全データをクリアしました",
-    "clearDataError": "データのクリアに失敗しました"
+    "clearDataError": "データのクリアに失敗しました",
+    "expandAll": "すべて展開",
+    "collapseAll": "すべて折りたたみ"
   }
 }

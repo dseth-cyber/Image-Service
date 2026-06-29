@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -5,7 +6,7 @@ import { imageServiceApi } from '@/services/imageServiceApi'
 import {
   Microscope, Camera, Database, Server, Activity, CheckCircle2, Clock, Kanban,
   ArrowRight, HardDrive, Shield, Wifi, Bug, Lock, FileText, Cpu, Palette, Layout,
-  BookText, MessageCircle, Settings, GitBranch, Layers,
+  BookText, MessageCircle, Settings, GitBranch, Layers, ChevronDown, ChevronRight,
 } from 'lucide-react'
 
 const PHASE_STATUS_STYLES: Record<string, string> = {
@@ -126,6 +127,18 @@ function formatBytes(bytes: number): string {
 export default function ImageServiceRoadmap() {
   const { t } = useTranslation()
   const { themeConfig } = useTheme()
+  const [expandedPhases, setExpandedPhases] = useState<Set<number>>(new Set())
+
+  const togglePhase = (i: number) => {
+    setExpandedPhases(prev => {
+      const next = new Set(prev)
+      next.has(i) ? next.delete(i) : next.add(i)
+      return next
+    })
+  }
+
+  const expandAll = () => setExpandedPhases(new Set(PHASES.map((_, i) => i)))
+  const collapseAll = () => setExpandedPhases(new Set())
 
   const { data: cameras = [] } = useQuery({
     queryKey: ['cameras'],
@@ -317,13 +330,23 @@ export default function ImageServiceRoadmap() {
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="flex gap-2 mb-3">
+            <button onClick={expandAll} className="px-2 py-1 rounded text-xs text-cyan-400 hover:bg-cyan-500/10 transition-colors">
+              {t('common.expandAll', 'ขยายทั้งหมด')}
+            </button>
+            <button onClick={collapseAll} className="px-2 py-1 rounded text-xs text-gray-400 hover:bg-gray-500/10 transition-colors">
+              {t('common.collapseAll', 'ย่อทั้งหมด')}
+            </button>
+          </div>
+          <div className="space-y-2">
             {PHASES.map((p, i) => {
               const Icon = PHASE_ICONS[p.key]
               const statusClass = PHASE_STATUS_STYLES[p.status] ?? 'bg-gray-500/20 text-gray-400'
+              const isExpanded = expandedPhases.has(i)
+              const tasks = Array.isArray(t(`imageService.roadmap.${p.key}Tasks`, { returnObjects: true })) ? t(`imageService.roadmap.${p.key}Tasks`, { returnObjects: true }) as string[] : []
               return (
-                <div key={i} className={`px-4 py-3 rounded-lg bg-white/5`}>
-                  <div className="flex items-center gap-3">
+                <div key={i} className={`rounded-lg bg-white/5 overflow-hidden`}>
+                  <button onClick={() => togglePhase(i)} className="w-full px-4 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors text-left">
                     <div className={`p-1.5 rounded-full ${statusClass}`}>
                       <Icon size={14} />
                     </div>
@@ -343,15 +366,18 @@ export default function ImageServiceRoadmap() {
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${statusClass}`}>
                       {t(`imageService.roadmap.${p.key}Status`)}
                     </span>
-                  </div>
-                  <div className="mt-2 ml-9 space-y-0.5">
-                    {(Array.isArray(t(`imageService.roadmap.${p.key}Tasks`, { returnObjects: true })) ? t(`imageService.roadmap.${p.key}Tasks`, { returnObjects: true }) as string[] : []).map((task: string, ti: number) => (
-                      <p key={ti} className={`text-xs ${themeConfig.text.secondary} flex items-start gap-1.5`}>
-                        <span className="text-cyan-400 mt-0.5">▸</span>
-                        {task}
-                      </p>
-                    ))}
-                  </div>
+                    {isExpanded ? <ChevronDown size={14} className="text-gray-400" /> : <ChevronRight size={14} className="text-gray-400" />}
+                  </button>
+                  {isExpanded && tasks.length > 0 && (
+                    <div className="px-4 pb-3 ml-9 space-y-0.5">
+                      {tasks.map((task: string, ti: number) => (
+                        <p key={ti} className={`text-xs ${themeConfig.text.secondary} flex items-start gap-1.5`}>
+                          <span className="text-cyan-400 mt-0.5">▸</span>
+                          {task}
+                        </p>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )
             })}

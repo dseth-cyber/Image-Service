@@ -1286,6 +1286,8 @@
     "clearDataPasswordLabel": "Enter your password",
     "clearDataSubmit": "Clear All Data",
     "clearDataSuccess": "All data cleared successfully",
-    "clearDataError": "Failed to clear data"
+    "clearDataError": "Failed to clear data",
+    "expandAll": "Expand All",
+    "collapseAll": "Collapse All"
   }
 }

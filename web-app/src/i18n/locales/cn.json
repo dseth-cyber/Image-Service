@@ -1215,6 +1215,8 @@
     "clearDataPasswordLabel": "输入您的密码",
     "clearDataSubmit": "清除所有数据",
     "clearDataSuccess": "所有数据已成功清除",
-    "clearDataError": "清除数据失败"
+    "clearDataError": "清除数据失败",
+    "expandAll": "全部展开",
+    "collapseAll": "全部折叠"
   }
 }

@@ -1289,6 +1289,8 @@
     "clearDataPasswordLabel": "ป้อนรหัสผ่านของคุณ",
     "clearDataSubmit": "ล้างข้อมูลทั้งหมด",
     "clearDataSuccess": "ล้างข้อมูลทั้งหมดสำเร็จ",
-    "clearDataError": "ล้างข้อมูลล้มเหลว"
+    "clearDataError": "ล้างข้อมูลล้มเหลว",
+    "expandAll": "ขยายทั้งหมด",
+    "collapseAll": "ย่อทั้งหมด"
   }
 }

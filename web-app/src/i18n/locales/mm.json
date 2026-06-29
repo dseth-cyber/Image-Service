@@ -1210,6 +1210,8 @@
     "clearDataPasswordLabel": "စကားဝှက်ထည့်ပါ",
     "clearDataSubmit": "ဒေတာအားလုံးရှင်းလင်းရန်",
     "clearDataSuccess": "ဒေတာအားလုံးရှင်းလင်းပြီးပါပြီ",
-    "clearDataError": "ဒေတာရှင်းလင်းရန်မအောင်မြင်ပါ"
+    "clearDataError": "ဒေတာရှင်းလင်းရန်မအောင်မြင်ပါ",
+    "expandAll": "အားလုံးချဲ့",
+    "collapseAll": "အားလုံးချုံ့"
   }
 }
