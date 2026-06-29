@@ -667,15 +667,12 @@ export default function ImageServiceSearch() {
             <label className={`block text-sm font-medium mb-2 ${themeConfig.text.primary}`}>
               {t('imageService.search.bulkDeleteDays')}
             </label>
-            <select
-              value={bulkDeleteDays}
-              onChange={e => handleBulkDeleteDaysChange(Number(e.target.value))}
-              className={`w-full px-3 py-2 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-cyan-500/50`}
-            >
-              {BULK_DELETE_DAY_OPTIONS.map(d => (
-                <option key={d} value={d}>{d} {t('imageService.search.days')}</option>
-              ))}
-            </select>
+            <SearchableSelect
+              value={String(bulkDeleteDays)}
+              onChange={v => handleBulkDeleteDaysChange(Number(v))}
+              placeholder={t('imageService.search.bulkDeleteDays')}
+              options={BULK_DELETE_DAY_OPTIONS.map(d => ({ value: String(d), label: `${d} ${t('imageService.search.days')}` }))}
+            />
           </div>
 
           <div className={`p-3 rounded-lg ${themeConfig.card} border ${themeConfig.inputBorder}`}>
@@ -699,7 +696,7 @@ export default function ImageServiceSearch() {
               {t('imageService.search.bulkDeleteConfirm')}
             </label>
             <input
-              type="password"
+              type="password" autoComplete="new-password"
               value={bulkDeletePassword}
               onChange={e => setBulkDeletePassword(e.target.value)}
               placeholder={t('imageService.search.bulkDeletePassword')}
@@ -807,7 +804,7 @@ export default function ImageServiceSearch() {
                     </p>
                   </div>
                   <input
-                    type="password"
+                    type="password" autoComplete="new-password"
                     value={emptyTrashPassword}
                     onChange={e => setEmptyTrashPassword(e.target.value)}
                     placeholder={t('imageService.search.emptyTrashPassword')}

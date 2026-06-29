@@ -270,7 +270,7 @@ export default function SystemConfigPage() {
           </div>
           <div>
             <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('common.clearDataPasswordLabel')}</label>
-            <input type="password" value={clearPassword} onChange={e => setClearPassword(e.target.value)}
+            <input type="password" autoComplete="new-password" value={clearPassword} onChange={e => setClearPassword(e.target.value)}
               className={`w-full px-3 py-2 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-red-500/50`} />
           </div>
         </div>

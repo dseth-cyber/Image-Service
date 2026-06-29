@@ -706,7 +706,7 @@ export default function ImageServiceCameras() {
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
                 {t('imageService.cameras.smbPassword')}
               </label>
-              <input type="password" value={form.smbPasswordEncrypted}
+              <input type="password" autoComplete="new-password" value={form.smbPasswordEncrypted}
                 onChange={e => setForm(p => ({ ...p, smbPasswordEncrypted: e.target.value }))}
                 className={`w-full px-4 py-2.5 rounded-md ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`} />
             </div>
@@ -788,7 +788,7 @@ export default function ImageServiceCameras() {
             </div>
           </div>
           <input
-            type="password"
+            type="password" autoComplete="new-password"
             value={deletePassword}
             onChange={e => setDeletePassword(e.target.value)}
             placeholder={t('common.enterPassword')}
@@ -862,7 +862,7 @@ export default function ImageServiceCameras() {
                     </p>
                   </div>
                   <input
-                    type="password"
+                    type="password" autoComplete="new-password"
                     value={emptyTrashPassword}
                     onChange={e => setEmptyTrashPassword(e.target.value)}
                     placeholder={t('common.enterPassword')}

@@ -389,7 +389,7 @@ function StorageProviderFormModal({ isOpen, onClose, editTarget }: { isOpen: boo
               </div>
               <div>
                 <label className={labelClass}>{t('imageService.storageProviders.secretKey')}</label>
-                <input type="password" value={secretKey} onChange={e => setSecretKey(e.target.value)} className={inputClass} />
+                <input type="password" autoComplete="new-password" value={secretKey} onChange={e => setSecretKey(e.target.value)} className={inputClass} />
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -420,7 +420,7 @@ function StorageProviderFormModal({ isOpen, onClose, editTarget }: { isOpen: boo
               </div>
               <div>
                 <label className={labelClass}>{t('imageService.storageProviders.password')}</label>
-                <input type="password" value={smbPassword} onChange={e => setSmbPassword(e.target.value)} className={inputClass} />
+                <input type="password" autoComplete="new-password" value={smbPassword} onChange={e => setSmbPassword(e.target.value)} className={inputClass} />
               </div>
             </div>
             <div>

@@ -987,7 +987,7 @@ export default function UserManagement() {
           </div>
           <div>
             <label className={`block text-sm font-medium mb-1 ${themeConfig.text.primary}`}>{t('imageService.users.password')}</label>
-            <input type="password" value={userForm.password} onChange={e => setUserForm(f => ({ ...f, password: e.target.value }))}
+            <input type="password" autoComplete="new-password" value={userForm.password} onChange={e => setUserForm(f => ({ ...f, password: e.target.value }))}
               placeholder={userModal.item ? t('imageService.users.leaveBlank') : ''}
               className={`w-full px-3 py-2 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-cyan-500/50`} />
           </div>

@@ -316,6 +316,7 @@ function NavSearch() {
           onChange={e => { handleChange(e.target.value); if (!open) setOpen(true) }}
           onFocus={() => { if (query.length >= 2) setOpen(true) }}
           placeholder={t('common.search') || 'ค้นหา...'}
+          autoComplete="off" data-1p-ignore data-lpignore="true" data-form-type="other" name="nav-search"
           className="w-56 pl-8 pr-3 py-1.5 rounded-md text-xs bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 focus:w-72 transition-all" />
       </div>
       {open && (query.length >= 2) && (
