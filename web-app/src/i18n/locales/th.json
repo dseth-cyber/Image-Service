@@ -1424,6 +1424,7 @@
     "exportScreenshot": "ภาพหน้าจอ (PNG)",
     "exportExcel": "Excel (.xlsx)",
     "exportPdf": "PDF",
-    "exporting": "กำลังส่งออก..."
+    "exporting": "กำลังส่งออก...",
+    "previous": "ก่อนหน้า"
   }
 }

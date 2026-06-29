@@ -16,32 +16,32 @@ import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
-const LAYOUT_STORAGE_KEY = 'image_service_storage_layout_v1';
+const LAYOUT_STORAGE_KEY = 'image_service_storage_layout_v2';
 
 const DEFAULT_LAYOUTS: Record<string, any[]> = {
   lg: [
-    { i: 'stats', x: 0, y: 0, w: 12, h: 1.5, minW: 6, minH: 1.5 },
-    { i: 'pieByFileType', x: 0, y: 1.5, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'growthTrend', x: 4, y: 1.5, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'forecastChart', x: 8, y: 1.5, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'projectionTable', x: 0, y: 4.5, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'byCamera', x: 4, y: 4.5, w: 8, h: 3, minW: 4, minH: 2.5 },
+    { i: 'stats', x: 0, y: 0, w: 8, h: 2, minW: 6, minH: 1.5 },
+    { i: 'projectionTable', x: 8, y: 0, w: 4, h: 5, minW: 3, minH: 3 },
+    { i: 'pieByFileType', x: 0, y: 2, w: 4, h: 3.5, minW: 3, minH: 2.5 },
+    { i: 'forecastChart', x: 4, y: 2, w: 4, h: 3.5, minW: 3, minH: 2.5 },
+    { i: 'growthTrend', x: 0, y: 5.5, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 6, y: 5.5, w: 6, h: 3, minW: 4, minH: 2.5 },
   ],
   md: [
-    { i: 'stats', x: 0, y: 0, w: 10, h: 1.5, minW: 6, minH: 1.5 },
-    { i: 'pieByFileType', x: 0, y: 1.5, w: 5, h: 3, minW: 3, minH: 2.5 },
-    { i: 'growthTrend', x: 5, y: 1.5, w: 5, h: 3, minW: 3, minH: 2.5 },
-    { i: 'forecastChart', x: 0, y: 4.5, w: 5, h: 3, minW: 3, minH: 2.5 },
-    { i: 'projectionTable', x: 5, y: 4.5, w: 5, h: 3, minW: 3, minH: 2.5 },
-    { i: 'byCamera', x: 0, y: 7.5, w: 10, h: 3, minW: 4, minH: 2.5 },
+    { i: 'stats', x: 0, y: 0, w: 10, h: 2, minW: 6, minH: 1.5 },
+    { i: 'pieByFileType', x: 0, y: 2, w: 5, h: 3.5, minW: 3, minH: 2.5 },
+    { i: 'forecastChart', x: 5, y: 2, w: 5, h: 3.5, minW: 3, minH: 2.5 },
+    { i: 'projectionTable', x: 0, y: 5.5, w: 4, h: 4, minW: 3, minH: 3 },
+    { i: 'growthTrend', x: 4, y: 5.5, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 0, y: 9.5, w: 10, h: 3, minW: 4, minH: 2.5 },
   ],
   sm: [
-    { i: 'stats', x: 0, y: 0, w: 6, h: 1.5, minW: 4, minH: 1.5 },
-    { i: 'pieByFileType', x: 0, y: 1.5, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'growthTrend', x: 0, y: 4.5, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'forecastChart', x: 0, y: 7.5, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'projectionTable', x: 0, y: 10.5, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'byCamera', x: 0, y: 13.5, w: 6, h: 3, minW: 4, minH: 2.5 },
+    { i: 'stats', x: 0, y: 0, w: 6, h: 2, minW: 4, minH: 1.5 },
+    { i: 'pieByFileType', x: 0, y: 2, w: 6, h: 3.5, minW: 3, minH: 2.5 },
+    { i: 'forecastChart', x: 0, y: 5.5, w: 6, h: 3.5, minW: 3, minH: 2.5 },
+    { i: 'projectionTable', x: 0, y: 9, w: 6, h: 4, minW: 3, minH: 3 },
+    { i: 'growthTrend', x: 0, y: 13, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 0, y: 16, w: 6, h: 3, minW: 4, minH: 2.5 },
   ],
 };
 

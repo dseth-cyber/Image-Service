@@ -6,10 +6,10 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 import { Responsive, WidthProvider } from 'react-grid-layout'
 import { imageServiceApi } from '@/services/imageServiceApi'
-import { TableSkeleton, ExportButton } from '@/components/ui'
+import { TableSkeleton, ExportButton, SearchableSelect } from '@/components/ui'
 import {
   Activity, Shield, Clock, Heart, Camera, TrendingDown, Image,
-  AlertTriangle, CheckCircle, XCircle, ChevronDown,
+  AlertTriangle, CheckCircle, XCircle, ChevronDown, ChevronLeft, ChevronRight,
   GripVertical, Settings, RotateCcw, Check, Star,
 } from 'lucide-react'
 import {
@@ -124,7 +124,6 @@ export default function CameraAnalytics() {
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin'
   const [period, setPeriod] = useState<string>('7d')
   const [selectedCameraId, setSelectedCameraId] = useState<string>('')
-  const [cameraDropdownOpen, setCameraDropdownOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
 
@@ -269,36 +268,41 @@ export default function CameraAnalytics() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Camera selector */}
-          <div className="relative">
+          {/* Camera selector with search + prev/next */}
+          <div className="flex items-center gap-1.5">
             <button
-              onClick={() => setCameraDropdownOpen(!cameraDropdownOpen)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${themeConfig.card} border ${themeConfig.cardBorder} ${themeConfig.text.primary}`}
+              onClick={() => {
+                const idx = cameras.findIndex((c: any) => c.id === effectiveCameraId)
+                if (idx > 0) setSelectedCameraId(cameras[idx - 1].id)
+              }}
+              disabled={cameras.findIndex((c: any) => c.id === effectiveCameraId) <= 0}
+              className={`p-2 rounded-lg border ${themeConfig.cardBorder} ${themeConfig.text.secondary} hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors`}
+              title={t('common.previous')}
             >
-              <Camera size={14} />
-              <span className="max-w-[160px] truncate">{selectedCameraName || t('imageService.analytics.selectCamera')}</span>
-              <ChevronDown size={14} className={`transition-transform ${cameraDropdownOpen ? 'rotate-180' : ''}`} />
+              <ChevronLeft size={14} />
             </button>
-            {cameraDropdownOpen && (
-              <div className={`absolute right-0 mt-1 w-56 rounded-lg ${themeConfig.card} border ${themeConfig.cardBorder} shadow-xl z-50 overflow-hidden max-h-64 overflow-y-auto`}>
-                {cameras.map((cam: any) => (
-                  <button
-                    key={cam.id}
-                    onClick={() => { setSelectedCameraId(cam.id); setCameraDropdownOpen(false) }}
-                    className={`w-full text-left px-3 py-2 text-sm transition-colors ${
-                      cam.id === effectiveCameraId
-                        ? 'bg-cyan-500/20 text-cyan-300'
-                        : `${themeConfig.text.primary} hover:bg-white/5`
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <StatusDot status={cam.status} />
-                      {cam.name}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
+            <div className="w-52">
+              <SearchableSelect
+                value={effectiveCameraId}
+                onChange={(v) => setSelectedCameraId(v)}
+                placeholder={t('imageService.analytics.selectCamera')}
+                options={cameras.map((cam: any) => ({ value: cam.id, label: cam.name }))}
+              />
+            </div>
+            <button
+              onClick={() => {
+                const idx = cameras.findIndex((c: any) => c.id === effectiveCameraId)
+                if (idx < cameras.length - 1) setSelectedCameraId(cameras[idx + 1].id)
+              }}
+              disabled={cameras.findIndex((c: any) => c.id === effectiveCameraId) >= cameras.length - 1}
+              className={`p-2 rounded-lg border ${themeConfig.cardBorder} ${themeConfig.text.secondary} hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors`}
+              title={t('common.next')}
+            >
+              <ChevronRight size={14} />
+            </button>
+            <span className={`text-xs ${themeConfig.text.secondary}`}>
+              {cameras.findIndex((c: any) => c.id === effectiveCameraId) + 1}/{cameras.length}
+            </span>
           </div>
 
           {/* Period tabs */}

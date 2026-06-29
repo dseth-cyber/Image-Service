@@ -1421,6 +1421,7 @@
     "exportScreenshot": "Screenshot (PNG)",
     "exportExcel": "Excel (.xlsx)",
     "exportPdf": "PDF",
-    "exporting": "Exporting..."
+    "exporting": "Exporting...",
+    "previous": "Previous"
   }
 }
