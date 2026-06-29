@@ -587,6 +587,24 @@ export async function bulkRetryDlq(jobType?: string) {
   return { updated: result.count };
 }
 
+export async function bulkDeleteLogsPreview(days: number) {
+  const prisma = getPrisma();
+  const cutoff = new Date(Date.now() - days * 86400000);
+  const count = await prisma.processingJob.count({
+    where: { queuedAt: { lt: cutoff } },
+  });
+  return { days, cutoffDate: cutoff.toISOString(), count };
+}
+
+export async function bulkDeleteLogsByAge(days: number, _username: string) {
+  const prisma = getPrisma();
+  const cutoff = new Date(Date.now() - days * 86400000);
+  const result = await prisma.processingJob.deleteMany({
+    where: { queuedAt: { lt: cutoff } },
+  });
+  return { deleted: result.count, days, cutoffDate: cutoff.toISOString() };
+}
+
 export async function bulkRejectDlq(jobType?: string) {
   const prisma = getPrisma();
   const where: Prisma.ProcessingJobWhereInput = { status: 'dead_letter' };

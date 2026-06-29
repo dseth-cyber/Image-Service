@@ -81,3 +81,21 @@ export async function searchAuditLogs(params: {
     pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
   };
 }
+
+export async function bulkDeleteAuditPreview(days: number) {
+  const prisma = getPrisma();
+  const cutoff = new Date(Date.now() - days * 86400000);
+  const count = await prisma.auditLog.count({
+    where: { createdAt: { lt: cutoff } },
+  });
+  return { days, cutoffDate: cutoff.toISOString(), count };
+}
+
+export async function bulkDeleteAuditByAge(days: number, _username: string) {
+  const prisma = getPrisma();
+  const cutoff = new Date(Date.now() - days * 86400000);
+  const result = await prisma.auditLog.deleteMany({
+    where: { createdAt: { lt: cutoff } },
+  });
+  return { deleted: result.count, days, cutoffDate: cutoff.toISOString() };
+}

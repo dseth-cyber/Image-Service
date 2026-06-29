@@ -278,11 +278,24 @@ export function createImageServiceApi(api: any) {
     updateSystemConfigs: (data: Record<string, string>) =>
       api.post(`${BASE}/system-config/bulk-update`, data).then((r: any) => r.data),
 
+    // Processing Logs Bulk Delete
+    bulkDeleteLogsPreview: (days: number) =>
+      api.get(`${BASE}/processing-logs/bulk-delete-preview`, { params: { days } }).then((r: any) => r.data),
+
+    bulkDeleteLogsByAge: (days: number, password: string) =>
+      api.post(`${BASE}/processing-logs/bulk-delete`, { days, password }).then((r: any) => r.data),
+
     // Audit Logs
     getAuditLogs: (params: {
       page?: number; limit?: number; action?: string; entity?: string;
       entityId?: string; userId?: string; from?: string; to?: string;
     }) => api.get(`${BASE}/audit-logs`, { params }).then((r: any) => r.data),
+
+    bulkDeleteAuditPreview: (days: number) =>
+      api.get(`${BASE}/audit-logs/bulk-delete-preview`, { params: { days } }).then((r: any) => r.data),
+
+    bulkDeleteAuditByAge: (days: number, password: string) =>
+      api.post(`${BASE}/audit-logs/bulk-delete`, { days, password }).then((r: any) => r.data),
 
     // Backup
     getBackupStatus: () =>

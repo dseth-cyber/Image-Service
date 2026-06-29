@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { processingLogSearchSchema } from './processing-logs.schema.js';
 import * as processingLogsService from './processing-logs.service.js';
 import { requirePermission } from '../../middleware/rbac.js';
+import { createAuditLog } from '../audit/audit.service.js';
 
 async function searchHandler(request: FastifyRequest, reply: FastifyReply) {
   const params = processingLogSearchSchema.parse(request.query);
@@ -49,6 +50,41 @@ async function bulkRejectHandler(request: FastifyRequest, reply: FastifyReply) {
   return reply.status(200).send(result);
 }
 
+async function bulkDeletePreviewHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { days } = request.query as { days: string };
+  const d = parseInt(days, 10);
+  if (!d || d < 1) return reply.status(400).send({ error: 'Invalid days parameter' });
+  const result = await processingLogsService.bulkDeleteLogsPreview(d);
+  return reply.status(200).send(result);
+}
+
+async function bulkDeleteHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { days, password } = request.body as { days: number; password: string };
+  const user = (request as any).user;
+
+  // Verify password
+  const authService = await import('../auth/auth.service.js');
+  try {
+    await authService.login({ username: user.username, password });
+  } catch {
+    return reply.status(401).send({ error: 'Invalid password' });
+  }
+
+  const result = await processingLogsService.bulkDeleteLogsByAge(days, user.username);
+
+  createAuditLog({
+    userId: user.id,
+    action: 'bulk_delete',
+    entity: 'processing_log',
+    entityId: `age>${days}d`,
+    description: `Bulk deleted ${result.deleted} processing logs older than ${days} days by ${user.username}`,
+    metadata: { days, deleted: result.deleted },
+    ipAddress: request.ip,
+  }).catch(() => {});
+
+  return reply.status(200).send(result);
+}
+
 async function streamHandler(_request: FastifyRequest, reply: FastifyReply) {
   reply.raw.writeHead(200, {
     'Content-Type': 'text/event-stream',
@@ -90,6 +126,8 @@ export async function processingLogRoutes(app: FastifyInstance): Promise<void> {
   app.get('/', { preHandler: [app.authenticate] }, searchHandler);
   app.get('/stats', { preHandler: [app.authenticate] }, statsHandler);
   app.get('/trends', { preHandler: [app.authenticate] }, trendsHandler);
+  app.get('/bulk-delete-preview', { preHandler: [app.authenticate, requirePermission('processing:create')] }, bulkDeletePreviewHandler);
+  app.post('/bulk-delete', { preHandler: [app.authenticate, requirePermission('processing:create')] }, bulkDeleteHandler);
   app.get('/stream', streamHandler);
   app.post('/:id/retry', { preHandler: [app.authenticate, requirePermission('processing:create')] }, retryHandler);
   app.post('/:id/reject', { preHandler: [app.authenticate, requirePermission('processing:create')] }, rejectHandler);

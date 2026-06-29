@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useToast } from '@/contexts/ToastContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { hasPermission } from '@/App';
 import { imageServiceApi } from '@/services/imageServiceApi';
 import { formatDateTime } from '@/utils/dateUtils';
-import { History, Search, Filter, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
-import { Button, SearchableSelect } from '@/components/ui';
+import { History, Search, Filter, ChevronLeft, ChevronRight, RotateCcw, Trash2, AlertTriangle } from 'lucide-react';
+import { Modal, Button, SearchableSelect } from '@/components/ui';
 
 const ACTION_LABEL_KEY: Record<string, string> = {
   image_delete: 'imageService.auditLog.actionImageDelete',
@@ -27,9 +30,68 @@ const ENTITY_LABEL_KEY: Record<string, string> = {
 export default function AuditLogViewer() {
   const { t, i18n } = useTranslation();
   const { themeConfig } = useTheme();
+  const toast = useToast();
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [page, setPage] = useState(1);
   const [action, setAction] = useState('');
   const [entity, setEntity] = useState('');
+
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeleteDays, setBulkDeleteDays] = useState(30);
+  const [bulkDeletePreview, setBulkDeletePreview] = useState<{ count: number; cutoffDate: string } | null>(null);
+  const [bulkDeletePassword, setBulkDeletePassword] = useState('');
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [bulkDeleteLoadingPreview, setBulkDeleteLoadingPreview] = useState(false);
+
+  const BULK_DELETE_DAY_OPTIONS = [7, 14, 30, 60, 90, 120, 240, 365];
+
+  const fetchBulkDeletePreview = useCallback(async (days: number) => {
+    setBulkDeleteLoadingPreview(true);
+    setBulkDeletePreview(null);
+    try {
+      const result = await imageServiceApi.bulkDeleteAuditPreview(days);
+      setBulkDeletePreview(result);
+    } catch {
+      toast.error(t('common.error'));
+    } finally {
+      setBulkDeleteLoadingPreview(false);
+    }
+  }, [t, toast]);
+
+  const handleOpenBulkDelete = useCallback(() => {
+    setBulkDeleteOpen(true);
+    setBulkDeletePassword('');
+    setBulkDeletePreview(null);
+    setBulkDeleteDays(30);
+    fetchBulkDeletePreview(30);
+  }, [fetchBulkDeletePreview]);
+
+  const handleBulkDeleteDaysChange = useCallback((days: number) => {
+    setBulkDeleteDays(days);
+    fetchBulkDeletePreview(days);
+  }, [fetchBulkDeletePreview]);
+
+  const handleBulkDelete = useCallback(async () => {
+    if (!bulkDeletePassword || !bulkDeletePreview) return;
+    setBulkDeleting(true);
+    try {
+      const result = await imageServiceApi.bulkDeleteAuditByAge(bulkDeleteDays, bulkDeletePassword);
+      toast.success(t('imageService.auditLog.bulkDeleteSuccess', { count: result.deleted }));
+      setBulkDeleteOpen(false);
+      setBulkDeletePassword('');
+      setBulkDeletePreview(null);
+      queryClient.invalidateQueries({ queryKey: ['audit-logs'] });
+    } catch (e: any) {
+      if (e?.response?.status === 401) {
+        toast.error(t('imageService.auditLog.bulkDeleteWrongPassword'));
+      } else if (!e?._handled) {
+        toast.error(t('common.error'));
+      }
+    } finally {
+      setBulkDeleting(false);
+    }
+  }, [bulkDeleteDays, bulkDeletePassword, bulkDeletePreview, t, toast, queryClient]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['audit-logs', page, action, entity],
@@ -69,6 +131,12 @@ export default function AuditLogViewer() {
               ...Object.keys(ENTITY_LABEL_KEY).map(e => ({ value: e, label: t(ENTITY_LABEL_KEY[e]) })),
             ]} />
         </div>
+        {hasPermission(user, 'audit-log:read') && (
+          <button onClick={handleOpenBulkDelete}
+            className="px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors">
+            <Trash2 size={13} /> {t('imageService.auditLog.bulkDelete')}
+          </button>
+        )}
         <span className={`text-xs ${themeConfig.text.secondary} ml-auto`}>
           {pagination.total} {t('common.records')}
         </span>
@@ -142,6 +210,81 @@ export default function AuditLogViewer() {
           </div>
         )}
       </div>
+
+      {/* Bulk Delete Modal */}
+      <Modal isOpen={bulkDeleteOpen} onClose={() => setBulkDeleteOpen(false)} title={t('imageService.auditLog.bulkDeleteTitle')}>
+        <div className="space-y-5 p-1 max-w-md">
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+            <AlertTriangle size={18} className="text-red-400 flex-shrink-0 mt-0.5" />
+            <p className={`text-xs ${themeConfig.text.secondary}`}>
+              {t('imageService.auditLog.bulkDeleteWarning')}
+            </p>
+          </div>
+
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${themeConfig.text.primary}`}>
+              {t('imageService.auditLog.bulkDeleteDays')}
+            </label>
+            <select
+              value={bulkDeleteDays}
+              onChange={e => handleBulkDeleteDaysChange(Number(e.target.value))}
+              className={`w-full px-3 py-2 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-cyan-500/50`}
+            >
+              {BULK_DELETE_DAY_OPTIONS.map(d => (
+                <option key={d} value={d}>{d} {t('imageService.auditLog.days')}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className={`p-3 rounded-lg ${themeConfig.card} border ${themeConfig.inputBorder}`}>
+            {bulkDeleteLoadingPreview ? (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin w-4 h-4 border-2 border-cyan-500 border-t-transparent rounded-full" />
+                <span className={`text-sm ${themeConfig.text.secondary}`}>...</span>
+              </div>
+            ) : bulkDeletePreview ? (
+              <p className={`text-sm font-medium ${bulkDeletePreview.count > 0 ? 'text-red-400' : themeConfig.text.primary}`}>
+                {t('imageService.auditLog.bulkDeletePreview', {
+                  count: bulkDeletePreview.count.toLocaleString(),
+                  date: bulkDeletePreview.cutoffDate.split('T')[0],
+                })}
+              </p>
+            ) : null}
+          </div>
+
+          <div>
+            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+              {t('imageService.auditLog.bulkDeleteConfirm')}
+            </label>
+            <input
+              type="password"
+              value={bulkDeletePassword}
+              onChange={e => setBulkDeletePassword(e.target.value)}
+              placeholder={t('imageService.auditLog.bulkDeletePassword')}
+              className={`w-full px-3 py-2 rounded-md text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-red-500/50`}
+              onKeyDown={e => { if (e.key === 'Enter' && bulkDeletePassword && bulkDeletePreview && bulkDeletePreview.count > 0) handleBulkDelete(); }}
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-3 border-t border-white/10">
+            <Button variant="secondary" onClick={() => setBulkDeleteOpen(false)}>
+              {t('common.close')}
+            </Button>
+            <button
+              onClick={handleBulkDelete}
+              disabled={bulkDeleting || !bulkDeletePassword || !bulkDeletePreview || bulkDeletePreview.count === 0}
+              className="px-4 py-2 rounded-md text-sm font-medium bg-red-600 hover:bg-red-700 text-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 transition-colors"
+            >
+              {bulkDeleting ? (
+                <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+              ) : (
+                <Trash2 size={14} />
+              )}
+              {t('imageService.auditLog.bulkDelete')}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
