@@ -57,9 +57,14 @@ export async function runDatabaseBackup(): Promise<{ id: string; status: string;
     logger.info({ filePath, size: stats.size }, 'Database backup completed');
     return { id: record.id, status: 'completed', filePath };
   } catch (err: any) {
+    const friendlyMsg = err.message?.includes('not found')
+      ? 'pg_dump not installed in container'
+      : err.message?.includes('connection refused')
+      ? 'Cannot connect to database'
+      : err.message;
     await prisma.backupRecord.update({
       where: { id: record.id },
-      data: { status: 'failed', errorMessage: err.message, completedAt: new Date() },
+      data: { status: 'failed', errorMessage: friendlyMsg, completedAt: new Date() },
     });
     logger.error({ err }, 'Database backup failed');
     return { id: record.id, status: 'failed' };

@@ -5,7 +5,7 @@ export const config = {
   logLevel: process.env.LOG_LEVEL ?? 'info',
 
   database: {
-    url: 'postgresql://image_user:image_pass@localhost:5432/image_db',
+    url: process.env.DATABASE_URL ?? 'postgresql://image_user:image_pass@postgres:5432/image_db',
   },
 
   jwt: {

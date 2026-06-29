@@ -27,7 +27,8 @@ RUN npm ci --omit=dev --ignore-scripts \
 RUN npm install -g prisma tsx
 
 # Install smbclient for SMB connection testing and browsing
-RUN apk add --no-cache samba-client
+# Install postgresql-client for pg_dump backup
+RUN apk add --no-cache samba-client postgresql16-client
 
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/dist ./dist
