@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { createCameraSchema, updateCameraSchema, cameraQuerySchema } from './cameras.schema.js';
 import * as camerasService from './cameras.service.js';
+import * as cameraAnalytics from './camera-analytics.service.js';
 import { requirePermission } from '../../middleware/rbac.js';
 import { getRedisClient } from '../../lib/redis.js';
 import { createAuditLog } from '../audit/audit.service.js';
@@ -188,6 +189,19 @@ async function emptyCameraTrashHandler(request: FastifyRequest, reply: FastifyRe
   return reply.status(200).send(result);
 }
 
+async function analyticsHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as { id: string };
+  const { period } = request.query as { period?: string };
+  const result = await cameraAnalytics.getCameraDowntimeReport(id, period || '7d');
+  return reply.send(result);
+}
+
+async function comparisonHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { period } = request.query as { period?: string };
+  const result = await cameraAnalytics.getCameraComparisonReport(period || '7d');
+  return reply.send(result);
+}
+
 async function scanNowHandler(_request: FastifyRequest, reply: FastifyReply) {
   const redis = getRedisClient();
   await redis.set('sync:scan-now', 'all', 'EX', 60);
@@ -208,6 +222,11 @@ export async function cameraRoutes(app: FastifyInstance): Promise<void> {
     { preHandler: [app.authenticate] },
     listHandler,
   );
+  app.get(
+    '/analytics/comparison',
+    { preHandler: [app.authenticate, requirePermission('cameras:read')] },
+    comparisonHandler,
+  );
   app.post(
     '/scan-now',
     { preHandler: [app.authenticate, requirePermission('cameras:update')] },
@@ -222,6 +241,11 @@ export async function cameraRoutes(app: FastifyInstance): Promise<void> {
     '/trash/empty',
     { preHandler: [app.authenticate, requirePermission('cameras:delete')] },
     emptyCameraTrashHandler,
+  );
+  app.get(
+    '/:id/analytics',
+    { preHandler: [app.authenticate, requirePermission('cameras:read')] },
+    analyticsHandler,
   );
   app.post(
     '/:id/scan',

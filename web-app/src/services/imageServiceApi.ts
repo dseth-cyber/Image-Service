@@ -75,6 +75,13 @@ export function createImageServiceApi(api: any) {
 
     scanCamera: (id: string) => api.post(`${BASE}/cameras/${id}/scan`).then((r: any) => r.data),
 
+    // Camera Analytics
+    getCameraAnalytics: (id: string, period?: string) =>
+      api.get(`${BASE}/cameras/${id}/analytics`, { params: { period } }).then((r: any) => r.data),
+
+    getCameraComparison: (period?: string) =>
+      api.get(`${BASE}/cameras/analytics/comparison`, { params: { period } }).then((r: any) => r.data),
+
     // Retention Policies
     getRetentionPolicies: () =>
       api.get(`${BASE}/retention-policies`).then((r: any) => r.data),

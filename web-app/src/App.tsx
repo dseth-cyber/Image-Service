@@ -33,9 +33,10 @@ const AuditLogViewer = lazy(() => import('@/pages/image-service/AuditLogViewer')
 const BackupDashboard = lazy(() => import('@/pages/image-service/BackupDashboard'))
 const StorageProvidersPage = lazy(() => import('@/pages/image-service/StorageProvidersPage'))
 const StorageProfilesPage = lazy(() => import('@/pages/image-service/StorageProfilesPage'))
+const CameraAnalytics = lazy(() => import('@/pages/image-service/CameraAnalytics'))
 import {
   Camera, LayoutDashboard, Search, Activity, HardDrive, FileText, Shield, Settings, Map,
-  Globe, Palette, User, ChevronDown, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info, Server, Layers, Image,
+  Globe, Palette, User, ChevronDown, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info, Server, Layers, Image, BarChart3,
 } from 'lucide-react'
 
 export function hasPermission(user: any, permission: string): boolean {
@@ -64,6 +65,7 @@ function UnauthorizedPage() {
 const navItems = [
   { path: '/image-service/overview', labelKey: 'nav.overview', icon: LayoutDashboard, permission: 'overview:read' },
   { path: '/image-service/cameras', labelKey: 'nav.cameras', icon: Camera, permission: 'cameras:read' },
+  { path: '/image-service/camera-analytics', labelKey: 'nav.cameraAnalytics', icon: BarChart3, permission: 'cameras:read' },
   { path: '/image-service/search', labelKey: 'nav.search', icon: Search, permission: 'search:read' },
   { path: '/image-service/processing', labelKey: 'nav.processing', icon: Activity, permission: 'processing:read' },
   { path: '/image-service/storage', labelKey: 'nav.storage', icon: HardDrive, permission: 'storage:read' },
@@ -699,6 +701,9 @@ export default function App() {
             } />
             <Route path="/image-service/cameras/:id" element={
               hasPermission(user, 'cameras:read') ? <ImageServiceCameraDetail /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/camera-analytics" element={
+              hasPermission(user, 'cameras:read') ? <CameraAnalytics /> : <UnauthorizedPage />
             } />
             <Route path="/image-service/search" element={
               hasPermission(user, 'search:read') ? <ImageServiceSearch /> : <UnauthorizedPage />

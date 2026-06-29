@@ -573,7 +573,8 @@
       "backup": "Backup",
       "storageProviders": "Storage Providers",
       "storageProfiles": "Storage Profiles",
-      "migrations": "Migrations"
+      "migrations": "Migrations",
+      "cameraAnalytics": "Camera Analytics"
     },
     "masterdataManagement": {
       "title": "Masterdata Management",
@@ -1236,6 +1237,48 @@
         "settings_update": "Update Settings",
         "roadmap_read": "View Roadmap"
       }
+    },
+    "analytics": {
+      "title": "Camera Reliability & Availability Analytics",
+      "subtitle": "Downtime, MTBF, MTTR and Health Score Reports",
+      "period": "Period",
+      "availability": "Availability",
+      "slaTarget": "SLA Target",
+      "slaMet": "SLA Met",
+      "slaNotMet": "Below SLA Target",
+      "mtbf": "MTBF",
+      "mtbfDesc": "Mean Time Between Failures",
+      "mttr": "MTTR",
+      "mttrDesc": "Mean Time To Repair",
+      "healthScore": "Health Score",
+      "excellent": "Excellent",
+      "good": "Good",
+      "warning": "Warning",
+      "critical": "Critical",
+      "uptime": "Uptime",
+      "downtime": "Downtime",
+      "maintenance": "Maintenance",
+      "offlineEvents": "Offline Events",
+      "estimatedLostImages": "Est. Lost Images",
+      "imagesCaptured": "Images Captured",
+      "timeline": "Status Timeline",
+      "eventHistory": "Event History",
+      "fromStatus": "From",
+      "toStatus": "To",
+      "reason": "Reason",
+      "duration": "Duration",
+      "changedBy": "Changed By",
+      "noData": "No data available",
+      "hours": "hours",
+      "minutes": "minutes",
+      "days": "days",
+      "comparison": "Camera Comparison",
+      "allCameras": "All Cameras",
+      "selectCamera": "Select Camera",
+      "downtimeByReason": "Downtime by Reason",
+      "seconds": "seconds",
+      "noFailures": "No failures",
+      "noRepairs": "No repairs"
     }
   },
   "common": {

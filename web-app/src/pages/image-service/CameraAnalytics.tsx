@@ -1,0 +1,654 @@
+import { useState, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
+import { useTheme } from '@/contexts/ThemeContext'
+import { imageServiceApi } from '@/services/imageServiceApi'
+import { TableSkeleton } from '@/components/ui'
+import {
+  Activity, Shield, Clock, Heart, Camera, TrendingDown, Image,
+  AlertTriangle, CheckCircle, XCircle, ChevronDown,
+} from 'lucide-react'
+import {
+  PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend,
+} from 'recharts'
+
+const PERIODS = ['7d', '14d', '30d', '60d', '90d'] as const
+
+function formatDuration(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`
+  if (seconds < 3600) return `${Math.round(seconds / 60)}m`
+  if (seconds < 86400) return `${(seconds / 3600).toFixed(1)}h`
+  return `${(seconds / 86400).toFixed(1)}d`
+}
+
+function formatDurationLong(seconds: number): string {
+  const d = Math.floor(seconds / 86400)
+  const h = Math.floor((seconds % 86400) / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const parts: string[] = []
+  if (d > 0) parts.push(`${d}d`)
+  if (h > 0) parts.push(`${h}h`)
+  if (m > 0) parts.push(`${m}m`)
+  return parts.join(' ') || '0m'
+}
+
+function HealthBadge({ grade, score }: { grade: string; score: number }) {
+  const colorMap: Record<string, string> = {
+    excellent: 'bg-green-500/20 text-green-400 border-green-500/30',
+    good: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    warning: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+    critical: 'bg-red-500/20 text-red-400 border-red-500/30',
+  }
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${colorMap[grade] || colorMap.good}`}>
+      {score}
+    </span>
+  )
+}
+
+function StatusDot({ status }: { status: string }) {
+  const colorMap: Record<string, string> = {
+    active: 'bg-green-400',
+    online: 'bg-green-400',
+    maintenance: 'bg-yellow-400',
+    offline: 'bg-red-400',
+    error: 'bg-red-400',
+    inactive: 'bg-gray-400',
+  }
+  return <span className={`inline-block w-2 h-2 rounded-full ${colorMap[status] || 'bg-gray-400'}`} />
+}
+
+export default function CameraAnalytics() {
+  const { t } = useTranslation()
+  const { themeConfig } = useTheme()
+  const [period, setPeriod] = useState<string>('7d')
+  const [selectedCameraId, setSelectedCameraId] = useState<string>('')
+  const [cameraDropdownOpen, setCameraDropdownOpen] = useState(false)
+
+  // Fetch cameras list
+  const { data: cameras = [] } = useQuery({
+    queryKey: ['cameras-analytics-list'],
+    queryFn: () => imageServiceApi.getCameras(),
+    staleTime: 60000,
+  })
+
+  // Auto-select first camera
+  const effectiveCameraId = selectedCameraId || (cameras.length > 0 ? cameras[0].id : '')
+
+  // Fetch single camera analytics
+  const { data: analytics, isLoading: analyticsLoading } = useQuery({
+    queryKey: ['camera-analytics', effectiveCameraId, period],
+    queryFn: () => imageServiceApi.getCameraAnalytics(effectiveCameraId, period),
+    enabled: !!effectiveCameraId,
+    staleTime: 30000,
+  })
+
+  // Fetch comparison data
+  const { data: comparison = [], isLoading: comparisonLoading } = useQuery({
+    queryKey: ['camera-comparison', period],
+    queryFn: () => imageServiceApi.getCameraComparison(period),
+    staleTime: 30000,
+  })
+
+  const selectedCameraName = cameras.find((c: any) => c.id === effectiveCameraId)?.name || ''
+
+  // Pie chart data for uptime/downtime/maintenance
+  const pieData = useMemo(() => {
+    if (!analytics) return []
+    return [
+      { name: t('imageService.analytics.uptime'), value: analytics.uptime.percent, color: '#22c55e' },
+      { name: t('imageService.analytics.downtime'), value: analytics.downtime.percent, color: '#ef4444' },
+      { name: t('imageService.analytics.maintenance'), value: analytics.maintenance.percent, color: '#f59e0b' },
+    ].filter((d) => d.value > 0)
+  }, [analytics, t])
+
+  // Bar chart data for comparison
+  const comparisonBarData = useMemo(() => {
+    if (!comparison || comparison.length === 0) return []
+    return comparison.map((c: any) => ({
+      name: c.cameraName.length > 12 ? c.cameraName.slice(0, 12) + '...' : c.cameraName,
+      availability: c.availability,
+      healthScore: c.healthScore,
+      slaTarget: c.slaTarget,
+    }))
+  }, [comparison])
+
+  if (cameras.length === 0 && !analyticsLoading) {
+    return (
+      <div className="p-6">
+        <h2 className={`text-xl font-bold ${themeConfig.text.primary}`}>{t('imageService.analytics.title')}</h2>
+        <p className={`mt-2 ${themeConfig.text.secondary}`}>{t('imageService.analytics.noData')}</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className={`text-xl font-bold ${themeConfig.text.primary}`}>
+            {t('imageService.analytics.title')}
+          </h2>
+          <p className={`text-sm ${themeConfig.text.secondary}`}>
+            {t('imageService.analytics.subtitle')}
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          {/* Camera selector */}
+          <div className="relative">
+            <button
+              onClick={() => setCameraDropdownOpen(!cameraDropdownOpen)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${themeConfig.card} border ${themeConfig.cardBorder} ${themeConfig.text.primary}`}
+            >
+              <Camera size={14} />
+              <span className="max-w-[160px] truncate">{selectedCameraName || t('imageService.analytics.selectCamera')}</span>
+              <ChevronDown size={14} className={`transition-transform ${cameraDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {cameraDropdownOpen && (
+              <div className={`absolute right-0 mt-1 w-56 rounded-lg ${themeConfig.card} border ${themeConfig.cardBorder} shadow-xl z-50 overflow-hidden max-h-64 overflow-y-auto`}>
+                {cameras.map((cam: any) => (
+                  <button
+                    key={cam.id}
+                    onClick={() => { setSelectedCameraId(cam.id); setCameraDropdownOpen(false) }}
+                    className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                      cam.id === effectiveCameraId
+                        ? 'bg-cyan-500/20 text-cyan-300'
+                        : `${themeConfig.text.primary} hover:bg-white/5`
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <StatusDot status={cam.status} />
+                      {cam.name}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Period tabs */}
+          <div className={`flex rounded-lg overflow-hidden border ${themeConfig.cardBorder}`}>
+            {PERIODS.map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                  period === p
+                    ? 'bg-cyan-500/20 text-cyan-300'
+                    : `${themeConfig.text.secondary} hover:bg-white/5`
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {analyticsLoading ? (
+        <TableSkeleton rows={6} cols={4} />
+      ) : analytics ? (
+        <>
+          {/* Row 1: Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Availability */}
+            <div className={`${themeConfig.card} rounded-xl p-4`}>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-2 rounded-lg bg-green-500/10">
+                  <Shield size={16} className="text-green-400" />
+                </div>
+                <span className={`text-sm font-medium ${themeConfig.text.secondary}`}>
+                  {t('imageService.analytics.availability')}
+                </span>
+              </div>
+              <div className={`text-3xl font-bold ${themeConfig.text.primary}`}>
+                {analytics.availability}%
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                {analytics.slaMet ? (
+                  <span className="flex items-center gap-1 text-xs text-green-400">
+                    <CheckCircle size={12} /> {t('imageService.analytics.slaMet')}
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 text-xs text-red-400">
+                    <XCircle size={12} /> {t('imageService.analytics.slaNotMet')}
+                  </span>
+                )}
+                <span className={`text-xs ${themeConfig.text.secondary}`}>
+                  ({t('imageService.analytics.slaTarget')}: {analytics.slaTarget}%)
+                </span>
+              </div>
+            </div>
+
+            {/* MTBF */}
+            <div className={`${themeConfig.card} rounded-xl p-4`}>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-2 rounded-lg bg-blue-500/10">
+                  <Clock size={16} className="text-blue-400" />
+                </div>
+                <span className={`text-sm font-medium ${themeConfig.text.secondary}`}>
+                  {t('imageService.analytics.mtbf')}
+                </span>
+              </div>
+              <div className={`text-3xl font-bold ${themeConfig.text.primary}`}>
+                {analytics.mtbf !== null ? `${analytics.mtbf.toFixed(1)}h` : '--'}
+              </div>
+              <p className={`text-xs mt-2 ${themeConfig.text.secondary}`}>
+                {analytics.mtbf !== null ? t('imageService.analytics.mtbfDesc') : t('imageService.analytics.noFailures')}
+              </p>
+            </div>
+
+            {/* MTTR */}
+            <div className={`${themeConfig.card} rounded-xl p-4`}>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-2 rounded-lg bg-orange-500/10">
+                  <Activity size={16} className="text-orange-400" />
+                </div>
+                <span className={`text-sm font-medium ${themeConfig.text.secondary}`}>
+                  {t('imageService.analytics.mttr')}
+                </span>
+              </div>
+              <div className={`text-3xl font-bold ${themeConfig.text.primary}`}>
+                {analytics.mttr !== null ? `${analytics.mttr.toFixed(1)}m` : '--'}
+              </div>
+              <p className={`text-xs mt-2 ${themeConfig.text.secondary}`}>
+                {analytics.mttr !== null ? t('imageService.analytics.mttrDesc') : t('imageService.analytics.noRepairs')}
+              </p>
+            </div>
+
+            {/* Health Score */}
+            <div className={`${themeConfig.card} rounded-xl p-4`}>
+              <div className="flex items-center gap-2 mb-3">
+                <div className={`p-2 rounded-lg ${
+                  analytics.healthGrade === 'excellent' ? 'bg-green-500/10' :
+                  analytics.healthGrade === 'good' ? 'bg-blue-500/10' :
+                  analytics.healthGrade === 'warning' ? 'bg-yellow-500/10' : 'bg-red-500/10'
+                }`}>
+                  <Heart size={16} className={
+                    analytics.healthGrade === 'excellent' ? 'text-green-400' :
+                    analytics.healthGrade === 'good' ? 'text-blue-400' :
+                    analytics.healthGrade === 'warning' ? 'text-yellow-400' : 'text-red-400'
+                  } />
+                </div>
+                <span className={`text-sm font-medium ${themeConfig.text.secondary}`}>
+                  {t('imageService.analytics.healthScore')}
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className={`text-3xl font-bold ${themeConfig.text.primary}`}>
+                  {analytics.healthScore}
+                </span>
+                <HealthBadge grade={analytics.healthGrade} score={analytics.healthScore} />
+              </div>
+              <p className={`text-xs mt-2 capitalize ${
+                analytics.healthGrade === 'excellent' ? 'text-green-400' :
+                analytics.healthGrade === 'good' ? 'text-blue-400' :
+                analytics.healthGrade === 'warning' ? 'text-yellow-400' : 'text-red-400'
+              }`}>
+                {t(`imageService.analytics.${analytics.healthGrade}`)}
+              </p>
+            </div>
+          </div>
+
+          {/* Row 2: Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Uptime/Downtime Pie */}
+            <div className={`${themeConfig.card} rounded-xl p-4`}>
+              <h3 className={`text-sm font-semibold mb-4 ${themeConfig.text.primary}`}>
+                {t('imageService.analytics.uptime')} / {t('imageService.analytics.downtime')}
+              </h3>
+              {pieData.length > 0 ? (
+                <div className="h-48">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={40}
+                        outerRadius={70}
+                        dataKey="value"
+                        stroke="none"
+                      >
+                        {pieData.map((entry, idx) => (
+                          <Cell key={idx} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(value: number) => `${value.toFixed(2)}%`}
+                        contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '12px' }}
+                        labelStyle={{ color: '#94a3b8' }}
+                        itemStyle={{ color: '#e2e8f0' }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <p className={`text-sm text-center py-8 ${themeConfig.text.secondary}`}>{t('imageService.analytics.noData')}</p>
+              )}
+              <div className="flex justify-center gap-4 mt-2">
+                {pieData.map((d) => (
+                  <div key={d.name} className="flex items-center gap-1.5 text-xs">
+                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                    <span className={themeConfig.text.secondary}>{d.name}: {d.value.toFixed(1)}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Lost Images */}
+            <div className={`${themeConfig.card} rounded-xl p-4`}>
+              <h3 className={`text-sm font-semibold mb-4 ${themeConfig.text.primary}`}>
+                {t('imageService.analytics.estimatedLostImages')}
+              </h3>
+              <div className="flex items-center justify-center h-48">
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <div className="p-3 rounded-full bg-red-500/10">
+                      <TrendingDown size={24} className="text-red-400" />
+                    </div>
+                  </div>
+                  <div className={`text-4xl font-bold ${themeConfig.text.primary}`}>
+                    {analytics.estimatedLostImages.toLocaleString()}
+                  </div>
+                  <p className={`text-xs mt-2 ${themeConfig.text.secondary}`}>
+                    {t('imageService.analytics.estimatedLostImages')}
+                  </p>
+                  <div className="flex items-center justify-center gap-3 mt-4">
+                    <div className="text-center">
+                      <div className="flex items-center gap-1 text-green-400">
+                        <Image size={12} />
+                        <span className="text-sm font-semibold">{analytics.imagesCaptured.toLocaleString()}</span>
+                      </div>
+                      <span className={`text-[10px] ${themeConfig.text.secondary}`}>{t('imageService.analytics.imagesCaptured')}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Offline Events */}
+            <div className={`${themeConfig.card} rounded-xl p-4`}>
+              <h3 className={`text-sm font-semibold mb-4 ${themeConfig.text.primary}`}>
+                {t('imageService.analytics.offlineEvents')}
+              </h3>
+              <div className="flex items-center justify-center h-48">
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <div className={`p-3 rounded-full ${analytics.offlineCount === 0 ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
+                      <AlertTriangle size={24} className={analytics.offlineCount === 0 ? 'text-green-400' : 'text-red-400'} />
+                    </div>
+                  </div>
+                  <div className={`text-4xl font-bold ${themeConfig.text.primary}`}>
+                    {analytics.offlineCount}
+                  </div>
+                  <p className={`text-xs mt-2 ${themeConfig.text.secondary}`}>
+                    {t('imageService.analytics.offlineEvents')}
+                  </p>
+                  {/* Downtime breakdown */}
+                  <div className={`mt-4 space-y-1 text-xs ${themeConfig.text.secondary}`}>
+                    <div className="flex justify-between gap-4">
+                      <span>{t('imageService.analytics.uptime')}:</span>
+                      <span className="text-green-400 font-medium">{formatDurationLong(analytics.uptime.seconds)}</span>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <span>{t('imageService.analytics.downtime')}:</span>
+                      <span className="text-red-400 font-medium">{formatDurationLong(analytics.downtime.seconds)}</span>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <span>{t('imageService.analytics.maintenance')}:</span>
+                      <span className="text-yellow-400 font-medium">{formatDurationLong(analytics.maintenance.seconds)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Row 3: Status Timeline */}
+          <div className={`${themeConfig.card} rounded-xl p-4`}>
+            <h3 className={`text-sm font-semibold mb-4 ${themeConfig.text.primary}`}>
+              {t('imageService.analytics.timeline')}
+            </h3>
+            {analytics.timeline && analytics.timeline.length > 0 ? (
+              <div className="space-y-2">
+                {/* Timeline bar */}
+                <div className="relative h-10 rounded-lg overflow-hidden flex">
+                  {analytics.timeline.map((seg: any, idx: number) => {
+                    const totalMs = analytics.timeline.reduce((sum: number, s: any) => sum + s.durationMs, 0)
+                    const widthPct = (seg.durationMs / totalMs) * 100
+                    if (widthPct < 0.1) return null
+                    const colorMap: Record<string, string> = {
+                      active: 'bg-green-500',
+                      online: 'bg-green-500',
+                      maintenance: 'bg-yellow-500',
+                      offline: 'bg-red-500',
+                      error: 'bg-red-500',
+                      inactive: 'bg-gray-500',
+                    }
+                    return (
+                      <div
+                        key={idx}
+                        className={`${colorMap[seg.status] || 'bg-gray-500'} relative group cursor-pointer transition-opacity hover:opacity-80`}
+                        style={{ width: `${widthPct}%`, minWidth: widthPct > 1 ? undefined : '2px' }}
+                        title={`${seg.status}: ${formatDurationLong(Math.round(seg.durationMs / 1000))}`}
+                      >
+                        {/* Tooltip on hover */}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                          <div className="bg-slate-900 border border-white/20 rounded-lg px-3 py-2 text-xs text-white whitespace-nowrap shadow-xl">
+                            <div className="font-semibold capitalize">{seg.status}</div>
+                            <div className="text-gray-400">{formatDurationLong(Math.round(seg.durationMs / 1000))}</div>
+                            <div className="text-gray-400 text-[10px]">
+                              {new Date(seg.start).toLocaleString()} - {new Date(seg.end).toLocaleString()}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+                {/* Legend */}
+                <div className="flex gap-4 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded bg-green-500" />
+                    <span className={themeConfig.text.secondary}>{t('imageService.analytics.uptime')}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded bg-yellow-500" />
+                    <span className={themeConfig.text.secondary}>{t('imageService.analytics.maintenance')}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded bg-red-500" />
+                    <span className={themeConfig.text.secondary}>{t('imageService.analytics.downtime')}</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className={`text-sm text-center py-4 ${themeConfig.text.secondary}`}>{t('imageService.analytics.noData')}</p>
+            )}
+          </div>
+
+          {/* Row 4: Event History Table */}
+          <div className={`${themeConfig.card} rounded-xl p-4`}>
+            <h3 className={`text-sm font-semibold mb-4 ${themeConfig.text.primary}`}>
+              {t('imageService.analytics.eventHistory')}
+            </h3>
+            {analytics.events && analytics.events.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className={themeConfig.tableHeader}>
+                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>#</th>
+                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>{t('imageService.analytics.duration')}</th>
+                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>Event</th>
+                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>{t('imageService.analytics.reason')}</th>
+                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>{t('imageService.analytics.changedBy')}</th>
+                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>{t('imageService.analytics.duration')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className={themeConfig.tableDivide}>
+                    {[...analytics.events].reverse().map((event: any, idx: number) => {
+                      // Calculate duration to next event
+                      const reversedIdx = analytics.events.length - 1 - idx
+                      const nextEvent = reversedIdx < analytics.events.length - 1 ? analytics.events[reversedIdx + 1] : null
+                      const durationMs = nextEvent
+                        ? new Date(nextEvent.createdAt).getTime() - new Date(event.createdAt).getTime()
+                        : Date.now() - new Date(event.createdAt).getTime()
+
+                      const eventTypeColors: Record<string, string> = {
+                        online: 'text-green-400 bg-green-500/10',
+                        offline: 'text-red-400 bg-red-500/10',
+                        error: 'text-red-400 bg-red-500/10',
+                        maintenance_start: 'text-yellow-400 bg-yellow-500/10',
+                        maintenance_end: 'text-green-400 bg-green-500/10',
+                        reconfigured: 'text-blue-400 bg-blue-500/10',
+                      }
+
+                      return (
+                        <tr key={event.id} className={themeConfig.tableRow}>
+                          <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>{analytics.events.length - idx}</td>
+                          <td className={`px-3 py-2 text-xs ${themeConfig.text.primary}`}>
+                            {new Date(event.createdAt).toLocaleString()}
+                          </td>
+                          <td className="px-3 py-2">
+                            <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${eventTypeColors[event.eventType] || 'text-gray-400 bg-gray-500/10'}`}>
+                              {event.eventType}
+                            </span>
+                          </td>
+                          <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                            {event.downtimeReason || '-'}
+                          </td>
+                          <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                            {(event.metadata as any)?.changedBy || 'system'}
+                          </td>
+                          <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                            {formatDuration(Math.round(durationMs / 1000))}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className={`text-sm text-center py-4 ${themeConfig.text.secondary}`}>{t('imageService.analytics.noData')}</p>
+            )}
+          </div>
+
+          {/* Row 5: Camera Comparison */}
+          <div className={`${themeConfig.card} rounded-xl p-4`}>
+            <h3 className={`text-sm font-semibold mb-4 ${themeConfig.text.primary}`}>
+              {t('imageService.analytics.comparison')}
+            </h3>
+            {comparisonLoading ? (
+              <TableSkeleton rows={3} cols={6} />
+            ) : comparison && comparison.length > 0 ? (
+              <>
+                {/* Comparison bar chart */}
+                {comparisonBarData.length > 0 && (
+                  <div className="h-56 mb-4">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={comparisonBarData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                        <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+                        <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#94a3b8' }} />
+                        <Tooltip
+                          contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '12px' }}
+                          labelStyle={{ color: '#94a3b8' }}
+                          itemStyle={{ color: '#e2e8f0' }}
+                        />
+                        <Legend wrapperStyle={{ fontSize: '11px' }} />
+                        <Bar dataKey="availability" name={t('imageService.analytics.availability')} fill="#22c55e" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="healthScore" name={t('imageService.analytics.healthScore')} fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+
+                {/* Comparison table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className={themeConfig.tableHeader}>
+                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
+                          Camera
+                        </th>
+                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
+                          {t('imageService.analytics.availability')}
+                        </th>
+                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
+                          SLA
+                        </th>
+                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
+                          {t('imageService.analytics.mtbf')}
+                        </th>
+                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
+                          {t('imageService.analytics.mttr')}
+                        </th>
+                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
+                          {t('imageService.analytics.healthScore')}
+                        </th>
+                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
+                          {t('imageService.analytics.offlineEvents')}
+                        </th>
+                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
+                          {t('imageService.analytics.estimatedLostImages')}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className={themeConfig.tableDivide}>
+                      {comparison.map((cam: any) => (
+                        <tr
+                          key={cam.cameraId}
+                          className={`${themeConfig.tableRow} cursor-pointer ${cam.cameraId === effectiveCameraId ? 'bg-cyan-500/5' : ''}`}
+                          onClick={() => setSelectedCameraId(cam.cameraId)}
+                        >
+                          <td className={`px-3 py-2 text-xs font-medium ${themeConfig.text.primary}`}>
+                            {cam.cameraName}
+                          </td>
+                          <td className={`px-3 py-2 text-xs ${cam.availability >= 99 ? 'text-green-400' : cam.availability >= 95 ? 'text-yellow-400' : 'text-red-400'}`}>
+                            {cam.availability}%
+                          </td>
+                          <td className="px-3 py-2">
+                            {cam.slaMet ? (
+                              <CheckCircle size={14} className="text-green-400" />
+                            ) : (
+                              <XCircle size={14} className="text-red-400" />
+                            )}
+                          </td>
+                          <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                            {cam.mtbf !== null ? `${cam.mtbf.toFixed(1)}h` : '--'}
+                          </td>
+                          <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                            {cam.mttr !== null ? `${cam.mttr.toFixed(1)}m` : '--'}
+                          </td>
+                          <td className="px-3 py-2">
+                            <HealthBadge grade={cam.healthGrade} score={cam.healthScore} />
+                          </td>
+                          <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                            {cam.offlineCount}
+                          </td>
+                          <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                            {cam.estimatedLostImages.toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            ) : (
+              <p className={`text-sm text-center py-4 ${themeConfig.text.secondary}`}>{t('imageService.analytics.noData')}</p>
+            )}
+          </div>
+        </>
+      ) : (
+        <div className={`${themeConfig.card} rounded-xl p-8 text-center`}>
+          <p className={themeConfig.text.secondary}>{t('imageService.analytics.noData')}</p>
+        </div>
+      )}
+    </div>
+  )
+}

@@ -298,10 +298,11 @@ model Camera {
   createdAt              DateTime     @default(now()) @map("created_at")
   updatedAt              DateTime     @updatedAt @map("updated_at")
 
-  retentionPolicy  RetentionPolicy   @relation(fields: [retentionPolicyId], references: [id])
+  retentionPolicy  RetentionPolicy      @relation(fields: [retentionPolicyId], references: [id])
   images           Image[]
   cameraEvents     CameraEvent[]
   storageSnapshots StorageSnapshot[]
+  dailySummaries   CameraDailySummary[]
 
   @@map("cameras")
 }
@@ -408,17 +409,39 @@ model ProcessingJob {
 }
 
 model CameraEvent {
-  id        BigInt          @id @default(autoincrement())
-  cameraId  String          @map("camera_id") @db.Uuid
-  eventType CameraEventType @map("event_type")
-  message   String          @db.Text
-  metadata  Json?           @default("{}")
-  createdAt DateTime        @default(now()) @map("created_at")
+  id             BigInt          @id @default(autoincrement())
+  cameraId       String          @map("camera_id") @db.Uuid
+  eventType      CameraEventType @map("event_type")
+  message        String          @db.Text
+  metadata       Json?           @default("{}")
+  downtimeReason String?         @map("downtime_reason") @db.VarChar(64)
+  createdAt      DateTime        @default(now()) @map("created_at")
 
   camera Camera @relation(fields: [cameraId], references: [id])
 
   @@index([cameraId, createdAt(sort: Desc)])
   @@map("camera_events")
+}
+
+model CameraDailySummary {
+  id                  String   @id @default(uuid()) @db.Uuid
+  cameraId            String   @map("camera_id") @db.Uuid
+  date                DateTime @db.Date
+  uptimeSeconds       Int      @default(0) @map("uptime_seconds")
+  downtimeSeconds     Int      @default(0) @map("downtime_seconds")
+  maintenanceSeconds  Int      @default(0) @map("maintenance_seconds")
+  offlineCount        Int      @default(0) @map("offline_count")
+  onlineCount         Int      @default(0) @map("online_count")
+  imagesCaptured      Int      @default(0) @map("images_captured")
+  estimatedLostImages Int      @default(0) @map("estimated_lost_images")
+  avgResponseSeconds  Float    @default(0) @map("avg_response_seconds")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  camera Camera @relation(fields: [cameraId], references: [id])
+
+  @@unique([cameraId, date])
+  @@map("camera_daily_summaries")
 }
 
 model StorageSnapshot {

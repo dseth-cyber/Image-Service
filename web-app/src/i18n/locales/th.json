@@ -573,7 +573,8 @@
       "backup": "สำรองข้อมูล",
       "storageProviders": "ผู้ให้บริการจัดเก็บ",
       "storageProfiles": "โปรไฟล์จัดเก็บ",
-      "migrations": "การโยกย้าย"
+      "migrations": "การโยกย้าย",
+      "cameraAnalytics": "วิเคราะห์กล้อง"
     },
     "masterdataManagement": {
       "title": "จัดการข้อมูลหลัก",
@@ -1239,6 +1240,48 @@
         "settings_update": "แก้ไขตั้งค่า",
         "roadmap_read": "ดูแผนการพัฒนา"
       }
+    },
+    "analytics": {
+      "title": "วิเคราะห์ความพร้อมใช้งานกล้อง",
+      "subtitle": "รายงาน Downtime, MTBF, MTTR และ Health Score",
+      "period": "ช่วงเวลา",
+      "availability": "ความพร้อมใช้งาน",
+      "slaTarget": "เป้าหมาย SLA",
+      "slaMet": "ผ่านเป้า SLA",
+      "slaNotMet": "ต่ำกว่าเป้า SLA",
+      "mtbf": "MTBF",
+      "mtbfDesc": "ระยะเวลาเฉลี่ยระหว่างความเสียหาย",
+      "mttr": "MTTR",
+      "mttrDesc": "ระยะเวลาเฉลี่ยในการซ่อม",
+      "healthScore": "คะแนนสุขภาพ",
+      "excellent": "ดีเยี่ยม",
+      "good": "ดี",
+      "warning": "เฝ้าระวัง",
+      "critical": "วิกฤต",
+      "uptime": "เวลาทำงาน",
+      "downtime": "เวลาหยุด",
+      "maintenance": "ซ่อมบำรุง",
+      "offlineEvents": "จำนวนครั้งที่ออฟไลน์",
+      "estimatedLostImages": "ภาพที่พลาด (ประมาณ)",
+      "imagesCaptured": "ภาพที่ถ่ายได้",
+      "timeline": "Timeline สถานะ",
+      "eventHistory": "ประวัติเปลี่ยนสถานะ",
+      "fromStatus": "จาก",
+      "toStatus": "เป็น",
+      "reason": "สาเหตุ",
+      "duration": "ระยะเวลา",
+      "changedBy": "เปลี่ยนโดย",
+      "noData": "ไม่มีข้อมูล",
+      "hours": "ชั่วโมง",
+      "minutes": "นาที",
+      "days": "วัน",
+      "comparison": "เปรียบเทียบกล้อง",
+      "allCameras": "ทุกกล้อง",
+      "selectCamera": "เลือกกล้อง",
+      "downtimeByReason": "Downtime ตามสาเหตุ",
+      "seconds": "วินาที",
+      "noFailures": "ไม่มีความเสียหาย",
+      "noRepairs": "ไม่มีการซ่อม"
     }
   },
   "common": {
