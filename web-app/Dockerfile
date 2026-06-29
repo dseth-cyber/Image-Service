@@ -6,6 +6,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --frozen-lockfile --ignore-scripts
 
 COPY tsconfig.json vite.config.ts postcss.config.js tailwind.config.js index.html ./
+COPY public/ ./public/
 COPY src/ ./src/
 RUN npm run build
 

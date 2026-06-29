@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,7 +11,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line,
 } from 'recharts';
 import { HardDrive, FileImage, Image, Archive, BarChart3, TrendingUp, Calendar, AlertTriangle, Clock, GripVertical, Settings, RotateCcw, Check, Star } from 'lucide-react';
-import { SearchableSelect } from '@/components/ui';
+import { SearchableSelect, ExportButton } from '@/components/ui';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
@@ -86,6 +86,7 @@ export default function ImageServiceStorage() {
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const [days, setDays] = useState(30);
   const [isEditing, setIsEditing] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
   const [layouts, setLayouts] = useState(() => {
     try {
       const saved = localStorage.getItem(LAYOUT_STORAGE_KEY);
@@ -221,6 +222,36 @@ export default function ImageServiceStorage() {
             {isEditing ? <Check size={14} /> : <Settings size={14} />}
             {isEditing ? t('imageService.overview.finishEditing') : t('imageService.overview.editLayout')}
           </button>
+          <ExportButton
+            filename="image-service-storage"
+            title={t('imageService.storage.title')}
+            sections={[
+              { title: t('imageService.storage.title'), columns: [
+                { key: 'label', label: 'Metric' }, { key: 'value', label: 'Value' },
+              ], data: statsCards.map(s => ({ label: s.label, value: s.value })) },
+              { title: t('imageService.storage.byFileType'), columns: [
+                { key: 'name', label: t('imageService.storage.byFileType') },
+                { key: 'files', label: t('imageService.storage.totalFiles') },
+                { key: 'size', label: t('imageService.storage.totalSize') },
+              ], data: byFileType.map(f => ({ name: f.name, files: f.files, size: formatBytes(f.value) })) },
+              { title: t('imageService.storage.byCamera'), columns: [
+                { key: 'name', label: t('imageService.cameras.cameraName') },
+                { key: 'value', label: t('imageService.storage.totalSize') },
+              ], data: byCamera.map(c => ({ name: c.name, value: formatBytes(c.value) })) },
+              { title: t('imageService.storage.growthTrend'), columns: [
+                { key: 'label', label: t('common.date') },
+                { key: 'value', label: 'MB' },
+                { key: 'images', label: t('imageService.overview.totalImages') },
+              ], data: growthData },
+              ...(forecast ? [{ title: t('imageService.storage.forecast'), columns: [
+                { key: 'label', label: 'Metric' }, { key: 'value', label: 'Value' },
+              ], data: [
+                { label: t('imageService.storage.usage'), value: `${forecast.usagePercent?.toFixed(1)}%` },
+                { label: t('imageService.storage.dailyGrowth'), value: `${formatBytes(forecast.dailyGrowthRate)}/day` },
+                { label: t('imageService.storage.daysUntilFull'), value: forecast.daysUntilFull != null ? `${forecast.daysUntilFull} ${t('imageService.storage.days')}` : '-' },
+              ] }] : []),
+            ]}
+          />
         </div>
       </div>
 
@@ -230,6 +261,7 @@ export default function ImageServiceStorage() {
         </div>
       )}
 
+      <div ref={contentRef}>
       {!hasData ? (
         <div className={`text-center py-12 ${themeConfig.text.secondary} text-sm`}>
           {t('imageService.storage.noData')}
@@ -445,6 +477,7 @@ export default function ImageServiceStorage() {
           </div>
         </ResponsiveGridLayout>
       )}
+      </div>
     </div>
   );
 }

@@ -1,17 +1,65 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '@/contexts/ThemeContext'
+import { useAuth } from '@/contexts/AuthContext'
+import { useToast } from '@/contexts/ToastContext'
+import { Responsive, WidthProvider } from 'react-grid-layout'
 import { imageServiceApi } from '@/services/imageServiceApi'
-import { TableSkeleton } from '@/components/ui'
+import { TableSkeleton, ExportButton } from '@/components/ui'
 import {
   Activity, Shield, Clock, Heart, Camera, TrendingDown, Image,
   AlertTriangle, CheckCircle, XCircle, ChevronDown,
+  GripVertical, Settings, RotateCcw, Check, Star,
 } from 'lucide-react'
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend,
 } from 'recharts'
+import 'react-grid-layout/css/styles.css'
+import 'react-resizable/css/styles.css'
+
+const ResponsiveGridLayout = WidthProvider(Responsive)
+const LAYOUT_STORAGE_KEY = 'analytics-layout'
+
+const DEFAULT_LAYOUTS: Record<string, any[]> = {
+  lg: [
+    { i: 'availability', x: 0, y: 0, w: 3, h: 2, minW: 2, minH: 1.5 },
+    { i: 'mtbf', x: 3, y: 0, w: 3, h: 2, minW: 2, minH: 1.5 },
+    { i: 'mttr', x: 6, y: 0, w: 3, h: 2, minW: 2, minH: 1.5 },
+    { i: 'healthScore', x: 9, y: 0, w: 3, h: 2, minW: 2, minH: 1.5 },
+    { i: 'timeBreakdown', x: 0, y: 2, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'lostImages', x: 4, y: 2, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'offlineEvents', x: 8, y: 2, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'timeline', x: 0, y: 5, w: 12, h: 2, minW: 6, minH: 1.5 },
+    { i: 'eventHistory', x: 0, y: 7, w: 12, h: 3, minW: 6, minH: 2.5 },
+    { i: 'comparison', x: 0, y: 10, w: 12, h: 4, minW: 6, minH: 3 },
+  ],
+  md: [
+    { i: 'availability', x: 0, y: 0, w: 5, h: 2, minW: 2, minH: 1.5 },
+    { i: 'mtbf', x: 5, y: 0, w: 5, h: 2, minW: 2, minH: 1.5 },
+    { i: 'mttr', x: 0, y: 2, w: 5, h: 2, minW: 2, minH: 1.5 },
+    { i: 'healthScore', x: 5, y: 2, w: 5, h: 2, minW: 2, minH: 1.5 },
+    { i: 'timeBreakdown', x: 0, y: 4, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'lostImages', x: 4, y: 4, w: 3, h: 3, minW: 3, minH: 2.5 },
+    { i: 'offlineEvents', x: 7, y: 4, w: 3, h: 3, minW: 3, minH: 2.5 },
+    { i: 'timeline', x: 0, y: 7, w: 10, h: 2, minW: 6, minH: 1.5 },
+    { i: 'eventHistory', x: 0, y: 9, w: 10, h: 3, minW: 6, minH: 2.5 },
+    { i: 'comparison', x: 0, y: 12, w: 10, h: 4, minW: 6, minH: 3 },
+  ],
+  sm: [
+    { i: 'availability', x: 0, y: 0, w: 3, h: 2, minW: 2, minH: 1.5 },
+    { i: 'mtbf', x: 3, y: 0, w: 3, h: 2, minW: 2, minH: 1.5 },
+    { i: 'mttr', x: 0, y: 2, w: 3, h: 2, minW: 2, minH: 1.5 },
+    { i: 'healthScore', x: 3, y: 2, w: 3, h: 2, minW: 2, minH: 1.5 },
+    { i: 'timeBreakdown', x: 0, y: 4, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'lostImages', x: 0, y: 7, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'offlineEvents', x: 0, y: 10, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'timeline', x: 0, y: 13, w: 6, h: 2, minW: 4, minH: 1.5 },
+    { i: 'eventHistory', x: 0, y: 15, w: 6, h: 3, minW: 4, minH: 2.5 },
+    { i: 'comparison', x: 0, y: 18, w: 6, h: 4, minW: 4, minH: 3 },
+  ],
+}
 
 const PERIODS = ['7d', '14d', '30d', '60d', '90d'] as const
 
@@ -59,12 +107,65 @@ function StatusDot({ status }: { status: string }) {
   return <span className={`inline-block w-2 h-2 rounded-full ${colorMap[status] || 'bg-gray-400'}`} />
 }
 
+function DragHandle({ show }: { show: boolean }) {
+  if (!show) return null
+  return (
+    <div className="drag-handle absolute top-2 right-2 cursor-grab active:cursor-grabbing opacity-40 hover:opacity-90 transition-opacity z-10 p-1 rounded-md bg-black/40 backdrop-blur-sm">
+      <GripVertical size={13} className="text-white" />
+    </div>
+  )
+}
+
 export default function CameraAnalytics() {
   const { t } = useTranslation()
   const { themeConfig } = useTheme()
+  const { user } = useAuth()
+  const toast = useToast()
+  const isAdmin = user?.role === 'admin' || user?.role === 'superadmin'
   const [period, setPeriod] = useState<string>('7d')
   const [selectedCameraId, setSelectedCameraId] = useState<string>('')
   const [cameraDropdownOpen, setCameraDropdownOpen] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  const [layouts, setLayouts] = useState(() => {
+    try {
+      const saved = localStorage.getItem(LAYOUT_STORAGE_KEY)
+      return saved ? JSON.parse(saved) : DEFAULT_LAYOUTS
+    } catch { return DEFAULT_LAYOUTS }
+  })
+
+  const { data: systemConfig } = useQuery({
+    queryKey: ['system-config'],
+    queryFn: () => imageServiceApi.getSystemConfigs(),
+    staleTime: Infinity,
+  })
+
+  useEffect(() => {
+    if (systemConfig?.dashboard_layout_analytics?.value) {
+      const saved = localStorage.getItem(LAYOUT_STORAGE_KEY)
+      if (!saved) setLayouts(systemConfig.dashboard_layout_analytics.value)
+    }
+  }, [systemConfig])
+
+  const handleLayoutChange = useCallback((_l: any, allLayouts: any) => {
+    setLayouts(allLayouts)
+    localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(allLayouts))
+  }, [])
+
+  const handleResetLayout = () => {
+    setLayouts(DEFAULT_LAYOUTS)
+    localStorage.removeItem(LAYOUT_STORAGE_KEY)
+  }
+
+  const handleSaveDefaultLayout = async () => {
+    try {
+      await imageServiceApi.updateSystemConfigs({ dashboard_layout_analytics: JSON.stringify(layouts) })
+      toast.success(t('imageService.overview.defaultLayoutSaved'))
+    } catch {
+      toast.error(t('common.error'))
+    }
+  }
 
   // Fetch cameras list
   const { data: cameras = [] } = useQuery({
@@ -114,6 +215,35 @@ export default function CameraAnalytics() {
     }))
   }, [comparison])
 
+  // Export data for event history
+  const eventExportData = useMemo(() => {
+    if (!analytics?.events) return []
+    return [...analytics.events].reverse().map((event: any, idx: number) => {
+      const reversedIdx = analytics.events.length - 1 - idx
+      const nextEvent = reversedIdx < analytics.events.length - 1 ? analytics.events[reversedIdx + 1] : null
+      const durationMs = nextEvent
+        ? new Date(nextEvent.createdAt).getTime() - new Date(event.createdAt).getTime()
+        : Date.now() - new Date(event.createdAt).getTime()
+      return {
+        no: analytics.events.length - idx,
+        date: new Date(event.createdAt).toLocaleString(),
+        eventType: event.eventType,
+        reason: event.downtimeReason || '-',
+        changedBy: (event.metadata as any)?.changedBy || 'system',
+        duration: formatDuration(Math.round(durationMs / 1000)),
+      }
+    })
+  }, [analytics])
+
+  const eventExportColumns = [
+    { key: 'no', label: '#' },
+    { key: 'date', label: t('imageService.analytics.duration') },
+    { key: 'eventType', label: 'Event' },
+    { key: 'reason', label: t('imageService.analytics.reason') },
+    { key: 'changedBy', label: t('imageService.analytics.changedBy') },
+    { key: 'duration', label: t('imageService.analytics.duration') },
+  ]
+
   if (cameras.length === 0 && !analyticsLoading) {
     return (
       <div className="p-6">
@@ -124,18 +254,21 @@ export default function CameraAnalytics() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
         <div>
-          <h2 className={`text-xl font-bold ${themeConfig.text.primary}`}>
+          <p className={`text-xs font-medium mb-0.5 uppercase tracking-widest ${themeConfig.text.secondary}`}>
+            Image Service · {t('imageService.analytics.title')}
+          </p>
+          <h2 className={`text-2xl font-bold ${themeConfig.text.primary}`}>
             {t('imageService.analytics.title')}
           </h2>
           <p className={`text-sm ${themeConfig.text.secondary}`}>
             {t('imageService.analytics.subtitle')}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-wrap">
           {/* Camera selector */}
           <div className="relative">
             <button
@@ -184,17 +317,102 @@ export default function CameraAnalytics() {
               </button>
             ))}
           </div>
+
+          {/* Layout buttons */}
+          {isEditing && (
+            <>
+              <button onClick={handleResetLayout}
+                className={`px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5
+                  border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5 transition-colors`}>
+                <RotateCcw size={13} /> {t('imageService.overview.resetLayout')}
+              </button>
+              {isAdmin && (
+                <button onClick={handleSaveDefaultLayout}
+                  className="px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5
+                    bg-gradient-to-r from-yellow-600 to-orange-600 text-white hover:brightness-110 transition-all">
+                  <Star size={13} /> {t('imageService.overview.setDefaultLayout')}
+                </button>
+              )}
+            </>
+          )}
+          <button onClick={() => setIsEditing(!isEditing)}
+            className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5
+              ${isEditing
+                ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white'
+                : `border ${themeConfig.inputBorder} ${themeConfig.text.primary} hover:bg-white/5`} transition-all`}>
+            {isEditing ? <Check size={14} /> : <Settings size={14} />}
+            {isEditing ? t('imageService.overview.finishEditing') : t('imageService.overview.editLayout')}
+          </button>
+
+          <ExportButton
+            filename={`camera-analytics-${selectedCameraName}-${period}`}
+            title={`${t('imageService.analytics.title')} — ${selectedCameraName}`}
+            sections={[
+              { title: t('imageService.analytics.title'), columns: [
+                { key: 'metric', label: 'Metric' }, { key: 'value', label: 'Value' },
+              ], data: analytics ? [
+                { metric: t('imageService.analytics.availability'), value: `${analytics.availability}%` },
+                { metric: t('imageService.analytics.slaTarget'), value: `${analytics.slaTarget}% — ${analytics.slaMet ? '✅' : '❌'}` },
+                { metric: 'MTBF', value: analytics.mtbf != null ? `${analytics.mtbf.toFixed(1)} ${t('imageService.analytics.hours')}` : '-' },
+                { metric: 'MTTR', value: analytics.mttr != null ? `${analytics.mttr.toFixed(1)} ${t('imageService.analytics.minutes')}` : '-' },
+                { metric: t('imageService.analytics.healthScore'), value: `${analytics.healthScore} (${t(`imageService.analytics.${analytics.healthGrade}`)})` },
+                { metric: t('imageService.analytics.offlineEvents'), value: String(analytics.offlineCount) },
+                { metric: t('imageService.analytics.imagesCaptured'), value: String(analytics.imagesCaptured) },
+                { metric: t('imageService.analytics.estimatedLostImages'), value: String(analytics.estimatedLostImages) },
+              ] : [] },
+              ...(analytics ? [{ title: `${t('imageService.analytics.uptime')} / ${t('imageService.analytics.downtime')}`, columns: [
+                { key: 'metric', label: 'Metric' }, { key: 'seconds', label: t('imageService.analytics.duration') }, { key: 'pct', label: '%' },
+              ], data: [
+                { metric: t('imageService.analytics.uptime'), seconds: `${Math.round(analytics.uptime.seconds / 3600)} ${t('imageService.analytics.hours')}`, pct: `${analytics.uptime.percent}%` },
+                { metric: t('imageService.analytics.downtime'), seconds: `${Math.round(analytics.downtime.seconds / 3600)} ${t('imageService.analytics.hours')}`, pct: `${analytics.downtime.percent}%` },
+                { metric: t('imageService.analytics.maintenance'), seconds: `${Math.round(analytics.maintenance.seconds / 3600)} ${t('imageService.analytics.hours')}`, pct: `${analytics.maintenance.percent}%` },
+              ] }] : []),
+              { title: t('imageService.analytics.eventHistory'), columns: eventExportColumns, data: eventExportData },
+              ...(comparison.length > 0 ? [{ title: t('imageService.analytics.comparison'), columns: [
+                { key: 'name', label: t('imageService.cameras.cameraName') },
+                { key: 'availability', label: t('imageService.analytics.availability') },
+                { key: 'mtbf', label: 'MTBF' },
+                { key: 'mttr', label: 'MTTR' },
+                { key: 'healthScore', label: t('imageService.analytics.healthScore') },
+                { key: 'offlineCount', label: t('imageService.analytics.offlineEvents') },
+                { key: 'lostImages', label: t('imageService.analytics.estimatedLostImages') },
+              ], data: comparison.map((c: any) => ({
+                name: c.cameraName, availability: `${c.availability}%`,
+                mtbf: c.mtbf != null ? `${c.mtbf.toFixed(1)}h` : '-',
+                mttr: c.mttr != null ? `${c.mttr.toFixed(1)}m` : '-',
+                healthScore: `${c.healthScore} (${c.healthGrade})`,
+                offlineCount: c.offlineCount, lostImages: c.estimatedLostImages,
+              })) }] : []),
+            ]}
+          />
         </div>
       </div>
 
-      {analyticsLoading ? (
-        <TableSkeleton rows={6} cols={4} />
-      ) : analytics ? (
-        <>
-          {/* Row 1: Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {isEditing && (
+        <div className={`mb-4 px-4 py-2.5 rounded-lg text-xs ${themeConfig.card}`}>
+          {t('imageService.overview.dragHint')}
+        </div>
+      )}
+
+      <div ref={contentRef}>
+        {analyticsLoading ? (
+          <TableSkeleton rows={6} cols={4} />
+        ) : analytics ? (
+          <ResponsiveGridLayout
+            className="layout"
+            layouts={layouts}
+            breakpoints={{ lg: 1200, md: 996, sm: 768 }}
+            cols={{ lg: 12, md: 10, sm: 6 }}
+            rowHeight={100}
+            isDraggable={isEditing}
+            isResizable={isEditing}
+            draggableHandle=".drag-handle"
+            onLayoutChange={handleLayoutChange}
+            compactType="vertical"
+          >
             {/* Availability */}
-            <div className={`${themeConfig.card} rounded-xl p-4`}>
+            <div key="availability" className={`${themeConfig.card} rounded-xl p-4 relative overflow-hidden`}>
+              <DragHandle show={isEditing} />
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-2 rounded-lg bg-green-500/10">
                   <Shield size={16} className="text-green-400" />
@@ -223,7 +441,8 @@ export default function CameraAnalytics() {
             </div>
 
             {/* MTBF */}
-            <div className={`${themeConfig.card} rounded-xl p-4`}>
+            <div key="mtbf" className={`${themeConfig.card} rounded-xl p-4 relative overflow-hidden`}>
+              <DragHandle show={isEditing} />
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-2 rounded-lg bg-blue-500/10">
                   <Clock size={16} className="text-blue-400" />
@@ -241,7 +460,8 @@ export default function CameraAnalytics() {
             </div>
 
             {/* MTTR */}
-            <div className={`${themeConfig.card} rounded-xl p-4`}>
+            <div key="mttr" className={`${themeConfig.card} rounded-xl p-4 relative overflow-hidden`}>
+              <DragHandle show={isEditing} />
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-2 rounded-lg bg-orange-500/10">
                   <Activity size={16} className="text-orange-400" />
@@ -259,7 +479,8 @@ export default function CameraAnalytics() {
             </div>
 
             {/* Health Score */}
-            <div className={`${themeConfig.card} rounded-xl p-4`}>
+            <div key="healthScore" className={`${themeConfig.card} rounded-xl p-4 relative overflow-hidden`}>
+              <DragHandle show={isEditing} />
               <div className="flex items-center gap-2 mb-3">
                 <div className={`p-2 rounded-lg ${
                   analytics.healthGrade === 'excellent' ? 'bg-green-500/10' :
@@ -290,17 +511,15 @@ export default function CameraAnalytics() {
                 {t(`imageService.analytics.${analytics.healthGrade}`)}
               </p>
             </div>
-          </div>
 
-          {/* Row 2: Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {/* Uptime/Downtime Pie */}
-            <div className={`${themeConfig.card} rounded-xl p-4`}>
-              <h3 className={`text-sm font-semibold mb-4 ${themeConfig.text.primary}`}>
+            {/* Time Breakdown (Pie chart) */}
+            <div key="timeBreakdown" className={`${themeConfig.card} rounded-xl p-4 relative overflow-hidden flex flex-col h-full`}>
+              <DragHandle show={isEditing} />
+              <h3 className={`text-sm font-semibold mb-4 flex-shrink-0 ${themeConfig.text.primary}`}>
                 {t('imageService.analytics.uptime')} / {t('imageService.analytics.downtime')}
               </h3>
               {pieData.length > 0 ? (
-                <div className="h-48">
+                <div className="flex-1 min-h-0">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -328,7 +547,7 @@ export default function CameraAnalytics() {
               ) : (
                 <p className={`text-sm text-center py-8 ${themeConfig.text.secondary}`}>{t('imageService.analytics.noData')}</p>
               )}
-              <div className="flex justify-center gap-4 mt-2">
+              <div className="flex justify-center gap-4 mt-2 flex-shrink-0">
                 {pieData.map((d) => (
                   <div key={d.name} className="flex items-center gap-1.5 text-xs">
                     <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
@@ -339,11 +558,12 @@ export default function CameraAnalytics() {
             </div>
 
             {/* Lost Images */}
-            <div className={`${themeConfig.card} rounded-xl p-4`}>
-              <h3 className={`text-sm font-semibold mb-4 ${themeConfig.text.primary}`}>
+            <div key="lostImages" className={`${themeConfig.card} rounded-xl p-4 relative overflow-hidden flex flex-col h-full`}>
+              <DragHandle show={isEditing} />
+              <h3 className={`text-sm font-semibold mb-4 flex-shrink-0 ${themeConfig.text.primary}`}>
                 {t('imageService.analytics.estimatedLostImages')}
               </h3>
-              <div className="flex items-center justify-center h-48">
+              <div className="flex items-center justify-center flex-1 min-h-0">
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-2 mb-3">
                     <div className="p-3 rounded-full bg-red-500/10">
@@ -370,11 +590,12 @@ export default function CameraAnalytics() {
             </div>
 
             {/* Offline Events */}
-            <div className={`${themeConfig.card} rounded-xl p-4`}>
-              <h3 className={`text-sm font-semibold mb-4 ${themeConfig.text.primary}`}>
+            <div key="offlineEvents" className={`${themeConfig.card} rounded-xl p-4 relative overflow-hidden flex flex-col h-full`}>
+              <DragHandle show={isEditing} />
+              <h3 className={`text-sm font-semibold mb-4 flex-shrink-0 ${themeConfig.text.primary}`}>
                 {t('imageService.analytics.offlineEvents')}
               </h3>
-              <div className="flex items-center justify-center h-48">
+              <div className="flex items-center justify-center flex-1 min-h-0">
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-2 mb-3">
                     <div className={`p-3 rounded-full ${analytics.offlineCount === 0 ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
@@ -387,7 +608,6 @@ export default function CameraAnalytics() {
                   <p className={`text-xs mt-2 ${themeConfig.text.secondary}`}>
                     {t('imageService.analytics.offlineEvents')}
                   </p>
-                  {/* Downtime breakdown */}
                   <div className={`mt-4 space-y-1 text-xs ${themeConfig.text.secondary}`}>
                     <div className="flex justify-between gap-4">
                       <span>{t('imageService.analytics.uptime')}:</span>
@@ -405,250 +625,247 @@ export default function CameraAnalytics() {
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Row 3: Status Timeline */}
-          <div className={`${themeConfig.card} rounded-xl p-4`}>
-            <h3 className={`text-sm font-semibold mb-4 ${themeConfig.text.primary}`}>
-              {t('imageService.analytics.timeline')}
-            </h3>
-            {analytics.timeline && analytics.timeline.length > 0 ? (
-              <div className="space-y-2">
-                {/* Timeline bar */}
-                <div className="relative h-10 rounded-lg overflow-hidden flex">
-                  {analytics.timeline.map((seg: any, idx: number) => {
-                    const totalMs = analytics.timeline.reduce((sum: number, s: any) => sum + s.durationMs, 0)
-                    const widthPct = (seg.durationMs / totalMs) * 100
-                    if (widthPct < 0.1) return null
-                    const colorMap: Record<string, string> = {
-                      active: 'bg-green-500',
-                      online: 'bg-green-500',
-                      maintenance: 'bg-yellow-500',
-                      offline: 'bg-red-500',
-                      error: 'bg-red-500',
-                      inactive: 'bg-gray-500',
-                    }
-                    return (
-                      <div
-                        key={idx}
-                        className={`${colorMap[seg.status] || 'bg-gray-500'} relative group cursor-pointer transition-opacity hover:opacity-80`}
-                        style={{ width: `${widthPct}%`, minWidth: widthPct > 1 ? undefined : '2px' }}
-                        title={`${seg.status}: ${formatDurationLong(Math.round(seg.durationMs / 1000))}`}
-                      >
-                        {/* Tooltip on hover */}
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
-                          <div className="bg-slate-900 border border-white/20 rounded-lg px-3 py-2 text-xs text-white whitespace-nowrap shadow-xl">
-                            <div className="font-semibold capitalize">{seg.status}</div>
-                            <div className="text-gray-400">{formatDurationLong(Math.round(seg.durationMs / 1000))}</div>
-                            <div className="text-gray-400 text-[10px]">
-                              {new Date(seg.start).toLocaleString()} - {new Date(seg.end).toLocaleString()}
+            {/* Status Timeline */}
+            <div key="timeline" className={`${themeConfig.card} rounded-xl p-4 relative overflow-hidden flex flex-col h-full`}>
+              <DragHandle show={isEditing} />
+              <h3 className={`text-sm font-semibold mb-4 flex-shrink-0 ${themeConfig.text.primary}`}>
+                {t('imageService.analytics.timeline')}
+              </h3>
+              {analytics.timeline && analytics.timeline.length > 0 ? (
+                <div className="space-y-2 flex-1 min-h-0">
+                  <div className="relative h-10 rounded-lg overflow-hidden flex">
+                    {analytics.timeline.map((seg: any, idx: number) => {
+                      const totalMs = analytics.timeline.reduce((sum: number, s: any) => sum + s.durationMs, 0)
+                      const widthPct = (seg.durationMs / totalMs) * 100
+                      if (widthPct < 0.1) return null
+                      const colorMap: Record<string, string> = {
+                        active: 'bg-green-500',
+                        online: 'bg-green-500',
+                        maintenance: 'bg-yellow-500',
+                        offline: 'bg-red-500',
+                        error: 'bg-red-500',
+                        inactive: 'bg-gray-500',
+                      }
+                      return (
+                        <div
+                          key={idx}
+                          className={`${colorMap[seg.status] || 'bg-gray-500'} relative group cursor-pointer transition-opacity hover:opacity-80`}
+                          style={{ width: `${widthPct}%`, minWidth: widthPct > 1 ? undefined : '2px' }}
+                          title={`${seg.status}: ${formatDurationLong(Math.round(seg.durationMs / 1000))}`}
+                        >
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                            <div className="bg-slate-900 border border-white/20 rounded-lg px-3 py-2 text-xs text-white whitespace-nowrap shadow-xl">
+                              <div className="font-semibold capitalize">{seg.status}</div>
+                              <div className="text-gray-400">{formatDurationLong(Math.round(seg.durationMs / 1000))}</div>
+                              <div className="text-gray-400 text-[10px]">
+                                {new Date(seg.start).toLocaleString()} - {new Date(seg.end).toLocaleString()}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    )
-                  })}
-                </div>
-                {/* Legend */}
-                <div className="flex gap-4 text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded bg-green-500" />
-                    <span className={themeConfig.text.secondary}>{t('imageService.analytics.uptime')}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded bg-yellow-500" />
-                    <span className={themeConfig.text.secondary}>{t('imageService.analytics.maintenance')}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded bg-red-500" />
-                    <span className={themeConfig.text.secondary}>{t('imageService.analytics.downtime')}</span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <p className={`text-sm text-center py-4 ${themeConfig.text.secondary}`}>{t('imageService.analytics.noData')}</p>
-            )}
-          </div>
-
-          {/* Row 4: Event History Table */}
-          <div className={`${themeConfig.card} rounded-xl p-4`}>
-            <h3 className={`text-sm font-semibold mb-4 ${themeConfig.text.primary}`}>
-              {t('imageService.analytics.eventHistory')}
-            </h3>
-            {analytics.events && analytics.events.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className={themeConfig.tableHeader}>
-                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>#</th>
-                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>{t('imageService.analytics.duration')}</th>
-                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>Event</th>
-                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>{t('imageService.analytics.reason')}</th>
-                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>{t('imageService.analytics.changedBy')}</th>
-                      <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>{t('imageService.analytics.duration')}</th>
-                    </tr>
-                  </thead>
-                  <tbody className={themeConfig.tableDivide}>
-                    {[...analytics.events].reverse().map((event: any, idx: number) => {
-                      // Calculate duration to next event
-                      const reversedIdx = analytics.events.length - 1 - idx
-                      const nextEvent = reversedIdx < analytics.events.length - 1 ? analytics.events[reversedIdx + 1] : null
-                      const durationMs = nextEvent
-                        ? new Date(nextEvent.createdAt).getTime() - new Date(event.createdAt).getTime()
-                        : Date.now() - new Date(event.createdAt).getTime()
-
-                      const eventTypeColors: Record<string, string> = {
-                        online: 'text-green-400 bg-green-500/10',
-                        offline: 'text-red-400 bg-red-500/10',
-                        error: 'text-red-400 bg-red-500/10',
-                        maintenance_start: 'text-yellow-400 bg-yellow-500/10',
-                        maintenance_end: 'text-green-400 bg-green-500/10',
-                        reconfigured: 'text-blue-400 bg-blue-500/10',
-                      }
-
-                      return (
-                        <tr key={event.id} className={themeConfig.tableRow}>
-                          <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>{analytics.events.length - idx}</td>
-                          <td className={`px-3 py-2 text-xs ${themeConfig.text.primary}`}>
-                            {new Date(event.createdAt).toLocaleString()}
-                          </td>
-                          <td className="px-3 py-2">
-                            <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${eventTypeColors[event.eventType] || 'text-gray-400 bg-gray-500/10'}`}>
-                              {event.eventType}
-                            </span>
-                          </td>
-                          <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
-                            {event.downtimeReason || '-'}
-                          </td>
-                          <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
-                            {(event.metadata as any)?.changedBy || 'system'}
-                          </td>
-                          <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
-                            {formatDuration(Math.round(durationMs / 1000))}
-                          </td>
-                        </tr>
                       )
                     })}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p className={`text-sm text-center py-4 ${themeConfig.text.secondary}`}>{t('imageService.analytics.noData')}</p>
-            )}
-          </div>
-
-          {/* Row 5: Camera Comparison */}
-          <div className={`${themeConfig.card} rounded-xl p-4`}>
-            <h3 className={`text-sm font-semibold mb-4 ${themeConfig.text.primary}`}>
-              {t('imageService.analytics.comparison')}
-            </h3>
-            {comparisonLoading ? (
-              <TableSkeleton rows={3} cols={6} />
-            ) : comparison && comparison.length > 0 ? (
-              <>
-                {/* Comparison bar chart */}
-                {comparisonBarData.length > 0 && (
-                  <div className="h-56 mb-4">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={comparisonBarData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                        <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#94a3b8' }} />
-                        <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#94a3b8' }} />
-                        <Tooltip
-                          contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '12px' }}
-                          labelStyle={{ color: '#94a3b8' }}
-                          itemStyle={{ color: '#e2e8f0' }}
-                        />
-                        <Legend wrapperStyle={{ fontSize: '11px' }} />
-                        <Bar dataKey="availability" name={t('imageService.analytics.availability')} fill="#22c55e" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="healthScore" name={t('imageService.analytics.healthScore')} fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
                   </div>
-                )}
+                  <div className="flex gap-4 text-xs">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-3 h-3 rounded bg-green-500" />
+                      <span className={themeConfig.text.secondary}>{t('imageService.analytics.uptime')}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-3 h-3 rounded bg-yellow-500" />
+                      <span className={themeConfig.text.secondary}>{t('imageService.analytics.maintenance')}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-3 h-3 rounded bg-red-500" />
+                      <span className={themeConfig.text.secondary}>{t('imageService.analytics.downtime')}</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className={`text-sm text-center py-4 ${themeConfig.text.secondary}`}>{t('imageService.analytics.noData')}</p>
+              )}
+            </div>
 
-                {/* Comparison table */}
-                <div className="overflow-x-auto">
+            {/* Event History Table */}
+            <div key="eventHistory" className={`${themeConfig.card} rounded-xl p-4 relative overflow-hidden flex flex-col h-full`}>
+              <DragHandle show={isEditing} />
+              <h3 className={`text-sm font-semibold mb-4 flex-shrink-0 ${themeConfig.text.primary}`}>
+                {t('imageService.analytics.eventHistory')}
+              </h3>
+              {analytics.events && analytics.events.length > 0 ? (
+                <div className="overflow-x-auto overflow-y-auto flex-1 min-h-0">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className={themeConfig.tableHeader}>
-                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
-                          Camera
-                        </th>
-                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
-                          {t('imageService.analytics.availability')}
-                        </th>
-                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
-                          SLA
-                        </th>
-                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
-                          {t('imageService.analytics.mtbf')}
-                        </th>
-                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
-                          {t('imageService.analytics.mttr')}
-                        </th>
-                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
-                          {t('imageService.analytics.healthScore')}
-                        </th>
-                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
-                          {t('imageService.analytics.offlineEvents')}
-                        </th>
-                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
-                          {t('imageService.analytics.estimatedLostImages')}
-                        </th>
+                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>#</th>
+                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>{t('imageService.analytics.duration')}</th>
+                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>Event</th>
+                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>{t('imageService.analytics.reason')}</th>
+                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>{t('imageService.analytics.changedBy')}</th>
+                        <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>{t('imageService.analytics.duration')}</th>
                       </tr>
                     </thead>
                     <tbody className={themeConfig.tableDivide}>
-                      {comparison.map((cam: any) => (
-                        <tr
-                          key={cam.cameraId}
-                          className={`${themeConfig.tableRow} cursor-pointer ${cam.cameraId === effectiveCameraId ? 'bg-cyan-500/5' : ''}`}
-                          onClick={() => setSelectedCameraId(cam.cameraId)}
-                        >
-                          <td className={`px-3 py-2 text-xs font-medium ${themeConfig.text.primary}`}>
-                            {cam.cameraName}
-                          </td>
-                          <td className={`px-3 py-2 text-xs ${cam.availability >= 99 ? 'text-green-400' : cam.availability >= 95 ? 'text-yellow-400' : 'text-red-400'}`}>
-                            {cam.availability}%
-                          </td>
-                          <td className="px-3 py-2">
-                            {cam.slaMet ? (
-                              <CheckCircle size={14} className="text-green-400" />
-                            ) : (
-                              <XCircle size={14} className="text-red-400" />
-                            )}
-                          </td>
-                          <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
-                            {cam.mtbf !== null ? `${cam.mtbf.toFixed(1)}h` : '--'}
-                          </td>
-                          <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
-                            {cam.mttr !== null ? `${cam.mttr.toFixed(1)}m` : '--'}
-                          </td>
-                          <td className="px-3 py-2">
-                            <HealthBadge grade={cam.healthGrade} score={cam.healthScore} />
-                          </td>
-                          <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
-                            {cam.offlineCount}
-                          </td>
-                          <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
-                            {cam.estimatedLostImages.toLocaleString()}
-                          </td>
-                        </tr>
-                      ))}
+                      {[...analytics.events].reverse().map((event: any, idx: number) => {
+                        const reversedIdx = analytics.events.length - 1 - idx
+                        const nextEvent = reversedIdx < analytics.events.length - 1 ? analytics.events[reversedIdx + 1] : null
+                        const durationMs = nextEvent
+                          ? new Date(nextEvent.createdAt).getTime() - new Date(event.createdAt).getTime()
+                          : Date.now() - new Date(event.createdAt).getTime()
+
+                        const eventTypeColors: Record<string, string> = {
+                          online: 'text-green-400 bg-green-500/10',
+                          offline: 'text-red-400 bg-red-500/10',
+                          error: 'text-red-400 bg-red-500/10',
+                          maintenance_start: 'text-yellow-400 bg-yellow-500/10',
+                          maintenance_end: 'text-green-400 bg-green-500/10',
+                          reconfigured: 'text-blue-400 bg-blue-500/10',
+                        }
+
+                        return (
+                          <tr key={event.id} className={themeConfig.tableRow}>
+                            <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>{analytics.events.length - idx}</td>
+                            <td className={`px-3 py-2 text-xs ${themeConfig.text.primary}`}>
+                              {new Date(event.createdAt).toLocaleString()}
+                            </td>
+                            <td className="px-3 py-2">
+                              <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${eventTypeColors[event.eventType] || 'text-gray-400 bg-gray-500/10'}`}>
+                                {event.eventType}
+                              </span>
+                            </td>
+                            <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                              {event.downtimeReason || '-'}
+                            </td>
+                            <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                              {(event.metadata as any)?.changedBy || 'system'}
+                            </td>
+                            <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                              {formatDuration(Math.round(durationMs / 1000))}
+                            </td>
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
-              </>
-            ) : (
-              <p className={`text-sm text-center py-4 ${themeConfig.text.secondary}`}>{t('imageService.analytics.noData')}</p>
-            )}
+              ) : (
+                <p className={`text-sm text-center py-4 ${themeConfig.text.secondary}`}>{t('imageService.analytics.noData')}</p>
+              )}
+            </div>
+
+            {/* Camera Comparison */}
+            <div key="comparison" className={`${themeConfig.card} rounded-xl p-4 relative overflow-hidden flex flex-col h-full`}>
+              <DragHandle show={isEditing} />
+              <h3 className={`text-sm font-semibold mb-4 flex-shrink-0 ${themeConfig.text.primary}`}>
+                {t('imageService.analytics.comparison')}
+              </h3>
+              {comparisonLoading ? (
+                <TableSkeleton rows={3} cols={6} />
+              ) : comparison && comparison.length > 0 ? (
+                <div className="flex-1 min-h-0 overflow-y-auto">
+                  {comparisonBarData.length > 0 && (
+                    <div className="h-56 mb-4">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={comparisonBarData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+                          <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#94a3b8' }} />
+                          <Tooltip
+                            contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '12px' }}
+                            labelStyle={{ color: '#94a3b8' }}
+                            itemStyle={{ color: '#e2e8f0' }}
+                          />
+                          <Legend wrapperStyle={{ fontSize: '11px' }} />
+                          <Bar dataKey="availability" name={t('imageService.analytics.availability')} fill="#22c55e" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="healthScore" name={t('imageService.analytics.healthScore')} fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  )}
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className={themeConfig.tableHeader}>
+                          <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
+                            Camera
+                          </th>
+                          <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
+                            {t('imageService.analytics.availability')}
+                          </th>
+                          <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
+                            SLA
+                          </th>
+                          <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
+                            {t('imageService.analytics.mtbf')}
+                          </th>
+                          <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
+                            {t('imageService.analytics.mttr')}
+                          </th>
+                          <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
+                            {t('imageService.analytics.healthScore')}
+                          </th>
+                          <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
+                            {t('imageService.analytics.offlineEvents')}
+                          </th>
+                          <th className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>
+                            {t('imageService.analytics.estimatedLostImages')}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className={themeConfig.tableDivide}>
+                        {comparison.map((cam: any) => (
+                          <tr
+                            key={cam.cameraId}
+                            className={`${themeConfig.tableRow} cursor-pointer ${cam.cameraId === effectiveCameraId ? 'bg-cyan-500/5' : ''}`}
+                            onClick={() => setSelectedCameraId(cam.cameraId)}
+                          >
+                            <td className={`px-3 py-2 text-xs font-medium ${themeConfig.text.primary}`}>
+                              {cam.cameraName}
+                            </td>
+                            <td className={`px-3 py-2 text-xs ${cam.availability >= 99 ? 'text-green-400' : cam.availability >= 95 ? 'text-yellow-400' : 'text-red-400'}`}>
+                              {cam.availability}%
+                            </td>
+                            <td className="px-3 py-2">
+                              {cam.slaMet ? (
+                                <CheckCircle size={14} className="text-green-400" />
+                              ) : (
+                                <XCircle size={14} className="text-red-400" />
+                              )}
+                            </td>
+                            <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                              {cam.mtbf !== null ? `${cam.mtbf.toFixed(1)}h` : '--'}
+                            </td>
+                            <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                              {cam.mttr !== null ? `${cam.mttr.toFixed(1)}m` : '--'}
+                            </td>
+                            <td className="px-3 py-2">
+                              <HealthBadge grade={cam.healthGrade} score={cam.healthScore} />
+                            </td>
+                            <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                              {cam.offlineCount}
+                            </td>
+                            <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>
+                              {cam.estimatedLostImages.toLocaleString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                <p className={`text-sm text-center py-4 ${themeConfig.text.secondary}`}>{t('imageService.analytics.noData')}</p>
+              )}
+            </div>
+          </ResponsiveGridLayout>
+        ) : (
+          <div className={`${themeConfig.card} rounded-xl p-8 text-center`}>
+            <p className={themeConfig.text.secondary}>{t('imageService.analytics.noData')}</p>
           </div>
-        </>
-      ) : (
-        <div className={`${themeConfig.card} rounded-xl p-8 text-center`}>
-          <p className={themeConfig.text.secondary}>{t('imageService.analytics.noData')}</p>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

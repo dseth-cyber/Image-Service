@@ -1420,6 +1420,11 @@
     "clearDataError": "ล้างข้อมูลล้มเหลว",
     "expandAll": "ขยายทั้งหมด",
     "collapseAll": "ย่อทั้งหมด",
-    "confirm": "ยืนยัน"
+    "confirm": "ยืนยัน",
+    "export": "ส่งออก",
+    "exportScreenshot": "ภาพหน้าจอ (PNG)",
+    "exportExcel": "Excel (.xlsx)",
+    "exportPdf": "PDF",
+    "exporting": "กำลังส่งออก..."
   }
 }

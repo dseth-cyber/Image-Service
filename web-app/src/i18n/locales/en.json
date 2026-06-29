@@ -1417,6 +1417,11 @@
     "clearDataError": "Failed to clear data",
     "expandAll": "Expand All",
     "collapseAll": "Collapse All",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "export": "Export",
+    "exportScreenshot": "Screenshot (PNG)",
+    "exportExcel": "Excel (.xlsx)",
+    "exportPdf": "PDF",
+    "exporting": "Exporting..."
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -12,6 +12,7 @@ import {
 import ExecutiveTrends from './ExecutiveTrends';
 import { GripVertical, Settings, RotateCcw, Check, Star, Camera, HardDrive, Activity, Image, TrendingUp } from 'lucide-react';
 import { useToast } from '@/contexts/ToastContext';
+import { ExportButton } from '@/components/ui';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
@@ -99,6 +100,7 @@ export default function ImageServiceOverview() {
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const [isEditing, setIsEditing] = useState(false);
   const [defaultLayout, setDefaultLayout] = useState<any>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const [layouts, setLayouts] = useState(() => {
     try {
       const saved = localStorage.getItem(LAYOUT_STORAGE_KEY);
@@ -209,6 +211,57 @@ export default function ImageServiceOverview() {
             {isEditing ? <Check size={14} /> : <Settings size={14} />}
             {isEditing ? t('imageService.overview.finishEditing') : t('imageService.overview.editLayout')}
           </button>
+          <ExportButton
+            filename="image-service-overview"
+            title={t('imageService.overview.title')}
+            sections={[
+              { title: t('imageService.overview.title'), columns: [
+                { key: 'label', label: 'Metric' }, { key: 'value', label: 'Value' },
+              ], data: stats.map(s => ({ label: s.label, value: s.value })) },
+              { title: t('imageService.overview.cameraStatus'), columns: [
+                { key: 'status', label: t('imageService.cameras.status') }, { key: 'count', label: t('imageService.overview.totalImages') }, { key: 'pct', label: '%' },
+              ], data: (() => {
+                const total = (overview?.activeCameras ?? 0) + (overview?.inactiveCameras ?? 0) + (overview?.errorCameras ?? 0) + (overview?.maintenanceCameras ?? 0);
+                return [
+                  { status: t('imageService.cameras.active'), count: overview?.activeCameras ?? 0, pct: total ? `${((overview?.activeCameras ?? 0) / total * 100).toFixed(0)}%` : '0%' },
+                  { status: t('imageService.cameras.maintenance'), count: overview?.maintenanceCameras ?? 0, pct: total ? `${((overview?.maintenanceCameras ?? 0) / total * 100).toFixed(0)}%` : '0%' },
+                  { status: t('imageService.cameras.inactive'), count: overview?.inactiveCameras ?? 0, pct: total ? `${((overview?.inactiveCameras ?? 0) / total * 100).toFixed(0)}%` : '0%' },
+                  { status: t('imageService.cameras.error'), count: overview?.errorCameras ?? 0, pct: total ? `${((overview?.errorCameras ?? 0) / total * 100).toFixed(0)}%` : '0%' },
+                ];
+              })() },
+              { title: t('imageService.storage.byFileType'), columns: [
+                { key: 'name', label: t('imageService.storage.byFileType') }, { key: 'files', label: t('imageService.storage.totalFiles') }, { key: 'size', label: t('imageService.storage.totalSize') },
+              ], data: storageByType.map((d: any) => ({ name: d.name, files: String(d.value ?? 0), size: '-' })) },
+              { title: t('imageService.overview.recentActivity'), columns: [
+                { key: 'label', label: t('common.date') }, { key: 'value', label: t('imageService.overview.totalImages') },
+              ], data: recentActivity },
+              { title: `${t('imageService.overview.storageGrowth')} (GB)`, columns: [
+                { key: 'label', label: t('common.date') }, { key: 'value', label: 'GB' },
+              ], data: storageGrowth },
+              { title: t('imageService.overview.imagesByCamera'), columns: [
+                { key: 'name', label: t('imageService.cameras.cameraName') }, { key: 'value', label: t('imageService.overview.totalImages') },
+              ], data: imagesByCamera },
+              { title: t('imageService.overview.queueTitle'), columns: [
+                { key: 'label', label: 'Queue' }, { key: 'value', label: 'Count' },
+              ], data: [
+                { label: t('imageService.overview.queueWait'), value: overview?.queue?.wait ?? 0 },
+                { label: t('imageService.overview.queueActive'), value: overview?.queue?.active ?? 0 },
+                { label: t('imageService.overview.queueFailed'), value: overview?.queue?.failed ?? 0 },
+                { label: t('imageService.overview.queueDelayed'), value: overview?.queue?.delayed ?? 0 },
+              ] },
+              { title: t('imageService.overview.postgresTitle'), columns: [
+                { key: 'label', label: 'Metric' }, { key: 'value', label: 'Value' },
+              ], data: [
+                { label: t('imageService.overview.postgresTps'), value: overview?.postgres?.tps ?? 0 },
+                { label: t('imageService.overview.postgresActiveConnections'), value: overview?.postgres?.activeConnections ?? 0 },
+                { label: t('imageService.overview.postgresLocks'), value: overview?.postgres?.locks ?? 0 },
+                { label: t('imageService.overview.postgresDeadlocks'), value: overview?.postgres?.deadlocks ?? 0 },
+              ] },
+              { title: t('imageService.overview.providerTitle'), columns: [
+                { key: 'name', label: t('imageService.storageProviders.providerName') }, { key: 'type', label: t('imageService.storageProviders.providerType') }, { key: 'size', label: t('imageService.storage.totalSize') }, { key: 'isDefault', label: t('imageService.overview.default') },
+              ], data: (providers as any[]).map((p: any) => ({ name: p.name, type: p.type, size: formatBytes(p.usedBytes ?? 0), isDefault: p.isDefault ? '✅' : '' })) },
+            ]}
+          />
         </div>
       </div>
 
@@ -218,6 +271,7 @@ export default function ImageServiceOverview() {
         </div>
       )}
 
+      <div ref={contentRef}>
       <ResponsiveGridLayout
         className="layout"
         layouts={layouts}
@@ -484,6 +538,7 @@ export default function ImageServiceOverview() {
           </div>
         </div>
       </ResponsiveGridLayout>
+      </div>
     </div>
   );
 }

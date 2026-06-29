@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +11,7 @@ import { formatDateTime } from '@/utils/dateUtils';
 import { Search, Plus, ChevronUp, ChevronDown, ChevronsUpDown,
   Edit, Trash2, Eye, Camera, Activity, Wifi, WifiOff, AlertTriangle, Wrench,
   FolderOpen, RefreshCw, CheckCircle, XCircle, ExternalLink, ChevronRight, Play, Undo2 } from 'lucide-react';
-import { Modal, Button, SearchableSelect, TableSkeleton, ColumnSelector } from '@/components/ui';
+import { Modal, Button, SearchableSelect, TableSkeleton, ColumnSelector, ExportButton } from '@/components/ui';
 import { getLocalizedValue } from '@/utils/textUtils';
 
 const CAMERA_STATUS_STYLES: Record<string, { bg: string; icon: any }> = {
@@ -37,6 +37,7 @@ export default function ImageServiceCameras() {
   const { user } = useAuth();
   const canUpdate = hasPermission(user, 'cameras:update');
   const canDelete = hasPermission(user, 'cameras:delete');
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -453,14 +454,57 @@ export default function ImageServiceCameras() {
   const thCls = (col: string) =>
     `px-4 py-3 text-left text-sm font-semibold cursor-pointer select-none hover:text-cyan-300 ${themeConfig.text.primary}`;
 
+  const cameraExportData = useMemo(() => sorted.map((camera: any, idx: number) => ({
+    no: idx + 1,
+    name: camera.name,
+    ipAddress: camera.ipAddress,
+    status: camera.status,
+    lastPolledAt: camera.lastPolledAt ? new Date(camera.lastPolledAt).toLocaleString() : '-',
+    totalImages: Number(camera.totalImagesCount ?? 0),
+  })), [sorted]);
+
+  const cameraExportColumns = [
+    { key: 'no', label: '#' },
+    { key: 'name', label: t('imageService.cameras.cameraName') },
+    { key: 'ipAddress', label: t('imageService.cameras.ipAddress') },
+    { key: 'status', label: t('imageService.cameras.status') },
+    { key: 'lastPolledAt', label: t('imageService.cameras.lastPoll') },
+    { key: 'totalImages', label: t('imageService.cameras.totalImages') },
+  ];
+
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <p className={`text-xs font-medium uppercase tracking-widest ${themeConfig.text.secondary}`}>
-          Image Service · {t('imageService.cameras.title')}
-        </p>
-        <h1 className={`text-2xl font-bold ${themeConfig.text.primary}`}>{t('imageService.cameras.title')}</h1>
-        <p className={`text-sm mt-1 ${themeConfig.text.secondary}`}>{t('imageService.cameras.subtitle')}</p>
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <p className={`text-xs font-medium uppercase tracking-widest ${themeConfig.text.secondary}`}>
+            Image Service · {t('imageService.cameras.title')}
+          </p>
+          <h1 className={`text-2xl font-bold ${themeConfig.text.primary}`}>{t('imageService.cameras.title')}</h1>
+          <p className={`text-sm mt-1 ${themeConfig.text.secondary}`}>{t('imageService.cameras.subtitle')}</p>
+        </div>
+        <ExportButton
+          filename="camera-list"
+          title={t('imageService.cameras.title')}
+          sections={[
+            { title: t('imageService.cameras.title'), columns: cameraExportColumns, data: cameraExportData },
+            { title: t('imageService.cameras.cameraInfo'), columns: [
+              { key: 'label', label: 'Metric' }, { key: 'value', label: 'Value' },
+            ], data: (() => {
+              const total = sorted.length;
+              const active = sorted.filter((c: any) => c.status === 'active').length;
+              const maint = sorted.filter((c: any) => c.status === 'maintenance').length;
+              const inactive = sorted.filter((c: any) => c.status === 'inactive').length;
+              const error = sorted.filter((c: any) => c.status === 'error').length;
+              return [
+                { label: t('imageService.cameras.totalImages'), value: String(total) },
+                { label: t('imageService.cameras.active'), value: `${active} (${total ? ((active/total)*100).toFixed(0) : 0}%)` },
+                { label: t('imageService.cameras.maintenance'), value: `${maint}` },
+                { label: t('imageService.cameras.inactive'), value: `${inactive}` },
+                { label: t('imageService.cameras.error'), value: `${error}` },
+              ];
+            })() },
+          ]}
+        />
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
@@ -497,6 +541,7 @@ export default function ImageServiceCameras() {
         </div>
       </div>
 
+      <div ref={contentRef}>
       {isLoading ? <TableSkeleton rows={8} /> : (
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -579,6 +624,7 @@ export default function ImageServiceCameras() {
           </table>
         </div>
       )}
+      </div>
 
       <Modal isOpen={modal.open} onClose={() => setModal({ open: false })}
         title={modal.item ? t('imageService.cameras.editCamera') : t('imageService.cameras.newCamera')}>
