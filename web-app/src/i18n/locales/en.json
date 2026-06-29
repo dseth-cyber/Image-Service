@@ -189,6 +189,66 @@
       "emptyCameraTrashSuccess": "Permanently deleted {{count}} cameras from trash",
       "wrongPassword": "Incorrect password"
     },
+    "incidents": {
+      "title": "Incident Management",
+      "changeStatus": "Change Status",
+      "statusChangeTitle": "Change Camera Status",
+      "selectStatus": "Select Status",
+      "reason": "Reason",
+      "reasonRequired": "Please specify a reason",
+      "description": "Description",
+      "rootCause": "Root Cause",
+      "estimatedFinish": "Estimated Finish",
+      "resolution": "Resolution",
+      "resolutionTitle": "Resolution Record",
+      "correctiveAction": "Corrective Action",
+      "preventiveAction": "Preventive Action",
+      "incidentCreated": "Incident created successfully",
+      "incidentResolved": "Incident resolved successfully",
+      "incidentNumber": "Incident Number",
+      "openedBy": "Opened By",
+      "closedBy": "Closed By",
+      "statusOpen": "Open",
+      "statusResolved": "Resolved",
+      "reasons": {
+        "scheduled_maintenance": "Scheduled Maintenance",
+        "power_failure": "Power Failure",
+        "network_issue": "Network Issue",
+        "lens_cleaning": "Lens Cleaning",
+        "firmware_update": "Firmware Update",
+        "cable_replacement": "Cable Replacement",
+        "camera_malfunction": "Camera Malfunction",
+        "smb_unreachable": "SMB Unreachable",
+        "disk_full": "Disk Full",
+        "authentication_failed": "Authentication Failed",
+        "worker_down": "Worker Down",
+        "human_error": "Human Error",
+        "other": "Other"
+      },
+      "rootCauses": {
+        "power": "Power System",
+        "network": "Network",
+        "camera_hardware": "Camera Hardware",
+        "storage": "Storage",
+        "smb": "SMB/File Share",
+        "worker": "Worker/Software",
+        "human_error": "Human Error",
+        "environment": "Environment",
+        "unknown": "Unknown",
+        "other": "Other"
+      },
+      "resolutions": {
+        "completed": "Completed",
+        "replaced_cable": "Replaced Cable",
+        "restarted": "Restarted",
+        "power_reset": "Power Reset",
+        "firmware_update": "Firmware Update",
+        "cleaned_lens": "Cleaned Lens",
+        "reconfigured": "Reconfigured",
+        "replaced_hardware": "Replaced Hardware",
+        "other": "Other"
+      }
+    },
     "storage": {
       "title": "Storage Monitoring",
       "subtitle": "Monitor storage usage across the system",
@@ -1164,6 +1224,24 @@
         "Cloudflare WAF + DDoS Protection (Free Plan)",
         "Close Port 443/80 inbound on FortiGate — outbound HTTPS only",
         "Configure Cloudflare Access (Zero Trust) for external user restrictions"
+      ],
+      "phase28": "P19 — Camera Reliability & Availability Analytics",
+      "phase28Desc": "Camera availability analytics — Availability, MTBF, MTTR, Health Score, Downtime Report, Incident Management",
+      "phase28Status": "Launched",
+      "phase28Tasks": [
+        "✅ Availability % + SLA Target comparison",
+        "✅ MTBF (Mean Time Between Failure)",
+        "✅ MTTR (Mean Time To Repair)",
+        "✅ Health Score 0-100 (Excellent/Good/Warning/Critical)",
+        "✅ Downtime by Reason breakdown",
+        "✅ Estimated Lost Images",
+        "✅ Status Timeline (Gantt-like)",
+        "✅ Event History Table",
+        "✅ Camera Comparison Dashboard",
+        "✅ Incident Management — Status Change Dialog",
+        "✅ Resolution Dialog + Root Cause + CAPA",
+        "✅ Incident Number (INC-YYYY-XXXXXX)",
+        "✅ CameraDailySummary pre-aggregation table"
       ]
     },
     "permissions": {
@@ -1331,6 +1409,7 @@
     "clearDataSuccess": "All data cleared successfully",
     "clearDataError": "Failed to clear data",
     "expandAll": "Expand All",
-    "collapseAll": "Collapse All"
+    "collapseAll": "Collapse All",
+    "confirm": "Confirm"
   }
 }

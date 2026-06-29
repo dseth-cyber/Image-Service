@@ -118,7 +118,7 @@ model CustomRole {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  users       User[]
+  users User[]
 
   @@map("custom_roles")
 }
@@ -138,7 +138,7 @@ model User {
   refreshTokens RefreshToken[]
   auditLogs     AuditLog[]
 
-  roleRelation      CustomRole? @relation(fields: [role], references: [code])
+  roleRelation CustomRole? @relation(fields: [role], references: [code])
 
   @@map("users")
 }
@@ -189,31 +189,31 @@ model StorageProvider {
   updatedAt     DateTime     @updatedAt @map("updated_at")
   deletedAt     DateTime?    @map("deleted_at")
 
-  imageFiles    ImageFile[]
-  profiles      StorageProfile[]
-  metrics       StorageProviderMetric[]
-  sourceJobs    MigrationJob[] @relation("MigrationSource")
-  targetJobs    MigrationJob[] @relation("MigrationTarget")
+  imageFiles ImageFile[]
+  profiles   StorageProfile[]
+  metrics    StorageProviderMetric[]
+  sourceJobs MigrationJob[]          @relation("MigrationSource")
+  targetJobs MigrationJob[]          @relation("MigrationTarget")
 
   @@map("storage_providers")
 }
 
 model StorageProfile {
-  id          String   @id @default(uuid()) @db.Uuid
-  code        String   @unique @db.VarChar(64)
-  nameTh      String   @map("name_th") @db.VarChar(256)
-  nameEn      String   @map("name_en") @db.VarChar(256)
-  nameCn      String   @map("name_cn") @db.VarChar(256)
-  nameMm      String   @map("name_mm") @db.VarChar(256)
-  nameJp      String   @map("name_jp") @db.VarChar(256)
-  description String?  @db.Text
-  providerId  String   @map("provider_id") @db.Uuid
-  routingRules Json    @default("[]") @map("routing_rules")
-  sortOrder   Int      @default(0) @map("sort_order")
-  isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  deletedAt   DateTime? @map("deleted_at")
+  id           String    @id @default(uuid()) @db.Uuid
+  code         String    @unique @db.VarChar(64)
+  nameTh       String    @map("name_th") @db.VarChar(256)
+  nameEn       String    @map("name_en") @db.VarChar(256)
+  nameCn       String    @map("name_cn") @db.VarChar(256)
+  nameMm       String    @map("name_mm") @db.VarChar(256)
+  nameJp       String    @map("name_jp") @db.VarChar(256)
+  description  String?   @db.Text
+  providerId   String    @map("provider_id") @db.Uuid
+  routingRules Json      @default("[]") @map("routing_rules")
+  sortOrder    Int       @default(0) @map("sort_order")
+  isActive     Boolean   @default(true) @map("is_active")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
 
   provider   StorageProvider @relation(fields: [providerId], references: [id])
   imageFiles ImageFile[]
@@ -222,16 +222,16 @@ model StorageProfile {
 }
 
 model StorageProviderMetric {
-  id              String   @id @default(uuid()) @db.Uuid
-  providerId      String   @map("provider_id") @db.Uuid
-  status          String   @default("unknown") @db.VarChar(32)
-  latencyMs       Int      @default(0) @map("latency_ms")
-  objectCount     BigInt   @default(0) @map("object_count")
-  usedBytes       BigInt   @default(0) @map("used_bytes")
-  totalBytes      BigInt   @default(0) @map("total_bytes")
-  freeBytes       BigInt   @default(0) @map("free_bytes")
-  errorMessage    String?  @map("error_message") @db.Text
-  collectedAt     DateTime @default(now()) @map("collected_at")
+  id           String   @id @default(uuid()) @db.Uuid
+  providerId   String   @map("provider_id") @db.Uuid
+  status       String   @default("unknown") @db.VarChar(32)
+  latencyMs    Int      @default(0) @map("latency_ms")
+  objectCount  BigInt   @default(0) @map("object_count")
+  usedBytes    BigInt   @default(0) @map("used_bytes")
+  totalBytes   BigInt   @default(0) @map("total_bytes")
+  freeBytes    BigInt   @default(0) @map("free_bytes")
+  errorMessage String?  @map("error_message") @db.Text
+  collectedAt  DateTime @default(now()) @map("collected_at")
 
   provider StorageProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
 
@@ -303,6 +303,7 @@ model Camera {
   cameraEvents     CameraEvent[]
   storageSnapshots StorageSnapshot[]
   dailySummaries   CameraDailySummary[]
+  incidents        CameraIncident[]
 
   @@map("cameras")
 }
@@ -342,21 +343,21 @@ model Image {
 }
 
 model ImageFile {
-  id                String          @id @default(uuid()) @db.Uuid
-  imageId           String          @map("image_id") @db.Uuid
-  fileType       FileType     @map("file_type")
-  bucket            String          @db.VarChar(128)
-  objectKey         String          @db.Text
-  storageClass      StorageClass    @default(hot) @map("storage_class")
-  fileSizeBytes     BigInt          @map("file_size_bytes")
-  checksumSha256    String?         @map("checksum_sha256") @db.Char(64)
-  mimeType          String?         @map("mime_type") @db.VarChar(128)
-  storageProviderId String?         @map("storage_provider_id") @db.Uuid
-  storageProfileId  String?         @map("storage_profile_id") @db.Uuid
-  processorName     String?         @map("processor_name") @db.VarChar(64)
-  processorParams   Json?           @map("processor_params")
-  parentFileId      String?         @map("parent_file_id") @db.Uuid
-  createdAt         DateTime        @default(now()) @map("created_at")
+  id                String       @id @default(uuid()) @db.Uuid
+  imageId           String       @map("image_id") @db.Uuid
+  fileType          FileType     @map("file_type")
+  bucket            String       @db.VarChar(128)
+  objectKey         String       @db.Text
+  storageClass      StorageClass @default(hot) @map("storage_class")
+  fileSizeBytes     BigInt       @map("file_size_bytes")
+  checksumSha256    String?      @map("checksum_sha256") @db.Char(64)
+  mimeType          String?      @map("mime_type") @db.VarChar(128)
+  storageProviderId String?      @map("storage_provider_id") @db.Uuid
+  storageProfileId  String?      @map("storage_profile_id") @db.Uuid
+  processorName     String?      @map("processor_name") @db.VarChar(64)
+  processorParams   Json?        @map("processor_params")
+  parentFileId      String?      @map("parent_file_id") @db.Uuid
+  createdAt         DateTime     @default(now()) @map("created_at")
 
   image           Image            @relation(fields: [imageId], references: [id])
   storageProvider StorageProvider? @relation(fields: [storageProviderId], references: [id])
@@ -383,23 +384,23 @@ model ImageTag {
 }
 
 model ProcessingJob {
-  id           String   @id @default(uuid()) @db.Uuid
-  imageId      String?  @map("image_id") @db.Uuid
-  jobType      String   @map("job_type") @db.VarChar(32)
-  workerId     String?  @map("worker_id") @db.VarChar(128)
-  status       String   @default("queued") @db.VarChar(32)
-  priority     Int      @default(0)
-  queueName    String   @default("default") @map("queue_name") @db.VarChar(64)
+  id           String    @id @default(uuid()) @db.Uuid
+  imageId      String?   @map("image_id") @db.Uuid
+  jobType      String    @map("job_type") @db.VarChar(32)
+  workerId     String?   @map("worker_id") @db.VarChar(128)
+  status       String    @default("queued") @db.VarChar(32)
+  priority     Int       @default(0)
+  queueName    String    @default("default") @map("queue_name") @db.VarChar(64)
   payload      Json?
   result       Json?
-  errorMessage String?  @map("error_message") @db.Text
-  errorDetails Json?    @map("error_details")
-  retryCount   Int      @default(0) @map("retry_count")
-  maxRetries   Int      @default(3) @map("max_retries")
-  queuedAt     DateTime @default(now()) @map("queued_at")
+  errorMessage String?   @map("error_message") @db.Text
+  errorDetails Json?     @map("error_details")
+  retryCount   Int       @default(0) @map("retry_count")
+  maxRetries   Int       @default(3) @map("max_retries")
+  queuedAt     DateTime  @default(now()) @map("queued_at")
   startedAt    DateTime? @map("started_at")
   completedAt  DateTime? @map("completed_at")
-  createdAt    DateTime @default(now()) @map("created_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
 
   image Image? @relation(fields: [imageId], references: [id])
 
@@ -417,7 +418,8 @@ model CameraEvent {
   downtimeReason String?         @map("downtime_reason") @db.VarChar(64)
   createdAt      DateTime        @default(now()) @map("created_at")
 
-  camera Camera @relation(fields: [cameraId], references: [id])
+  camera   Camera          @relation(fields: [cameraId], references: [id])
+  incident CameraIncident?
 
   @@index([cameraId, createdAt(sort: Desc)])
   @@map("camera_events")
@@ -572,19 +574,49 @@ model AuditLog {
 }
 
 model BackupRecord {
-  id          String   @id @default(uuid()) @db.Uuid
-  type        String   @db.VarChar(32)
-  status      String   @default("pending") @db.VarChar(32)
-  filePath    String?  @map("file_path") @db.Text
-  fileSize    BigInt?  @map("file_size")
-  checksum    String?  @db.Char(64)
-  startedAt   DateTime @default(now()) @map("started_at")
-  completedAt DateTime? @map("completed_at")
-  errorMessage String? @map("error_message") @db.Text
-  metadata    Json?    @default("{}")
-  createdAt   DateTime @default(now()) @map("created_at")
+  id           String    @id @default(uuid()) @db.Uuid
+  type         String    @db.VarChar(32)
+  status       String    @default("pending") @db.VarChar(32)
+  filePath     String?   @map("file_path") @db.Text
+  fileSize     BigInt?   @map("file_size")
+  checksum     String?   @db.Char(64)
+  startedAt    DateTime  @default(now()) @map("started_at")
+  completedAt  DateTime? @map("completed_at")
+  errorMessage String?   @map("error_message") @db.Text
+  metadata     Json?     @default("{}")
+  createdAt    DateTime  @default(now()) @map("created_at")
 
   @@index([type, status])
   @@index([startedAt(sort: Desc)])
   @@map("backup_records")
+}
+
+model CameraIncident {
+  id               String    @id @default(uuid()) @db.Uuid
+  incidentNumber   String    @unique @map("incident_number") @db.VarChar(32)
+  cameraId         String    @map("camera_id") @db.Uuid
+  eventId          BigInt?   @unique @map("event_id")
+  fromStatus       String    @map("from_status") @db.VarChar(32)
+  toStatus         String    @map("to_status") @db.VarChar(32)
+  reason           String    @db.VarChar(64)
+  rootCause        String?   @map("root_cause") @db.VarChar(64)
+  description      String?   @db.Text
+  resolution       String?   @db.Text
+  correctiveAction String?   @map("corrective_action") @db.Text
+  preventiveAction String?   @map("preventive_action") @db.Text
+  estimatedFinish  DateTime? @map("estimated_finish")
+  actualFinish     DateTime? @map("actual_finish")
+  lostImages       Int       @default(0) @map("lost_images")
+  status           String    @default("open") @db.VarChar(16)
+  openedBy         String?   @map("opened_by") @db.VarChar(128)
+  closedBy         String?   @map("closed_by") @db.VarChar(128)
+  openedAt         DateTime  @default(now()) @map("opened_at")
+  closedAt         DateTime? @map("closed_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  camera Camera       @relation(fields: [cameraId], references: [id])
+  event  CameraEvent? @relation(fields: [eventId], references: [id])
+
+  @@map("camera_incidents")
 }

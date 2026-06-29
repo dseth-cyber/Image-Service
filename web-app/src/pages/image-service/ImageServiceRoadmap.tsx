@@ -44,6 +44,7 @@ const PHASE_ICONS: Record<string, any> = {
   phase25: Cpu,
   phase26: GitBranch,
   phase27: Wifi,
+  phase28: Activity,
 }
 
 const PHASES = [
@@ -75,6 +76,7 @@ const PHASES = [
   { key: 'phase25', status: 'Launched', priority: 'P16' },
   { key: 'phase26', status: 'Launched', priority: 'P17' },
   { key: 'phase27', status: 'Planned', priority: 'P18' },  // Cloudflare Tunnel — last
+  { key: 'phase28', status: 'Launched', priority: 'P19' },
 ]
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -106,6 +108,7 @@ const PRIORITY_COLORS: Record<string, string> = {
   P16: 'bg-orange-500/20 text-orange-400',
   P17: 'bg-violet-500/20 text-violet-400',
   P18: 'bg-sky-500/20 text-sky-400',
+  P19: 'bg-emerald-500/20 text-emerald-400',
 }
 
 const STATUS_WEIGHTS: Record<string, number> = {

@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { createCameraSchema, updateCameraSchema, cameraQuerySchema } from './cameras.schema.js';
 import * as camerasService from './cameras.service.js';
 import * as cameraAnalytics from './camera-analytics.service.js';
+import * as incidentService from './camera-incident.service.js';
 import { requirePermission } from '../../middleware/rbac.js';
 import { getRedisClient } from '../../lib/redis.js';
 import { createAuditLog } from '../audit/audit.service.js';
@@ -30,7 +31,17 @@ async function createHandler(request: FastifyRequest, reply: FastifyReply) {
 
 async function updateHandler(request: FastifyRequest, reply: FastifyReply) {
   const { id } = request.params as { id: string };
-  const input = updateCameraSchema.parse(request.body);
+  const body = request.body as Record<string, any>;
+  const incidentFields = {
+    reason: body.reason as string | undefined,
+    incidentDescription: body.incidentDescription as string | undefined,
+    rootCause: body.rootCause as string | undefined,
+    estimatedFinish: body.estimatedFinish as string | undefined,
+    resolution: body.resolution as string | undefined,
+    correctiveAction: body.correctiveAction as string | undefined,
+    preventiveAction: body.preventiveAction as string | undefined,
+  };
+  const input = updateCameraSchema.parse(body);
   const user = (request as any).user;
 
   const beforeCamera = await camerasService.getCameraById(id);
@@ -59,6 +70,33 @@ async function updateHandler(request: FastifyRequest, reply: FastifyReply) {
     });
 
     sendWebhook('camera.status_changed', { cameraId: id, cameraName: camera.name, previousStatus: beforeCamera.status, newStatus: input.status, changedBy: user?.username }).catch(() => {});
+
+    // Incident management: create or resolve incidents on status change
+    if (input.status === 'active') {
+      // Resolving: auto-resolve any open incident for this camera
+      const openIncident = await incidentService.getOpenIncidentForCamera(id);
+      if (openIncident) {
+        await incidentService.resolveIncident(openIncident.id, {
+          resolution: incidentFields.resolution,
+          rootCause: incidentFields.rootCause,
+          correctiveAction: incidentFields.correctiveAction,
+          preventiveAction: incidentFields.preventiveAction,
+          closedBy: user?.username ?? 'system',
+        });
+      }
+    } else if (incidentFields.reason) {
+      // Going to non-active status with a reason: create incident
+      await incidentService.createIncident({
+        cameraId: id,
+        fromStatus: beforeCamera.status,
+        toStatus: input.status,
+        reason: incidentFields.reason,
+        rootCause: incidentFields.rootCause,
+        description: incidentFields.incidentDescription,
+        estimatedFinish: incidentFields.estimatedFinish,
+        openedBy: user?.username ?? 'system',
+      });
+    }
   } else if (Object.keys(input).length > 0) {
     createAuditLog({
       userId: user?.id,
@@ -216,6 +254,50 @@ async function scanCameraHandler(request: FastifyRequest, reply: FastifyReply) {
   return reply.status(200).send({ message: `Scan triggered for camera ${id}` });
 }
 
+// --- Incident Handlers ---
+
+async function listIncidentsHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { cameraId, status, page, limit } = request.query as {
+    cameraId?: string; status?: string; page?: string; limit?: string;
+  };
+  const result = await incidentService.getIncidents({
+    cameraId,
+    status,
+    page: page ? parseInt(page) : undefined,
+    limit: limit ? parseInt(limit) : undefined,
+  });
+  return reply.send(result);
+}
+
+async function getIncidentHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as { id: string };
+  const incident = await incidentService.getIncident(id);
+  if (!incident) return reply.status(404).send({ error: 'Incident not found' });
+  return reply.send(incident);
+}
+
+async function resolveIncidentHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as { id: string };
+  const user = (request as any).user;
+  const body = request.body as Record<string, any>;
+  const incident = await incidentService.resolveIncident(id, {
+    resolution: body.resolution,
+    rootCause: body.rootCause,
+    correctiveAction: body.correctiveAction,
+    preventiveAction: body.preventiveAction,
+    closedBy: user?.username ?? 'system',
+  });
+  return reply.send(incident);
+}
+
+async function incidentOptionsHandler(_request: FastifyRequest, reply: FastifyReply) {
+  return reply.send({
+    reasons: incidentService.REASON_OPTIONS,
+    rootCauses: incidentService.ROOT_CAUSE_OPTIONS,
+    resolutions: incidentService.RESOLUTION_OPTIONS,
+  });
+}
+
 export async function cameraRoutes(app: FastifyInstance): Promise<void> {
   app.get(
     '/',
@@ -241,6 +323,26 @@ export async function cameraRoutes(app: FastifyInstance): Promise<void> {
     '/trash/empty',
     { preHandler: [app.authenticate, requirePermission('cameras:delete')] },
     emptyCameraTrashHandler,
+  );
+  app.get(
+    '/incidents',
+    { preHandler: [app.authenticate, requirePermission('cameras:read')] },
+    listIncidentsHandler,
+  );
+  app.get(
+    '/incidents/options',
+    { preHandler: [app.authenticate] },
+    incidentOptionsHandler,
+  );
+  app.get(
+    '/incidents/:id',
+    { preHandler: [app.authenticate, requirePermission('cameras:read')] },
+    getIncidentHandler,
+  );
+  app.post(
+    '/incidents/:id/resolve',
+    { preHandler: [app.authenticate, requirePermission('cameras:update')] },
+    resolveIncidentHandler,
   );
   app.get(
     '/:id/analytics',

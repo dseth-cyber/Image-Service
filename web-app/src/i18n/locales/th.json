@@ -189,6 +189,66 @@
       "emptyCameraTrashSuccess": "ล้างถังขยะกล้องสำเร็จ {{count}} รายการ",
       "wrongPassword": "รหัสผ่านไม่ถูกต้อง"
     },
+    "incidents": {
+      "title": "Incident Management",
+      "changeStatus": "เปลี่ยนสถานะ",
+      "statusChangeTitle": "เปลี่ยนสถานะกล้อง",
+      "selectStatus": "เลือกสถานะ",
+      "reason": "สาเหตุ",
+      "reasonRequired": "กรุณาระบุสาเหตุ",
+      "description": "รายละเอียด",
+      "rootCause": "สาเหตุหลัก",
+      "estimatedFinish": "คาดว่าเสร็จ",
+      "resolution": "การแก้ไข",
+      "resolutionTitle": "บันทึกการแก้ไข",
+      "correctiveAction": "การแก้ไขเชิงแก้",
+      "preventiveAction": "การแก้ไขเชิงป้องกัน",
+      "incidentCreated": "สร้าง Incident สำเร็จ",
+      "incidentResolved": "แก้ไข Incident สำเร็จ",
+      "incidentNumber": "หมายเลข Incident",
+      "openedBy": "เปิดโดย",
+      "closedBy": "ปิดโดย",
+      "statusOpen": "เปิด",
+      "statusResolved": "แก้ไขแล้ว",
+      "reasons": {
+        "scheduled_maintenance": "ซ่อมบำรุงตามแผน",
+        "power_failure": "ไฟฟ้าขัดข้อง",
+        "network_issue": "ปัญหาเครือข่าย",
+        "lens_cleaning": "ทำความสะอาดเลนส์",
+        "firmware_update": "อัปเดต Firmware",
+        "cable_replacement": "เปลี่ยนสาย",
+        "camera_malfunction": "กล้องชำรุด",
+        "smb_unreachable": "SMB ไม่สามารถเข้าถึง",
+        "disk_full": "ดิสก์เต็ม",
+        "authentication_failed": "ยืนยันตัวตนล้มเหลว",
+        "worker_down": "Worker หยุดทำงาน",
+        "human_error": "ความผิดพลาดของบุคคล",
+        "other": "อื่นๆ"
+      },
+      "rootCauses": {
+        "power": "ระบบไฟฟ้า",
+        "network": "เครือข่าย",
+        "camera_hardware": "ฮาร์ดแวร์กล้อง",
+        "storage": "พื้นที่เก็บข้อมูล",
+        "smb": "SMB/แชร์ไฟล์",
+        "worker": "Worker/ซอฟต์แวร์",
+        "human_error": "ความผิดพลาดของบุคคล",
+        "environment": "สภาพแวดล้อม",
+        "unknown": "ไม่ทราบ",
+        "other": "อื่นๆ"
+      },
+      "resolutions": {
+        "completed": "ดำเนินการเสร็จสิ้น",
+        "replaced_cable": "เปลี่ยนสาย",
+        "restarted": "รีสตาร์ท",
+        "power_reset": "รีเซ็ตไฟ",
+        "firmware_update": "อัปเดต Firmware",
+        "cleaned_lens": "ทำความสะอาดเลนส์",
+        "reconfigured": "ปรับค่าใหม่",
+        "replaced_hardware": "เปลี่ยนฮาร์ดแวร์",
+        "other": "อื่นๆ"
+      }
+    },
     "storage": {
       "title": "พื้นที่เก็บข้อมูล",
       "subtitle": "ตรวจสอบการใช้งานพื้นที่เก็บข้อมูล",
@@ -1167,6 +1227,24 @@
         "Cloudflare WAF + DDoS Protection (Free Plan)",
         "ปิด Port 443/80 inbound บน FortiGate — ใช้ outbound HTTPS เท่านั้น",
         "ตั้งค่า Cloudflare Access (Zero Trust) สำหรับจำกัดผู้ใช้ภายนอก"
+      ],
+      "phase28": "P19 — Camera Reliability & Availability Analytics",
+      "phase28Desc": "ระบบวิเคราะห์ความพร้อมใช้งานกล้อง — Availability, MTBF, MTTR, Health Score, Downtime Report, Incident Management",
+      "phase28Status": "เปิดใช้งานแล้ว",
+      "phase28Tasks": [
+        "✅ Availability % + SLA Target comparison",
+        "✅ MTBF (Mean Time Between Failure)",
+        "✅ MTTR (Mean Time To Repair)",
+        "✅ Health Score 0-100 (Excellent/Good/Warning/Critical)",
+        "✅ Downtime by Reason breakdown",
+        "✅ Estimated Lost Images",
+        "✅ Status Timeline (Gantt-like)",
+        "✅ Event History Table",
+        "✅ Camera Comparison Dashboard",
+        "✅ Incident Management — Status Change Dialog",
+        "✅ Resolution Dialog + Root Cause + CAPA",
+        "✅ Incident Number (INC-YYYY-XXXXXX)",
+        "✅ CameraDailySummary pre-aggregation table"
       ]
     },
     "permissions": {
@@ -1334,6 +1412,7 @@
     "clearDataSuccess": "ล้างข้อมูลทั้งหมดสำเร็จ",
     "clearDataError": "ล้างข้อมูลล้มเหลว",
     "expandAll": "ขยายทั้งหมด",
-    "collapseAll": "ย่อทั้งหมด"
+    "collapseAll": "ย่อทั้งหมด",
+    "confirm": "ยืนยัน"
   }
 }

@@ -82,6 +82,19 @@ export function createImageServiceApi(api: any) {
     getCameraComparison: (period?: string) =>
       api.get(`${BASE}/cameras/analytics/comparison`, { params: { period } }).then((r: any) => r.data),
 
+    // Camera Incidents
+    getIncidents: (params?: { cameraId?: string; status?: string; page?: number; limit?: number }) =>
+      api.get(`${BASE}/cameras/incidents`, { params }).then((r: any) => r.data),
+
+    getIncident: (id: string) =>
+      api.get(`${BASE}/cameras/incidents/${id}`).then((r: any) => r.data),
+
+    resolveIncident: (id: string, data: Record<string, unknown>) =>
+      api.post(`${BASE}/cameras/incidents/${id}/resolve`, data).then((r: any) => r.data),
+
+    getIncidentOptions: () =>
+      api.get(`${BASE}/cameras/incidents/options`).then((r: any) => r.data),
+
     // Retention Policies
     getRetentionPolicies: () =>
       api.get(`${BASE}/retention-policies`).then((r: any) => r.data),

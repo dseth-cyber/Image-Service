@@ -194,25 +194,103 @@ export default function ImageServiceCameras() {
     }
   }, [emptyTrashPassword, t, toast, queryClient, fetchCameraTrash]);
 
-  const [statusDropdownId, setStatusDropdownId] = useState<string | null>(null);
   const [changingStatus, setChangingStatus] = useState<Set<string>>(new Set());
 
-  const STATUS_OPTIONS: { value: string; label: string; bg: string; icon: any }[] = [
-    { value: 'active', label: t('imageService.cameras.active'), bg: 'bg-green-500/20 text-green-400 hover:bg-green-500/30', icon: Wifi },
-    { value: 'maintenance', label: t('imageService.cameras.maintenance'), bg: 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30', icon: Wrench },
-    { value: 'inactive', label: t('imageService.cameras.inactive'), bg: 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30', icon: WifiOff },
+  // Status Change Dialog state
+  const [statusDialog, setStatusDialog] = useState<{ open: boolean; camera?: any }>({ open: false });
+  const [statusForm, setStatusForm] = useState({ status: '', reason: '', description: '', rootCause: '', estimatedFinish: '' });
+
+  // Resolution Dialog state
+  const [resolveDialog, setResolveDialog] = useState<{ open: boolean; camera?: any }>({ open: false });
+  const [resolveForm, setResolveForm] = useState({ resolution: '', rootCause: '', correctiveAction: '', preventiveAction: '' });
+
+  const REASON_OPTIONS = [
+    'scheduled_maintenance', 'power_failure', 'network_issue',
+    'lens_cleaning', 'firmware_update', 'cable_replacement',
+    'camera_malfunction', 'smb_unreachable', 'disk_full',
+    'authentication_failed', 'worker_down', 'human_error', 'other'
   ];
 
-  const handleChangeStatus = async (id: string, newStatus: string) => {
-    setChangingStatus(prev => new Set(prev).add(id));
-    setStatusDropdownId(null);
+  const ROOT_CAUSE_OPTIONS = [
+    'power', 'network', 'camera_hardware', 'storage', 'smb',
+    'worker', 'human_error', 'environment', 'unknown', 'other'
+  ];
+
+  const RESOLUTION_OPTIONS = [
+    'completed', 'replaced_cable', 'restarted', 'power_reset',
+    'firmware_update', 'cleaned_lens', 'reconfigured', 'replaced_hardware', 'other'
+  ];
+
+  const STATUS_RADIO_OPTIONS: { value: string; label: string; bg: string; icon: any }[] = [
+    { value: 'active', label: t('imageService.cameras.active'), bg: 'bg-green-500/20 text-green-400', icon: Wifi },
+    { value: 'inactive', label: t('imageService.cameras.inactive'), bg: 'bg-gray-500/20 text-gray-400', icon: WifiOff },
+    { value: 'maintenance', label: t('imageService.cameras.maintenance'), bg: 'bg-yellow-500/20 text-yellow-400', icon: Wrench },
+    { value: 'error', label: t('imageService.cameras.error'), bg: 'bg-red-500/20 text-red-400', icon: AlertTriangle },
+  ];
+
+  const openStatusDialog = (camera: any) => {
+    if (camera.status === 'active' || camera.status !== 'active') {
+      // Always open the status dialog to choose new status
+      setStatusForm({ status: '', reason: '', description: '', rootCause: '', estimatedFinish: '' });
+      setStatusDialog({ open: true, camera });
+    }
+  };
+
+  const handleStatusDialogConfirm = async () => {
+    const camera = statusDialog.camera;
+    if (!camera || !statusForm.status) return;
+
+    // If going to active, show resolution dialog instead
+    if (statusForm.status === 'active' && camera.status !== 'active') {
+      setStatusDialog({ open: false });
+      setResolveForm({ resolution: '', rootCause: '', correctiveAction: '', preventiveAction: '' });
+      setResolveDialog({ open: true, camera });
+      return;
+    }
+
+    // Going to non-active status: require reason
+    if (statusForm.status !== 'active' && !statusForm.reason) {
+      toast.warning(t('imageService.incidents.reasonRequired'));
+      return;
+    }
+
+    setChangingStatus(prev => new Set(prev).add(camera.id));
+    setStatusDialog({ open: false });
     try {
-      await imageServiceApi.updateCamera(id, { status: newStatus });
-      toast.success(t('imageService.cameras.statusChanged'));
+      await imageServiceApi.updateCamera(camera.id, {
+        status: statusForm.status,
+        reason: statusForm.reason,
+        incidentDescription: statusForm.description,
+        rootCause: statusForm.rootCause || undefined,
+        estimatedFinish: statusForm.estimatedFinish || undefined,
+      });
+      toast.success(t('imageService.incidents.incidentCreated'));
       queryClient.invalidateQueries({ queryKey: ['cameras-list'] });
     } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
     finally {
-      setChangingStatus(prev => { const next = new Set(prev); next.delete(id); return next; });
+      setChangingStatus(prev => { const next = new Set(prev); next.delete(camera.id); return next; });
+    }
+  };
+
+  const handleResolveConfirm = async () => {
+    const camera = resolveDialog.camera;
+    if (!camera) return;
+
+    setChangingStatus(prev => new Set(prev).add(camera.id));
+    setResolveDialog({ open: false });
+    try {
+      await imageServiceApi.updateCamera(camera.id, {
+        status: 'active',
+        resolution: resolveForm.resolution || undefined,
+        rootCause: resolveForm.rootCause || undefined,
+        correctiveAction: resolveForm.correctiveAction || undefined,
+        preventiveAction: resolveForm.preventiveAction || undefined,
+      });
+      toast.success(t('imageService.incidents.incidentResolved'));
+      queryClient.invalidateQueries({ queryKey: ['cameras-list'] });
+    } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
+    finally {
+      setChangingStatus(prev => { const next = new Set(prev); next.delete(camera.id); return next; });
     }
   };
 
@@ -441,54 +519,20 @@ export default function ImageServiceCameras() {
                     </td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>{camera.ipAddress}</td>
                     <td className="px-4 py-3">
-                      <div className="relative">
-                        <button
-                          data-status-btn={camera.id}
-                          onClick={() => canUpdate && setStatusDropdownId(statusDropdownId === camera.id ? null : camera.id)}
-                          disabled={changingStatus.has(camera.id) || !canUpdate}
-                          className={`px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center gap-1 transition-all ${canUpdate ? 'cursor-pointer hover:ring-1 hover:ring-white/20' : 'cursor-default'} ${statusStyle.bg}`}
-                          title={canUpdate ? t('imageService.cameras.changeStatus') : ''}
-                        >
-                          {changingStatus.has(camera.id) ? (
-                            <RefreshCw size={11} className="animate-spin" />
-                          ) : (
-                            <StatusIcon size={11} />
-                          )}
-                          {t(`imageService.cameras.${camera.status}`)}
-                          {canUpdate && <ChevronDown size={10} className="ml-0.5 opacity-60" />}
-                        </button>
-                        {statusDropdownId === camera.id && (
-                          <>
-                            <div className="fixed inset-0 z-40" onClick={() => setStatusDropdownId(null)} />
-                            <div className="fixed z-50 rounded-lg border border-white/20 bg-slate-800 shadow-2xl min-w-[180px] py-1"
-                              style={{ top: (document.querySelector(`[data-status-btn="${camera.id}"]`) as HTMLElement)?.getBoundingClientRect().bottom + 4, left: (document.querySelector(`[data-status-btn="${camera.id}"]`) as HTMLElement)?.getBoundingClientRect().left }}>
-                              {STATUS_OPTIONS.map(opt => {
-                                const OptIcon = opt.icon;
-                                const isCurrent = camera.status === opt.value;
-                                return (
-                                  <button
-                                    key={opt.value}
-                                    onClick={() => !isCurrent && handleChangeStatus(camera.id, opt.value)}
-                                    disabled={isCurrent}
-                                    className={`w-full text-left px-3 py-2 text-xs flex items-center gap-2 transition-colors ${isCurrent ? 'opacity-50 cursor-default' : 'hover:bg-white/5 cursor-pointer'}`}
-                                  >
-                                    <span className={`inline-flex items-center gap-1.5 ${opt.bg.split(' ').filter(c => c.startsWith('text-')).join(' ')}`}>
-                                      <OptIcon size={12} />
-                                      {opt.label}
-                                    </span>
-                                    {isCurrent && <CheckCircle size={11} className="ml-auto text-cyan-400" />}
-                                  </button>
-                                );
-                              })}
-                              {camera.status !== 'maintenance' && (
-                                <div className={`px-3 py-1.5 text-[10px] border-t border-white/5 ${themeConfig.text.secondary}`}>
-                                  {t('imageService.cameras.maintenanceDesc')}
-                                </div>
-                              )}
-                            </div>
-                          </>
+                      <button
+                        onClick={() => canUpdate && openStatusDialog(camera)}
+                        disabled={changingStatus.has(camera.id) || !canUpdate}
+                        className={`px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center gap-1 transition-all ${canUpdate ? 'cursor-pointer hover:ring-1 hover:ring-white/20' : 'cursor-default'} ${statusStyle.bg}`}
+                        title={canUpdate ? t('imageService.incidents.changeStatus') : ''}
+                      >
+                        {changingStatus.has(camera.id) ? (
+                          <RefreshCw size={11} className="animate-spin" />
+                        ) : (
+                          <StatusIcon size={11} />
                         )}
-                      </div>
+                        {t(`imageService.cameras.${camera.status}`)}
+                        {canUpdate && <ChevronDown size={10} className="ml-0.5 opacity-60" />}
+                      </button>
                     </td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>
                       {camera.lastPolledAt ? formatDateTime(camera.lastPolledAt, i18n.language) : '—'}
@@ -785,6 +829,186 @@ export default function ImageServiceCameras() {
               <p className="text-sm">{t('imageService.cameras.cameraTrashEmpty')}</p>
             </div>
           )}
+        </div>
+      </Modal>
+
+      {/* Status Change Dialog */}
+      <Modal isOpen={statusDialog.open} onClose={() => setStatusDialog({ open: false })}
+        title={t('imageService.incidents.statusChangeTitle')}>
+        <div className="space-y-4 p-1 max-w-lg">
+          {/* Camera name */}
+          <div className="flex items-center gap-2">
+            <Camera size={16} className="text-cyan-400" />
+            <span className={`text-sm font-semibold ${themeConfig.text.primary}`}>{statusDialog.camera?.name}</span>
+            {statusDialog.camera && (
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${CAMERA_STATUS_STYLES[statusDialog.camera.status]?.bg}`}>
+                {t(`imageService.cameras.${statusDialog.camera.status}`)}
+              </span>
+            )}
+          </div>
+
+          {/* Status radio buttons */}
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${themeConfig.text.primary}`}>
+              {t('imageService.incidents.selectStatus')} <span className="text-red-400">*</span>
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {STATUS_RADIO_OPTIONS.filter(opt => opt.value !== statusDialog.camera?.status).map(opt => {
+                const OptIcon = opt.icon;
+                const selected = statusForm.status === opt.value;
+                return (
+                  <button key={opt.value} type="button"
+                    onClick={() => setStatusForm(p => ({ ...p, status: opt.value }))}
+                    className={`px-3 py-2.5 rounded-lg text-sm flex items-center gap-2 border transition-all ${selected ? 'border-cyan-500 bg-cyan-500/10 ring-1 ring-cyan-500/30' : `border-white/10 hover:border-white/20 hover:bg-white/5`}`}>
+                    <span className={`${opt.bg.split(' ').filter(c => c.startsWith('text-')).join(' ')}`}>
+                      <OptIcon size={14} />
+                    </span>
+                    <span className={`${selected ? 'text-cyan-300' : themeConfig.text.primary}`}>{opt.label}</span>
+                    {selected && <CheckCircle size={12} className="ml-auto text-cyan-400" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Reason dropdown (required when going to non-active) */}
+          {statusForm.status && statusForm.status !== 'active' && (
+            <>
+              <div>
+                <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                  {t('imageService.incidents.reason')} <span className="text-red-400">*</span>
+                </label>
+                <SearchableSelect value={statusForm.reason} onChange={v => setStatusForm(p => ({ ...p, reason: v }))}
+                  placeholder={t('imageService.incidents.reason')}
+                  options={REASON_OPTIONS.map(r => ({
+                    value: r, label: t(`imageService.incidents.reasons.${r}`),
+                  }))} />
+              </div>
+
+              <div>
+                <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                  {t('imageService.incidents.description')}
+                </label>
+                <textarea value={statusForm.description}
+                  onChange={e => setStatusForm(p => ({ ...p, description: e.target.value }))}
+                  rows={3}
+                  className={`w-full px-3 py-2 rounded-md text-sm ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary} resize-none`}
+                  placeholder={t('imageService.incidents.description')} />
+              </div>
+
+              <div>
+                <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                  {t('imageService.incidents.rootCause')}
+                </label>
+                <SearchableSelect value={statusForm.rootCause} onChange={v => setStatusForm(p => ({ ...p, rootCause: v }))}
+                  placeholder={t('imageService.incidents.rootCause')}
+                  options={ROOT_CAUSE_OPTIONS.map(r => ({
+                    value: r, label: t(`imageService.incidents.rootCauses.${r}`),
+                  }))} />
+              </div>
+
+              {(statusForm.status === 'maintenance' || statusForm.status === 'inactive') && (
+                <div>
+                  <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                    {t('imageService.incidents.estimatedFinish')}
+                  </label>
+                  <input type="datetime-local" value={statusForm.estimatedFinish}
+                    onChange={e => setStatusForm(p => ({ ...p, estimatedFinish: e.target.value }))}
+                    className={`w-full px-3 py-2 rounded-md text-sm ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`} />
+                </div>
+              )}
+            </>
+          )}
+
+          <div className="flex justify-end gap-2 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+            <Button variant="secondary" onClick={() => setStatusDialog({ open: false })}>{t('common.cancel')}</Button>
+            <Button onClick={handleStatusDialogConfirm}
+              disabled={!statusForm.status || (statusForm.status !== 'active' && !statusForm.reason)}>
+              {t('common.confirm')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Resolution Dialog */}
+      <Modal isOpen={resolveDialog.open} onClose={() => setResolveDialog({ open: false })}
+        title={t('imageService.incidents.resolutionTitle')}>
+        <div className="space-y-4 p-1 max-w-lg">
+          {/* Camera name */}
+          <div className="flex items-center gap-2">
+            <Camera size={16} className="text-cyan-400" />
+            <span className={`text-sm font-semibold ${themeConfig.text.primary}`}>{resolveDialog.camera?.name}</span>
+            <span className="text-xs text-green-400">
+              {resolveDialog.camera && t(`imageService.cameras.${resolveDialog.camera.status}`)} &rarr; {t('imageService.cameras.active')}
+            </span>
+          </div>
+
+          {/* Resolution checkboxes */}
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${themeConfig.text.primary}`}>
+              {t('imageService.incidents.resolution')}
+            </label>
+            <div className="grid grid-cols-2 gap-1.5">
+              {RESOLUTION_OPTIONS.map(r => {
+                const selected = resolveForm.resolution === r;
+                return (
+                  <button key={r} type="button"
+                    onClick={() => setResolveForm(p => ({ ...p, resolution: selected ? '' : r }))}
+                    className={`px-3 py-2 rounded-lg text-xs flex items-center gap-2 border transition-all text-left ${selected ? 'border-green-500 bg-green-500/10' : 'border-white/10 hover:border-white/20 hover:bg-white/5'}`}>
+                    <span className={`w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0 ${selected ? 'border-green-400 bg-green-500/30' : 'border-white/30'}`}>
+                      {selected && <CheckCircle size={10} className="text-green-400" />}
+                    </span>
+                    <span className={`${selected ? 'text-green-300' : themeConfig.text.primary}`}>
+                      {t(`imageService.incidents.resolutions.${r}`)}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Root Cause */}
+          <div>
+            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+              {t('imageService.incidents.rootCause')}
+            </label>
+            <SearchableSelect value={resolveForm.rootCause} onChange={v => setResolveForm(p => ({ ...p, rootCause: v }))}
+              placeholder={t('imageService.incidents.rootCause')}
+              options={ROOT_CAUSE_OPTIONS.map(r => ({
+                value: r, label: t(`imageService.incidents.rootCauses.${r}`),
+              }))} />
+          </div>
+
+          {/* Corrective Action */}
+          <div>
+            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+              {t('imageService.incidents.correctiveAction')}
+            </label>
+            <textarea value={resolveForm.correctiveAction}
+              onChange={e => setResolveForm(p => ({ ...p, correctiveAction: e.target.value }))}
+              rows={2}
+              className={`w-full px-3 py-2 rounded-md text-sm ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary} resize-none`}
+              placeholder={t('imageService.incidents.correctiveAction')} />
+          </div>
+
+          {/* Preventive Action */}
+          <div>
+            <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+              {t('imageService.incidents.preventiveAction')}
+            </label>
+            <textarea value={resolveForm.preventiveAction}
+              onChange={e => setResolveForm(p => ({ ...p, preventiveAction: e.target.value }))}
+              rows={2}
+              className={`w-full px-3 py-2 rounded-md text-sm ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary} resize-none`}
+              placeholder={t('imageService.incidents.preventiveAction')} />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+            <Button variant="secondary" onClick={() => setResolveDialog({ open: false })}>{t('common.cancel')}</Button>
+            <Button onClick={handleResolveConfirm}>
+              {t('common.confirm')}
+            </Button>
+          </div>
         </div>
       </Modal>
     </div>
