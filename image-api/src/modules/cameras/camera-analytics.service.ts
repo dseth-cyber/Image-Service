@@ -100,7 +100,42 @@ function buildTimeline(
     });
   }
 
-  return segments;
+  const merged: typeof segments = [];
+  for (const seg of segments) {
+    const last = merged[merged.length - 1];
+    if (last && last.status === seg.status) {
+      last.end = seg.end;
+      last.durationMs += seg.durationMs;
+    } else {
+      merged.push({ ...seg });
+    }
+  }
+
+  const totalMs = merged.reduce((sum, s) => sum + s.durationMs, 0);
+  const minMs = totalMs * 0.001;
+  const filtered: typeof merged = [];
+  for (const seg of merged) {
+    const last = filtered[filtered.length - 1];
+    if (seg.durationMs < minMs && last) {
+      last.end = seg.end;
+      last.durationMs += seg.durationMs;
+    } else {
+      filtered.push({ ...seg });
+    }
+  }
+
+  const final: typeof filtered = [];
+  for (const seg of filtered) {
+    const last = final[final.length - 1];
+    if (last && last.status === seg.status) {
+      last.end = seg.end;
+      last.durationMs += seg.durationMs;
+    } else {
+      final.push({ ...seg });
+    }
+  }
+
+  return final;
 }
 
 async function getConfigValue(key: string, defaultValue: number): Promise<number> {

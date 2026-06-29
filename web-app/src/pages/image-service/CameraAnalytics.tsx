@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -126,6 +127,7 @@ export default function CameraAnalytics() {
   const [selectedCameraId, setSelectedCameraId] = useState<string>('')
   const [isEditing, setIsEditing] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
+  const [hoverSeg, setHoverSeg] = useState<{ seg: any; widthPct: number; x: number; y: number } | null>(null)
 
   const [layouts, setLayouts] = useState(() => {
     try {
@@ -631,7 +633,7 @@ export default function CameraAnalytics() {
             </div>
 
             {/* Status Timeline */}
-            <div key="timeline" className={`${themeConfig.card} rounded-xl p-4 relative overflow-hidden flex flex-col h-full`}>
+            <div key="timeline" className={`${themeConfig.card} rounded-xl p-4 relative overflow-visible flex flex-col h-full`}>
               <DragHandle show={isEditing} />
               <h3 className={`text-sm font-semibold mb-4 flex-shrink-0 ${themeConfig.text.primary}`}>
                 {t('imageService.analytics.timeline')}
@@ -657,17 +659,12 @@ export default function CameraAnalytics() {
                           className={`${colorMap[seg.status] || 'bg-gray-500'} relative group cursor-pointer transition-opacity hover:opacity-80 ${idx === 0 ? 'rounded-l-full' : ''} ${idx === analytics.timeline.length - 1 ? 'rounded-r-full' : ''}`}
                           style={{ width: `${widthPct}%`, minWidth: widthPct > 1 ? undefined : '3px' }}
                           title={`${seg.status}: ${formatDurationLong(Math.round(seg.durationMs / 1000))}`}
-                        >
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
-                            <div className="bg-slate-900 border border-white/20 rounded-lg px-3 py-2 text-xs text-white whitespace-nowrap shadow-xl">
-                              <div className="font-semibold capitalize">{seg.status}</div>
-                              <div className="text-gray-400">{formatDurationLong(Math.round(seg.durationMs / 1000))}</div>
-                              <div className="text-gray-400 text-[10px]">
-                                {new Date(seg.start).toLocaleString()} - {new Date(seg.end).toLocaleString()}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                          onMouseEnter={(e) => {
+                            const rect = e.currentTarget.getBoundingClientRect()
+                            setHoverSeg({ seg, widthPct, x: rect.left + rect.width / 2, y: rect.top })
+                          }}
+                          onMouseLeave={() => setHoverSeg(null)}
+                        />
                       )
                     })}
                   </div>
@@ -870,6 +867,21 @@ export default function CameraAnalytics() {
           </div>
         )}
       </div>
+      {hoverSeg && createPortal(
+        <div style={{ position: 'fixed', left: hoverSeg.x, top: hoverSeg.y - 8, transform: 'translate(-50%, -100%)', zIndex: 99999, pointerEvents: 'none' }}
+          className="bg-slate-900 border border-white/20 rounded-lg px-4 py-3 text-xs text-white whitespace-nowrap shadow-2xl">
+          <div className="font-bold text-sm mb-1">
+            {hoverSeg.seg.status === 'active' ? `🟢 ${t('imageService.analytics.uptime')}` :
+             hoverSeg.seg.status === 'maintenance' ? `🟡 ${t('imageService.analytics.maintenance')}` :
+             `🔴 ${t('imageService.analytics.downtime')}`}
+          </div>
+          <div className="text-cyan-300 font-semibold text-base">{formatDurationLong(Math.round(hoverSeg.seg.durationMs / 1000))}</div>
+          <div className="text-gray-400 mt-1.5">{t('imageService.analytics.fromStatus')}: {new Date(hoverSeg.seg.start).toLocaleString()}</div>
+          <div className="text-gray-400">{t('imageService.analytics.toStatus')}: {new Date(hoverSeg.seg.end).toLocaleString()}</div>
+          <div className="text-gray-500 mt-1 text-[10px]">{hoverSeg.widthPct.toFixed(1)}%</div>
+        </div>,
+        document.body
+      )}
     </div>
   )
 }
