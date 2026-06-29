@@ -128,7 +128,7 @@ async function main() {
     update: {},
     create: {
       id: '00000000-0000-0000-0000-000000000001',
-      name: 'Default Retention',
+      name: 'การจัดเก็บเริ่มต้น (Default)',
       description: 'Standard retention policy for production cameras',
       rawRetentionDays: 7,
       processedRetentionDays: 90,
@@ -144,7 +144,7 @@ async function main() {
     update: {},
     create: {
       id: '00000000-0000-0000-0000-000000000002',
-      name: 'Long-Term Retention',
+      name: 'การจัดเก็บระยะยาว (Long-Term)',
       description: 'Extended retention for quality inspection cameras',
       rawRetentionDays: 30,
       processedRetentionDays: 365,
@@ -227,7 +227,7 @@ async function main() {
     where: { id: '00000000-0000-0000-0000-000000000010' },
     update: {
       status: 'active',
-      smbSubdirectoryPattern: 'cam_1',
+      smbSubdirectoryPattern: null,
     },
     create: {
       id: '00000000-0000-0000-0000-000000000010',
@@ -238,7 +238,7 @@ async function main() {
       smbDomain: 'WORKGROUP',
       smbUsername: 'camera',
       smbPasswordEncrypted: 'smbpass',
-      smbSubdirectoryPattern: 'cam_1',
+      smbSubdirectoryPattern: null,
       status: 'active' as CameraStatus,
       pollIntervalSeconds: 15,
       captureMode: 'periodic',

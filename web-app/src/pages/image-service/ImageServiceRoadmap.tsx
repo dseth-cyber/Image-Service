@@ -113,8 +113,8 @@ const STATUS_WEIGHTS: Record<string, number> = {
   Planned: 0,
 }
 
-const ARCH_ICONS = [Camera, Wifi, Cpu, Server, Layout, HardDrive, Kanban]
-const ARCH_COLORS = ['#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#3b82f6', '#ef4444', '#a855f7']
+const ARCH_ICONS = [Camera, Wifi, Cpu, Server, Layout, HardDrive, Activity]
+const ARCH_COLORS = ['#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#3b82f6', '#ef4444', '#22d3ee']
 
 function formatBytes(bytes: number): string {
   if (!bytes) return '0 B'

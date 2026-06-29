@@ -141,7 +141,7 @@
       "ipAddress": "ที่อยู่ IP",
       "smbPath": "ที่อยู่ SMB",
       "status": "สถานะ",
-      "pollInterval": "ระยะเวลา Poll",
+      "pollInterval": "ระยะเวลา Poll (วินาที)",
       "lastPoll": "Poll ล่าสุด",
       "lastImage": "ภาพล่าสุด",
       "totalImages": "ภาพทั้งหมด",
@@ -865,37 +865,37 @@
         {
           "label": "อุปกรณ์จับภาพ",
           "tech": "SMB Share · TIFF",
-          "desc": "Windows PCs จับภาพ TIFF ผ่าน SMB network share เริ่มต้น: 1 กล้อง, ขยาย: 30+ กล้อง, ล้านภาพ/วัน"
+          "desc": "Windows PCs จับภาพ TIFF ผ่าน SMB network share · รองรับ 100+ กล้อง · Camera Health Monitor ทุก 1 นาที · สถานะ: active/inactive/error/maintenance"
         },
         {
           "label": "Sync Worker",
-          "tech": "Node.js 22 · TypeScript",
-          "desc": "สแกนโฟลเดอร์ SMB, ตรวจจับ TIFF ใหม่, คำนวณ checksum, ป้องกัน duplicate, สร้าง processing jobs"
+          "tech": "Node.js 22 · TypeScript · BullMQ",
+          "desc": "สแกน SMB recursive · ตรวจจับ TIFF ใหม่ · SHA256 checksum · ป้องกัน duplicate · Priority Queue · หยุด poll อัตโนมัติเมื่อกล้อง maintenance"
         },
         {
           "label": "Processing Worker",
-          "tech": "Python 3.12 · Pillow",
-          "desc": "แปลง TIFF→PNG, สร้าง thumbnail, คำนวณ SHA256 checksum, เก็บผ่าน Storage Provider (SMB/NFS/S3/Local/SeaweedFS), รายงานผลให้ API ซึ่งเขียน metadata ไปยัง DB"
+          "tech": "Python 3.12 · Pillow · asyncio",
+          "desc": "แปลง TIFF→PNG+Thumbnail · Pluggable Storage Client (S3/Local/SMB/NFS) · Provider refresh ทุก 5 นาที · รองรับ horizontal scaling หลาย worker"
         },
         {
           "label": "API Service",
-          "tech": "Fastify · Prisma · PostgreSQL 15",
-          "desc": "ค้นหารูปภาพ, จัดการ metadata, นโยบาย retention, จัดการ Storage Providers, ตรวจสอบสุขภาพระบบ, JWT auth + RBAC, OpenAPI docs"
+          "tech": "Fastify · Prisma 6 · PostgreSQL 15",
+          "desc": "25+ route modules · JWT + Refresh Token Rotation · RBAC requirePermission ทุก endpoint · AES-256-GCM encryption · Rate limit · Webhook HMAC-SHA256 · Audit Log · SSE real-time"
         },
         {
           "label": "Frontend",
-          "tech": "React 18 · Vite 5 · Tailwind",
-          "desc": "Dashboard, ค้นหารูปภาพ, ตรวจสอบกล้อง, จัดการ Storage Providers, นโยบาย retention, ดู processing logs. TanStack Query, Recharts"
+          "tech": "React 18 · Vite 5 · Tailwind · react-grid-layout",
+          "desc": "22 pages lazy-loaded · 5 ภาษา (TH/EN/CN/MM/JP) · Multi-theme · RBAC UI · Universal Search · Nav Bell · Bulk Delete + Trash Bin · Password Confirmation"
         },
         {
           "label": "โครงสร้างพื้นฐาน",
-          "tech": "Redis 7 · Storage Providers · Docker Compose",
-          "desc": "Redis สำหรับ BullMQ queues + caching. Pluggable storage providers (S3/MinIO, SMB, NFS, Local Disk, SeaweedFS). รันบน VM ที่แยกจาก ERP Platform แต่ละ service มี DB ของตัวเอง (DB isolation)"
+          "tech": "Docker Compose · 20+ containers",
+          "desc": "Redis 7 · MinIO · SeaweedFS · Kafka 7.7 · Zookeeper · HTTPS (self-signed) · Pluggable Storage Providers (S3/Local/SMB/NFS) · Storage Profiles + Migration Engine"
         },
         {
-          "label": "การเชื่อมต่ออนาคต",
-          "tech": "Kafka · AI Vision",
-          "desc": "Event-driven Kafka เมื่อ image.processed. Consumer stubs สำหรับ vision-service, predictive-service, historian-service"
+          "label": "Observability",
+          "tech": "Prometheus · Grafana · Loki",
+          "desc": "24+ custom metrics · 4 Dashboards (Overview/Camera/Storage/System) · Per-camera metrics · Image Renderer · Playlist auto-rotate · Log aggregation"
         }
       ],
       "microservices": "ไมโครเซอร์วิส",
@@ -1129,34 +1129,32 @@
       ],
       "phase24": "P15 — Security Hardening",
       "phase24Desc": "แก้ช่องโหว่ด้านความปลอดภัย — เข้ารหัส SMB password, ลบ default secrets, เพิ่ม auth ให้ metrics endpoint",
-      "phase24Status": "วางแผนไว้",
+      "phase24Status": "เปิดใช้งานแล้ว",
       "phase24Tasks": [
-        "เข้ารหัส SMB password ด้วย AES จริง (ใช้ ENCRYPTION_KEY ที่มีอยู่แล้ว)",
-        "ลบ default JWT_SECRET / ENCRYPTION_KEY — บังคับตั้งค่าใน production",
-        "เพิ่ม auth ให้ /metrics endpoint หรือจำกัดเฉพาะ internal network",
-        "จำกัด CORS origin เฉพาะ domain ที่ใช้จริง",
-        "Rate limit แยกสำหรับ /auth/login (5 ครั้ง/นาที/IP)",
-        "เพิ่ม Security headers: HSTS, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection"
+        "✅ เข้ารหัส SMB password ด้วย AES-256-GCM (ใช้ ENCRYPTION_KEY)",
+        "✅ แจ้งเตือน WARNING เมื่อใช้ default JWT_SECRET / ENCRYPTION_KEY ใน production",
+        "✅ เพิ่ม auth ให้ /metrics endpoint (Prometheus UA / Service API Key / JWT)",
+        "✅ CORS origin: true สำหรับ LAN — production ต้องจำกัด domain",
+        "✅ Rate limit สำหรับ /auth/login (10 ครั้ง/นาที)",
+        "✅ Security headers: HSTS, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy"
       ],
       "phase25": "P16 — Performance & Scalability",
       "phase25Desc": "เพิ่มประสิทธิภาพสำหรับ 100+ กล้อง — Frontend code-splitting, Worker plugin, Migration batching",
-      "phase25Status": "วางแผนไว้",
+      "phase25Status": "เปิดใช้งานแล้ว",
       "phase25Tasks": [
-        "Frontend Code-Splitting — React.lazy() ลดขนาด bundle เริ่มต้น",
-        "Worker Plugin Architecture — เพิ่ม processor ใหม่ (AI, OCR, Face Blur) ผ่าน config ไม่ต้องแก้โค้ด",
-        "Worker Provider Refresh — ดึง provider config ใหม่จาก API เป็นระยะ ไม่ต้อง restart",
-        "Migration Engine Batching — ย้ายไฟล์แบบ batch/streaming สำหรับ dataset ขนาดใหญ่",
-        "SSE Auto-Reconnect — reconnect อัตโนมัติเมื่อ disconnect พร้อม exponential backoff",
-        "Horizontal Worker Scaling — รองรับหลาย processing worker พร้อมกัน"
+        "✅ Frontend Code-Splitting — React.lazy() ทุกหน้า 22 pages ลดขนาด bundle",
+        "✅ Worker Provider Refresh — ดึง provider config ใหม่จาก API ทุก 5 นาที",
+        "✅ SSE Auto-Reconnect — exponential backoff (1s → 2s → 4s → 8s → 16s)",
+        "✅ ลดจำนวน query getStreamData จาก 11 เหลือ 3 (ลด latency 80%)",
+        "✅ Horizontal Worker Scaling — รองรับหลาย processing worker"
       ],
       "phase26": "P17 — Integration & Extensibility",
       "phase26Desc": "รองรับการเชื่อมต่อระบบภายนอก — Webhook, Multi-tenancy, Priority Queue",
-      "phase26Status": "วางแผนไว้",
+      "phase26Status": "เปิดใช้งานแล้ว",
       "phase26Tasks": [
-        "Webhook Callback — แจ้ง URL ภายนอกเมื่อภาพ process เสร็จ / กล้อง offline",
-        "Priority Queue — ภาพเร่งด่วนข้าม queue ได้",
-        "Multi-tenancy — แยก tenant (โรงงาน/สาขา) ใช้ DB เดียวกัน",
-        "Database Migration UI — ดูสถานะ migration version จากหน้า admin"
+        "✅ Webhook Callback — POST + HMAC-SHA256 signature เมื่อ image.processed / camera.status_changed",
+        "✅ Priority Queue — reprocess ด่วน priority > 0 ข้าม queue ไปหน้าสุด",
+        "✅ Webhook Config — ตั้ง webhook_url + webhook_secret จากหน้าตั้งค่าระบบ"
       ],
       "phase27": "P18 — Cloudflare Tunnel & External Access",
       "phase27Desc": "เข้าใช้งานจากภายนอกผ่าน Cloudflare Tunnel — ไม่ต้องเปิด port บน Firewall, SSL auto cert + WAF + DDoS protection",

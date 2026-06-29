@@ -115,7 +115,7 @@
       "ipAddress": "IP地址",
       "smbPath": "SMB路径",
       "status": "状态",
-      "pollInterval": "轮询间隔",
+      "pollInterval": "轮询间隔 (秒)",
       "lastPoll": "上次轮询",
       "lastImage": "上次图像",
       "totalImages": "总图像数",
@@ -800,37 +800,37 @@
         {
           "label": "采集设备",
           "tech": "SMB Share · TIFF",
-          "desc": "Windows PC 通过 SMB 网络共享采集 TIFF 图像。初始：1 台相机，规模：30+ 台相机，每天数百万张图像"
+          "desc": "SMB 抓取 TIFF · 100+ 摄像头 · 健康监控每1分钟 · 维护模式"
         },
         {
-          "label": "同步 Worker",
-          "tech": "Node.js 22 · TypeScript",
-          "desc": "扫描 SMB 文件夹，检测新 TIFF，计算校验和，防止重复，创建处理任务"
+          "label": "同步服务",
+          "tech": "Node.js 22 · BullMQ",
+          "desc": "递归SMB扫描 · SHA256校验 · 优先队列 · 维护模式自动停止"
         },
         {
-          "label": "处理 Worker",
+          "label": "处理服务",
           "tech": "Python 3.12 · Pillow",
-          "desc": "转换 TIFF→PNG，生成缩略图，计算 SHA256 校验和，通过 Storage Provider (SMB/NFS/S3/Local/SeaweedFS) 存储，将结果报告给 API，由 API 写入数据库元数据"
+          "desc": "TIFF→PNG+缩略图 · 多存储后端 · 水平扩展"
         },
         {
-          "label": "API 服务",
-          "tech": "Fastify · Prisma · PostgreSQL 15",
-          "desc": "图像搜索、元数据管理、保留策略、Storage Providers CRUD、健康监控、JWT 认证 + RBAC、OpenAPI 文档"
+          "label": "API服务",
+          "tech": "Fastify · Prisma 6 · PostgreSQL 15",
+          "desc": "25+路由 · JWT · RBAC · AES-256-GCM · Webhook · 审计日志 · SSE"
         },
         {
           "label": "前端",
           "tech": "React 18 · Vite 5 · Tailwind",
-          "desc": "仪表板、图像搜索、相机监控、Storage Providers 管理、保留策略、处理日志。TanStack Query、Recharts"
+          "desc": "22页面懒加载 · 5语言 · 多主题 · 批量删除 · 回收站"
         },
         {
           "label": "基础设施",
-          "tech": "Redis 7 · Storage Providers · Docker Compose",
-          "desc": "Redis 用于 BullMQ 队列 + 缓存。可插拔存储提供商 (S3/MinIO, SMB, NFS, Local Disk, SeaweedFS)。运行在与 ERP 平台分离的专用 VM 上。每个服务拥有自己的数据库（数据库隔离）"
+          "tech": "Docker Compose · 20+容器",
+          "desc": "Redis · MinIO · SeaweedFS · Kafka · HTTPS · 多存储后端"
         },
         {
-          "label": "未来集成",
-          "tech": "Kafka · AI Vision",
-          "desc": "image.processed 时触发事件驱动 Kafka。vision-service、predictive-service、historian-service 的消费者存根"
+          "label": "可观测性",
+          "tech": "Prometheus · Grafana · Loki",
+          "desc": "24+指标 · 4仪表板 · 每摄像头指标 · 日志聚合"
         }
       ],
       "microservices": "微服务",
@@ -1064,34 +1064,30 @@
       ],
       "phase24": "P15 — Security Hardening",
       "phase24Desc": "Fix security vulnerabilities",
-      "phase24Status": "Launched",
+      "phase24Status": "已上线",
       "phase24Tasks": [
-        "✅ Encrypt SMB passwords",
-        "✅ Remove default secrets",
-        "✅ Auth on /metrics",
-        "✅ Restrict CORS",
-        "✅ Rate limit login",
-        "✅ Security headers"
+        "✅ AES-256-GCM 加密 SMB 密码",
+        "✅ 生产环境默认密钥警告",
+        "✅ /metrics 端点认证",
+        "✅ 登录速率限制 10次/分钟",
+        "✅ 安全响应头"
       ],
       "phase25": "P17 — Performance & Scalability",
       "phase25Desc": "Optimize for 100+ cameras",
-      "phase25Status": "Launched",
+      "phase25Status": "已上线",
       "phase25Tasks": [
-        "✅ Code-Splitting",
-        "✅ Worker Plugin",
-        "✅ Provider Refresh",
-        "✅ Migration Batching",
-        "✅ SSE Reconnect",
-        "✅ Horizontal Scaling"
+        "✅ React.lazy() 代码分割 22 个页面",
+        "✅ Worker 每5分钟刷新配置",
+        "✅ SSE 自动重连 + 指数退避",
+        "✅ 查询优化 11→3"
       ],
       "phase26": "P18 — Integration & Extensibility",
       "phase26Desc": "External system integration",
-      "phase26Status": "Launched",
+      "phase26Status": "已上线",
       "phase26Tasks": [
-        "✅ Webhook",
-        "✅ Priority Queue",
-        "✅ Multi-tenancy",
-        "✅ Migration UI"
+        "✅ Webhook 回调 + HMAC-SHA256 签名",
+        "✅ 优先队列",
+        "✅ Webhook 设置页面"
       ],
       "phase27": "P16 — Cloudflare Tunnel & External Access",
       "phase27Desc": "External access via Cloudflare Tunnel",

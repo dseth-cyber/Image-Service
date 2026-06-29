@@ -115,7 +115,7 @@
       "ipAddress": "IPアドレス",
       "smbPath": "SMBパス",
       "status": "ステータス",
-      "pollInterval": "ポーリング間隔",
+      "pollInterval": "ポーリング間隔 (秒)",
       "lastPoll": "最終ポーリング",
       "lastImage": "最終画像",
       "totalImages": "総画像数",
@@ -800,37 +800,37 @@
         {
           "label": "キャプチャデバイス",
           "tech": "SMB Share · TIFF",
-          "desc": "Windows PC が SMB ネットワーク共有を介して TIFF 画像をキャプチャ。初期: 1台、規模: 30+台、数百万画像/日"
+          "desc": "SMB経由TIFF取得 · 100+カメラ · ヘルスモニタ毎分 · メンテナンスモード"
         },
         {
-          "label": "同期 Worker",
-          "tech": "Node.js 22 · TypeScript",
-          "desc": "SMB フォルダをスキャン、新規 TIFF を検出、チェックサム計算、重複防止、処理ジョブ作成"
+          "label": "同期ワーカー",
+          "tech": "Node.js 22 · BullMQ",
+          "desc": "再帰SMBスキャン · SHA256 · 優先キュー · メンテナンス時自動停止"
         },
         {
-          "label": "処理 Worker",
+          "label": "処理ワーカー",
           "tech": "Python 3.12 · Pillow",
-          "desc": "TIFF→PNG 変換、サムネイル生成、SHA256 チェックサム計算、Storage Provider (SMB/NFS/S3/Local/SeaweedFS) 経由で保存、結果を API に報告、API が DB メタデータを書き込み"
+          "desc": "TIFF→PNG+サムネイル · マルチストレージ · 水平スケーリング"
         },
         {
-          "label": "API サービス",
-          "tech": "Fastify · Prisma · PostgreSQL 15",
-          "desc": "画像検索、メタデータ管理、保持ポリシー、Storage Providers CRUD、ヘルス監視、JWT認証+RBAC、OpenAPI ドキュメント"
+          "label": "APIサービス",
+          "tech": "Fastify · Prisma 6 · PostgreSQL 15",
+          "desc": "25+ルート · JWT · RBAC · AES-256-GCM · Webhook · 監査ログ · SSE"
         },
         {
           "label": "フロントエンド",
           "tech": "React 18 · Vite 5 · Tailwind",
-          "desc": "ダッシュボード、画像検索、カメラ監視、Storage Providers 管理、保持ポリシー、処理ログ。TanStack Query、Recharts"
+          "desc": "22ページ遅延読込 · 5言語 · マルチテーマ · 一括削除 · ゴミ箱"
         },
         {
-          "label": "インフラストラクチャ",
-          "tech": "Redis 7 · Storage Providers · Docker Compose",
-          "desc": "Redis は BullMQ キュー + キャッシング用。Pluggable storage providers (S3/MinIO, SMB, NFS, Local Disk, SeaweedFS)。ERP プラットフォームから分離された専用 VM 上で動作。各サービスが独自の DB を所有（DB 分離）"
+          "label": "インフラ",
+          "tech": "Docker Compose · 20+コンテナ",
+          "desc": "Redis · MinIO · SeaweedFS · Kafka · HTTPS · マルチストレージ"
         },
         {
-          "label": "将来の統合",
-          "tech": "Kafka · AI Vision",
-          "desc": "image.processed 時に Kafka イベント駆動。vision-service、predictive-service、historian-service のコンシューマスタブ"
+          "label": "オブザーバビリティ",
+          "tech": "Prometheus · Grafana · Loki",
+          "desc": "24+メトリクス · 4ダッシュボード · カメラ別メトリクス · ログ集約"
         }
       ],
       "microservices": "マイクロサービス",
@@ -1064,34 +1064,30 @@
       ],
       "phase24": "P15 — Security Hardening",
       "phase24Desc": "Fix security vulnerabilities",
-      "phase24Status": "Launched",
+      "phase24Status": "リリース済み",
       "phase24Tasks": [
-        "✅ Encrypt SMB passwords",
-        "✅ Remove default secrets",
-        "✅ Auth on /metrics",
-        "✅ Restrict CORS",
-        "✅ Rate limit login",
-        "✅ Security headers"
+        "✅ AES-256-GCM SMBパスワード暗号化",
+        "✅ 本番環境デフォルトキー警告",
+        "✅ /metrics 認証",
+        "✅ ログインレート制限 10回/分",
+        "✅ セキュリティヘッダー"
       ],
       "phase25": "P17 — Performance & Scalability",
       "phase25Desc": "Optimize for 100+ cameras",
-      "phase25Status": "Launched",
+      "phase25Status": "リリース済み",
       "phase25Tasks": [
-        "✅ Code-Splitting",
-        "✅ Worker Plugin",
-        "✅ Provider Refresh",
-        "✅ Migration Batching",
-        "✅ SSE Reconnect",
-        "✅ Horizontal Scaling"
+        "✅ React.lazy() コード分割 22ページ",
+        "✅ Worker 5分ごとに設定更新",
+        "✅ SSE 自動再接続",
+        "✅ クエリ最適化 11→3"
       ],
       "phase26": "P18 — Integration & Extensibility",
       "phase26Desc": "External system integration",
-      "phase26Status": "Launched",
+      "phase26Status": "リリース済み",
       "phase26Tasks": [
-        "✅ Webhook",
-        "✅ Priority Queue",
-        "✅ Multi-tenancy",
-        "✅ Migration UI"
+        "✅ Webhook コールバック + HMAC-SHA256",
+        "✅ 優先キュー",
+        "✅ Webhook 設定ページ"
       ],
       "phase27": "P16 — Cloudflare Tunnel & External Access",
       "phase27Desc": "External access via Cloudflare Tunnel",

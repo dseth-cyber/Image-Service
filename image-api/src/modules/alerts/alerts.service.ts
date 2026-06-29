@@ -21,7 +21,7 @@ export async function createAlert(input: CreateAlertInput & { skipDedup?: boolea
         alertType: input.alertType,
         source: input.source,
         resolvedAt: null,
-        createdAt: { gte: new Date(Date.now() - 30 * 60 * 1000) },
+        createdAt: { gte: new Date(Date.now() - 60 * 60 * 1000) },
       },
     });
     if (existing) return existing;
