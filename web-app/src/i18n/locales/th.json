@@ -1225,14 +1225,13 @@
       ],
       "phase27": "P18 — Cloudflare Tunnel & External Access",
       "phase27Desc": "เข้าใช้งานจากภายนอกผ่าน Cloudflare Tunnel — ไม่ต้องเปิด port บน Firewall, SSL auto cert + WAF + DDoS protection",
-      "phase27Status": "วางแผนไว้",
+      "phase27Status": "เปิดใช้งานแล้ว",
       "phase27Tasks": [
-        "ติดตั้ง cloudflared ใน docker-compose เชื่อมต่อ Cloudflare Tunnel (outbound only)",
-        "ตั้งค่า Subdomain เช่น images.yourdomain.com → Cloudflare → Tunnel → nginx",
-        "Cloudflare Auto SSL cert (external) + Self-signed (internal LAN)",
-        "Cloudflare WAF + DDoS Protection (Free Plan)",
-        "ปิด Port 443/80 inbound บน FortiGate — ใช้ outbound HTTPS เท่านั้น",
-        "ตั้งค่า Cloudflare Access (Zero Trust) สำหรับจำกัดผู้ใช้ภายนอก"
+        "✅ ติดตั้ง cloudflared ใน Docker container",
+        "✅ สร้าง Tunnel เชื่อมต่อ Cloudflare (BKK + SIN)",
+        "✅ ตั้งค่า Subdomain images.lc.co.th → Tunnel → nginx",
+        "✅ Cloudflare Auto SSL + WAF + DDoS Protection",
+        "✅ ไม่ต้องเปิด Port บน Firewall — outbound HTTPS เท่านั้น"
       ],
       "phase28": "P19 — Camera Reliability & Availability Analytics",
       "phase28Desc": "ระบบวิเคราะห์ความพร้อมใช้งานกล้อง — Availability, MTBF, MTTR, Health Score, Downtime Report, Incident Management",

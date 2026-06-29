@@ -1222,14 +1222,13 @@
       ],
       "phase27": "P18 — Cloudflare Tunnel & External Access",
       "phase27Desc": "External access via Cloudflare Tunnel — no open ports on firewall, auto SSL, WAF, DDoS protection",
-      "phase27Status": "Planned",
+      "phase27Status": "Launched",
       "phase27Tasks": [
-        "Install cloudflared in docker-compose with Cloudflare Tunnel (outbound only)",
-        "Configure subdomain e.g. images.yourdomain.com → Cloudflare → Tunnel → nginx",
-        "Cloudflare Auto SSL cert (external) + Self-signed (internal LAN)",
-        "Cloudflare WAF + DDoS Protection (Free Plan)",
-        "Close Port 443/80 inbound on FortiGate — outbound HTTPS only",
-        "Configure Cloudflare Access (Zero Trust) for external user restrictions"
+        "✅ Installed cloudflared in Docker container",
+        "✅ Created Tunnel connected to Cloudflare (BKK + SIN)",
+        "✅ Configured images.lc.co.th → Tunnel → nginx",
+        "✅ Cloudflare Auto SSL + WAF + DDoS Protection",
+        "✅ No inbound ports on Firewall — outbound HTTPS only"
       ],
       "phase28": "P19 — Camera Reliability & Availability Analytics",
       "phase28Desc": "Camera availability analytics — Availability, MTBF, MTTR, Health Score, Downtime Report, Incident Management",

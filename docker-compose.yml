@@ -477,6 +477,19 @@ services:
     networks:
       - image-network
 
+  # ── Cloudflare Tunnel ──────────────────────────────────────────
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: image-cloudflared
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    restart: unless-stopped
+    depends_on:
+      - web-app
+    networks:
+      - image-network
+
 volumes:
   postgres-data:
   redis-data:
