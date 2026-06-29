@@ -12,6 +12,7 @@ export const createCameraSchema = z.object({
   pollIntervalSeconds: z.number().int().min(5).max(3600).default(30),
   timezone: z.string().max(64).default('UTC'),
   captureMode: z.enum(['on_demand', 'periodic', 'continuous']).default('periodic'),
+  cameraTypeCode: z.string().max(64).optional(),
   retentionPolicyId: z.string().uuid(),
   metadata: z.record(z.unknown()).default({}),
 });

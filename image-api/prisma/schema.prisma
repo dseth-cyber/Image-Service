@@ -289,6 +289,7 @@ model Camera {
   timezone               String?      @default("UTC") @db.VarChar(64)
   metadata               Json         @default("{}")
   captureMode            String       @default("periodic") @map("capture_mode") @db.VarChar(32)
+  cameraTypeCode         String?      @map("camera_type_code") @db.VarChar(64)
   retentionPolicyId      String       @map("retention_policy_id") @db.Uuid
   enabled                Boolean      @default(true)
   lastPolledAt           DateTime?    @map("last_polled_at")

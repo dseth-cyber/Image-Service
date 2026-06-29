@@ -76,6 +76,7 @@ export async function createCamera(input: CreateCameraInput) {
       pollIntervalSeconds: input.pollIntervalSeconds,
       timezone: input.timezone,
       captureMode: input.captureMode,
+      cameraTypeCode: input.cameraTypeCode,
       retentionPolicyId: input.retentionPolicyId,
       metadata: input.metadata as object,
       status: 'inactive',
@@ -113,6 +114,7 @@ export async function updateCamera(id: string, input: UpdateCameraInput) {
   if (input.pollIntervalSeconds !== undefined) data.pollIntervalSeconds = input.pollIntervalSeconds;
   if (input.timezone !== undefined) data.timezone = input.timezone;
   if (input.captureMode !== undefined) data.captureMode = input.captureMode;
+  if (input.cameraTypeCode !== undefined) data.cameraTypeCode = input.cameraTypeCode;
   if (input.retentionPolicyId !== undefined) data.retentionPolicyId = input.retentionPolicyId;
   if (input.enabled !== undefined) data.enabled = input.enabled;
   if (input.status !== undefined) data.status = input.status;
