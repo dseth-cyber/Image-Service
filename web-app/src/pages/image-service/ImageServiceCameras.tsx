@@ -1126,7 +1126,6 @@ export default function ImageServiceCameras() {
                       <DateTimePicker
                         value={statusForm.estimatedFinish}
                         onChange={v => setStatusForm(p => ({ ...p, estimatedFinish: v }))}
-                        placeholder={t('imageService.incidents.estimatedFinish')}
                       />
                     </div>
                   )}

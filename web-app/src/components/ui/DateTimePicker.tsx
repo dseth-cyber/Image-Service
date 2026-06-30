@@ -39,7 +39,12 @@ export function DateTimePicker({ value, onChange, placeholder, className }: Date
   useEffect(() => {
     if (open && btnRef.current) {
       const r = btnRef.current.getBoundingClientRect()
-      setPos({ top: r.bottom + 4, left: Math.min(r.left, window.innerWidth - 310) })
+      const PICKER_H = 320
+      const PICKER_W = 300
+      const spaceBelow = window.innerHeight - r.bottom - 8
+      const top = spaceBelow >= PICKER_H ? r.bottom + 4 : r.top - PICKER_H - 4
+      const left = Math.min(r.left, window.innerWidth - PICKER_W - 8)
+      setPos({ top, left })
     }
   }, [open])
 
@@ -92,7 +97,7 @@ export function DateTimePicker({ value, onChange, placeholder, className }: Date
       <button type="button" ref={btnRef} onClick={() => setOpen(!open)}
         className={`w-full px-3 py-2 rounded-md text-sm text-left flex items-center justify-between border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} ${className ?? ''}`}>
         <span className={selDate ? themeConfig.text.primary : themeConfig.text.secondary}>
-          {displayValue() || placeholder || 'เลือกวันที่และเวลา'}
+          {displayValue() || placeholder || 'วว/ดด/ปปปป  ชม:นน'}
         </span>
         <div className="flex items-center gap-1">
           {selDate && (
