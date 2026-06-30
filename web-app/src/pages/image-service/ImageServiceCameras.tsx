@@ -11,7 +11,7 @@ import { formatDateTime } from '@/utils/dateUtils';
 import { Search, Plus, ChevronUp, ChevronDown, ChevronsUpDown,
   Edit, Trash2, Eye, Camera, Activity, Wifi, WifiOff, AlertTriangle, Wrench,
   FolderOpen, RefreshCw, CheckCircle, XCircle, ExternalLink, ChevronRight, Play, Undo2 } from 'lucide-react';
-import { Modal, Button, SearchableSelect, TableSkeleton, ColumnSelector, ExportButton } from '@/components/ui';
+import { Modal, Button, SearchableSelect, TableSkeleton, ColumnSelector, ExportButton, DateTimePicker } from '@/components/ui';
 import { getLocalizedValue } from '@/utils/textUtils';
 
 const CAMERA_STATUS_STYLES: Record<string, { bg: string; icon: any }> = {
@@ -1123,14 +1123,11 @@ export default function ImageServiceCameras() {
                       <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
                         {t('imageService.incidents.estimatedFinish')}
                       </label>
-                      <input type="datetime-local" value={statusForm.estimatedFinish}
-                        onChange={e => setStatusForm(p => ({ ...p, estimatedFinish: e.target.value }))}
-                        className={`w-full px-3 py-2 rounded-md text-sm ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`} />
-                      {statusForm.estimatedFinish && (
-                        <p className={`text-xs ${themeConfig.text.secondary} mt-1`}>
-                          {formatDateTime(statusForm.estimatedFinish, i18n.language)}
-                        </p>
-                      )}
+                      <DateTimePicker
+                        value={statusForm.estimatedFinish}
+                        onChange={v => setStatusForm(p => ({ ...p, estimatedFinish: v }))}
+                        placeholder={t('imageService.incidents.estimatedFinish')}
+                      />
                     </div>
                   )}
 

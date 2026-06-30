@@ -202,7 +202,7 @@
       "estimatedFinish": "คาดว่าเสร็จ",
       "resolution": "การแก้ไข",
       "resolutionTitle": "บันทึกการแก้ไข",
-      "correctiveAction": "การแก้ไขเชิงแก้",
+      "correctiveAction": "การแก้ไข",
       "preventiveAction": "การแก้ไขเชิงป้องกัน",
       "incidentCreated": "สร้าง Incident สำเร็จ",
       "incidentResolved": "แก้ไข Incident สำเร็จ",
