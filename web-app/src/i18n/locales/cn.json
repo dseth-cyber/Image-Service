@@ -104,7 +104,10 @@
       "status": "状态",
       "statusPending": "待处理",
       "statusProcessed": "已处理",
-      "statusError": "错误"
+      "statusError": "错误",
+      "source": "来源",
+      "sourceCamera": "摄像头",
+      "sourceSpecial": "特殊"
     },
     "cameras": {
       "title": "摄像头管理",
@@ -311,7 +314,8 @@
       "jobStatus": "任务状态",
       "byType": "按类型",
       "recentJobs": "最近任务",
-      "noData": "暂无处理数据"
+      "noData": "暂无处理数据",
+      "jobsToday": "今日任务"
     },
     "processingLogs": {
       "title": "处理日志",

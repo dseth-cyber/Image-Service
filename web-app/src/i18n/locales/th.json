@@ -130,7 +130,10 @@
       "emptyTrashConfirm": "การล้างถังขยะจะลบข้อมูลถาวร ไม่สามารถกู้คืนได้",
       "emptyTrashPassword": "กรุณายืนยันรหัสผ่าน",
       "emptyTrashSuccess": "ล้างถังขยะสำเร็จ {{count}} รายการ",
-      "deletedAt": "ลบเมื่อ"
+      "deletedAt": "ลบเมื่อ",
+      "source": "แหล่งที่มา",
+      "sourceCamera": "กล้อง",
+      "sourceSpecial": "พิเศษ"
     },
     "cameras": {
       "title": "จัดการกล้อง",
@@ -438,7 +441,8 @@
       "jobStatus": "สถานะงาน",
       "byType": "แบ่งตามประเภท",
       "recentJobs": "งานล่าสุด",
-      "noData": "ไม่มีข้อมูลการประมวลผล"
+      "noData": "ไม่มีข้อมูลการประมวลผล",
+      "jobsToday": "งานวันนี้"
     },
     "processingLogs": {
       "title": "Log การประมวลผล",

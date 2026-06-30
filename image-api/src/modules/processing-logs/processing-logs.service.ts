@@ -196,10 +196,12 @@ export async function getProcessingStats() {
   const now = new Date();
   const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const lastHour = new Date(now.getTime() - 60 * 60 * 1000);
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   const [
     statusCounts, typeCounts, queue, pgMetrics, storageMetrics,
     totalImages, cameraCounts, fileTypeStats, recentImages, cameraList, configs,
+    jobsToday,
   ] = await Promise.all([
     prisma.processingJob.groupBy({
       by: ['status'],
@@ -223,12 +225,13 @@ export async function getProcessingStats() {
       _count: { id: true },
     }),
     prisma.image.groupBy({
-      by: ['capturedAt'],
-      where: { capturedAt: { gte: last7Days } },
+      by: ['createdAt'],
+      where: { createdAt: { gte: last7Days } },
       _count: { id: true },
     }),
     prisma.camera.findMany({ select: { id: true, name: true } }),
     getAllConfigs(),
+    prisma.processingJob.count({ where: { queuedAt: { gte: todayStart } } }),
   ]);
 
   const byStatus: Record<string, number> = {};
@@ -281,8 +284,8 @@ export async function getProcessingStats() {
     dayMap[d.toISOString().slice(0, 10)] = 0;
   }
   for (const r of recentImages) {
-    const day = new Date(r.capturedAt).toISOString().slice(0, 10);
-    if (dayMap[day] !== undefined) dayMap[day] = r._count.id;
+    const day = new Date(r.createdAt).toISOString().slice(0, 10);
+    if (dayMap[day] !== undefined) dayMap[day] += r._count.id;
   }
   const recentActivity = Object.entries(dayMap)
     .sort(([a], [b]) => a.localeCompare(b))
@@ -329,6 +332,7 @@ export async function getProcessingStats() {
     failed,
     running,
     queued,
+    jobsToday,
     activeCameras,
     inactiveCameras,
     errorCameras,
@@ -372,10 +376,10 @@ export async function getTrends(period: string) {
     previousJobs,
     dailyImages,
   ] = await Promise.all([
-    prisma.image.count({ where: { capturedAt: { gte: todayStart } } }),
+    prisma.image.count({ where: { createdAt: { gte: todayStart } } }),
     prisma.image.count(),
-    prisma.image.count({ where: { capturedAt: { gte: currentStart } } }),
-    prisma.image.count({ where: { capturedAt: { gte: previousStart, lt: currentStart } } }),
+    prisma.image.count({ where: { createdAt: { gte: currentStart } } }),
+    prisma.image.count({ where: { createdAt: { gte: previousStart, lt: currentStart } } }),
     prisma.imageFile.aggregate({
       where: { createdAt: { gte: currentStart } },
       _sum: { fileSizeBytes: true },
@@ -386,25 +390,25 @@ export async function getTrends(period: string) {
     }),
     prisma.processingJob.count({ where: { completedAt: { gte: currentStart } } }),
     prisma.processingJob.count({ where: { completedAt: { gte: previousStart, lt: currentStart } } }),
-    // Daily breakdown for current period
+    // Daily breakdown for current period (by ingestion time)
     prisma.image.findMany({
-      where: { capturedAt: { gte: currentStart } },
-      select: { capturedAt: true, fileSizeBytes: true },
-      orderBy: { capturedAt: 'asc' },
+      where: { createdAt: { gte: currentStart } },
+      select: { createdAt: true, fileSizeBytes: true },
+      orderBy: { createdAt: 'asc' },
     }),
   ]);
 
   const currentStorageBytes = Number(currentStorage._sum.fileSizeBytes ?? 0n);
   const previousStorageBytes = Number(previousStorage._sum.fileSizeBytes ?? 0n);
 
-  // Build daily breakdown
+  // Build daily breakdown — last `days` days ending TODAY (inclusive)
   const dayBuckets: Record<string, { images: number; storage: number }> = {};
-  for (let i = 0; i < days; i++) {
-    const d = new Date(currentStart.getTime() + i * 24 * 60 * 60 * 1000);
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(todayStart.getTime() - i * 24 * 60 * 60 * 1000);
     dayBuckets[d.toISOString().slice(0, 10)] = { images: 0, storage: 0 };
   }
   for (const img of dailyImages) {
-    const day = img.capturedAt.toISOString().slice(0, 10);
+    const day = img.createdAt.toISOString().slice(0, 10);
     if (dayBuckets[day]) {
       dayBuckets[day].images += 1;
       dayBuckets[day].storage += Number(img.fileSizeBytes ?? 0n);
@@ -438,7 +442,10 @@ export async function getTrends(period: string) {
 export async function getStreamData() {
   const prisma = getPrisma();
 
-  const [statusCounts, logs, queue] = await Promise.all([
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const [statusCounts, logs, queue, jobsToday] = await Promise.all([
     prisma.processingJob.groupBy({
       by: ['status'],
       _count: { id: true },
@@ -452,6 +459,7 @@ export async function getStreamData() {
       },
     }),
     getQueueMetrics(),
+    prisma.processingJob.count({ where: { queuedAt: { gte: todayStart } } }),
   ]);
 
   const byStatus: Record<string, number> = {};
@@ -464,6 +472,7 @@ export async function getStreamData() {
     failed: (byStatus['failed'] ?? 0) + (byStatus['dead_letter'] ?? 0),
     running: byStatus['running'] ?? 0,
     queued: byStatus['queued'] ?? 0,
+    jobsToday,
     queue,
   };
 

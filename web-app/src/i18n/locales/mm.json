@@ -104,7 +104,10 @@
       "status": "အခြေအနေ",
       "statusPending": "ဆောင်ရွက်ဆဲ",
       "statusProcessed": "လုပ်ဆောင်ပြီး",
-      "statusError": "အမှား"
+      "statusError": "အမှား",
+      "source": "အရင်းအမြစ်",
+      "sourceCamera": "ကင်မရာ",
+      "sourceSpecial": "အထူး"
     },
     "cameras": {
       "title": "ကင်မရာစီမံခန့်ခွဲမှု",
@@ -311,7 +314,8 @@
       "jobStatus": "အလုပ်အခြေအနေ",
       "byType": "အမျိုးအစားအလိုက်",
       "recentJobs": "လတ်တလောအလုပ်များ",
-      "noData": "လုပ်ဆောင်မှုဒေတာမရှိပါ"
+      "noData": "လုပ်ဆောင်မှုဒေတာမရှိပါ",
+      "jobsToday": "ယနေ့အလုပ်"
     },
     "processingLogs": {
       "title": "လုပ်ဆောင်မှု Logs",

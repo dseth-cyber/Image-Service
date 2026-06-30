@@ -22,6 +22,10 @@ function checksumPathKey(cameraId: string, checksum: string): string {
   return `sync:camera:${cameraId}:path:${checksum}`;
 }
 
+function seenPathsKey(cameraId: string): string {
+  return `sync:camera:${cameraId}:seenpaths`;
+}
+
 export interface CameraState {
   lastPolledAt: string;
   lastScanDuration: number;
@@ -186,6 +190,20 @@ export class Tracker {
       await pipeline.exec();
       logger.info({ cameraId, count: members.length }, 'Cleared processed tracker');
     }
+  }
+
+  /* ─── Seen Paths (catches new files regardless of mtime) ─── */
+
+  async getSeenPaths(cameraId: string): Promise<Set<string>> {
+    const members = await this.redis.smembers(seenPathsKey(cameraId));
+    return new Set(members);
+  }
+
+  async markPathsSeen(cameraId: string, paths: string[]): Promise<void> {
+    if (paths.length === 0) return;
+    const key = seenPathsKey(cameraId);
+    await this.redis.sadd(key, ...paths);
+    await this.redis.expire(key, config.tracker.processedTtlDays * 86400);
   }
 
   async healthCheck(): Promise<boolean> {

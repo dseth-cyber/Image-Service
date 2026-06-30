@@ -78,20 +78,25 @@ export class CameraPoller {
       await smb.connect();
       logger.info({ camera: camera.name, path: camera.smbSharePath }, 'Connected to SMB share');
 
-      const watermark = await this.tracker.getWatermark(camera.id);
       const files = await scanCameraDirectory(smb, camera);
-      logger.info({ camera: camera.name, watermark, totalFiles: files.length }, 'watermark check');
-      const filteredFiles = watermark
-        ? files.filter((f) => f.lastModified.getTime() >= watermark)
-        : files;
+      const seenPaths = await this.tracker.getSeenPaths(camera.id);
+      // New files = paths we haven't seen before (independent of mtime,
+      // so copied/restored files with old timestamps are still detected)
+      const filteredFiles = files.filter((f) => !seenPaths.has(f.originalFilename));
+      logger.info(
+        { camera: camera.name, totalFiles: files.length, seenPaths: seenPaths.size, newPaths: filteredFiles.length },
+        'path-based scan',
+      );
       stats.scanned = filteredFiles.length;
 
       if (filteredFiles.length === 0) {
-        logger.warn({ camera: camera.name, watermark, totalFiles: files.length }, 'No new files found');
+        logger.info({ camera: camera.name, totalFiles: files.length }, 'No new files found');
         await api.updateCameraPoll(camera.id);
-        await this.tracker.setWatermark(camera.id, Date.now());
         return this.buildResult(camera, stats, startTime);
       }
+
+      // Mark all candidate paths as seen now (prevents re-checksumming next cycle)
+      await this.tracker.markPathsSeen(camera.id, filteredFiles.map((f) => f.originalFilename));
 
       const toProcess: Array<{ file: SyncFile; checksum: string }> = [];
 

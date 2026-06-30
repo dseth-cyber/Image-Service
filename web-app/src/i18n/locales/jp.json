@@ -104,7 +104,10 @@
       "status": "ステータス",
       "statusPending": "保留中",
       "statusProcessed": "処理済み",
-      "statusError": "エラー"
+      "statusError": "エラー",
+      "source": "ソース",
+      "sourceCamera": "カメラ",
+      "sourceSpecial": "特殊"
     },
     "cameras": {
       "title": "カメラ管理",
@@ -311,7 +314,8 @@
       "jobStatus": "ジョブステータス",
       "byType": "タイプ別",
       "recentJobs": "最近のジョブ",
-      "noData": "処理データがありません"
+      "noData": "処理データがありません",
+      "jobsToday": "本日のジョブ"
     },
     "processingLogs": {
       "title": "処理ログ",

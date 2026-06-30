@@ -212,6 +212,8 @@ export default function ImageServiceProcessingMonitor() {
         if (elF) elF.textContent = String(data.failed ?? 0);
         const elR = document.getElementById('stats-running');
         if (elR) elR.textContent = String(data.running ?? 0);
+        const elT = document.getElementById('stats-today');
+        if (elT && data.jobsToday !== undefined) elT.textContent = String(data.jobsToday);
       } catch { /* ignore parse errors */ }
     });
 
@@ -269,6 +271,7 @@ export default function ImageServiceProcessingMonitor() {
   const completedJobs = (bs as any)?.completed ?? logs.filter((l: any) => l.status === 'completed').length;
   const failedJobs = ((bs as any)?.failed ?? 0) + ((bs as any)?.dead_letter ?? 0) || logs.filter((l: any) => l.status === 'failed' || l.status === 'dead_letter').length;
   const runningJobs = (bs as any)?.running ?? logs.filter((l: any) => l.status === 'running').length;
+  const jobsToday = initialData?.jobsToday ?? 0;
 
   return (
     <div className="p-6">
@@ -345,9 +348,10 @@ export default function ImageServiceProcessingMonitor() {
       >
         <div key="stats" className={`${themeConfig.card} rounded-lg overflow-hidden relative`}>
           <DragHandle show={isEditing} />
-          <div className="grid grid-cols-4 gap-4 p-5 h-full">
+          <div className="grid grid-cols-5 gap-4 p-5 h-full">
             {[
               { id: 'stats-total', label: t('imageService.processing.totalJobs'), value: totalJobs, color: '#06b6d4', icon: Activity },
+              { id: 'stats-today', label: t('imageService.processing.jobsToday'), value: jobsToday, color: '#a855f7', icon: Activity },
               { id: 'stats-completed', label: t('imageService.processing.completed'), value: completedJobs, color: '#10b981', icon: CheckCircle },
               { id: 'stats-failed', label: t('imageService.processing.failed'), value: failedJobs, color: '#ef4444', icon: XCircle },
               { id: 'stats-running', label: t('imageService.processing.inProgress'), value: runningJobs, color: '#f59e0b', icon: AlertTriangle },

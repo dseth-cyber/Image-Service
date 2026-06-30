@@ -130,7 +130,10 @@
       "emptyTrashConfirm": "Emptying trash will permanently delete all data. This cannot be undone.",
       "emptyTrashPassword": "Enter your password to confirm",
       "emptyTrashSuccess": "Trash emptied: {{count}} items deleted",
-      "deletedAt": "Deleted at"
+      "deletedAt": "Deleted at",
+      "source": "Source",
+      "sourceCamera": "Camera",
+      "sourceSpecial": "Special"
     },
     "cameras": {
       "title": "Camera Management",
@@ -438,7 +441,8 @@
       "jobStatus": "Job Status",
       "byType": "By Type",
       "recentJobs": "Recent Jobs",
-      "noData": "No processing data"
+      "noData": "No processing data",
+      "jobsToday": "Jobs Today"
     },
     "processingLogs": {
       "title": "Processing Logs",

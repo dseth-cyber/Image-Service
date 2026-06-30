@@ -414,6 +414,7 @@ export default function ImageServiceSearch() {
                       {sortCol === 'originalFilename' ? sortDir === 'asc' ? <ChevronUp size={11} className="text-cyan-400" /> : <ChevronDown size={11} className="text-cyan-400" /> : <ChevronsUpDown size={11} className="opacity-25" />}</div>
                   </th>
                   <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.cameras.status')}</th>
+                  <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.search.source')}</th>
                   <th onClick={() => handleSort('fileSizeBytes')} className={thCls('fileSizeBytes')}>
                     <div className="flex items-center gap-1">{t('imageService.storage.totalSize')}
                       {sortCol === 'fileSizeBytes' ? sortDir === 'asc' ? <ChevronUp size={11} className="text-cyan-400" /> : <ChevronDown size={11} className="text-cyan-400" /> : <ChevronsUpDown size={11} className="opacity-25" />}</div>
@@ -422,7 +423,7 @@ export default function ImageServiceSearch() {
                     {t('imageService.search.processedSize')}
                   </th>
                   <th onClick={() => handleSort('capturedAt')} className={thCls('capturedAt')}>
-                    <div className="flex items-center gap-1">{t('imageService.search.fromDate')}
+                    <div className="flex items-center gap-1">{t('imageService.search.captured')}
                       {sortCol === 'capturedAt' ? sortDir === 'asc' ? <ChevronUp size={11} className="text-cyan-400" /> : <ChevronDown size={11} className="text-cyan-400" /> : <ChevronsUpDown size={11} className="opacity-25" />}</div>
                   </th>
                   <th className={`px-4 py-3 text-center text-sm font-semibold ${themeConfig.text.primary}`}>{t('common.actions')}</th>
@@ -452,6 +453,16 @@ export default function ImageServiceSearch() {
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${IMAGE_STATUS_COLORS[item.status] ?? 'bg-gray-500/20 text-gray-400'}`}>
                         {t('common.' + item.status) ?? item.status}
                       </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {(() => {
+                        const isCamera = /^\d{8}_\d{6}/.test(item.originalFilename.replace(/^.*[/\\]/, ''));
+                        return (
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${isCamera ? 'bg-cyan-500/20 text-cyan-400' : 'bg-purple-500/20 text-purple-400'}`}>
+                            {isCamera ? t('imageService.search.sourceCamera') : t('imageService.search.sourceSpecial')}
+                          </span>
+                        );
+                      })()}
                     </td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>
                       {item.fileSizeBytes ? (item.fileSizeBytes / 1024 / 1024).toFixed(1) + ' MB' : '—'}
