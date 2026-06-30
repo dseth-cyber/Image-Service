@@ -194,6 +194,92 @@ async function getMetrics(_request: FastifyRequest, reply: FastifyReply) {
       [`image_service_system_disk_usage_percent ${((( diskTotal - diskFree) / diskTotal) * 100).toFixed(1)}`]);
   } catch { /* skip */ }
 
+  // ── Camera Incidents ──
+  try {
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const [
+      incidentsByStatus,
+      incidentsByPriorityOpen,
+      incidentsByPriorityAll,
+      incidentsByRootCause,
+      incidentsOpen,
+      incidentsCreated24h,
+      resolvedIncidents,
+      workOrdersByStatus,
+    ] = await Promise.all([
+      prisma.cameraIncident.groupBy({ by: ['status'], _count: true }).catch(() => []),
+      prisma.cameraIncident.groupBy({ by: ['priority'], where: { status: 'open' }, _count: true }).catch(() => []),
+      prisma.cameraIncident.groupBy({ by: ['priority'], _count: true }).catch(() => []),
+      prisma.cameraIncident.groupBy({ by: ['rootCause'], _count: true }).catch(() => []),
+      prisma.cameraIncident.count({ where: { status: 'open' } }).catch(() => 0),
+      prisma.cameraIncident.count({ where: { openedAt: { gte: since24h } } }).catch(() => 0),
+      prisma.cameraIncident.findMany({ where: { status: 'resolved', closedAt: { not: null } }, select: { openedAt: true, closedAt: true } }).catch(() => []),
+      prisma.cameraIncident.groupBy({ by: ['workOrderStatus'], where: { workOrderStatus: { not: null } }, _count: true }).catch(() => []),
+    ]);
+
+    const sanitize = (v: string) => v.replace(/[\r\n]/g, ' ').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+
+    // Total incidents by status
+    g('image_service_camera_incidents_total', 'Camera incidents by status', 'gauge',
+      Array.isArray(incidentsByStatus) && incidentsByStatus.length > 0
+        ? incidentsByStatus.map((r: any) => `image_service_camera_incidents_total{status="${sanitize(String(r.status))}"} ${r._count}`)
+        : ['image_service_camera_incidents_total{status="none"} 0']);
+
+    // Open incidents by priority
+    g('image_service_camera_incidents_by_priority', 'Open camera incidents by priority', 'gauge',
+      Array.isArray(incidentsByPriorityOpen) && incidentsByPriorityOpen.length > 0
+        ? incidentsByPriorityOpen.map((r: any) => `image_service_camera_incidents_by_priority{priority="${sanitize(String(r.priority))}"} ${r._count}`)
+        : ['image_service_camera_incidents_by_priority{priority="none"} 0']);
+
+    // All incidents by priority
+    g('image_service_camera_incidents_by_priority_all', 'All camera incidents by priority', 'gauge',
+      Array.isArray(incidentsByPriorityAll) && incidentsByPriorityAll.length > 0
+        ? incidentsByPriorityAll.map((r: any) => `image_service_camera_incidents_by_priority_all{priority="${sanitize(String(r.priority))}"} ${r._count}`)
+        : ['image_service_camera_incidents_by_priority_all{priority="none"} 0']);
+
+    // Incidents by root cause (skip null/empty)
+    const rootCauseEntries = (Array.isArray(incidentsByRootCause) ? incidentsByRootCause : [])
+      .filter((r: any) => r.rootCause != null && String(r.rootCause).trim() !== '')
+      .map((r: any) => `image_service_camera_incidents_by_root_cause{root_cause="${sanitize(String(r.rootCause))}"} ${r._count}`);
+    g('image_service_camera_incidents_by_root_cause', 'Camera incidents by root cause', 'gauge',
+      rootCauseEntries.length > 0 ? rootCauseEntries : ['image_service_camera_incidents_by_root_cause{root_cause="none"} 0']);
+
+    // Open incidents gauge
+    g('image_service_camera_incidents_open', 'Currently open camera incidents', 'gauge',
+      [`image_service_camera_incidents_open ${incidentsOpen}`]);
+
+    // Incidents created in last 24h
+    g('image_service_camera_incidents_created_24h', 'Camera incidents created in the last 24 hours', 'gauge',
+      [`image_service_camera_incidents_created_24h ${incidentsCreated24h}`]);
+
+    // Average MTTR in minutes
+    const resolved = Array.isArray(resolvedIncidents) ? resolvedIncidents : [];
+    let mttrMinutes = 0;
+    if (resolved.length > 0) {
+      const totalMinutes = resolved.reduce((acc: number, r: any) => {
+        const opened = new Date(r.openedAt).getTime();
+        const closed = new Date(r.closedAt).getTime();
+        return acc + Math.max(0, (closed - opened) / 60000);
+      }, 0);
+      mttrMinutes = totalMinutes / resolved.length;
+    }
+    g('image_service_camera_incident_mttr_minutes', 'Average mean time to resolve (minutes) for resolved incidents', 'gauge',
+      [`image_service_camera_incident_mttr_minutes ${mttrMinutes.toFixed(1)}`]);
+
+    // Work orders by status
+    g('image_service_camera_work_orders_total', 'Work orders by status', 'gauge',
+      Array.isArray(workOrdersByStatus) && workOrdersByStatus.length > 0
+        ? workOrdersByStatus.map((r: any) => `image_service_camera_work_orders_total{status="${sanitize(String(r.workOrderStatus))}"} ${r._count}`)
+        : ['image_service_camera_work_orders_total{status="none"} 0']);
+
+    // Open work orders gauge
+    const openWorkOrders = (Array.isArray(workOrdersByStatus) ? workOrdersByStatus : [])
+      .filter((r: any) => r.workOrderStatus === 'open' || r.workOrderStatus === 'in_progress')
+      .reduce((acc: number, r: any) => acc + Number(r._count), 0);
+    g('image_service_camera_work_orders_open', 'Open or in-progress work orders', 'gauge',
+      [`image_service_camera_work_orders_open ${openWorkOrders}`]);
+  } catch { /* skip incident metrics on failure */ }
+
   // ── HTTP Requests ──
   g('image_service_http_requests_total', 'HTTP requests to metrics endpoint', 'counter',
     [`image_service_http_requests_total ${httpRequestCount}`]);

@@ -45,25 +45,16 @@ class ApiClient:
     ) -> None:
         metadata = result.metadata
 
+        # Reflect the actual produced outputs (raw always; processed png-or-original;
+        # thumbnail only when generated), with correct mime/size/objectKey.
         files = [
             {
-                "fileType": "raw",
-                "fileSizeBytes": result.raw_size_bytes,
-                "mimeType": "image/tiff",
-                "objectKey": result.raw_object_key,
-            },
-            {
-                "fileType": "processed",
-                "fileSizeBytes": result.png_size_bytes,
-                "mimeType": "image/png",
-                "objectKey": result.png_object_key,
-            },
-            {
-                "fileType": "thumbnail",
-                "fileSizeBytes": result.thumbnail_size_bytes,
-                "mimeType": "image/png",
-                "objectKey": result.thumbnail_object_key,
-            },
+                "fileType": f.file_type,
+                "fileSizeBytes": f.size_bytes,
+                "mimeType": f.mime_type,
+                "objectKey": f.object_key,
+            }
+            for f in result.files
         ]
         if self._provider_id:
             for f in files:

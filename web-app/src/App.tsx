@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useTheme, themes } from '@/contexts/ThemeContext'
@@ -35,9 +35,12 @@ const StorageProvidersPage = lazy(() => import('@/pages/image-service/StoragePro
 const StorageProfilesPage = lazy(() => import('@/pages/image-service/StorageProfilesPage'))
 const CameraAnalytics = lazy(() => import('@/pages/image-service/CameraAnalytics'))
 const IncidentCenter = lazy(() => import('@/pages/image-service/IncidentCenter'))
+const CameraTemplates = lazy(() => import('@/pages/image-service/CameraTemplates'))
+import { translateAlertTitle } from '@/utils/textUtils'
 import {
   Camera, LayoutDashboard, Search, Activity, HardDrive, FileText, Shield, Settings, Map,
-  Globe, Palette, User, ChevronDown, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info, Server, Layers, Image, BarChart3, RefreshCw, Play, ClipboardList,
+  Globe, Palette, User, ChevronDown, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info, Server, Layers, Image, BarChart3, RefreshCw, Play, ClipboardList, LayoutTemplate,
+  Menu, X, GripVertical, ArrowDownUp, RotateCcw,
 } from 'lucide-react'
 
 export function hasPermission(user: any, permission: string): boolean {
@@ -65,12 +68,13 @@ function UnauthorizedPage() {
 
 const navItems = [
   { path: '/image-service/overview', labelKey: 'nav.overview', icon: LayoutDashboard, permission: 'overview:read' },
-  { path: '/image-service/cameras', labelKey: 'nav.cameras', icon: Camera, permission: 'cameras:read' },
-  { path: '/image-service/camera-analytics', labelKey: 'nav.cameraAnalytics', icon: BarChart3, permission: 'cameras:read' },
-  { path: '/image-service/incidents', labelKey: 'nav.incidents', icon: ClipboardList, permission: 'cameras:read' },
   { path: '/image-service/search', labelKey: 'nav.search', icon: Search, permission: 'search:read' },
-  { path: '/image-service/processing', labelKey: 'nav.processing', icon: Activity, permission: 'processing:read' },
   { path: '/image-service/storage', labelKey: 'nav.storage', icon: HardDrive, permission: 'storage:read' },
+  { path: '/image-service/processing', labelKey: 'nav.processing', icon: Activity, permission: 'processing:read' },
+  { path: '/image-service/camera-analytics', labelKey: 'nav.cameraAnalytics', icon: BarChart3, permission: 'cameras:read' },
+  { path: '/image-service/cameras', labelKey: 'nav.cameras', icon: Camera, permission: 'cameras:read' },
+  { path: '/image-service/camera-templates', labelKey: 'nav.cameraTemplates', icon: LayoutTemplate, permission: 'cameras:read' },
+  { path: '/image-service/incidents', labelKey: 'nav.incidents', icon: ClipboardList, permission: 'cameras:read' },
   { path: '/image-service/storage-providers', labelKey: 'nav.storageProviders', icon: Server, permission: 'storage:read' },
   { path: '/image-service/storage-profiles', labelKey: 'nav.storageProfiles', icon: Layers, permission: 'storage:read' },
   { path: '/image-service/logs', labelKey: 'nav.logs', icon: FileText, permission: 'logs:read' },
@@ -250,7 +254,7 @@ function NavBell() {
                   <div className="flex items-start gap-2">
                     <span className={`w-2 h-2 rounded-full mt-1 flex-shrink-0 ${a.severity === 'critical' ? 'bg-red-400' : a.severity === 'warning' ? 'bg-yellow-400' : 'bg-blue-400'}`} />
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-white truncate">{a.title}</p>
+                      <p className="text-xs font-medium text-white truncate">{translateAlertTitle(a.title, t)}</p>
                       <p className="text-[10px] text-gray-400 truncate">{a.message}</p>
                     </div>
                   </div>
@@ -454,6 +458,167 @@ function SettingsNavGroup({ settingsSubItems, locationPath, t }: {
   )
 }
 
+type NavItem = { path: string; labelKey: string; icon: any; permission: string }
+
+// Hook: returns nav items ordered by a per-user saved order, with reorder handlers
+function useSidebarOrder(username: string | undefined, items: NavItem[]) {
+  const storageKey = username ? `sidebar-nav-order:${username}` : ''
+  const [order, setOrder] = useState<string[]>(() => {
+    if (!storageKey) return []
+    try {
+      const raw = localStorage.getItem(storageKey)
+      return raw ? JSON.parse(raw) : []
+    } catch { return [] }
+  })
+
+  // Re-read when the user changes
+  useEffect(() => {
+    if (!storageKey) { setOrder([]); return }
+    try {
+      const raw = localStorage.getItem(storageKey)
+      setOrder(raw ? JSON.parse(raw) : [])
+    } catch { setOrder([]) }
+  }, [storageKey])
+
+  const persist = useCallback((next: string[]) => {
+    setOrder(next)
+    if (storageKey) {
+      try { localStorage.setItem(storageKey, JSON.stringify(next)) } catch { /* ignore */ }
+    }
+  }, [storageKey])
+
+  // Items sorted by saved order; unknown items keep original order at the end
+  const ordered = useMemo(() => {
+    if (order.length === 0) return items
+    const indexOf = (p: string) => {
+      const i = order.indexOf(p)
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i
+    }
+    return [...items].sort((a, b) => {
+      const ia = indexOf(a.path), ib = indexOf(b.path)
+      if (ia !== ib) return ia - ib
+      return items.indexOf(a) - items.indexOf(b)
+    })
+  }, [items, order])
+
+  // Move item from one path-position to before another; operates on current visible order
+  const reorder = useCallback((fromPath: string, toPath: string, visiblePaths: string[]) => {
+    if (fromPath === toPath) return
+    const next = [...visiblePaths]
+    const from = next.indexOf(fromPath)
+    const to = next.indexOf(toPath)
+    if (from === -1 || to === -1) return
+    next.splice(from, 1)
+    next.splice(to, 0, fromPath)
+    persist(next)
+  }, [persist])
+
+  const reset = useCallback(() => persist([]), [persist])
+
+  return { ordered, reorder, reset }
+}
+
+function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavigate }: {
+  navItems: NavItem[]
+  settingsSubItems: NavItem[]
+  user: any
+  locationPath: string
+  t: (key: string) => string
+  onNavigate: () => void
+}) {
+  const visibleNav = useMemo(() => navItems.filter(item => hasPermission(user, item.permission)), [navItems, user])
+  const { ordered, reorder, reset } = useSidebarOrder(user?.username, visibleNav)
+  const [reorderMode, setReorderMode] = useState(false)
+  const [dragPath, setDragPath] = useState<string | null>(null)
+  const [overPath, setOverPath] = useState<string | null>(null)
+
+  const visiblePaths = ordered.map(i => i.path)
+
+  const handleDrop = (toPath: string) => {
+    if (dragPath) reorder(dragPath, toPath, visiblePaths)
+    setDragPath(null)
+    setOverPath(null)
+  }
+
+  return (
+    <nav className="flex-1 px-3 py-4 space-y-1">
+      {ordered.map(item => {
+        const Icon = item.icon
+        const isActive = locationPath === item.path
+        const isDragging = dragPath === item.path
+        const isOver = overPath === item.path && dragPath !== item.path
+        return (
+          <div
+            key={item.path}
+            draggable={reorderMode}
+            onDragStart={reorderMode ? () => setDragPath(item.path) : undefined}
+            onDragOver={reorderMode ? (e) => { e.preventDefault(); setOverPath(item.path) } : undefined}
+            onDragLeave={reorderMode ? () => setOverPath(p => (p === item.path ? null : p)) : undefined}
+            onDrop={reorderMode ? (e) => { e.preventDefault(); handleDrop(item.path) } : undefined}
+            onDragEnd={reorderMode ? () => { setDragPath(null); setOverPath(null) } : undefined}
+            className={`${isDragging ? 'opacity-50' : ''} ${isOver ? 'border-t-2 border-cyan-400' : 'border-t-2 border-transparent'}`}
+          >
+            {reorderMode ? (
+              <div
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium cursor-grab active:cursor-grabbing ${
+                  isActive ? 'bg-cyan-500/15 text-cyan-300' : 'text-gray-300 hover:bg-white/5'
+                }`}
+              >
+                <GripVertical size={14} className="text-gray-500 flex-shrink-0" />
+                <Icon size={16} />
+                <span className="truncate">{t(`imageService.${item.labelKey}`)}</span>
+              </div>
+            ) : (
+              <Link
+                to={item.path}
+                onClick={onNavigate}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isActive ? 'bg-cyan-500/15 text-cyan-300' : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                <Icon size={16} />
+                {t(`imageService.${item.labelKey}`)}
+              </Link>
+            )}
+          </div>
+        )
+      })}
+
+      <div onClick={(e) => { if ((e.target as HTMLElement).closest('a')) onNavigate() }}>
+        <SettingsNavGroup
+          settingsSubItems={settingsSubItems}
+          locationPath={locationPath}
+          t={t}
+        />
+      </div>
+
+      {/* Reorder toggle row — bottom */}
+      <div className="flex items-center justify-between gap-1 px-2 pt-3 mt-2 border-t border-white/10">
+        <button
+          onClick={() => setReorderMode(v => !v)}
+          title={reorderMode ? t('imageService.nav.reorderDone') : t('imageService.nav.reorderMenu')}
+          className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${
+            reorderMode ? 'bg-cyan-500/20 text-cyan-300' : 'text-gray-400 hover:bg-white/5 hover:text-white'
+          }`}
+        >
+          <ArrowDownUp size={13} />
+          {reorderMode ? t('imageService.nav.reorderDone') : t('imageService.nav.reorderMenu')}
+        </button>
+        {reorderMode && (
+          <button
+            onClick={reset}
+            title={t('imageService.nav.resetOrder')}
+            className="flex items-center gap-1 px-1.5 py-1 rounded-md text-[11px] text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+          >
+            <RotateCcw size={12} />
+            {t('imageService.nav.resetOrder')}
+          </button>
+        )}
+      </div>
+    </nav>
+  )
+}
+
 function AboutModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { t } = useTranslation()
   const { themeConfig } = useTheme()
@@ -651,6 +816,10 @@ export default function App() {
   const location = useLocation()
   const [passwordModalOpen, setPasswordModalOpen] = useState(false)
   const [aboutModalOpen, setAboutModalOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  // Close the mobile drawer whenever the route changes
+  useEffect(() => { setMobileMenuOpen(false) }, [location.pathname])
 
   useEffect(() => {
     setForbiddenHandler((msg) => {
@@ -703,6 +872,14 @@ export default function App() {
       {/* Top Navbar */}
       <header className={`${themeConfig.navBar} px-5 py-2.5 flex items-center justify-between flex-shrink-0 z-40`}>
         <div className="flex items-center gap-3">
+          {/* Hamburger (mobile only) */}
+          <button
+            onClick={() => setMobileMenuOpen(v => !v)}
+            className="md:hidden flex items-center p-1.5 rounded-md hover:bg-white/10 transition-colors"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
           <div className="flex items-center gap-2">
             {logoBase64 ? (
               <img src={logoBase64} alt="Logo" className="h-7 w-7 rounded object-contain" />
@@ -714,26 +891,32 @@ export default function App() {
         </div>
         <div className="flex items-center gap-1">
           {/* Processing indicator */}
-          <NavProcessing />
+          <div className="hidden sm:flex">
+            <NavProcessing />
+          </div>
           {/* Search */}
-          <NavSearch />
-          {/* Notifications */}
+          <div className="hidden md:block">
+            <NavSearch />
+          </div>
+          {/* Notifications - always visible */}
           <NavBell />
           {/* Language */}
-          <LanguageDropdown lang={i18n.language} onChange={v => { i18n.changeLanguage(v); localStorage.setItem('i18nextLng', v) }} />
+          <div className="hidden sm:block">
+            <LanguageDropdown lang={i18n.language} onChange={v => { i18n.changeLanguage(v); localStorage.setItem('i18nextLng', v) }} />
+          </div>
           <button
             onClick={() => {
               const keys = Object.keys(themes)
               const idx = keys.indexOf(theme)
               setTheme(keys[(idx + 1) % keys.length])
             }}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium hover:bg-white/10 transition-colors"
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium hover:bg-white/10 transition-colors"
             title={t('imageService.settings.theme')}
           >
             <Palette size={15} />
             <span>{THEME_OPTIONS.find(o => o.value === theme)?.label}</span>
           </button>
-          <div className="w-px h-5 mx-1 bg-white/10" />
+          <div className="hidden sm:block w-px h-5 mx-1 bg-white/10" />
           <ProfileMenu
             username={user?.username ?? 'admin'}
             role={user?.role ?? 'viewer'}
@@ -744,34 +927,30 @@ export default function App() {
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Mobile backdrop */}
+        {mobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
-        <aside className={`w-56 flex-shrink-0 ${themeConfig.sidebar} flex flex-col overflow-y-auto`}>
-          <nav className="flex-1 px-3 py-4 space-y-1">
-            {navItems.filter(item => hasPermission(user, item.permission)).map(item => {
-              const Icon = item.icon
-              const isActive = location.pathname === item.path
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'bg-cyan-500/15 text-cyan-300'
-                      : 'text-gray-300 hover:bg-white/5 hover:text-white'
-                  }`}
-                >
-                  <Icon size={16} />
-                  {t(`imageService.${item.labelKey}`)}
-                </Link>
-              )
-            })}
-            <SettingsNavGroup
-              settingsSubItems={settingsSubItems}
-              locationPath={location.pathname}
-              t={t}
-            />
-          </nav>
+        <aside
+          className={`w-56 flex-shrink-0 ${themeConfig.sidebar} flex flex-col overflow-y-auto
+            fixed inset-y-0 left-0 z-50 transform transition-transform duration-200 ease-in-out
+            ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+            md:relative md:translate-x-0 md:z-auto md:inset-auto`}
+        >
+          <SidebarNav
+            navItems={navItems}
+            settingsSubItems={settingsSubItems}
+            user={user}
+            locationPath={location.pathname}
+            t={t}
+            onNavigate={() => setMobileMenuOpen(false)}
+          />
         </aside>
 
         {/* Main Content */}
@@ -793,6 +972,9 @@ export default function App() {
             } />
             <Route path="/image-service/incidents" element={
               hasPermission(user, 'cameras:read') ? <IncidentCenter /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/camera-templates" element={
+              hasPermission(user, 'cameras:read') ? <CameraTemplates /> : <UnauthorizedPage />
             } />
             <Route path="/image-service/search" element={
               hasPermission(user, 'search:read') ? <ImageServiceSearch /> : <UnauthorizedPage />

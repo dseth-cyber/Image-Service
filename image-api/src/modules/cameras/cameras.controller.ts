@@ -321,8 +321,14 @@ async function uploadAttachmentHandler(request: FastifyRequest, reply: FastifyRe
 
     const mimeType: string = data.mimetype || '';
     if (!mimeType.startsWith('image/')) {
-      return reply.status(400).send({ error: 'Only image files are allowed' });
+      return reply.status(400).send({ error: 'Only image files are allowed', code: 'INVALID_TYPE' });
     }
+
+    // Configurable max size (MB) from system config
+    const { getAllConfigs } = await import('../system-config/system-config.service.js');
+    const configs = await getAllConfigs();
+    const maxMb = Number(configs.incident_attachment_max_mb?.value ?? 10);
+    const maxBytes = maxMb * 1024 * 1024;
 
     const ext = extname(data.filename || '.jpg') || '.jpg';
     const filename = `${id}-${randomUUID()}${ext}`;
@@ -332,20 +338,40 @@ async function uploadAttachmentHandler(request: FastifyRequest, reply: FastifyRe
     const chunks: Buffer[] = [];
     for await (const chunk of data.file) {
       size += chunk.length;
-      if (size > 5 * 1024 * 1024) {
-        return reply.status(400).send({ error: 'File size exceeds 5MB limit' });
+      if (size > maxBytes) {
+        return reply.status(413).send({
+          error: 'File too large',
+          code: 'FILE_TOO_LARGE',
+          maxMb,
+          message: `File size exceeds ${maxMb} MB limit`,
+        });
       }
       chunks.push(chunk);
+    }
+
+    if ((data as any).file.truncated) {
+      return reply.status(413).send({ error: 'File too large', code: 'FILE_TOO_LARGE', maxMb, message: `File size exceeds ${maxMb} MB limit` });
     }
 
     const { writeFile } = await import('fs/promises');
     await writeFile(filePath, Buffer.concat(chunks));
 
+    const url = `/api/v1/cameras/incidents/attachments/${filename}`;
+
+    // Persist attachment metadata into the incident's attachments JSON array
+    const prisma = (await import('../../lib/prisma.js')).getPrisma();
+    const incident = await prisma.cameraIncident.findUnique({ where: { id }, select: { attachments: true } });
+    if (incident) {
+      const existing = Array.isArray(incident.attachments) ? incident.attachments as any[] : [];
+      existing.push({ filename, originalName: data.filename, size, url, uploadedAt: new Date().toISOString() });
+      await prisma.cameraIncident.update({ where: { id }, data: { attachments: existing as never } });
+    }
+
     return reply.status(201).send({
       filename,
       originalName: data.filename,
       size,
-      url: `/api/v1/cameras/incidents/attachments/${filename}`,
+      url,
     });
   } catch (err: any) {
     return reply.status(500).send({ error: 'Upload failed', message: err?.message });

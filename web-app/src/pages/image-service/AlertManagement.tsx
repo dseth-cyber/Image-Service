@@ -5,6 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { useToast } from '@/contexts/ToastContext'
 import { imageServiceApi } from '@/services/imageServiceApi'
 import { formatDateTime } from '@/utils/dateUtils'
+import { translateAlertTitle } from '@/utils/textUtils'
 import { Modal, Button, SearchableSelect, TableSkeleton } from '@/components/ui'
 import { Search, Bell, Eye, CheckCircle, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, Trash2 } from 'lucide-react'
 
@@ -84,7 +85,7 @@ export default function AlertManagement() {
   ]
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <div className="mb-6">
         <p className={`text-xs font-medium uppercase tracking-widest ${themeConfig.text.secondary}`}>
           Image Service · {t('imageService.alerts.title')}
@@ -121,7 +122,42 @@ export default function AlertManagement() {
 
       {isLoading ? <TableSkeleton rows={8} /> : (
         <>
-          <div className="overflow-x-auto">
+          {/* Mobile card list */}
+          <div className="md:hidden space-y-2">
+            {items.map((item: any, idx: number) => (
+              <div key={item.id} className={`${themeConfig.card} rounded-lg p-3`}>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${SEVERITY_COLORS[item.severity] ?? 'bg-gray-500/20 text-gray-400'}`}>
+                        {t(`imageService.alerts.${item.severity}`)}
+                      </span>
+                      <span className={`text-[10px] ${themeConfig.text.secondary}`}>#{(page - 1) * 20 + idx + 1}</span>
+                    </div>
+                    <p className={`text-sm font-medium ${themeConfig.text.primary} break-words`}>{translateAlertTitle(item.title, t)}</p>
+                    <p className={`text-[11px] mt-1 ${themeConfig.text.secondary}`}>
+                      {item.source ?? '—'} · {formatDateTime(item.createdAt, i18n.language)}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 mt-2 pt-2 border-t border-white/5">
+                  <button onClick={() => { setDetailId(item.id); setViewing(item) }}
+                    className="p-2 rounded-lg hover:bg-cyan-500/20"><Eye size={16} className="text-cyan-400" /></button>
+                  {!item.acknowledgedAt && (
+                    <button onClick={() => handleAcknowledge(item.id)}
+                      className="p-2 rounded-lg hover:bg-blue-500/20"><CheckCircle size={16} className="text-blue-400" /></button>
+                  )}
+                  {!item.resolvedAt && (
+                    <button onClick={() => handleResolve(item.id)}
+                      className="p-2 rounded-lg hover:bg-green-500/20"><XCircle size={16} className="text-green-400" /></button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead className={themeConfig.tableHeader}>
                 <tr>
@@ -148,7 +184,7 @@ export default function AlertManagement() {
                         {t(`imageService.alerts.${item.severity}`)}
                       </span>
                     </td>
-                    <td className={`px-4 py-3 text-sm ${themeConfig.text.primary} max-w-[250px] truncate`}>{item.title}</td>
+                    <td className={`px-4 py-3 text-sm ${themeConfig.text.primary} max-w-[250px] truncate`}>{translateAlertTitle(item.title, t)}</td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>{item.source ?? '—'}</td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>
                       {formatDateTime(item.createdAt, i18n.language)}
@@ -200,7 +236,7 @@ export default function AlertManagement() {
           <div className="space-y-4 p-1 max-w-xl">
             <div className="flex items-center gap-2">
               <Bell size={16} className="text-cyan-400" />
-              <h3 className={`text-base font-semibold ${themeConfig.text.primary}`}>{viewing.title}</h3>
+              <h3 className={`text-base font-semibold ${themeConfig.text.primary}`}>{translateAlertTitle(viewing.title, t)}</h3>
             </div>
             <p className={`text-sm ${themeConfig.text.secondary}`}>{viewing.message}</p>
             <div className="grid grid-cols-2 gap-3 text-xs">

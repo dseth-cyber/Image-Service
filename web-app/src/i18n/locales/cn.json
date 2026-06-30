@@ -507,6 +507,7 @@
       "imageService": "图像服务",
       "overview": "概览",
       "cameras": "摄像头",
+      "cameraTemplates": "摄像头模板",
       "search": "搜索",
       "processing": "处理",
       "storage": "存储",

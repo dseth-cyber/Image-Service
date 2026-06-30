@@ -13,6 +13,8 @@ export interface CameraConfig {
   captureMode: string;
   retentionPolicyId: string;
   enabled: boolean;
+  // Resolved file extensions this camera accepts (template/camera override resolved by the API).
+  acceptedExtensions: string[];
 }
 
 export interface SyncFile {

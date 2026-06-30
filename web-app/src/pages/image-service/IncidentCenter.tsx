@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -8,7 +9,7 @@ import { formatDateTime } from '@/utils/dateUtils'
 import { getLocalizedValue } from '@/utils/textUtils'
 import {
   ClipboardList, BookOpen, Search, ChevronLeft, ChevronRight, Wrench,
-  AlertTriangle, CheckCircle2, Clock, Camera as CameraIcon,
+  AlertTriangle, CheckCircle2, Clock, Camera as CameraIcon, X,
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
@@ -50,6 +51,7 @@ function formatMttr(minutes: number | null | undefined): string {
 
 function AttachmentImage({ filename, alt }: { filename: string; alt: string }) {
   const [url, setUrl] = useState<string>('')
+  const [zoom, setZoom] = useState(false)
   useEffect(() => {
     let active = true
     let objectUrl = ''
@@ -63,7 +65,23 @@ function AttachmentImage({ filename, alt }: { filename: string; alt: string }) {
     return () => { active = false; if (objectUrl) URL.revokeObjectURL(objectUrl) }
   }, [filename])
   if (!url) return <div className="w-24 h-24 rounded-lg bg-white/5 animate-pulse" />
-  return <img src={url} alt={alt} className="w-24 h-24 rounded-lg object-cover border border-white/10" />
+  return (
+    <>
+      <img src={url} alt={alt} onClick={() => setZoom(true)}
+        className="w-24 h-24 rounded-lg object-cover border border-white/10 cursor-zoom-in hover:opacity-80 transition-opacity" />
+      {zoom && createPortal(
+        <div onClick={() => setZoom(false)}
+          className="fixed inset-0 z-[99999] bg-black/85 flex items-center justify-center p-4 cursor-zoom-out">
+          <img src={url} alt={alt} className="max-w-[95vw] max-h-[95vh] object-contain rounded-lg shadow-2xl" />
+          <button onClick={() => setZoom(false)}
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white">
+            <X size={20} />
+          </button>
+        </div>,
+        document.body
+      )}
+    </>
+  )
 }
 
 export default function IncidentCenter() {
@@ -487,12 +505,12 @@ function IncidentDetailModal({ incidentId, onClose, onSwitch, labelReason, label
             <Field label={ic('filterReason')} value={labelReason(incident.reason)} />
             <Field label={ic('filterRootCause')} value={incident.rootCause ? labelRootCause(incident.rootCause) : null} />
             <Field label={ic('colMttr')} value={incident.closedAt ? formatMttr(Math.round((new Date(incident.closedAt).getTime() - new Date(incident.openedAt).getTime()) / 60000)) : null} />
-            <Field label={ic('searchPlaceholder')} value={incident.problemDesc} />
-            <Field label={ic('topResolutions')} value={incident.resolution ? labelResolution(incident.resolution) : null} />
-            <Field label="Resolution Detail" value={incident.resolutionDesc} />
-            <Field label="Description" value={incident.description} />
-            <Field label="Corrective Action" value={incident.correctiveAction} />
-            <Field label="Preventive Action" value={incident.preventiveAction} />
+            <Field label={ic('problemDesc')} value={incident.problemDesc} />
+            <Field label={ic('resolution')} value={incident.resolution ? labelResolution(incident.resolution) : null} />
+            <Field label={ic('resolutionDesc')} value={incident.resolutionDesc} />
+            <Field label={ic('description')} value={incident.description} />
+            <Field label={ic('correctiveAction')} value={incident.correctiveAction} />
+            <Field label={ic('preventiveAction')} value={incident.preventiveAction} />
             <Field label={ic('colOpened')} value={incident.openedAt ? `${formatDateTime(incident.openedAt, i18n.language)} (${incident.openedBy || '—'})` : null} />
             <Field label="Closed" value={incident.closedAt ? `${formatDateTime(incident.closedAt, i18n.language)} (${incident.closedBy || '—'})` : null} />
           </div>

@@ -20,6 +20,7 @@ import { authenticate } from './middleware/auth.js';
 import { authRoutes } from './modules/auth/auth.controller.js';
 import { imageRoutes } from './modules/images/images.controller.js';
 import { cameraRoutes } from './modules/cameras/cameras.controller.js';
+import { cameraTemplateRoutes } from './modules/camera-templates/camera-templates.controller.js';
 import { retentionRoutes } from './modules/retention/retention.controller.js';
 import { healthRoutes } from './modules/health/health.controller.js';
 import { storageRoutes } from './modules/storage/storage.controller.js';
@@ -122,6 +123,7 @@ export async function buildApp() {
       await api.register(authRoutes, { prefix: '/api/v1/auth' });
       await api.register(imageRoutes, { prefix: '/api/v1/images' });
       await api.register(cameraRoutes, { prefix: '/api/v1/cameras' });
+      await api.register(cameraTemplateRoutes, { prefix: '/api/v1/camera-templates' });
       await api.register(retentionRoutes, { prefix: '/api/v1/retention-policies' });
       await api.register(healthRoutes, { prefix: '/api/v1/health' });
       await api.register(storageRoutes, { prefix: '/api/v1/storage' });

@@ -153,5 +153,8 @@ function normalizeCamera(raw: Record<string, unknown>): CameraConfig {
     captureMode: String(raw.captureMode),
     retentionPolicyId: String(raw.retentionPolicyId),
     enabled: Boolean(raw.enabled),
+    acceptedExtensions: Array.isArray(raw.acceptedExtensions)
+      ? (raw.acceptedExtensions as unknown[]).map((e) => String(e))
+      : [],
   };
 }

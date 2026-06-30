@@ -6,12 +6,11 @@ from datetime import datetime, timezone
 from PIL import Image, ImageSequence, TiffImagePlugin
 import numpy as np
 from src.validator import (
-    validate_tiff,
+    validate_source_image,
     validate_dimensions,
-    ImageValidationError,
 )
 from src.checksum import compute_sha256_bytes
-from src.models import ImageMetadata, ProcessingResult
+from src.models import ImageMetadata, ProcessingResult, ProcessingConfig, FileOutput
 from src.config import settings
 from src.logger import logger
 
@@ -23,15 +22,47 @@ class ProcessingError(Exception):
         super().__init__(message)
 
 
-def process_tiff(
+# Map a source extension to its raw mime type.
+_EXT_MIME = {
+    "tif": "image/tiff",
+    "tiff": "image/tiff",
+    "ptif": "image/tiff",
+    "ptiff": "image/tiff",
+    "jpg": "image/jpeg",
+    "jpeg": "image/jpeg",
+    "png": "image/png",
+    "bmp": "image/bmp",
+}
+
+
+def _source_ext(filename: str) -> str:
+    ext = os.path.splitext(filename)[1].lstrip(".").lower()
+    return ext or "tiff"
+
+
+def _raw_mime(ext: str) -> str:
+    return _EXT_MIME.get(ext, "application/octet-stream")
+
+
+def process_image(
     filepath: str,
     image_id: str,
     original_filename: str,
     camera_id: str,
-) -> ProcessingResult:
-    logger.info("Starting TIFF processing", image_id=image_id, filepath=filepath)
+    raw_data: bytes,
+    pconfig: ProcessingConfig,
+):
+    """Flexible ingestion processor.
 
-    validate_tiff(filepath)
+    Always stores the original bytes as the "raw" file. Optionally converts to
+    PNG (keeping the smaller of PNG/original when configured) and optionally
+    generates a thumbnail. Returns (ProcessingResult, files) where files is the
+    list of FileOutput to upload.
+    """
+    logger.info("Starting image processing", image_id=image_id, filepath=filepath)
+
+    source_ext = _source_ext(original_filename)
+    validate_source_image(filepath, source_ext)
 
     with Image.open(filepath) as img:
         metadata = _extract_metadata(img, filepath)
@@ -39,11 +70,7 @@ def process_tiff(
         validate_dimensions(metadata.width_px, metadata.height_px)
 
         if metadata.num_frames > 1:
-            logger.info(
-                "Multi-page TIFF detected",
-                image_id=image_id,
-                frames=metadata.num_frames,
-            )
+            logger.info("Multi-page image detected", image_id=image_id, frames=metadata.num_frames)
             img = _merge_multipage(img)
 
         if img.mode == "CMYK":
@@ -54,46 +81,98 @@ def process_tiff(
             img = _normalize_bit_depth(img)
             metadata.bit_depth = 8
 
-        png_data = _convert_to_png(img)
-        thumb_data = _generate_thumbnail(img)
+        png_data: bytes | None = None
+        thumb_data: bytes | None = None
 
-    sha256 = compute_sha256_bytes(png_data + thumb_data)
+        if pconfig.convert_to_png:
+            png_data = _convert_to_png(img)
+
+        if pconfig.generate_thumbnail:
+            thumb_data = _generate_thumbnail(img, pconfig.thumbnail_size)
+
     timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z')
 
     camera_path = _build_camera_path(camera_id)
     safe_path = original_filename.replace('\\', '/').lstrip('/')
     basename = os.path.splitext(safe_path)[0]
 
-    raw_object_key = f"raw/{camera_path}/{basename}.tiff"
-    png_object_key = f"processed/{camera_path}/{basename}.png"
-    thumb_object_key = f"thumbnails/{camera_path}/{basename}_thumb.png"
+    raw_mime = _raw_mime(source_ext)
+    raw_object_key = f"raw/{camera_path}/{basename}.{source_ext}"
 
-    raw_size = os.path.getsize(filepath)
+    # Raw is ALWAYS stored, using the original bytes + correct extension/mime.
+    files: list[FileOutput] = [
+        FileOutput(file_type="raw", object_key=raw_object_key, mime_type=raw_mime, data=raw_data),
+    ]
+
+    # Decide the "processed" file.
+    if png_data is not None:
+        use_png = True
+        if pconfig.keep_smaller and len(png_data) >= len(raw_data):
+            # PNG isn't smaller — keep the original as the processed file.
+            use_png = False
+            logger.info(
+                "Keeping original as processed (PNG not smaller)",
+                image_id=image_id,
+                png_size=len(png_data),
+                raw_size=len(raw_data),
+            )
+
+        if use_png:
+            processed = FileOutput(
+                file_type="processed",
+                object_key=f"processed/{camera_path}/{basename}.png",
+                mime_type="image/png",
+                data=png_data,
+            )
+        else:
+            processed = FileOutput(
+                file_type="processed",
+                object_key=f"processed/{camera_path}/{basename}.{source_ext}",
+                mime_type=raw_mime,
+                data=raw_data,
+            )
+    else:
+        # No conversion requested — processed == original bytes.
+        processed = FileOutput(
+            file_type="processed",
+            object_key=f"processed/{camera_path}/{basename}.{source_ext}",
+            mime_type=raw_mime,
+            data=raw_data,
+        )
+    files.append(processed)
+
+    if thumb_data is not None:
+        files.append(
+            FileOutput(
+                file_type="thumbnail",
+                object_key=f"thumbnails/{camera_path}/{basename}_thumb.png",
+                mime_type="image/png",
+                data=thumb_data,
+            )
+        )
+
+    # Checksum over concatenated output bytes (stable identity of the produced set).
+    sha256 = compute_sha256_bytes(b"".join(f.data for f in files))
 
     result = ProcessingResult(
         image_id=image_id,
         original_filename=original_filename,
-        png_size_bytes=len(png_data),
-        thumbnail_size_bytes=len(thumb_data),
-        raw_size_bytes=raw_size,
         sha256=sha256,
         metadata=metadata,
-        raw_object_key=raw_object_key,
-        png_object_key=png_object_key,
-        thumbnail_object_key=thumb_object_key,
+        files=files,
         processed_at=timestamp,
     )
 
     logger.info(
-        "TIFF processing complete",
+        "Image processing complete",
         image_id=image_id,
         width=metadata.width_px,
         height=metadata.height_px,
-        png_size=result.png_size_bytes,
-        thumbnail_size=result.thumbnail_size_bytes,
+        files=[f.file_type for f in files],
+        processed_mime=processed.mime_type,
     )
 
-    return result, png_data, thumb_data
+    return result, files
 
 
 def _extract_metadata(img: Image.Image, filepath: str) -> ImageMetadata:
@@ -146,7 +225,12 @@ def _get_compression(img: Image.Image) -> str:
         2: "CCITT Group 3",
         3: "CCITT Group 4",
     }
-    tag = img.tag_v2.get(259)
+    # tag_v2 only exists for TIFF images.
+    tag_v2 = getattr(img, "tag_v2", None)
+    if tag_v2 is None:
+        # Fall back to Pillow's reported compression for non-TIFF formats.
+        return img.info.get("compression", img.format or "Unknown")
+    tag = tag_v2.get(259)
     if tag is None:
         return "Unknown"
     if isinstance(tag, tuple):
@@ -156,8 +240,11 @@ def _get_compression(img: Image.Image) -> str:
 
 def _extract_tiff_tags(img: Image.Image) -> dict:
     tags = {}
+    tag_v2 = getattr(img, "tag_v2", None)
+    if tag_v2 is None:
+        return tags
     try:
-        for tag_id, value in img.tag_v2.items():
+        for tag_id, value in tag_v2.items():
             try:
                 tag_name = TiffImagePlugin.TAGS.get(tag_id, str(tag_id))
             except Exception:
@@ -209,17 +296,47 @@ def _merge_multipage(img: Image.Image) -> Image.Image:
 
 def _convert_to_png(img: Image.Image) -> bytes:
     buf = io.BytesIO()
-    img.save(buf, format="PNG", compress_level=settings.png_compression_level)
+    save_img = img
+    if save_img.mode not in ("1", "L", "LA", "P", "RGB", "RGBA", "I"):
+        save_img = save_img.convert("RGB")
+    save_img.save(buf, format="PNG", compress_level=settings.png_compression_level)
     buf.seek(0)
     return buf.getvalue()
 
 
-def _generate_thumbnail(img: Image.Image) -> bytes:
-    size = settings.thumbnail_size
+def process_tiff(
+    filepath: str,
+    image_id: str,
+    original_filename: str,
+    camera_id: str,
+):
+    """Backward-compatible wrapper around :func:`process_image`.
+
+    Returns the legacy ``(result, png_data, thumb_data)`` tuple using default
+    processing options (convert to PNG + generate thumbnail).
+    """
+    with open(filepath, "rb") as f:
+        raw_data = f.read()
+    result, files = process_image(
+        filepath=filepath,
+        image_id=image_id,
+        original_filename=original_filename,
+        camera_id=camera_id,
+        raw_data=raw_data,
+        pconfig=ProcessingConfig(),
+    )
+    processed = result.file_of("processed")
+    thumb = result.file_of("thumbnail")
+    return result, (processed.data if processed else b""), (thumb.data if thumb else b"")
+
+
+def _generate_thumbnail(img: Image.Image, size: int | None = None) -> bytes:
+    if size is None:
+        size = settings.thumbnail_size
     thumb = img.copy()
     thumb.thumbnail((size, size), Image.LANCZOS)
 
-    if thumb.mode in ("RGBA", "P"):
+    if thumb.mode in ("RGBA", "P", "CMYK", "I", "F", "LA"):
         thumb = thumb.convert("RGB")
 
     buf = io.BytesIO()

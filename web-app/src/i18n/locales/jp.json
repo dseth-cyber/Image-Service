@@ -507,6 +507,7 @@
       "imageService": "Image Service",
       "overview": "概要",
       "cameras": "カメラ",
+      "cameraTemplates": "カメラテンプレート",
       "search": "検索",
       "processing": "処理",
       "storage": "ストレージ",

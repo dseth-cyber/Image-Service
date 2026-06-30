@@ -190,6 +190,7 @@ model RetentionPolicy {
   updatedAt              DateTime     @updatedAt @map("updated_at")
 
   cameras Camera[]
+  cameraTemplates CameraTemplate[]
 
   @@map("retention_policies")
 }
@@ -293,6 +294,30 @@ model MigrationJob {
   @@map("migration_jobs")
 }
 
+model CameraTemplate {
+  id                  String   @id @default(uuid()) @db.Uuid
+  name                String   @db.VarChar(128)
+  description         String?  @db.Text
+  acceptedExtensions  String[] @map("accepted_extensions")
+  convertToPng        Boolean  @default(true) @map("convert_to_png")
+  keepSmaller         Boolean  @default(true) @map("keep_smaller")
+  generateThumbnail   Boolean  @default(true) @map("generate_thumbnail")
+  thumbnailSize       Int      @default(512) @map("thumbnail_size")
+  compressionQuality  Int      @default(85) @map("compression_quality")
+  pollIntervalSeconds Int      @default(30) @map("poll_interval_seconds")
+  captureMode         String   @default("periodic") @map("capture_mode") @db.VarChar(32)
+  retentionPolicyId   String?  @map("retention_policy_id") @db.Uuid
+  isDefault           Boolean  @default(false) @map("is_default")
+  sortOrder           Int      @default(0) @map("sort_order")
+  isActive            Boolean  @default(true) @map("is_active")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+  cameras             Camera[]
+  retentionPolicy     RetentionPolicy? @relation(fields: [retentionPolicyId], references: [id])
+
+  @@map("camera_templates")
+}
+
 model Camera {
   id                     String       @id @default(uuid()) @db.Uuid
   name                   String       @db.VarChar(128)
@@ -310,6 +335,13 @@ model Camera {
   captureMode            String       @default("periodic") @map("capture_mode") @db.VarChar(32)
   cameraTypeCode         String?      @map("camera_type_code") @db.VarChar(64)
   retentionPolicyId      String       @map("retention_policy_id") @db.Uuid
+  templateId             String?      @map("template_id") @db.Uuid
+  acceptedExtensions     String[]     @map("accepted_extensions")
+  convertToPng           Boolean?     @map("convert_to_png")
+  keepSmaller            Boolean?     @map("keep_smaller")
+  generateThumbnail      Boolean?     @map("generate_thumbnail")
+  thumbnailSize          Int?         @map("thumbnail_size")
+  compressionQuality     Int?         @map("compression_quality")
   enabled                Boolean      @default(true)
   lastPolledAt           DateTime?    @map("last_polled_at")
   lastImageAt            DateTime?    @map("last_image_at")
@@ -319,6 +351,7 @@ model Camera {
   updatedAt              DateTime     @updatedAt @map("updated_at")
 
   retentionPolicy  RetentionPolicy      @relation(fields: [retentionPolicyId], references: [id])
+  template         CameraTemplate?      @relation(fields: [templateId], references: [id])
   images           Image[]
   cameraEvents     CameraEvent[]
   storageSnapshots StorageSnapshot[]

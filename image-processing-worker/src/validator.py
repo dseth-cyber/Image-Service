@@ -8,8 +8,25 @@ class ImageValidationError(Exception):
         super().__init__(message)
 
 
+TIFF_EXTENSIONS = {"tif", "tiff", "ptif", "ptiff"}
+
+
 def validate_tiff(filepath: str) -> None:
+    """Strict TIFF validation (header + Pillow). Kept for backward compatibility."""
     _check_header(filepath)
+    _check_pillow_open(filepath)
+
+
+def validate_source_image(filepath: str, ext: str) -> None:
+    """Validate a source image of any accepted format.
+
+    For TIFF-family files we run the strict byte-order/magic header check.
+    For other formats (jpg/png/bmp) we skip the TIFF-specific header check and
+    rely on Pillow open/verify so they aren't wrongly rejected.
+    """
+    ext = (ext or "").lstrip(".").lower()
+    if ext in TIFF_EXTENSIONS:
+        _check_header(filepath)
     _check_pillow_open(filepath)
 
 

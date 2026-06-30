@@ -26,7 +26,22 @@ const emptyForm = () => ({
   smbUsername: '', smbPasswordEncrypted: '',
   pollIntervalSeconds: 30, captureMode: 'periodic',
   cameraTypeCode: '', retentionPolicyId: '', description: '',
+  // Template + per-camera processing overrides. Blank/'inherit' = inherit from template.
+  templateId: '',
+  acceptedExtensions: [] as string[],
+  convertToPng: 'inherit', keepSmaller: 'inherit', generateThumbnail: 'inherit',
+  thumbnailSize: '', compressionQuality: '',
 });
+
+// Available source extensions for the per-camera override chip selector.
+const SOURCE_EXTENSIONS = ['tif', 'tiff', 'ptif', 'ptiff', 'jpg', 'jpeg', 'png', 'bmp'];
+
+// Convert tri-state form value -> payload (null = inherit).
+const triToPayload = (v: string): boolean | null =>
+  v === 'inherit' || v === '' ? null : v === 'true';
+// Convert nullable boolean from API -> tri-state form value.
+const boolToTri = (v: boolean | null | undefined): string =>
+  v === null || v === undefined ? 'inherit' : v ? 'true' : 'false';
 
 export default function ImageServiceCameras() {
   const { t, i18n } = useTranslation();
@@ -46,6 +61,7 @@ export default function ImageServiceCameras() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [modal, setModal] = useState<{ open: boolean; item?: any | null }>({ open: false });
   const [form, setForm] = useState(emptyForm());
+  const [showOverrides, setShowOverrides] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [testResult, setTestResult] = useState<{ loading: boolean; success?: boolean; message?: string }>({ loading: false });
   const [browseOpen, setBrowseOpen] = useState(false);
@@ -101,6 +117,12 @@ export default function ImageServiceCameras() {
   });
   const captureModes = (captureModesRaw?.data ?? captureModesRaw ?? []) as any[];
 
+  const { data: templates = [] } = useQuery({
+    queryKey: ['camera-templates'],
+    queryFn: () => imageServiceApi.getCameraTemplates(),
+    staleTime: 1000 * 60 * 5,
+  });
+
   const handleSort = (col: string) => {
     if (col === 'actions' || col === 'no') return;
     if (sortCol === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
@@ -109,12 +131,20 @@ export default function ImageServiceCameras() {
 
   const openCreate = () => { setForm(emptyForm()); setModal({ open: true, item: null }); };
   const openEdit = (item: any) => {
+    const ov = item.overrides ?? {};
     setForm({
       name: item.name, ipAddress: item.ipAddress, smbSharePath: item.smbSharePath,
       smbDomain: item.smbDomain ?? '', smbUsername: item.smbUsername,
       smbPasswordEncrypted: '', pollIntervalSeconds: item.pollIntervalSeconds,
       captureMode: item.captureMode, cameraTypeCode: item.cameraTypeCode ?? '',
       retentionPolicyId: item.retentionPolicyId, description: item.description ?? '',
+      templateId: item.templateId ?? '',
+      acceptedExtensions: Array.isArray(ov.acceptedExtensions) ? ov.acceptedExtensions : [],
+      convertToPng: boolToTri(ov.convertToPng),
+      keepSmaller: boolToTri(ov.keepSmaller),
+      generateThumbnail: boolToTri(ov.generateThumbnail),
+      thumbnailSize: ov.thumbnailSize != null ? String(ov.thumbnailSize) : '',
+      compressionQuality: ov.compressionQuality != null ? String(ov.compressionQuality) : '',
     });
     setModal({ open: true, item });
   };
@@ -126,14 +156,32 @@ export default function ImageServiceCameras() {
     }
     try {
       setSubmitting(true);
+      // Build payload, mapping tri-state override fields back to nullable values.
+      const buildPayload = () => {
+        const {
+          convertToPng, keepSmaller, generateThumbnail,
+          thumbnailSize, compressionQuality, acceptedExtensions, templateId,
+          ...rest
+        } = form as any;
+        return {
+          ...rest,
+          templateId: templateId || null,
+          acceptedExtensions: Array.isArray(acceptedExtensions) ? acceptedExtensions : [],
+          convertToPng: triToPayload(convertToPng),
+          keepSmaller: triToPayload(keepSmaller),
+          generateThumbnail: triToPayload(generateThumbnail),
+          thumbnailSize: thumbnailSize === '' ? null : parseInt(thumbnailSize, 10),
+          compressionQuality: compressionQuality === '' ? null : parseInt(compressionQuality, 10),
+        };
+      };
       if (modal.item) {
-        const payload = { ...form };
+        const payload: any = buildPayload();
         if (!payload.smbPasswordEncrypted) delete payload.smbPasswordEncrypted;
         if (!payload.smbDomain) delete payload.smbDomain;
         await imageServiceApi.updateCamera(modal.item.id, payload);
         toast.success(t('imageService.cameras.updated'));
       } else {
-        await imageServiceApi.createCamera(form);
+        await imageServiceApi.createCamera(buildPayload());
         toast.success(t('imageService.cameras.created'));
       }
       queryClient.invalidateQueries({ queryKey: ['cameras-list'] });
@@ -691,6 +739,15 @@ export default function ImageServiceCameras() {
               <input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
                 className={`w-full px-4 py-2.5 rounded-md ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`} required />
             </div>
+            <div className="col-span-2">
+              <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                {t('imageService.cameras.template')}
+              </label>
+              <SearchableSelect value={form.templateId} onChange={v => setForm(p => ({ ...p, templateId: v }))}
+                placeholder={t('imageService.cameras.templateNone')}
+                options={[{ value: '', label: t('imageService.cameras.templateNone') }, ...(templates as any[]).filter((tp: any) => tp.isActive).map((tp: any) => ({ value: tp.id, label: tp.isDefault ? `${tp.name} ★` : tp.name }))]} />
+              <p className={`text-xs mt-1 ${themeConfig.text.secondary}`}>{t('imageService.cameras.templateHint')}</p>
+            </div>
             <div>
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
                 {t('imageService.cameras.ipAddress')} <span className="text-red-400">*</span>
@@ -773,6 +830,68 @@ export default function ImageServiceCameras() {
                 options={policies.map((p: any) => ({ value: p.id, label: p.name }))} />
             </div>
           </div>
+
+          {/* Collapsible per-camera processing overrides (blank = inherit from template) */}
+          <div className="border rounded-md" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+            <button type="button" onClick={() => setShowOverrides(s => !s)}
+              className={`w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium ${themeConfig.text.primary}`}>
+              <span>{t('imageService.cameras.overrideSection')}</span>
+              {showOverrides ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            </button>
+            {showOverrides && (
+              <div className="px-3 pb-3 space-y-3">
+                <p className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.cameras.overrideHint')}</p>
+                <div>
+                  <label className={`block text-xs font-medium mb-1 ${themeConfig.text.primary}`}>{t('imageService.cameras.acceptedExtensions')}</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {SOURCE_EXTENSIONS.map(ext => {
+                      const active = form.acceptedExtensions.includes(ext);
+                      return (
+                        <button key={ext} type="button"
+                          onClick={() => setForm(p => ({ ...p, acceptedExtensions: active ? p.acceptedExtensions.filter(x => x !== ext) : [...p.acceptedExtensions, ext] }))}
+                          className={`px-2.5 py-1 rounded-full text-xs border ${active ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200' : `${themeConfig.inputBorder} ${themeConfig.text.secondary}`}`}>
+                          {ext}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className={`text-[11px] mt-1 ${themeConfig.text.secondary}`}>{t('imageService.cameras.acceptedExtensionsHint')}</p>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  {([
+                    ['convertToPng', 'convertToPng'],
+                    ['keepSmaller', 'keepSmaller'],
+                    ['generateThumbnail', 'generateThumbnail'],
+                  ] as const).map(([field, key]) => (
+                    <div key={field}>
+                      <label className={`block text-xs font-medium mb-1 ${themeConfig.text.primary}`}>{t(`imageService.cameras.${key}`)}</label>
+                      <SearchableSelect value={(form as any)[field]} onChange={v => setForm(p => ({ ...p, [field]: v }))}
+                        options={[
+                          { value: 'inherit', label: t('imageService.cameras.inherit') },
+                          { value: 'true', label: t('common.yes') },
+                          { value: 'false', label: t('common.no') },
+                        ]} />
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={`block text-xs font-medium mb-1 ${themeConfig.text.primary}`}>{t('imageService.cameras.thumbnailSize')}</label>
+                    <input type="number" value={form.thumbnailSize} placeholder={t('imageService.cameras.inherit')}
+                      onChange={e => setForm(p => ({ ...p, thumbnailSize: e.target.value }))}
+                      className={`w-full px-3 py-2 rounded-md ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`} />
+                  </div>
+                  <div>
+                    <label className={`block text-xs font-medium mb-1 ${themeConfig.text.primary}`}>{t('imageService.cameras.compressionQuality')}</label>
+                    <input type="number" value={form.compressionQuality} placeholder={t('imageService.cameras.inherit')}
+                      onChange={e => setForm(p => ({ ...p, compressionQuality: e.target.value }))}
+                      className={`w-full px-3 py-2 rounded-md ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`} />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="flex justify-end gap-2 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
             <Button variant="secondary" type="button" onClick={() => setModal({ open: false })}>{t('common.cancel')}</Button>
             <Button type="submit" disabled={submitting}>{submitting ? t('common.saving') : t('common.save')}</Button>

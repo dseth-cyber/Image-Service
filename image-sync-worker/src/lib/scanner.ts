@@ -4,11 +4,27 @@ import { logger } from './logger.js';
 import { config } from '../config/index.js';
 import type { CameraConfig, SyncFile } from '../types/index.js';
 
-const TIFF_EXTENSIONS = new Set(['.tiff', '.tif', '.ptiff', '.ptif']);
+const DEFAULT_EXTENSIONS = ['tif', 'tiff', 'ptif', 'ptiff'];
 
-function isTiffFile(filename: string): boolean {
+// Normalize an extension list to a Set of lowercase dotted suffixes (e.g. ".jpg").
+function normalizeExtensions(exts?: string[] | null): Set<string> {
+  const source = exts && exts.length > 0 ? exts : DEFAULT_EXTENSIONS;
+  const set = new Set<string>();
+  for (const e of source) {
+    if (!e) continue;
+    const cleaned = e.trim().toLowerCase().replace(/^\.+/, '');
+    if (cleaned) set.add(`.${cleaned}`);
+  }
+  if (set.size === 0) {
+    for (const e of DEFAULT_EXTENSIONS) set.add(`.${e}`);
+  }
+  return set;
+}
+
+function isAcceptedFile(filename: string, acceptedExtensions?: string[] | null): boolean {
   const lower = filename.toLowerCase();
-  return [...TIFF_EXTENSIONS].some((ext) => lower.endsWith(ext));
+  const allowed = normalizeExtensions(acceptedExtensions);
+  return [...allowed].some((ext) => lower.endsWith(ext));
 }
 
 function shouldSkip(filename: string): boolean {
@@ -65,7 +81,7 @@ async function scanRecursive(
       continue;
     }
 
-    if (!isTiffFile(filename)) { logger.warn({ filename, reason: 'not-tiff' }, 'skip'); continue; }
+    if (!isAcceptedFile(filename, camera.acceptedExtensions)) { logger.warn({ filename, reason: 'not-accepted' }, 'skip'); continue; }
 
     const ageMs = Date.now() - entry.mtime.getTime();
     if (ageMs < STABILITY_WINDOW_MS) {

@@ -156,6 +156,29 @@ async function main() {
   });
   console.log(`  Long-term retention policy: ${longTermPolicy.name}`);
 
+  const defaultTemplate = await prisma.cameraTemplate.upsert({
+    where: { id: '00000000-0000-0000-0000-000000000050' },
+    update: {},
+    create: {
+      id: '00000000-0000-0000-0000-000000000050',
+      name: 'Default Template',
+      description: 'Default ingestion preset (TIFF -> PNG, keep smaller, generate thumbnail)',
+      acceptedExtensions: ['tif', 'tiff', 'ptif', 'ptiff'],
+      convertToPng: true,
+      keepSmaller: true,
+      generateThumbnail: true,
+      thumbnailSize: 512,
+      compressionQuality: 85,
+      pollIntervalSeconds: 30,
+      captureMode: 'periodic',
+      retentionPolicyId: '00000000-0000-0000-0000-000000000001',
+      isDefault: true,
+      sortOrder: 0,
+      isActive: true,
+    },
+  });
+  console.log(`  Default camera template: ${defaultTemplate.name}`);
+
   const alertRule = await prisma.alertRule.upsert({
     where: { id: '00000000-0000-0000-0000-000000000003' },
     update: {},
@@ -227,6 +250,7 @@ async function main() {
     where: { id: '00000000-0000-0000-0000-000000000010' },
     update: {
       smbSubdirectoryPattern: null,
+      templateId: '00000000-0000-0000-0000-000000000050',
     },
     create: {
       id: '00000000-0000-0000-0000-000000000010',
@@ -242,6 +266,7 @@ async function main() {
       pollIntervalSeconds: 15,
       captureMode: 'periodic',
       retentionPolicyId: '00000000-0000-0000-0000-000000000001',
+      templateId: '00000000-0000-0000-0000-000000000050',
       enabled: true,
       metadata: { location: 'test-lab', cameraType: 'simulated' },
     },

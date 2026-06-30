@@ -3,6 +3,78 @@ import { NotFoundError, ConflictError } from '../../lib/errors.js';
 import { encrypt, decrypt } from '../../lib/encryption.js';
 import type { CreateCameraInput, UpdateCameraInput } from './cameras.schema.js';
 
+// System-wide defaults used when neither the camera nor its template specify a value.
+export const PROCESSING_DEFAULTS = {
+  acceptedExtensions: ['tif', 'tiff', 'ptif', 'ptiff'] as string[],
+  convertToPng: true,
+  keepSmaller: true,
+  generateThumbnail: true,
+  thumbnailSize: 512,
+  compressionQuality: 85,
+};
+
+type EffectiveConfig = {
+  acceptedExtensions: string[];
+  convertToPng: boolean;
+  keepSmaller: boolean;
+  generateThumbnail: boolean;
+  thumbnailSize: number;
+  compressionQuality: number;
+};
+
+interface ResolvableCamera {
+  acceptedExtensions?: string[] | null;
+  convertToPng?: boolean | null;
+  keepSmaller?: boolean | null;
+  generateThumbnail?: boolean | null;
+  thumbnailSize?: number | null;
+  compressionQuality?: number | null;
+  template?: {
+    acceptedExtensions?: string[] | null;
+    convertToPng?: boolean | null;
+    keepSmaller?: boolean | null;
+    generateThumbnail?: boolean | null;
+    thumbnailSize?: number | null;
+    compressionQuality?: number | null;
+  } | null;
+}
+
+// Resolve each processing field: camera override (non-null / non-empty) -> template -> system default.
+export function resolveEffectiveConfig(camera: ResolvableCamera): EffectiveConfig {
+  const t = camera.template ?? null;
+
+  const pickArray = (cam?: string[] | null, tpl?: string[] | null, def?: string[]): string[] => {
+    if (cam && cam.length > 0) return cam;
+    if (tpl && tpl.length > 0) return tpl;
+    return def ?? [];
+  };
+  const pick = <T>(cam: T | null | undefined, tpl: T | null | undefined, def: T): T => {
+    if (cam !== null && cam !== undefined) return cam;
+    if (tpl !== null && tpl !== undefined) return tpl;
+    return def;
+  };
+
+  return {
+    acceptedExtensions: pickArray(camera.acceptedExtensions, t?.acceptedExtensions, PROCESSING_DEFAULTS.acceptedExtensions),
+    convertToPng: pick(camera.convertToPng, t?.convertToPng, PROCESSING_DEFAULTS.convertToPng),
+    keepSmaller: pick(camera.keepSmaller, t?.keepSmaller, PROCESSING_DEFAULTS.keepSmaller),
+    generateThumbnail: pick(camera.generateThumbnail, t?.generateThumbnail, PROCESSING_DEFAULTS.generateThumbnail),
+    thumbnailSize: pick(camera.thumbnailSize, t?.thumbnailSize, PROCESSING_DEFAULTS.thumbnailSize),
+    compressionQuality: pick(camera.compressionQuality, t?.compressionQuality, PROCESSING_DEFAULTS.compressionQuality),
+  };
+}
+
+// Resolve the effective config for a camera by id (camera override -> template -> default).
+export async function getCameraEffectiveConfig(cameraId: string): Promise<EffectiveConfig> {
+  const prisma = getPrisma();
+  const camera = await prisma.camera.findUnique({
+    where: { id: cameraId },
+    include: { template: true },
+  });
+  if (!camera) throw new NotFoundError('Camera', cameraId);
+  return resolveEffectiveConfig(camera as ResolvableCamera);
+}
+
 export async function listCameras(filters?: { status?: string; enabled?: boolean }) {
   const prisma = getPrisma();
 
@@ -12,16 +84,26 @@ export async function listCameras(filters?: { status?: string; enabled?: boolean
 
   const cameras = await prisma.camera.findMany({
     where,
-    include: { retentionPolicy: { select: { id: true, name: true } } },
+    include: { retentionPolicy: { select: { id: true, name: true } }, template: true },
     orderBy: { name: 'asc' },
   });
 
-  // Decrypt SMB passwords for workers that need plaintext credentials
+  // Decrypt SMB passwords for workers that need plaintext credentials, and
+  // expose resolved processing config so sync/processing workers can read it.
   return cameras.map((c) => ({
     ...c,
+    overrides: {
+      acceptedExtensions: c.acceptedExtensions,
+      convertToPng: c.convertToPng,
+      keepSmaller: c.keepSmaller,
+      generateThumbnail: c.generateThumbnail,
+      thumbnailSize: c.thumbnailSize,
+      compressionQuality: c.compressionQuality,
+    },
     smbPasswordEncrypted: c.smbPasswordEncrypted
       ? decrypt(c.smbPasswordEncrypted)
       : c.smbPasswordEncrypted,
+    ...resolveEffectiveConfig(c as ResolvableCamera),
   }));
 }
 
@@ -30,19 +112,31 @@ export async function getCameraById(id: string) {
 
   const camera = await prisma.camera.findUnique({
     where: { id },
-    include: { retentionPolicy: true },
+    include: { retentionPolicy: true, template: true },
   });
 
   if (!camera) {
     throw new NotFoundError('Camera', id);
   }
 
-  // Decrypt SMB password for workers that need plaintext credentials
+  // Decrypt SMB password for workers that need plaintext credentials, and
+  // expose resolved processing config so sync/processing workers can read it.
+  // Raw (possibly null) camera-level overrides are preserved under `overrides`
+  // so the UI can distinguish "explicitly set" from "inherit from template".
   return {
     ...camera,
+    overrides: {
+      acceptedExtensions: camera.acceptedExtensions,
+      convertToPng: camera.convertToPng,
+      keepSmaller: camera.keepSmaller,
+      generateThumbnail: camera.generateThumbnail,
+      thumbnailSize: camera.thumbnailSize,
+      compressionQuality: camera.compressionQuality,
+    },
     smbPasswordEncrypted: camera.smbPasswordEncrypted
       ? decrypt(camera.smbPasswordEncrypted)
       : camera.smbPasswordEncrypted,
+    ...resolveEffectiveConfig(camera as ResolvableCamera),
   };
 }
 
@@ -78,10 +172,17 @@ export async function createCamera(input: CreateCameraInput) {
       captureMode: input.captureMode,
       cameraTypeCode: input.cameraTypeCode,
       retentionPolicyId: input.retentionPolicyId,
+      templateId: input.templateId ?? null,
+      acceptedExtensions: input.acceptedExtensions ?? [],
+      convertToPng: input.convertToPng ?? null,
+      keepSmaller: input.keepSmaller ?? null,
+      generateThumbnail: input.generateThumbnail ?? null,
+      thumbnailSize: input.thumbnailSize ?? null,
+      compressionQuality: input.compressionQuality ?? null,
       metadata: input.metadata as object,
       status: 'inactive',
     },
-    include: { retentionPolicy: true },
+    include: { retentionPolicy: true, template: true },
   });
 
   return camera;
@@ -120,11 +221,18 @@ export async function updateCamera(id: string, input: UpdateCameraInput) {
   if (input.status !== undefined) data.status = input.status;
   if (input.lastPolledAt !== undefined) data.lastPolledAt = new Date(input.lastPolledAt);
   if (input.metadata !== undefined) data.metadata = input.metadata as object;
+  if (input.templateId !== undefined) data.templateId = input.templateId;
+  if (input.acceptedExtensions !== undefined) data.acceptedExtensions = input.acceptedExtensions ?? [];
+  if (input.convertToPng !== undefined) data.convertToPng = input.convertToPng;
+  if (input.keepSmaller !== undefined) data.keepSmaller = input.keepSmaller;
+  if (input.generateThumbnail !== undefined) data.generateThumbnail = input.generateThumbnail;
+  if (input.thumbnailSize !== undefined) data.thumbnailSize = input.thumbnailSize;
+  if (input.compressionQuality !== undefined) data.compressionQuality = input.compressionQuality;
 
   const updated = await prisma.camera.update({
     where: { id },
     data,
-    include: { retentionPolicy: true },
+    include: { retentionPolicy: true, template: true },
   });
 
   if (input.status !== undefined && input.status !== existing.status) {

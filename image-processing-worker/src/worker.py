@@ -8,8 +8,8 @@ import tempfile
 from redis.asyncio import Redis
 from src.config import settings
 from src.logger import logger
-from src.models import ProcessingJob
-from src.processor import process_tiff, ProcessingError
+from src.models import ProcessingJob, ProcessingConfig
+from src.processor import process_image, ProcessingError
 from src.storage_client import StorageClient
 from src.api_client import ApiClient
 from src.kafka import KafkaEventProducer
@@ -183,65 +183,55 @@ class ProcessingWorker:
         try:
             await self.api.update_image_status(job.image_id, "processing")
 
-            local_path = await self._resolve_file(job)
+            local_path, camera = await self._resolve_file(job)
+
+            # Resolve processing options: prefer inline job options, else fall
+            # back to the resolved camera config from the API (PART 2c).
+            pconfig = ProcessingConfig.from_source(job.options or camera)
 
             with open(local_path, 'rb') as f:
                 raw_data = f.read()
 
             try:
-                result, png_data, thumb_data = process_tiff(
+                result, files = process_image(
                     filepath=local_path,
                     image_id=job.image_id,
                     original_filename=job.original_filename,
                     camera_id=job.camera_id,
+                    raw_data=raw_data,
+                    pconfig=pconfig,
                 )
             finally:
                 if os.path.exists(local_path):
                     os.unlink(local_path)
 
-            await self.storage.upload_tiff(result.raw_object_key, raw_data)
-            await self.storage.upload_png(result.png_object_key, png_data)
-            await self.storage.upload_thumbnail(
-                result.thumbnail_object_key, thumb_data
-            )
+            # Upload whatever output files were produced (raw always; processed
+            # png-or-original; thumbnail only when generated).
+            for f in files:
+                await self.storage.upload_file(f.object_key, f.data, f.mime_type)
 
             if self._provider_id:
-                await self.api.report_file_upload(
-                    image_id=result.image_id,
-                    file_type="raw",
-                    object_key=result.raw_object_key,
-                    storage_provider_id=self._provider_id,
-                    file_size_bytes=result.raw_size_bytes,
-                    checksum_sha256=result.sha256,
-                    mime_type="image/tiff",
-                )
-                await self.api.report_file_upload(
-                    image_id=result.image_id,
-                    file_type="processed",
-                    object_key=result.png_object_key,
-                    storage_provider_id=self._provider_id,
-                    file_size_bytes=result.png_size_bytes,
-                    checksum_sha256=result.sha256,
-                    mime_type="image/png",
-                )
-                await self.api.report_file_upload(
-                    image_id=result.image_id,
-                    file_type="thumbnail",
-                    object_key=result.thumbnail_object_key,
-                    storage_provider_id=self._provider_id,
-                    file_size_bytes=result.thumbnail_size_bytes,
-                    checksum_sha256=result.sha256,
-                    mime_type="image/png",
-                )
+                for f in files:
+                    await self.api.report_file_upload(
+                        image_id=result.image_id,
+                        file_type=f.file_type,
+                        object_key=f.object_key,
+                        storage_provider_id=self._provider_id,
+                        file_size_bytes=f.size_bytes,
+                        checksum_sha256=result.sha256,
+                        mime_type=f.mime_type,
+                    )
 
             await self.api.report_processing_result(result)
 
+            processed_file = result.file_of("processed")
+            thumb_file = result.file_of("thumbnail")
             await self.kafka.emit_image_processed(
                 image_id=job.image_id,
                 camera_id=job.camera_id,
                 filename=job.original_filename,
-                png_object_key=result.png_object_key,
-                thumbnail_object_key=result.thumbnail_object_key,
+                png_object_key=processed_file.object_key if processed_file else "",
+                thumbnail_object_key=thumb_file.object_key if thumb_file else "",
                 captured_at=job.captured_at or result.processed_at,
             )
 
@@ -251,8 +241,8 @@ class ProcessingWorker:
                 "Job completed successfully",
                 image_id=job.image_id,
                 duration_ms=0,
-                png_size=result.png_size_bytes,
-                thumbnail_size=result.thumbnail_size_bytes,
+                files=[f.file_type for f in files],
+                processed_size=processed_file.size_bytes if processed_file else 0,
             )
 
         except ProcessingError as e:
@@ -277,7 +267,7 @@ class ProcessingWorker:
             )
             await self._fail(job, job_id, str(e), "unknown")
 
-    async def _resolve_file(self, job: ProcessingJob) -> str:
+    async def _resolve_file(self, job: ProcessingJob) -> tuple[str, dict]:
         try:
             camera = await self.api.get_camera(job.camera_id)
         except Exception as e:
@@ -300,7 +290,8 @@ class ProcessingWorker:
             )
 
         relative = job.smb_path[len(share):].lstrip("/")
-        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".tif")
+        src_ext = os.path.splitext(job.original_filename)[1].lower() or ".tif"
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=src_ext)
         tmp.close()
         creds = f"{username}%{password}"
         cmd = ["smbclient", share, "-U", creds]
@@ -325,7 +316,7 @@ class ProcessingWorker:
                 stage="file_access",
                 recoverable=True,
             )
-        return tmp.name
+        return tmp.name, camera
 
     def _should_retry(self, job: ProcessingJob) -> bool:
         retry_count = getattr(job, "_retry_count", 0)

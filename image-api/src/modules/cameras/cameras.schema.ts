@@ -1,5 +1,16 @@
 import { z } from 'zod';
 
+// Per-camera processing overrides. All optional/nullable — null/empty = inherit from template.
+const processingOverrideFields = {
+  templateId: z.string().uuid().optional().nullable(),
+  acceptedExtensions: z.array(z.string().min(1).max(16)).optional(),
+  convertToPng: z.boolean().optional().nullable(),
+  keepSmaller: z.boolean().optional().nullable(),
+  generateThumbnail: z.boolean().optional().nullable(),
+  thumbnailSize: z.number().int().min(16).max(4096).optional().nullable(),
+  compressionQuality: z.number().int().min(1).max(100).optional().nullable(),
+};
+
 export const createCameraSchema = z.object({
   name: z.string().min(1).max(128),
   description: z.string().optional(),
@@ -15,6 +26,7 @@ export const createCameraSchema = z.object({
   cameraTypeCode: z.string().max(64).optional(),
   retentionPolicyId: z.string().uuid(),
   metadata: z.record(z.unknown()).default({}),
+  ...processingOverrideFields,
 });
 
 export const updateCameraSchema = z.object({
@@ -35,6 +47,7 @@ export const updateCameraSchema = z.object({
   status: z.enum(['active', 'inactive', 'error', 'maintenance']).optional(),
   lastPolledAt: z.string().datetime().optional(),
   metadata: z.record(z.unknown()).optional(),
+  ...processingOverrideFields,
 });
 
 export const cameraQuerySchema = z.object({

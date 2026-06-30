@@ -176,7 +176,7 @@ export default function ImageServiceOverview() {
   const trackColor = themeConfig.name === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)';
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6 overflow-x-hidden">
       <div className="flex items-center justify-between mb-5">
         <div>
           <p className={`text-xs font-medium mb-0.5 uppercase tracking-widest ${themeConfig.text.secondary}`}>

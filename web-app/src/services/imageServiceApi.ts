@@ -54,6 +54,22 @@ export function createImageServiceApi(api: any) {
     updateCamera: (id: string, data: Record<string, unknown>) =>
       api.patch(`${BASE}/cameras/${id}`, data).then((r: any) => r.data),
 
+    // Camera Templates
+    getCameraTemplates: () =>
+      api.get(`${BASE}/camera-templates`).then((r: any) => r.data),
+
+    getCameraTemplate: (id: string) =>
+      api.get(`${BASE}/camera-templates/${id}`).then((r: any) => r.data),
+
+    createCameraTemplate: (data: Record<string, unknown>) =>
+      api.post(`${BASE}/camera-templates`, data).then((r: any) => r.data),
+
+    updateCameraTemplate: (id: string, data: Record<string, unknown>) =>
+      api.patch(`${BASE}/camera-templates/${id}`, data).then((r: any) => r.data),
+
+    deleteCameraTemplate: (id: string) =>
+      api.delete(`${BASE}/camera-templates/${id}`).then((r: any) => r.data),
+
     deactivateCamera: (id: string) => api.delete(`${BASE}/cameras/${id}`),
 
     deleteCamera: (id: string, password: string) =>

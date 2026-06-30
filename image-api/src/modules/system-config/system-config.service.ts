@@ -17,6 +17,7 @@ const DEFAULT_CONFIGS: Record<string, { value: string; description: string; valu
   camera_offline_threshold_minutes: { value: '5', description: 'Minutes without poll before camera is considered offline', valueType: 'number', category: 'alert' },
   camera_sla_target: { value: '99.5', description: 'Camera availability SLA target (%)', valueType: 'number', category: 'alert' },
   camera_lost_image_cost: { value: '0', description: 'Estimated cost per lost image (THB)', valueType: 'number', category: 'alert' },
+  incident_attachment_max_mb: { value: '10', description: 'Maximum incident attachment file size (MB)', valueType: 'number', category: 'alert' },
   dashboard_layout_overview: { value: '', description: 'Default dashboard layout for new users (JSON)', valueType: 'json', category: 'dashboard' },
   dashboard_layout_processing: { value: '', description: 'Default processing monitor layout for new users (JSON)', valueType: 'json', category: 'dashboard' },
   dashboard_layout_storage: { value: '', description: 'Default storage layout for new users (JSON)', valueType: 'json', category: 'dashboard' },
