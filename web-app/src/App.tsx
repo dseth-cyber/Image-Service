@@ -40,7 +40,7 @@ import { translateAlertTitle } from '@/utils/textUtils'
 import {
   Camera, LayoutDashboard, Search, Activity, HardDrive, FileText, Shield, Settings, Map,
   Globe, Palette, User, ChevronDown, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info, Server, Layers, Image, BarChart3, RefreshCw, Play, ClipboardList, LayoutTemplate,
-  Menu, X, GripVertical, ArrowDownUp, RotateCcw,
+  Menu, X, GripVertical, ArrowDownUp, RotateCcw, Hourglass,
 } from 'lucide-react'
 
 export function hasPermission(user: any, permission: string): boolean {
@@ -745,13 +745,10 @@ function NavProcessing() {
   return (
     <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
       busy
-        ? 'bg-cyan-500/10 border-cyan-500/20 text-cyan-400'
-        : 'bg-white/5 border-white/10 text-gray-500'
+        ? 'bg-green-500/10 border-green-500/20 text-green-400'
+        : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
     }`}>
-      <span className="relative flex h-2 w-2">
-        {busy && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />}
-        <span className={`relative inline-flex rounded-full h-2 w-2 ${busy ? 'bg-cyan-500' : 'bg-gray-600'}`} />
-      </span>
+      <Hourglass size={13} className={busy ? 'animate-spin text-green-400' : 'text-amber-400'} style={busy ? { animationDuration: '1.5s' } : undefined} />
       <span>{total}</span>
     </div>
   )
