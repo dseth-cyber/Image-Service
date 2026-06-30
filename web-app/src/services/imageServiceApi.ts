@@ -95,6 +95,30 @@ export function createImageServiceApi(api: any) {
     getIncidentOptions: () =>
       api.get(`${BASE}/cameras/incidents/options`).then((r: any) => r.data),
 
+    searchIncidents: (params?: any) =>
+      api.get(`${BASE}/cameras/incidents/search`, { params }).then((r: any) => r.data),
+
+    getIncidentKnowledge: (params?: any) =>
+      api.get(`${BASE}/cameras/incidents/knowledge`, { params }).then((r: any) => r.data),
+
+    getIncidentDetail: (id: string) =>
+      api.get(`${BASE}/cameras/incidents/${id}`).then((r: any) => r.data),
+
+    getRelatedIncidents: (id: string) =>
+      api.get(`${BASE}/cameras/incidents/${id}/related`).then((r: any) => r.data),
+
+    getResolutionStats: (params?: any) =>
+      api.get(`${BASE}/cameras/incidents/resolution-stats`, { params }).then((r: any) => r.data),
+
+    createWorkOrder: (id: string) =>
+      api.post(`${BASE}/cameras/incidents/${id}/work-order`).then((r: any) => r.data),
+
+    updateWorkOrderStatus: (id: string, status: string) =>
+      api.patch(`${BASE}/cameras/incidents/${id}/work-order`, { status }).then((r: any) => r.data),
+
+    getIncidentAttachmentBlob: (filename: string) =>
+      api.get(`${BASE}/cameras/incidents/attachments/${filename}`, { responseType: 'blob' }).then((r: any) => r.data),
+
     uploadIncidentAttachment: (incidentId: string, file: File) => {
       const fd = new FormData();
       fd.append('file', file);

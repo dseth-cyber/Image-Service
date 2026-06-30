@@ -527,7 +527,8 @@
       "storageProviders": "ストレージプロバイダー",
       "storageProfiles": "ストレージプロファイル",
       "migrations": "移行",
-      "cameraAnalytics": "カメラ分析"
+      "cameraAnalytics": "カメラ分析",
+      "incidents": "インシデントセンター"
     },
     "masterdataManagement": {
       "title": "マスタデータ管理",
@@ -1216,6 +1217,9 @@
       "allCameras": "全カメラ",
       "selectCamera": "カメラ選択",
       "downtimeByReason": "停止理由分析"
+    },
+    "incidentCenter": {
+      "periodAll": "すべて"
     }
   },
   "common": {

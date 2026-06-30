@@ -675,7 +675,42 @@
       "storageProviders": "Storage Providers",
       "storageProfiles": "Storage Profiles",
       "migrations": "Migrations",
-      "cameraAnalytics": "Camera Analytics"
+      "cameraAnalytics": "Camera Analytics",
+      "incidents": "Incident Center"
+    },
+    "incidentCenter": {
+      "title": "Incident Center",
+      "subtitle": "Manage and search all camera incidents",
+      "tabList": "Incident List",
+      "tabKnowledge": "Knowledge Base",
+      "searchPlaceholder": "Search incidents...",
+      "filterCamera": "Camera",
+      "filterReason": "Reason",
+      "filterRootCause": "Root Cause",
+      "filterStatus": "Status",
+      "filterPriority": "Priority",
+      "colIncident": "Number",
+      "colMttr": "MTTR",
+      "colOpened": "Opened At",
+      "colOwner": "Owner",
+      "relatedIncidents": "Related Incidents",
+      "totalIncidents": "Total Incidents",
+      "open": "Open",
+      "resolved": "Resolved",
+      "avgMttr": "Avg MTTR",
+      "topProblems": "Top Problems",
+      "topRootCauses": "Top Root Causes",
+      "topResolutions": "Top Resolutions",
+      "frequentCameras": "Frequent Cameras",
+      "times": "times",
+      "createWorkOrder": "Create Work Order",
+      "workOrder": "Work Order",
+      "maintenance": "Maintenance",
+      "woOpen": "Open",
+      "woInProgress": "In Progress",
+      "woCompleted": "Completed",
+      "noIncidents": "No incidents",
+      "periodAll": "All"
     },
     "masterdataManagement": {
       "title": "Masterdata Management",
@@ -1331,6 +1366,42 @@
         "✅ Dynamic Masterdata — all dropdowns managed from UI (9 types)",
         "✅ Seeded 71 masterdata records across 9 types in 5 languages",
         "✅ Connected camera_type + capture_mode to camera form"
+      ],
+      "phase29": "P20 — Camera Incident Center & Knowledge Base",
+      "phase29Desc": "Central camera incident hub — search, filter, detail view, plus a knowledge base analyzing problems and resolutions",
+      "phase29Status": "Launched",
+      "phase29Tasks": [
+        "✅ Incident list + search + filters (camera/reason/root cause/status/priority)",
+        "✅ Detail modal with attached images",
+        "✅ Related incidents (same reason or root cause)",
+        "✅ Knowledge base — incident totals, average MTTR",
+        "✅ Top problems / most-used resolutions",
+        "✅ Frequent cameras",
+        "✅ Export Excel + PDF"
+      ],
+      "phase30": "P21 — Maintenance Work Order",
+      "phase30Desc": "Create and track maintenance work orders linked to incidents",
+      "phase30Status": "Launched",
+      "phase30Tasks": [
+        "✅ Work order creation (WO-YYYY-XXXXX)",
+        "✅ Status tracking (open/in progress/completed)",
+        "✅ Incident linkage"
+      ],
+      "phase31": "P22 — AI Incident Search",
+      "phase31Desc": "Natural-language incident search + semantic similarity",
+      "phase31Status": "Planned",
+      "phase31Tasks": [
+        "Natural-language search",
+        "Semantic similarity across incidents",
+        "Auto-suggest resolutions from history"
+      ],
+      "phase32": "P23 — Predictive Camera Failure",
+      "phase32Desc": "Predict camera failures ahead of time using AI",
+      "phase32Status": "Planned",
+      "phase32Tasks": [
+        "Predictive failure detection",
+        "Anomaly pattern detection",
+        "Preventive alerts"
       ]
     },
     "permissions": {

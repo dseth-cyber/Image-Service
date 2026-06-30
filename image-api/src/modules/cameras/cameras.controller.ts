@@ -378,6 +378,54 @@ async function incidentOptionsHandler(_request: FastifyRequest, reply: FastifyRe
   return reply.send(options);
 }
 
+async function searchIncidentsHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { q, cameraId, reason, rootCause, status, priority, page, limit } = request.query as {
+    q?: string; cameraId?: string; reason?: string; rootCause?: string;
+    status?: string; priority?: string; page?: string; limit?: string;
+  };
+  const result = await incidentService.searchIncidents({
+    q, cameraId, reason, rootCause, status, priority,
+    page: page ? parseInt(page) : undefined,
+    limit: limit ? parseInt(limit) : undefined,
+  });
+  return reply.send(result);
+}
+
+async function incidentKnowledgeHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { cameraId, days } = request.query as { cameraId?: string; days?: string };
+  const result = await incidentService.getIncidentKnowledge({
+    cameraId,
+    days: days ? parseInt(days) : undefined,
+  });
+  return reply.send(result);
+}
+
+async function relatedIncidentsHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as { id: string };
+  const result = await incidentService.getRelatedIncidents(id);
+  return reply.send(result);
+}
+
+async function resolutionStatsHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { reason, rootCause } = request.query as { reason?: string; rootCause?: string };
+  const result = await incidentService.getResolutionStats({ reason, rootCause });
+  return reply.send(result);
+}
+
+async function createWorkOrderHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as { id: string };
+  const user = (request as any).user;
+  const incident = await incidentService.createWorkOrder(id, user?.username ?? 'system');
+  return reply.send(incident);
+}
+
+async function updateWorkOrderStatusHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as { id: string };
+  const { status } = request.body as { status: string };
+  const incident = await incidentService.updateWorkOrderStatus(id, status);
+  return reply.send(incident);
+}
+
 export async function cameraRoutes(app: FastifyInstance): Promise<void> {
   app.get(
     '/',
@@ -418,6 +466,36 @@ export async function cameraRoutes(app: FastifyInstance): Promise<void> {
     '/incidents/attachments/:filename',
     { preHandler: [app.authenticate, requirePermission('cameras:read')] },
     serveAttachmentHandler,
+  );
+  app.get(
+    '/incidents/search',
+    { preHandler: [app.authenticate, requirePermission('cameras:read')] },
+    searchIncidentsHandler,
+  );
+  app.get(
+    '/incidents/knowledge',
+    { preHandler: [app.authenticate, requirePermission('cameras:read')] },
+    incidentKnowledgeHandler,
+  );
+  app.get(
+    '/incidents/resolution-stats',
+    { preHandler: [app.authenticate, requirePermission('cameras:read')] },
+    resolutionStatsHandler,
+  );
+  app.get(
+    '/incidents/:id/related',
+    { preHandler: [app.authenticate, requirePermission('cameras:read')] },
+    relatedIncidentsHandler,
+  );
+  app.post(
+    '/incidents/:id/work-order',
+    { preHandler: [app.authenticate, requirePermission('cameras:update')] },
+    createWorkOrderHandler,
+  );
+  app.patch(
+    '/incidents/:id/work-order',
+    { preHandler: [app.authenticate, requirePermission('cameras:update')] },
+    updateWorkOrderStatusHandler,
   );
   app.get(
     '/incidents/:id',

@@ -527,7 +527,8 @@
       "storageProviders": "存储提供商",
       "storageProfiles": "存储配置",
       "migrations": "迁移",
-      "cameraAnalytics": "摄像头分析"
+      "cameraAnalytics": "摄像头分析",
+      "incidents": "事件中心"
     },
     "masterdataManagement": {
       "title": "主数据管理",
@@ -1216,6 +1217,9 @@
       "allCameras": "全部摄像头",
       "selectCamera": "选择摄像头",
       "downtimeByReason": "停机原因分析"
+    },
+    "incidentCenter": {
+      "periodAll": "全部"
     }
   },
   "common": {

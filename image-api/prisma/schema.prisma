@@ -633,6 +633,8 @@ model CameraIncident {
   problemDesc      String?   @map("problem_desc") @db.Text
   resolutionDesc   String?   @map("resolution_desc") @db.Text
   attachments      Json      @default("[]")
+  workOrderNumber  String?   @map("work_order_number") @db.VarChar(64)
+  workOrderStatus  String?   @map("work_order_status") @db.VarChar(32)
   status           String    @default("open") @db.VarChar(16)
   openedBy         String?   @map("opened_by") @db.VarChar(128)
   closedBy         String?   @map("closed_by") @db.VarChar(128)

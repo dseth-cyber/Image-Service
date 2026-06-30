@@ -527,7 +527,8 @@
       "storageProviders": "သိုလှောင်မှုဝန်ဆောင်မှုပေးသူ",
       "storageProfiles": "သိုလှောင်မှုပရိုဖိုင်",
       "migrations": "ရွှေ့ပြောင်းခြင်း",
-      "cameraAnalytics": "ကင်မရာခွဲခြမ်းစိတ်ဖြာ"
+      "cameraAnalytics": "ကင်မရာခွဲခြမ်းစိတ်ဖြာ",
+      "incidents": "Incident Center"
     },
     "masterdataManagement": {
       "title": "မာစတာဒေတာစီမံခန့်ခွဲမှု",
@@ -1211,6 +1212,9 @@
       "allCameras": "အားလုံး",
       "selectCamera": "ကင်မရာရွေး",
       "downtimeByReason": "ရပ်နားအကြောင်းပြ"
+    },
+    "incidentCenter": {
+      "periodAll": "အားလုံး"
     }
   },
   "common": {

@@ -6,7 +6,7 @@ import { imageServiceApi } from '@/services/imageServiceApi'
 import {
   Microscope, Camera, Database, Server, Activity, CheckCircle2, Clock, Kanban,
   ArrowRight, HardDrive, Shield, Wifi, Bug, Lock, FileText, Cpu, Palette, Layout,
-  BookText, MessageCircle, Settings, GitBranch, Layers, ChevronDown, ChevronRight,
+  BookText, MessageCircle, Settings, GitBranch, Layers, ChevronDown, ChevronRight, Wrench,
 } from 'lucide-react'
 
 const PHASE_STATUS_STYLES: Record<string, string> = {
@@ -45,6 +45,10 @@ const PHASE_ICONS: Record<string, any> = {
   phase26: GitBranch,
   phase27: Wifi,
   phase28: Activity,
+  phase29: FileText,
+  phase30: Wrench,
+  phase31: Activity,
+  phase32: Activity,
 }
 
 const PHASES = [
@@ -77,6 +81,10 @@ const PHASES = [
   { key: 'phase26', status: 'Launched', priority: 'P17' },
   { key: 'phase27', status: 'Launched', priority: 'P18' },
   { key: 'phase28', status: 'Launched', priority: 'P19' },
+  { key: 'phase29', status: 'Launched', priority: 'P20' },
+  { key: 'phase30', status: 'Launched', priority: 'P21' },
+  { key: 'phase31', status: 'Planned', priority: 'P22' },
+  { key: 'phase32', status: 'Planned', priority: 'P23' },
 ]
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -109,6 +117,10 @@ const PRIORITY_COLORS: Record<string, string> = {
   P17: 'bg-violet-500/20 text-violet-400',
   P18: 'bg-sky-500/20 text-sky-400',
   P19: 'bg-emerald-500/20 text-emerald-400',
+  P20: 'bg-fuchsia-500/20 text-fuchsia-400',
+  P21: 'bg-teal-500/20 text-teal-400',
+  P22: 'bg-blue-500/20 text-blue-400',
+  P23: 'bg-purple-500/20 text-purple-400',
 }
 
 const STATUS_WEIGHTS: Record<string, number> = {

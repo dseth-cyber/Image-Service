@@ -675,7 +675,42 @@
       "storageProviders": "ผู้ให้บริการจัดเก็บ",
       "storageProfiles": "โปรไฟล์จัดเก็บ",
       "migrations": "การโยกย้าย",
-      "cameraAnalytics": "วิเคราะห์กล้อง"
+      "cameraAnalytics": "วิเคราะห์กล้อง",
+      "incidents": "ศูนย์ Incident"
+    },
+    "incidentCenter": {
+      "title": "ศูนย์จัดการ Incident",
+      "subtitle": "จัดการและค้นหา Incident กล้องทั้งหมด",
+      "tabList": "รายการ Incident",
+      "tabKnowledge": "ฐานความรู้",
+      "searchPlaceholder": "ค้นหา Incident...",
+      "filterCamera": "กล้อง",
+      "filterReason": "สาเหตุ",
+      "filterRootCause": "สาเหตุหลัก",
+      "filterStatus": "สถานะ",
+      "filterPriority": "ความเร่งด่วน",
+      "colIncident": "หมายเลข",
+      "colMttr": "เวลาที่ใช้แก้",
+      "colOpened": "เปิดเมื่อ",
+      "colOwner": "ผู้รับผิดชอบ",
+      "relatedIncidents": "Incident ที่เกี่ยวข้อง",
+      "totalIncidents": "Incident ทั้งหมด",
+      "open": "เปิดอยู่",
+      "resolved": "แก้ไขแล้ว",
+      "avgMttr": "เวลาเฉลี่ยในการแก้",
+      "topProblems": "ปัญหาที่พบบ่อย",
+      "topRootCauses": "สาเหตุหลักที่พบบ่อย",
+      "topResolutions": "วิธีแก้ที่ใช้บ่อย",
+      "frequentCameras": "กล้องที่มีปัญหาบ่อย",
+      "times": "ครั้ง",
+      "createWorkOrder": "สร้าง Work Order",
+      "workOrder": "ใบสั่งงาน",
+      "maintenance": "การซ่อมบำรุง",
+      "woOpen": "เปิด",
+      "woInProgress": "กำลังดำเนินการ",
+      "woCompleted": "เสร็จสิ้น",
+      "noIncidents": "ไม่มี Incident",
+      "periodAll": "ทั้งหมด"
     },
     "masterdataManagement": {
       "title": "จัดการข้อมูลหลัก",
@@ -1334,6 +1369,42 @@
         "✅ Dynamic Masterdata — สถานะกล้อง, โหมดจับภาพ, สาเหตุ, การแก้ไข ทั้งหมดจัดการจาก UI",
         "✅ Seed ข้อมูลหลัก 9 ประเภท (71 records) ครบ 5 ภาษา",
         "✅ เชื่อม camera_type → ฟอร์มกล้อง, capture_mode → ฟอร์มกล้อง"
+      ],
+      "phase29": "P20 — Camera Incident Center & Knowledge Base",
+      "phase29Desc": "ศูนย์รวม Incident กล้อง — ค้นหา กรอง ดูรายละเอียด พร้อมฐานความรู้วิเคราะห์ปัญหาและวิธีแก้",
+      "phase29Status": "เปิดใช้งานแล้ว",
+      "phase29Tasks": [
+        "✅ รายการ Incident + ค้นหา + กรอง (กล้อง/สาเหตุ/สาเหตุหลัก/สถานะ/ความเร่งด่วน)",
+        "✅ Detail Modal พร้อมรูปภาพแนบ",
+        "✅ Incident ที่เกี่ยวข้อง (สาเหตุหรือสาเหตุหลักเดียวกัน)",
+        "✅ ฐานความรู้ — สรุปผลรวม Incident, MTTR เฉลี่ย",
+        "✅ ปัญหาที่พบบ่อย / วิธีแก้ที่ใช้บ่อย",
+        "✅ กล้องที่มีปัญหาบ่อย",
+        "✅ Export Excel + PDF"
+      ],
+      "phase30": "P21 — Maintenance Work Order",
+      "phase30Desc": "สร้างและติดตามใบสั่งงานซ่อมบำรุงที่เชื่อมกับ Incident",
+      "phase30Status": "เปิดใช้งานแล้ว",
+      "phase30Tasks": [
+        "✅ สร้าง Work Order (WO-YYYY-XXXXX)",
+        "✅ ติดตามสถานะ (เปิด/กำลังดำเนินการ/เสร็จสิ้น)",
+        "✅ เชื่อมกับ Incident"
+      ],
+      "phase31": "P22 — AI Incident Search",
+      "phase31Desc": "ค้นหา Incident ด้วยภาษาธรรมชาติ + semantic similarity",
+      "phase31Status": "วางแผนไว้",
+      "phase31Tasks": [
+        "ค้นหาด้วยภาษาธรรมชาติ",
+        "Semantic similarity ระหว่าง Incident",
+        "แนะนำวิธีแก้อัตโนมัติจากประวัติ"
+      ],
+      "phase32": "P23 — Predictive Camera Failure",
+      "phase32Desc": "พยากรณ์การเสียของกล้องล่วงหน้าด้วย AI",
+      "phase32Status": "วางแผนไว้",
+      "phase32Tasks": [
+        "พยากรณ์การเสียของกล้องล่วงหน้า",
+        "ตรวจจับรูปแบบความผิดปกติ",
+        "แจ้งเตือนเชิงป้องกัน"
       ]
     },
     "permissions": {
