@@ -118,6 +118,7 @@ export default function ImageServiceProcessingMonitor() {
   const [connected, setConnected] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [vizStyle, setVizStyle] = useState(() => localStorage.getItem('processing_viz_style') ?? 'ring');
+  const [recovering, setRecovering] = useState(false);
 
   const { data: initialData } = useQuery({
     queryKey: ['processing-stats-initial'],
@@ -149,6 +150,27 @@ export default function ImageServiceProcessingMonitor() {
     queryFn: () => imageServiceApi.getSystemConfigs(),
     staleTime: Infinity,
   });
+
+  const { data: queueHealth, refetch: refetchHealth } = useQuery({
+    queryKey: ['queue-health'],
+    queryFn: () => imageServiceApi.getQueueHealth(),
+    refetchInterval: 30000,
+    staleTime: 0,
+  });
+
+  const handleRecoverQueue = async () => {
+    setRecovering(true);
+    try {
+      const result = await imageServiceApi.recoverQueue();
+      toast.success(result.message || 'กู้คืนคิวสำเร็จ');
+      refetchHealth();
+      queryClient.invalidateQueries({ queryKey: ['processing-stats-initial'] });
+    } catch (e: any) {
+      if (!e?._handled) toast.error(t('common.error'));
+    } finally {
+      setRecovering(false);
+    }
+  };
 
   useEffect(() => {
     if (systemConfig?.dashboard_layout_processing?.value) {
@@ -289,6 +311,23 @@ export default function ImageServiceProcessingMonitor() {
       {isEditing && (
         <div className={`mb-4 px-4 py-2.5 rounded-lg text-xs ${themeConfig.card}`}>
           {t('imageService.overview.dragHint')}
+        </div>
+      )}
+
+      {queueHealth?.isStale && (
+        <div className="mb-4 px-4 py-3 rounded-lg border border-amber-500/40 bg-amber-500/10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <AlertTriangle size={18} className="text-amber-400 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-amber-300">คิวงานค้าง — {queueHealth.stale} งานไม่ตอบสนองนานกว่า 5 นาที</p>
+              <p className="text-xs text-amber-400/80 mt-0.5">อาจเกิดจาก Worker หยุดทำงานกะทันหัน กดปุ่มด้านขวาเพื่อกู้คืน</p>
+            </div>
+          </div>
+          <button onClick={handleRecoverQueue} disabled={recovering}
+            className="flex-shrink-0 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50">
+            {recovering ? <RefreshCw size={14} className="animate-spin" /> : <Play size={14} />}
+            {recovering ? 'กำลังกู้คืน...' : 'กู้คืนคิว'}
+          </button>
         </div>
       )}
 

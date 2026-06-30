@@ -226,7 +226,6 @@ async function main() {
   const camera = await prisma.camera.upsert({
     where: { id: '00000000-0000-0000-0000-000000000010' },
     update: {
-      status: 'active',
       smbSubdirectoryPattern: null,
     },
     create: {

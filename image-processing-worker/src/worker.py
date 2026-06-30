@@ -71,6 +71,16 @@ class ProcessingWorker:
         except Exception as e:
             logger.warning("Kafka not available — continuing without event emission", error=str(e))
 
+        # Move stale active jobs back to wait queue on startup
+        stale_count = 0
+        while True:
+            job_id = await self.redis.rpoplpush(settings.in_progress_key, settings.queue_name)
+            if job_id is None:
+                break
+            stale_count += 1
+        if stale_count > 0:
+            logger.info("Moved stale active jobs back to wait queue", count=stale_count)
+
         semaphore = asyncio.Semaphore(settings.processing_concurrency)
 
         asyncio.create_task(self._refresh_provider())

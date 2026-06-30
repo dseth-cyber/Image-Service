@@ -3,6 +3,11 @@ import { processingLogSearchSchema } from './processing-logs.schema.js';
 import * as processingLogsService from './processing-logs.service.js';
 import { requirePermission } from '../../middleware/rbac.js';
 import { createAuditLog } from '../audit/audit.service.js';
+import { getRedisClient } from '../../lib/redis.js';
+
+const QUEUE_WAIT = 'bull:image-processing:wait';
+const QUEUE_ACTIVE = 'bull:image-processing:active';
+const STALE_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
 
 async function searchHandler(request: FastifyRequest, reply: FastifyReply) {
   const params = processingLogSearchSchema.parse(request.query);
@@ -122,6 +127,53 @@ async function streamHandler(_request: FastifyRequest, reply: FastifyReply) {
   });
 }
 
+async function queueHealthHandler(_request: FastifyRequest, reply: FastifyReply) {
+  const redis = getRedisClient();
+  const [waiting, active] = await Promise.all([
+    redis.llen(QUEUE_WAIT),
+    redis.llen(QUEUE_ACTIVE),
+  ]);
+
+  // Detect stale: active > 0 but check last activity from DB
+  const prisma = (await import('../../lib/prisma.js')).getPrisma();
+  let stale = 0;
+  let isStale = false;
+  if (active > 0) {
+    const threshold = new Date(Date.now() - STALE_THRESHOLD_MS);
+    const recentCompleted = await prisma.processingJob.count({
+      where: { status: { in: ['completed', 'failed'] }, completedAt: { gte: threshold } },
+    });
+    // If active jobs exist but nothing completed in last 5 min → stale
+    if (recentCompleted === 0) {
+      stale = active;
+      isStale = true;
+    }
+  }
+
+  return reply.send({ waiting, active, stale, isStale });
+}
+
+async function recoverQueueHandler(request: FastifyRequest, reply: FastifyReply) {
+  const redis = getRedisClient();
+  let recovered = 0;
+  while (true) {
+    const job = await redis.rpoplpush(QUEUE_ACTIVE, QUEUE_WAIT);
+    if (!job) break;
+    recovered++;
+  }
+  const user = (request as any).user;
+  createAuditLog({
+    userId: user?.id,
+    action: 'queue_recover',
+    entity: 'processing_queue',
+    entityId: 'active',
+    description: `Queue recovered: moved ${recovered} stale jobs back to wait by ${user?.username}`,
+    metadata: { recovered },
+    ipAddress: request.ip,
+  }).catch(() => {});
+  return reply.send({ recovered, message: `กู้คืน ${recovered} งานสำเร็จ` });
+}
+
 export async function processingLogRoutes(app: FastifyInstance): Promise<void> {
   app.get('/', { preHandler: [app.authenticate] }, searchHandler);
   app.get('/stats', { preHandler: [app.authenticate] }, statsHandler);
@@ -131,6 +183,8 @@ export async function processingLogRoutes(app: FastifyInstance): Promise<void> {
   app.get('/stream', streamHandler);
   app.post('/:id/retry', { preHandler: [app.authenticate, requirePermission('processing:create')] }, retryHandler);
   app.post('/:id/reject', { preHandler: [app.authenticate, requirePermission('processing:create')] }, rejectHandler);
+  app.get('/queue-health', { preHandler: [app.authenticate] }, queueHealthHandler);
+  app.post('/queue-recover', { preHandler: [app.authenticate, requirePermission('processing:create')] }, recoverQueueHandler);
   app.get('/dlq/summary', { preHandler: [app.authenticate] }, dlqSummaryHandler);
   app.post('/dlq/bulk-retry', { preHandler: [app.authenticate, requirePermission('dead-letter:create')] }, bulkRetryHandler);
   app.post('/dlq/bulk-reject', { preHandler: [app.authenticate, requirePermission('dead-letter:create')] }, bulkRejectHandler);

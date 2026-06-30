@@ -293,6 +293,12 @@ export function createImageServiceApi(api: any) {
     bulkDeleteLogsByAge: (days: number, password: string) =>
       api.post(`${BASE}/processing-logs/bulk-delete`, { days, password }).then((r: any) => r.data),
 
+    getQueueHealth: () =>
+      api.get(`${BASE}/processing-logs/queue-health`).then((r: any) => r.data),
+
+    recoverQueue: () =>
+      api.post(`${BASE}/processing-logs/queue-recover`).then((r: any) => r.data),
+
     // Audit Logs
     getAuditLogs: (params: {
       page?: number; limit?: number; action?: string; entity?: string;

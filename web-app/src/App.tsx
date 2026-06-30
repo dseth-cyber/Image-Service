@@ -36,7 +36,7 @@ const StorageProfilesPage = lazy(() => import('@/pages/image-service/StorageProf
 const CameraAnalytics = lazy(() => import('@/pages/image-service/CameraAnalytics'))
 import {
   Camera, LayoutDashboard, Search, Activity, HardDrive, FileText, Shield, Settings, Map,
-  Globe, Palette, User, ChevronDown, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info, Server, Layers, Image, BarChart3,
+  Globe, Palette, User, ChevronDown, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info, Server, Layers, Image, BarChart3, RefreshCw, Play,
 } from 'lucide-react'
 
 export function hasPermission(user: any, permission: string): boolean {
@@ -561,6 +561,57 @@ function ChangePasswordModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
   )
 }
 
+function QueueHealthBanner() {
+  const { t } = useTranslation()
+  const toast = useToast()
+  const queryClient = useQueryClient()
+  const [recovering, setRecovering] = useState(false)
+
+  const { data: health } = useQuery({
+    queryKey: ['queue-health-global'],
+    queryFn: () => imageServiceApi.getQueueHealth(),
+    refetchInterval: 60000,
+    staleTime: 0,
+    retry: false,
+  })
+
+  const handleRecover = async () => {
+    setRecovering(true)
+    try {
+      const result = await imageServiceApi.recoverQueue()
+      toast.success(result.message || 'กู้คืนคิวสำเร็จ')
+      queryClient.invalidateQueries({ queryKey: ['queue-health-global'] })
+    } catch (e: any) {
+      if (!e?._handled) toast.error(t('common.error'))
+    } finally {
+      setRecovering(false) }
+  }
+
+  if (!health?.isStale) return null
+
+  return (
+    <div className="mx-6 mt-4 px-4 py-3 rounded-lg border border-amber-500/40 bg-amber-500/10 flex items-center justify-between gap-4">
+      <div className="flex items-center gap-3">
+        <AlertTriangle size={18} className="text-amber-400 flex-shrink-0" />
+        <div>
+          <p className="text-sm font-semibold text-amber-300">
+            คิวประมวลผลค้าง — {health.stale} งานไม่ตอบสนองนานกว่า 5 นาที
+          </p>
+          <p className="text-xs text-amber-400/80 mt-0.5">
+            อาจเกิดจากระบบประมวลผลหยุดทำงานกะทันหัน กดปุ่มเพื่อกู้คืน
+          </p>
+        </div>
+      </div>
+      <button onClick={handleRecover} disabled={recovering}
+        className="flex-shrink-0 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50">
+        {recovering
+          ? <><RefreshCw size={13} className="animate-spin" /> กำลังกู้คืน...</>
+          : <><Play size={13} /> กู้คืนคิว</>}
+      </button>
+    </div>
+  )
+}
+
 export default function App() {
   const { t, i18n } = useTranslation()
   const { themeConfig, theme, setTheme } = useTheme()
@@ -631,6 +682,8 @@ export default function App() {
           </div>
         </div>
         <div className="flex items-center gap-1">
+          {/* Processing indicator */}
+          <NavProcessing />
           {/* Search */}
           <NavSearch />
           {/* Notifications */}
@@ -692,6 +745,7 @@ export default function App() {
 
         {/* Main Content */}
         <main className="flex-1 overflow-auto">
+          <QueueHealthBanner />
           <Suspense fallback={<div className="flex items-center justify-center h-full"><div className="animate-spin w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full" /></div>}>
           <Routes>
             <Route path="/image-service/overview" element={
