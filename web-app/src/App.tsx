@@ -561,6 +561,35 @@ function ChangePasswordModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
   )
 }
 
+function NavProcessing() {
+  const { data: health } = useQuery({
+    queryKey: ['queue-health-nav'],
+    queryFn: () => imageServiceApi.getQueueHealth(),
+    refetchInterval: 10000,
+    staleTime: 0,
+    retry: false,
+  })
+
+  const active = health?.active ?? 0
+  const waiting = health?.waiting ?? 0
+  const total = active + waiting
+  const busy = total > 0
+
+  return (
+    <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
+      busy
+        ? 'bg-cyan-500/10 border-cyan-500/20 text-cyan-400'
+        : 'bg-white/5 border-white/10 text-gray-500'
+    }`}>
+      <span className="relative flex h-2 w-2">
+        {busy && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />}
+        <span className={`relative inline-flex rounded-full h-2 w-2 ${busy ? 'bg-cyan-500' : 'bg-gray-600'}`} />
+      </span>
+      <span>{total}</span>
+    </div>
+  )
+}
+
 function QueueHealthBanner() {
   const { t } = useTranslation()
   const toast = useToast()
