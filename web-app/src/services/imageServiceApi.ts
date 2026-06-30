@@ -95,6 +95,14 @@ export function createImageServiceApi(api: any) {
     getIncidentOptions: () =>
       api.get(`${BASE}/cameras/incidents/options`).then((r: any) => r.data),
 
+    uploadIncidentAttachment: (incidentId: string, file: File) => {
+      const fd = new FormData();
+      fd.append('file', file);
+      return api.post(`${BASE}/cameras/incidents/${incidentId}/attachments`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }).then((r: any) => r.data);
+    },
+
     // Retention Policies
     getRetentionPolicies: () =>
       api.get(`${BASE}/retention-policies`).then((r: any) => r.data),

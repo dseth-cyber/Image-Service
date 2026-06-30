@@ -627,6 +627,12 @@ model CameraIncident {
   estimatedFinish  DateTime? @map("estimated_finish")
   actualFinish     DateTime? @map("actual_finish")
   lostImages       Int       @default(0) @map("lost_images")
+  priority         String    @default("medium") @db.VarChar(16)
+  impact           String    @default("none") @db.VarChar(32)
+  assignedTo       String?   @map("assigned_to") @db.VarChar(128)
+  problemDesc      String?   @map("problem_desc") @db.Text
+  resolutionDesc   String?   @map("resolution_desc") @db.Text
+  attachments      Json      @default("[]")
   status           String    @default("open") @db.VarChar(16)
   openedBy         String?   @map("opened_by") @db.VarChar(128)
   closedBy         String?   @map("closed_by") @db.VarChar(128)

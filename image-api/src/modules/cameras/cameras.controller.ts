@@ -8,6 +8,17 @@ import { getRedisClient } from '../../lib/redis.js';
 import { createAuditLog } from '../audit/audit.service.js';
 import { createAlert } from '../alerts/alerts.service.js';
 import { sendWebhook } from '../../lib/webhook.js';
+import { existsSync, mkdirSync } from 'fs';
+import { join, extname } from 'path';
+import { randomUUID } from 'crypto';
+
+const ATTACHMENT_DIR = '/app/incident-attachments';
+
+function ensureAttachmentDir() {
+  if (!existsSync(ATTACHMENT_DIR)) {
+    mkdirSync(ATTACHMENT_DIR, { recursive: true });
+  }
+}
 
 async function listHandler(request: FastifyRequest, reply: FastifyReply) {
   const filters = cameraQuerySchema.parse(request.query);
@@ -40,6 +51,11 @@ async function updateHandler(request: FastifyRequest, reply: FastifyReply) {
     resolution: body.resolution as string | undefined,
     correctiveAction: body.correctiveAction as string | undefined,
     preventiveAction: body.preventiveAction as string | undefined,
+    priority: body.priority as string | undefined,
+    impact: body.impact as string | undefined,
+    assignedTo: body.assignedTo as string | undefined,
+    problemDesc: body.problemDesc as string | undefined,
+    resolutionDesc: body.resolutionDesc as string | undefined,
   };
   const input = updateCameraSchema.parse(body);
   const user = (request as any).user;
@@ -93,7 +109,11 @@ async function updateHandler(request: FastifyRequest, reply: FastifyReply) {
         reason: incidentFields.reason,
         rootCause: incidentFields.rootCause,
         description: incidentFields.incidentDescription,
+        problemDesc: incidentFields.problemDesc,
         estimatedFinish: incidentFields.estimatedFinish,
+        priority: incidentFields.priority,
+        impact: incidentFields.impact,
+        assignedTo: incidentFields.assignedTo,
         openedBy: user?.username ?? 'system',
       });
     }
@@ -285,9 +305,72 @@ async function resolveIncidentHandler(request: FastifyRequest, reply: FastifyRep
     rootCause: body.rootCause,
     correctiveAction: body.correctiveAction,
     preventiveAction: body.preventiveAction,
+    resolutionDesc: body.resolutionDesc,
     closedBy: user?.username ?? 'system',
   });
   return reply.send(incident);
+}
+
+async function uploadAttachmentHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as { id: string };
+  ensureAttachmentDir();
+
+  try {
+    const data = await (request as any).file();
+    if (!data) return reply.status(400).send({ error: 'No file uploaded' });
+
+    const mimeType: string = data.mimetype || '';
+    if (!mimeType.startsWith('image/')) {
+      return reply.status(400).send({ error: 'Only image files are allowed' });
+    }
+
+    const ext = extname(data.filename || '.jpg') || '.jpg';
+    const filename = `${id}-${randomUUID()}${ext}`;
+    const filePath = join(ATTACHMENT_DIR, filename);
+
+    let size = 0;
+    const chunks: Buffer[] = [];
+    for await (const chunk of data.file) {
+      size += chunk.length;
+      if (size > 5 * 1024 * 1024) {
+        return reply.status(400).send({ error: 'File size exceeds 5MB limit' });
+      }
+      chunks.push(chunk);
+    }
+
+    const { writeFile } = await import('fs/promises');
+    await writeFile(filePath, Buffer.concat(chunks));
+
+    return reply.status(201).send({
+      filename,
+      originalName: data.filename,
+      size,
+      url: `/api/v1/cameras/incidents/attachments/${filename}`,
+    });
+  } catch (err: any) {
+    return reply.status(500).send({ error: 'Upload failed', message: err?.message });
+  }
+}
+
+async function serveAttachmentHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { filename } = request.params as { filename: string };
+  // Basic path traversal protection
+  if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+    return reply.status(400).send({ error: 'Invalid filename' });
+  }
+  const filePath = join(ATTACHMENT_DIR, filename);
+  if (!existsSync(filePath)) {
+    return reply.status(404).send({ error: 'Attachment not found' });
+  }
+  const ext = extname(filename).toLowerCase();
+  const mimeMap: Record<string, string> = {
+    '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png',
+    '.gif': 'image/gif', '.webp': 'image/webp', '.bmp': 'image/bmp',
+  };
+  const contentType = mimeMap[ext] ?? 'application/octet-stream';
+  const { readFile } = await import('fs/promises');
+  const fileBuffer = await readFile(filePath);
+  return reply.header('Content-Type', contentType).send(fileBuffer);
 }
 
 async function incidentOptionsHandler(_request: FastifyRequest, reply: FastifyReply) {
@@ -332,6 +415,11 @@ export async function cameraRoutes(app: FastifyInstance): Promise<void> {
     incidentOptionsHandler,
   );
   app.get(
+    '/incidents/attachments/:filename',
+    { preHandler: [app.authenticate, requirePermission('cameras:read')] },
+    serveAttachmentHandler,
+  );
+  app.get(
     '/incidents/:id',
     { preHandler: [app.authenticate, requirePermission('cameras:read')] },
     getIncidentHandler,
@@ -340,6 +428,11 @@ export async function cameraRoutes(app: FastifyInstance): Promise<void> {
     '/incidents/:id/resolve',
     { preHandler: [app.authenticate, requirePermission('cameras:update')] },
     resolveIncidentHandler,
+  );
+  app.post(
+    '/incidents/:id/attachments',
+    { preHandler: [app.authenticate, requirePermission('cameras:update')] },
+    uploadAttachmentHandler,
   );
   app.get(
     '/:id/analytics',

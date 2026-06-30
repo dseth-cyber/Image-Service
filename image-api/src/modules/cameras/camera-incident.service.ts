@@ -17,7 +17,12 @@ export async function createIncident(data: {
   reason: string;
   rootCause?: string;
   description?: string;
+  problemDesc?: string;
   estimatedFinish?: string;
+  priority?: string;
+  impact?: string;
+  assignedTo?: string;
+  attachments?: any[];
   openedBy: string;
 }) {
   const prisma = getPrisma();
@@ -33,7 +38,12 @@ export async function createIncident(data: {
       reason: data.reason,
       rootCause: data.rootCause,
       description: data.description,
+      problemDesc: data.problemDesc,
       estimatedFinish: data.estimatedFinish ? new Date(data.estimatedFinish) : null,
+      priority: data.priority ?? 'medium',
+      impact: data.impact ?? 'none',
+      assignedTo: data.assignedTo,
+      attachments: data.attachments ?? [],
       openedBy: data.openedBy,
       status: 'open',
     },
@@ -45,6 +55,7 @@ export async function resolveIncident(id: string, data: {
   rootCause?: string;
   correctiveAction?: string;
   preventiveAction?: string;
+  resolutionDesc?: string;
   closedBy: string;
 }) {
   const prisma = getPrisma();
@@ -58,6 +69,7 @@ export async function resolveIncident(id: string, data: {
       rootCause: data.rootCause || incident.rootCause,
       correctiveAction: data.correctiveAction,
       preventiveAction: data.preventiveAction,
+      resolutionDesc: data.resolutionDesc,
       closedBy: data.closedBy,
       closedAt: new Date(),
       actualFinish: new Date(),

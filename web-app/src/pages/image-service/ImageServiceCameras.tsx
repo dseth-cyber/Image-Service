@@ -220,11 +220,17 @@ export default function ImageServiceCameras() {
 
   // Status Change Dialog state
   const [statusDialog, setStatusDialog] = useState<{ open: boolean; camera?: any }>({ open: false });
-  const [statusForm, setStatusForm] = useState({ status: '', reason: '', description: '', rootCause: '', estimatedFinish: '' });
+  const [statusForm, setStatusForm] = useState({
+    status: '', reason: '', description: '', problemDesc: '', resolutionDesc: '',
+    rootCause: '', estimatedFinish: '', priority: 'medium', impact: 'none', assignedTo: '',
+  });
+  const [attachmentFiles, setAttachmentFiles] = useState<File[]>([]);
+  const [attachmentPreviews, setAttachmentPreviews] = useState<string[]>([]);
+  const [attachDragOver, setAttachDragOver] = useState(false);
 
   // Resolution Dialog state
   const [resolveDialog, setResolveDialog] = useState<{ open: boolean; camera?: any }>({ open: false });
-  const [resolveForm, setResolveForm] = useState({ resolution: '', rootCause: '', correctiveAction: '', preventiveAction: '' });
+  const [resolveForm, setResolveForm] = useState({ resolution: '', rootCause: '', correctiveAction: '', preventiveAction: '', resolutionDesc: '' });
 
   // Fetch incident options from masterdata
   const { data: incidentOptions } = useQuery({
@@ -243,11 +249,31 @@ export default function ImageServiceCameras() {
   }));
 
   const openStatusDialog = (camera: any) => {
-    if (camera.status === 'active' || camera.status !== 'active') {
-      // Always open the status dialog to choose new status
-      setStatusForm({ status: '', reason: '', description: '', rootCause: '', estimatedFinish: '' });
-      setStatusDialog({ open: true, camera });
-    }
+    // Always open the status dialog to choose new status
+    setStatusForm({
+      status: '', reason: '', description: '', problemDesc: '', resolutionDesc: '',
+      rootCause: '', estimatedFinish: '', priority: 'medium', impact: 'none', assignedTo: '',
+    });
+    setAttachmentFiles([]);
+    setAttachmentPreviews([]);
+    setStatusDialog({ open: true, camera });
+  };
+
+  const handleAttachFiles = (files: FileList | null) => {
+    if (!files) return;
+    const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+    const remaining = 3 - attachmentFiles.length;
+    if (remaining <= 0) { toast.warning(t('imageService.incidents.attachMaxFiles')); return; }
+    const toAdd = imageFiles.slice(0, remaining);
+    const newPreviews = toAdd.map(f => URL.createObjectURL(f));
+    setAttachmentFiles(prev => [...prev, ...toAdd]);
+    setAttachmentPreviews(prev => [...prev, ...newPreviews]);
+  };
+
+  const handleRemoveAttachment = (idx: number) => {
+    URL.revokeObjectURL(attachmentPreviews[idx]);
+    setAttachmentFiles(prev => prev.filter((_, i) => i !== idx));
+    setAttachmentPreviews(prev => prev.filter((_, i) => i !== idx));
   };
 
   const handleStatusDialogConfirm = async () => {
@@ -257,7 +283,7 @@ export default function ImageServiceCameras() {
     // If going to active, show resolution dialog instead
     if (statusForm.status === 'active' && camera.status !== 'active') {
       setStatusDialog({ open: false });
-      setResolveForm({ resolution: '', rootCause: '', correctiveAction: '', preventiveAction: '' });
+      setResolveForm({ resolution: '', rootCause: '', correctiveAction: '', preventiveAction: '', resolutionDesc: '' });
       setResolveDialog({ open: true, camera });
       return;
     }
@@ -270,14 +296,31 @@ export default function ImageServiceCameras() {
 
     setChangingStatus(prev => new Set(prev).add(camera.id));
     setStatusDialog({ open: false });
+    const filesToUpload = [...attachmentFiles];
+    setAttachmentFiles([]);
+    setAttachmentPreviews(prev => { prev.forEach(u => URL.revokeObjectURL(u)); return []; });
     try {
-      await imageServiceApi.updateCamera(camera.id, {
+      const result = await imageServiceApi.updateCamera(camera.id, {
         status: statusForm.status,
         reason: statusForm.reason,
         incidentDescription: statusForm.description,
+        problemDesc: statusForm.problemDesc || undefined,
         rootCause: statusForm.rootCause || undefined,
         estimatedFinish: statusForm.estimatedFinish || undefined,
+        priority: statusForm.priority,
+        impact: statusForm.impact,
+        assignedTo: statusForm.assignedTo || undefined,
       });
+      // Upload attachments if any — find created incident id from recent incidents
+      if (filesToUpload.length > 0) {
+        try {
+          const incidents = await imageServiceApi.getIncidents({ cameraId: camera.id, status: 'open', limit: 1 });
+          const incidentId = incidents?.data?.[0]?.id;
+          if (incidentId) {
+            await Promise.all(filesToUpload.map(f => imageServiceApi.uploadIncidentAttachment(incidentId, f)));
+          }
+        } catch { /* non-fatal: attachment upload failure */ }
+      }
       toast.success(t('imageService.incidents.incidentCreated'));
       queryClient.invalidateQueries({ queryKey: ['cameras-list'] });
     } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
@@ -299,6 +342,7 @@ export default function ImageServiceCameras() {
         rootCause: resolveForm.rootCause || undefined,
         correctiveAction: resolveForm.correctiveAction || undefined,
         preventiveAction: resolveForm.preventiveAction || undefined,
+        resolutionDesc: resolveForm.resolutionDesc || undefined,
       });
       toast.success(t('imageService.incidents.incidentResolved'));
       queryClient.invalidateQueries({ queryKey: ['cameras-list'] });
@@ -914,114 +958,222 @@ export default function ImageServiceCameras() {
       </Modal>
 
       {/* Status Change Dialog */}
-      <Modal isOpen={statusDialog.open} onClose={() => setStatusDialog({ open: false })}
-        title={t('imageService.incidents.statusChangeTitle')}>
-        <div className="space-y-4 p-1 max-w-lg">
-          {/* Camera name */}
-          <div className="flex items-center gap-2">
-            <Camera size={16} className="text-cyan-400" />
-            <span className={`text-sm font-semibold ${themeConfig.text.primary}`}>{statusDialog.camera?.name}</span>
-            {statusDialog.camera && (
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${CAMERA_STATUS_STYLES[statusDialog.camera.status]?.bg}`}>
-                {t(`imageService.cameras.${statusDialog.camera.status}`)}
-              </span>
-            )}
-          </div>
-
-          {/* Status radio buttons */}
-          <div>
-            <label className={`block text-sm font-medium mb-2 ${themeConfig.text.primary}`}>
-              {t('imageService.incidents.selectStatus')} <span className="text-red-400">*</span>
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              {STATUS_RADIO_OPTIONS.filter(opt => opt.value !== statusDialog.camera?.status).map(opt => {
-                const OptIcon = opt.icon;
-                const selected = statusForm.status === opt.value;
-                return (
-                  <button key={opt.value} type="button"
-                    onClick={() => setStatusForm(p => ({ ...p, status: opt.value }))}
-                    className={`px-3 py-2.5 rounded-lg text-sm flex items-center gap-2 border transition-all ${selected ? 'border-cyan-500 bg-cyan-500/10 ring-1 ring-cyan-500/30' : `border-white/10 hover:border-white/20 hover:bg-white/5`}`}>
-                    <span className={`${opt.bg.split(' ').filter(c => c.startsWith('text-')).join(' ')}`}>
-                      <OptIcon size={14} />
-                    </span>
-                    <span className={`${selected ? 'text-cyan-300' : themeConfig.text.primary}`}>{opt.label}</span>
-                    {selected && <CheckCircle size={12} className="ml-auto text-cyan-400" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Reason dropdown (required when going to non-active) */}
-          {statusForm.status && statusForm.status !== 'active' && (
-            <>
-              <div>
-                <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                  {t('imageService.incidents.reason')} <span className="text-red-400">*</span>
-                </label>
-                <SearchableSelect value={statusForm.reason} onChange={v => setStatusForm(p => ({ ...p, reason: v }))}
-                  placeholder={t('imageService.incidents.reason')}
-                  options={(incidentOptions?.reasons || []).map((r: any) => ({
-                    value: r.code, label: getLocalizedValue(r, i18n.language),
-                  }))} />
+      {(() => {
+        const PRIORITY_OPTIONS = [
+          { value: 'critical', labelKey: 'priorityCritical', color: 'bg-red-500/20 text-red-400 border-red-500/30' },
+          { value: 'high', labelKey: 'priorityHigh', color: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
+          { value: 'medium', labelKey: 'priorityMedium', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
+          { value: 'low', labelKey: 'priorityLow', color: 'bg-green-500/20 text-green-400 border-green-500/30' },
+        ];
+        const IMPACT_OPTIONS = [
+          { value: 'none', labelKey: 'impactNone' },
+          { value: 'partial', labelKey: 'impactPartial' },
+          { value: 'full', labelKey: 'impactFull' },
+        ];
+        return (
+          <Modal isOpen={statusDialog.open} onClose={() => setStatusDialog({ open: false })}
+            title={t('imageService.incidents.statusChangeTitle')} size="4xl">
+            <div className="space-y-4 p-1">
+              {/* 1. Camera name + current status badge */}
+              <div className="flex items-center gap-2">
+                <Camera size={16} className="text-cyan-400" />
+                <span className={`text-sm font-semibold ${themeConfig.text.primary}`}>{statusDialog.camera?.name}</span>
+                {statusDialog.camera && (
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${CAMERA_STATUS_STYLES[statusDialog.camera.status]?.bg}`}>
+                    {t(`imageService.cameras.${statusDialog.camera.status}`)}
+                  </span>
+                )}
               </div>
 
+              {/* 2. Select new status */}
               <div>
-                <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                  {t('imageService.incidents.description')}
+                <label className={`block text-sm font-medium mb-2 ${themeConfig.text.primary}`}>
+                  {t('imageService.incidents.selectStatus')} <span className="text-red-400">*</span>
                 </label>
-                <textarea value={statusForm.description}
-                  onChange={e => setStatusForm(p => ({ ...p, description: e.target.value }))}
-                  rows={3}
-                  className={`w-full px-3 py-2 rounded-md text-sm ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary} resize-none`}
-                  placeholder={t('imageService.incidents.description')} />
-              </div>
-
-              <div>
-                <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                  {t('imageService.incidents.rootCause')}
-                </label>
-                <SearchableSelect value={statusForm.rootCause} onChange={v => setStatusForm(p => ({ ...p, rootCause: v }))}
-                  placeholder={t('imageService.incidents.rootCause')}
-                  options={(incidentOptions?.rootCauses || []).map((r: any) => ({
-                    value: r.code, label: getLocalizedValue(r, i18n.language),
-                  }))} />
-              </div>
-
-              {(statusForm.status === 'maintenance' || statusForm.status === 'inactive') && (
-                <div>
-                  <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                    {t('imageService.incidents.estimatedFinish')}
-                  </label>
-                  <input type="datetime-local" value={statusForm.estimatedFinish}
-                    onChange={e => setStatusForm(p => ({ ...p, estimatedFinish: e.target.value }))}
-                    className={`w-full px-3 py-2 rounded-md text-sm ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`} />
-                  {statusForm.estimatedFinish && (
-                    <p className={`text-xs ${themeConfig.text.secondary} mt-1`}>
-                      {formatDateTime(statusForm.estimatedFinish, i18n.language)}
-                    </p>
-                  )}
+                <div className="grid grid-cols-2 gap-2">
+                  {STATUS_RADIO_OPTIONS.filter(opt => opt.value !== statusDialog.camera?.status).map(opt => {
+                    const OptIcon = opt.icon;
+                    const selected = statusForm.status === opt.value;
+                    return (
+                      <button key={opt.value} type="button"
+                        onClick={() => setStatusForm(p => ({ ...p, status: opt.value }))}
+                        className={`px-3 py-2.5 rounded-lg text-sm flex items-center gap-2 border transition-all ${selected ? 'border-cyan-500 bg-cyan-500/10 ring-1 ring-cyan-500/30' : 'border-white/10 hover:border-white/20 hover:bg-white/5'}`}>
+                        <span className={`${opt.bg.split(' ').filter((c: string) => c.startsWith('text-')).join(' ')}`}>
+                          <OptIcon size={14} />
+                        </span>
+                        <span className={`${selected ? 'text-cyan-300' : themeConfig.text.primary}`}>{opt.label}</span>
+                        {selected && <CheckCircle size={12} className="ml-auto text-cyan-400" />}
+                      </button>
+                    );
+                  })}
                 </div>
-              )}
-            </>
-          )}
+              </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
-            <Button variant="secondary" onClick={() => setStatusDialog({ open: false })}>{t('common.cancel')}</Button>
-            <Button onClick={handleStatusDialogConfirm}
-              disabled={!statusForm.status || (statusForm.status !== 'active' && !statusForm.reason)}>
-              {t('common.confirm')}
-            </Button>
-          </div>
-        </div>
-      </Modal>
+              {/* 3. Priority */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${themeConfig.text.primary}`}>
+                  {t('imageService.incidents.priority')}
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {PRIORITY_OPTIONS.map(p => {
+                    const selected = statusForm.priority === p.value;
+                    return (
+                      <button key={p.value} type="button"
+                        onClick={() => setStatusForm(prev => ({ ...prev, priority: p.value }))}
+                        className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all ${p.color} ${selected ? 'ring-1 ring-white/30 opacity-100' : 'opacity-60 hover:opacity-90'}`}>
+                        {t(`imageService.incidents.${p.labelKey}`)}
+                        {selected && <CheckCircle size={10} className="inline ml-1" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Fields shown only when going to non-active status */}
+              {statusForm.status && statusForm.status !== 'active' && (
+                <>
+                  {/* 4. Reason */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                      {t('imageService.incidents.reason')} <span className="text-red-400">*</span>
+                    </label>
+                    <SearchableSelect value={statusForm.reason} onChange={v => setStatusForm(p => ({ ...p, reason: v }))}
+                      placeholder={t('imageService.incidents.reason')}
+                      options={(incidentOptions?.reasons || []).map((r: any) => ({
+                        value: r.code, label: getLocalizedValue(r, i18n.language),
+                      }))} />
+                  </div>
+
+
+                  {/* 6. Problem Description */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                      {t('imageService.incidents.problemDesc')}
+                    </label>
+                    <textarea value={statusForm.problemDesc}
+                      onChange={e => setStatusForm(p => ({ ...p, problemDesc: e.target.value }))}
+                      rows={3}
+                      className={`w-full px-3 py-2 rounded-md text-sm ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary} resize-none`}
+                      placeholder={t('imageService.incidents.problemDesc')} />
+                  </div>
+
+                  {/* 7. Resolution description (if applicable) */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                      {t('imageService.incidents.resolutionDesc')}
+                    </label>
+                    <textarea value={statusForm.resolutionDesc}
+                      onChange={e => setStatusForm(p => ({ ...p, resolutionDesc: e.target.value }))}
+                      rows={2}
+                      className={`w-full px-3 py-2 rounded-md text-sm ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary} resize-none`}
+                      placeholder={t('imageService.incidents.resolutionDesc')} />
+                  </div>
+
+                  {/* 8. Attach Images */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                      {t('imageService.incidents.attachImages')}
+                    </label>
+                    <div
+                      className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors cursor-pointer ${attachDragOver ? 'border-cyan-500 bg-cyan-500/10' : 'border-white/20 hover:border-white/40 hover:bg-white/5'}`}
+                      onDragOver={e => { e.preventDefault(); setAttachDragOver(true); }}
+                      onDragLeave={() => setAttachDragOver(false)}
+                      onDrop={e => { e.preventDefault(); setAttachDragOver(false); handleAttachFiles(e.dataTransfer.files); }}
+                      onClick={() => {
+                        if (attachmentFiles.length >= 3) { toast.warning(t('imageService.incidents.attachMaxFiles')); return; }
+                        const inp = document.createElement('input');
+                        inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true;
+                        inp.onchange = () => handleAttachFiles(inp.files);
+                        inp.click();
+                      }}
+                    >
+                      <p className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.incidents.attachHint')}</p>
+                    </div>
+                    {attachmentPreviews.length > 0 && (
+                      <div className="flex gap-2 mt-2 flex-wrap">
+                        {attachmentPreviews.map((src, idx) => (
+                          <div key={idx} className="relative group">
+                            <img src={src} alt="" className="w-20 h-20 object-cover rounded-lg border border-white/10" />
+                            <button type="button"
+                              onClick={() => handleRemoveAttachment(idx)}
+                              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              title={t('imageService.incidents.attachRemove')}>
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 9. Assigned To */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                      {t('imageService.incidents.assignedTo')}
+                    </label>
+                    <input value={statusForm.assignedTo}
+                      onChange={e => setStatusForm(p => ({ ...p, assignedTo: e.target.value }))}
+                      className={`w-full px-3 py-2 rounded-md text-sm ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`}
+                      placeholder={t('imageService.incidents.assignedTo')} />
+                  </div>
+
+                  {/* 10. Estimated Finish */}
+                  {(statusForm.status === 'maintenance' || statusForm.status === 'inactive') && (
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                        {t('imageService.incidents.estimatedFinish')}
+                      </label>
+                      <input type="datetime-local" value={statusForm.estimatedFinish}
+                        onChange={e => setStatusForm(p => ({ ...p, estimatedFinish: e.target.value }))}
+                        className={`w-full px-3 py-2 rounded-md text-sm ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`} />
+                      {statusForm.estimatedFinish && (
+                        <p className={`text-xs ${themeConfig.text.secondary} mt-1`}>
+                          {formatDateTime(statusForm.estimatedFinish, i18n.language)}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 11. Impact */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-2 ${themeConfig.text.primary}`}>
+                      {t('imageService.incidents.impact')}
+                    </label>
+                    <div className="flex gap-3">
+                      {IMPACT_OPTIONS.map(opt => (
+                        <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
+                          <input type="radio" name="impact" value={opt.value}
+                            checked={statusForm.impact === opt.value}
+                            onChange={() => setStatusForm(p => ({ ...p, impact: opt.value }))}
+                            className="accent-cyan-400" />
+                          <span className={`text-sm ${themeConfig.text.primary}`}>
+                            {t(`imageService.incidents.${opt.labelKey}`)}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <div className="flex justify-end gap-2 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+                <Button variant="secondary" onClick={() => setStatusDialog({ open: false })}>{t('common.cancel')}</Button>
+                <Button onClick={handleStatusDialogConfirm}
+                  disabled={!statusForm.status || (statusForm.status !== 'active' && !statusForm.reason)}>
+                  {t('common.confirm')}
+                </Button>
+              </div>
+            </div>
+          </Modal>
+        );
+      })()}
 
       {/* Resolution Dialog */}
       <Modal isOpen={resolveDialog.open} onClose={() => setResolveDialog({ open: false })}
-        title={t('imageService.incidents.resolutionTitle')}>
-        <div className="space-y-4 p-1 max-w-lg">
-          {/* Camera name */}
-          <div className="flex items-center gap-2">
+        title={t('imageService.incidents.resolutionTitle')} size="4xl">
+        <div className="space-y-4 p-1">
+          {/* Camera name + transition */}
+          <div className="flex items-center gap-2 flex-wrap">
             <Camera size={16} className="text-cyan-400" />
             <span className={`text-sm font-semibold ${themeConfig.text.primary}`}>{resolveDialog.camera?.name}</span>
             <span className="text-xs text-green-400">
@@ -1064,6 +1216,7 @@ export default function ImageServiceCameras() {
                 value: r.code, label: getLocalizedValue(r, i18n.language),
               }))} />
           </div>
+
 
           {/* Corrective Action */}
           <div>

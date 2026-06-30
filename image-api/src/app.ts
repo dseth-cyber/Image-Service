@@ -1,9 +1,17 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import jwt from '@fastify/jwt';
+import multipart from '@fastify/multipart';
 import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
+import { mkdirSync, existsSync } from 'fs';
+
+// Ensure incident attachments directory exists on startup
+const ATTACHMENT_DIR = '/app/incident-attachments';
+if (!existsSync(ATTACHMENT_DIR)) {
+  mkdirSync(ATTACHMENT_DIR, { recursive: true });
+}
 
 import { config } from './config/index.js';
 import { logger } from './lib/logger.js';
@@ -49,6 +57,13 @@ export async function buildApp() {
   });
 
   app.setErrorHandler(errorHandler);
+
+  await app.register(multipart, {
+    limits: {
+      fileSize: 5 * 1024 * 1024, // 5MB
+      files: 1,
+    },
+  });
 
   await app.register(cors, {
     // NOTE: origin is permissive because the system runs on LAN with changing IPs.
