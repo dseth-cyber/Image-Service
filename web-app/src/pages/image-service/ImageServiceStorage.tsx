@@ -62,6 +62,22 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
+const PieBytesTooltip = ({ active, payload }: any) => {
+  if (!active || !payload?.length) return null;
+  const p = payload[0];
+  const bytes = p.value;
+  const gb = bytes / (1024 * 1024 * 1024);
+  const mb = bytes / (1024 * 1024);
+  const displaySize = gb >= 0.1 ? `${gb.toFixed(2)} GB` : `${mb.toFixed(1)} MB`;
+  return (
+    <div className="px-3 py-2 rounded-lg border border-white/20 bg-slate-900/90 backdrop-blur-md text-xs shadow-xl">
+      <p style={{ color: p.payload?.fill || p.color }} className="font-semibold mb-1">{p.name}</p>
+      <p className="text-white font-bold">{displaySize}</p>
+      <p className="text-gray-400">{p.payload?.files?.toLocaleString()} {p.payload?.files !== undefined ? 'files' : ''}</p>
+    </div>
+  );
+};
+
 function formatBytes(bytes: number): string {
   if (!bytes) return '0 B';
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -308,7 +324,7 @@ export default function ImageServiceStorage() {
                       <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip content={<CustomTooltip />} />
+                  <Tooltip content={<PieBytesTooltip />} />
                   <Legend wrapperStyle={{ fontSize: 11, color: tickFill }} />
                 </PieChart>
               </ResponsiveContainer>

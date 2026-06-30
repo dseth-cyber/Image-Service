@@ -554,6 +554,8 @@ export default function ImageServiceCameras() {
                 </th>
                 <th onClick={() => handleSort('ipAddress')} className={thCls('ipAddress')}>{t('imageService.cameras.ipAddress')}
                   {sortCol === 'ipAddress' && (sortDir === 'asc' ? <ChevronUp size={11} className="text-cyan-400" /> : <ChevronDown size={11} className="text-cyan-400" />)}</th>
+                <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.cameras.cameraType')}</th>
+                <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.cameras.retentionPolicy')}</th>
                 <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.cameras.status')}</th>
                 <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.cameras.lastPoll')}</th>
                 <th className={`px-4 py-3 text-right text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.cameras.totalImages')}</th>
@@ -577,6 +579,14 @@ export default function ImageServiceCameras() {
                       </div>
                     </td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>{camera.ipAddress}</td>
+                    <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>
+                      {camera.cameraTypeCode
+                        ? (() => { const ct = cameraTypes.find((c: any) => c.code === camera.cameraTypeCode); return ct ? getLocalizedValue(ct, i18n.language) : camera.cameraTypeCode; })()
+                        : '—'}
+                    </td>
+                    <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>
+                      {(() => { const p = (policies as any[]).find((rp: any) => rp.id === camera.retentionPolicyId); return p?.name ?? '—'; })()}
+                    </td>
                     <td className="px-4 py-3">
                       <button
                         onClick={() => canUpdate && openStatusDialog(camera)}
