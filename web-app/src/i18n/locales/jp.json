@@ -144,7 +144,12 @@
       "useCurrentFolder": "現在のフォルダを使用",
       "scanNow": "今すぐスキャン",
       "scanTriggered": "スキャンを開始しました。まもなくカメラをポーリングします",
-      "cameraInfo": "カメラ情報"
+      "cameraInfo": "カメラ情報",
+      "overrideSection": "追加設定（任意）",
+      "overrideHint": "空欄でテンプレート値を使用",
+      "acceptedExtensionsHint": "未選択でテンプレート使用",
+      "inherit": "テンプレート使用",
+      "templateHint": "テンプレートを選択して設定を適用、下で調整可能"
     },
     "storage": {
       "title": "ストレージ監視",

@@ -144,7 +144,12 @@
       "useCurrentFolder": "လက်ရှိဖိုင်တွဲသုံးရန်",
       "scanNow": "ယခုစကင်ဖတ်မည်",
       "scanTriggered": "စကင်ဖတ်ခြင်းစတင်ပြီ၊ ကင်မရာများကို မကြာမီစစ်ဆေးပါမည်",
-      "cameraInfo": "ကင်မရာအချက်အလက်"
+      "cameraInfo": "ကင်မရာအချက်အလက်",
+      "overrideSection": "ထပ်ဆောင်းဆက်တင် (မဖြစ်မနေမဟုတ်)",
+      "overrideHint": "ဗလာထားပါက template တန်ဖိုးသုံးမည်",
+      "acceptedExtensionsHint": "မရွေးပါက template သုံးမည်",
+      "inherit": "Template သုံး",
+      "templateHint": "template ရွေးပြီးအောက်တွင်ပြင်နိုင်သည်"
     },
     "storage": {
       "title": "သိုလှောင်မှုစောင့်ကြည့်ခြင်း",

@@ -107,6 +107,7 @@ export default function CameraTemplates() {
       )}
 
       <CameraTemplateFormModal
+        key={editTarget?.id ?? 'new'}
         isOpen={showForm}
         onClose={() => { setShowForm(false); setEditTarget(null) }}
         editTarget={editTarget}

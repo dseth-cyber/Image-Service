@@ -144,7 +144,12 @@
       "useCurrentFolder": "使用当前文件夹",
       "scanNow": "立即扫描",
       "scanTriggered": "扫描已触发，将在不久后轮询所有相机",
-      "cameraInfo": "摄像头信息"
+      "cameraInfo": "摄像头信息",
+      "overrideSection": "附加设置（可选）",
+      "overrideHint": "留空则使用模板值",
+      "acceptedExtensionsHint": "不选则使用模板",
+      "inherit": "使用模板",
+      "templateHint": "选择模板应用设置，可在下方调整"
     },
     "storage": {
       "title": "存储监控",
