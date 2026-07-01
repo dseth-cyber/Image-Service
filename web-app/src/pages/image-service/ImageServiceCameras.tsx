@@ -52,6 +52,8 @@ export default function ImageServiceCameras() {
   const { user } = useAuth();
   const canUpdate = hasPermission(user, 'cameras:update');
   const canDelete = hasPermission(user, 'cameras:delete');
+  const hasUsersPermission = hasPermission(user, 'users:read');
+  const hasMasterdataPermission = hasPermission(user, 'masterdata:read');
   const contentRef = useRef<HTMLDivElement>(null);
 
   const [page, setPage] = useState(1);
@@ -100,6 +102,7 @@ export default function ImageServiceCameras() {
     queryKey: ['masterdata-camera-types'],
     queryFn: () => imageServiceApi.getMasterdata({ type: 'camera_type' }),
     staleTime: 1000 * 60 * 5,
+    enabled: hasMasterdataPermission,
   });
   const cameraTypes = (cameraTypesRaw?.data ?? cameraTypesRaw ?? []) as any[];
 
@@ -107,6 +110,7 @@ export default function ImageServiceCameras() {
     queryKey: ['masterdata-camera-statuses'],
     queryFn: () => imageServiceApi.getMasterdata({ type: 'camera_status' }),
     staleTime: 1000 * 60 * 5,
+    enabled: hasMasterdataPermission,
   });
   const cameraStatuses = (cameraStatusesRaw?.data ?? cameraStatusesRaw ?? []) as any[];
 
@@ -114,6 +118,7 @@ export default function ImageServiceCameras() {
     queryKey: ['masterdata-capture-modes'],
     queryFn: () => imageServiceApi.getMasterdata({ type: 'capture_mode' }),
     staleTime: 1000 * 60 * 5,
+    enabled: hasMasterdataPermission,
   });
   const captureModes = (captureModesRaw?.data ?? captureModesRaw ?? []) as any[];
 
@@ -268,9 +273,10 @@ export default function ImageServiceCameras() {
 
   // Status Change Dialog state
   const [statusDialog, setStatusDialog] = useState<{ open: boolean; camera?: any }>({ open: false });
-  const [statusForm, setStatusForm] = useState({
+  const [statusForm, setStatusForm] = useState<any>({
     status: '', reason: '', description: '', problemDesc: '', resolutionDesc: '',
-    rootCause: '', estimatedFinish: '', priority: 'medium', impact: 'none', assignedTo: '',
+    rootCause: '', estimatedFinish: '', priority: 'medium', impact: 'none',
+    assignedTo: '', assignedToType: 'user', assignedToOther: '', observers: [] as string[],
   });
   const [attachmentFiles, setAttachmentFiles] = useState<File[]>([]);
   const [attachmentPreviews, setAttachmentPreviews] = useState<string[]>([]);
@@ -287,20 +293,41 @@ export default function ImageServiceCameras() {
     staleTime: 1000 * 60 * 5,
   });
 
+  // Fetch users for assignment/observers
+  const { data: usersRaw } = useQuery({
+    queryKey: ['users-list-incident'],
+    queryFn: () => imageServiceApi.getUsers({ page: 1, limit: 100 }),
+    staleTime: 1000 * 60 * 5,
+    enabled: statusDialog.open && hasUsersPermission,
+  });
+  const users = (usersRaw?.data ?? usersRaw ?? []) as any[];
+
   const STATUS_ICON_MAP: Record<string, any> = { active: Wifi, inactive: WifiOff, maintenance: Wrench, error: AlertTriangle };
   const STATUS_BG_MAP: Record<string, string> = { active: 'bg-green-500/20 text-green-400', inactive: 'bg-gray-500/20 text-gray-400', maintenance: 'bg-yellow-500/20 text-yellow-400', error: 'bg-red-500/20 text-red-400' };
-  const STATUS_RADIO_OPTIONS = cameraStatuses.filter((s: any) => s.isActive).map((s: any) => ({
-    value: s.code,
-    label: getLocalizedValue(s, i18n.language),
-    bg: STATUS_BG_MAP[s.code] ?? 'bg-purple-500/20 text-purple-400',
-    icon: STATUS_ICON_MAP[s.code] ?? Activity,
-  }));
+  const STATUS_RADIO_OPTIONS = cameraStatuses.length > 0
+    ? cameraStatuses.filter((s: any) => s.isActive).map((s: any) => ({
+        value: s.code,
+        label: getLocalizedValue(s, i18n.language),
+        bg: STATUS_BG_MAP[s.code] ?? 'bg-purple-500/20 text-purple-400',
+        icon: STATUS_ICON_MAP[s.code] ?? Activity,
+      }))
+    : [
+        { value: 'active', label: t('imageService.cameras.statusActive', 'Online'), bg: 'bg-green-500/20 text-green-400', icon: Wifi },
+        { value: 'maintenance', label: t('imageService.cameras.statusMaintenance', 'Maintenance'), bg: 'bg-yellow-500/20 text-yellow-400', icon: Wrench },
+        { value: 'inactive', label: t('imageService.cameras.statusInactive', 'Offline'), bg: 'bg-gray-500/20 text-gray-400', icon: WifiOff },
+        { value: 'error', label: t('imageService.cameras.statusError', 'Error'), bg: 'bg-red-500/20 text-red-400', icon: AlertTriangle },
+      ];
 
   const openStatusDialog = (camera: any) => {
     // Always open the status dialog to choose new status
+    const currentUserName = user?.username || '';
     setStatusForm({
       status: '', reason: '', description: '', problemDesc: '', resolutionDesc: '',
-      rootCause: '', estimatedFinish: '', priority: 'medium', impact: 'none', assignedTo: '',
+      rootCause: '', estimatedFinish: '', priority: 'medium', impact: 'none',
+      assignedTo: hasUsersPermission ? '' : currentUserName,
+      assignedToType: hasUsersPermission ? currentUserName : 'user',
+      assignedToOther: '',
+      observers: [] as string[],
     });
     setAttachmentFiles([]);
     setAttachmentPreviews([]);
@@ -348,6 +375,9 @@ export default function ImageServiceCameras() {
     setAttachmentFiles([]);
     setAttachmentPreviews(prev => { prev.forEach(u => URL.revokeObjectURL(u)); return []; });
     try {
+      const finalAssignee = hasUsersPermission
+        ? (statusForm.assignedToType === 'other' ? statusForm.assignedToOther : statusForm.assignedToType)
+        : statusForm.assignedTo;
       const result = await imageServiceApi.updateCamera(camera.id, {
         status: statusForm.status,
         reason: statusForm.reason,
@@ -357,7 +387,8 @@ export default function ImageServiceCameras() {
         estimatedFinish: statusForm.estimatedFinish || undefined,
         priority: statusForm.priority,
         impact: statusForm.impact,
-        assignedTo: statusForm.assignedTo || undefined,
+        assignedTo: finalAssignee || undefined,
+        observers: statusForm.observers,
       });
       // Upload attachments if any — find created incident id from recent incidents
       if (filesToUpload.length > 0) {
@@ -1230,11 +1261,68 @@ export default function ImageServiceCameras() {
                     <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
                       {t('imageService.incidents.assignedTo')}
                     </label>
-                    <input value={statusForm.assignedTo}
-                      onChange={e => setStatusForm(p => ({ ...p, assignedTo: e.target.value }))}
-                      className={`w-full px-3 py-2 rounded-md text-sm ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`}
-                      placeholder={t('imageService.incidents.assignedTo')} />
+                    <div className="space-y-2">
+                      {hasUsersPermission ? (
+                        <>
+                          <SearchableSelect
+                            value={statusForm.assignedToType}
+                            onChange={(v: string) => setStatusForm((p: any) => ({ ...p, assignedToType: v, assignedTo: v === 'other' ? '' : v }))}
+                            options={[
+                              ...users.map((u: any) => ({ value: u.name || u.username, label: u.name ? `${u.name} (${u.username})` : u.username })),
+                              { value: 'other', label: t('imageService.incidents.assignedToOther') }
+                            ]}
+                            placeholder={t('imageService.incidents.assignedTo')}
+                          />
+                          {statusForm.assignedToType === 'other' && (
+                            <input
+                              value={statusForm.assignedToOther}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStatusForm((p: any) => ({ ...p, assignedToOther: e.target.value }))}
+                              className={`w-full px-3 py-2 rounded-md text-sm ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`}
+                              placeholder={t('imageService.enterAssignedToOther')}
+                            />
+                          )}
+                        </>
+                      ) : (
+                        <input
+                          value={statusForm.assignedTo}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStatusForm((p: any) => ({ ...p, assignedTo: e.target.value }))}
+                          className={`w-full px-3 py-2 rounded-md text-sm ${themeConfig.inputBg} border ${themeConfig.inputBorder} ${themeConfig.text.primary}`}
+                          placeholder={t('imageService.incidents.assignedTo')}
+                        />
+                      )}
+                    </div>
                   </div>
+
+                  {/* 9.5. Observers */}
+                  {hasUsersPermission && (
+                    <div>
+                      <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                        {t('imageService.incidents.observers')}
+                      </label>
+                      <div className="space-y-2">
+                        {statusForm.observers && statusForm.observers.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 p-2 rounded-md bg-white/5 border border-white/10">
+                            {statusForm.observers.map((obsName: string) => (
+                              <span key={obsName} className="flex items-center gap-1.5 px-2 py-0.5 rounded text-xs bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                                {obsName}
+                                <button type="button" onClick={() => setStatusForm((p: any) => ({ ...p, observers: p.observers.filter((o: string) => o !== obsName) }))} className="hover:text-red-400 font-bold font-mono">×</button>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        <SearchableSelect
+                          value=""
+                          onChange={(v: string) => {
+                            if (v && !statusForm.observers.includes(v)) {
+                              setStatusForm((p: any) => ({ ...p, observers: [...p.observers, v] }));
+                            }
+                          }}
+                          options={users.map((u: any) => ({ value: u.name || u.username, label: u.name ? `${u.name} (${u.username})` : u.username }))}
+                          placeholder={t('imageService.incidents.observers')}
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   {/* 10. Estimated Finish */}
                   {(statusForm.status === 'maintenance' || statusForm.status === 'inactive') && (

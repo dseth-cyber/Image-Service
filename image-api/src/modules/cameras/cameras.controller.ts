@@ -56,6 +56,7 @@ async function updateHandler(request: FastifyRequest, reply: FastifyReply) {
     assignedTo: body.assignedTo as string | undefined,
     problemDesc: body.problemDesc as string | undefined,
     resolutionDesc: body.resolutionDesc as string | undefined,
+    observers: body.observers as any[] | undefined,
   };
   const input = updateCameraSchema.parse(body);
   const user = (request as any).user;
@@ -115,6 +116,7 @@ async function updateHandler(request: FastifyRequest, reply: FastifyReply) {
         impact: incidentFields.impact,
         assignedTo: incidentFields.assignedTo,
         openedBy: user?.username ?? 'system',
+        observers: incidentFields.observers,
       });
     }
   } else if (Object.keys(input).length > 0) {

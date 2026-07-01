@@ -666,6 +666,7 @@ model CameraIncident {
   problemDesc      String?   @map("problem_desc") @db.Text
   resolutionDesc   String?   @map("resolution_desc") @db.Text
   attachments      Json      @default("[]")
+  observers        Json      @default("[]")
   workOrderNumber  String?   @map("work_order_number") @db.VarChar(64)
   workOrderStatus  String?   @map("work_order_status") @db.VarChar(32)
   status           String    @default("open") @db.VarChar(16)

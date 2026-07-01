@@ -24,6 +24,7 @@ export async function createIncident(data: {
   assignedTo?: string;
   attachments?: any[];
   openedBy: string;
+  observers?: any[];
 }) {
   const prisma = getPrisma();
   const incidentNumber = await generateIncidentNumber();
@@ -44,6 +45,7 @@ export async function createIncident(data: {
       impact: data.impact ?? 'none',
       assignedTo: data.assignedTo,
       attachments: data.attachments ?? [],
+      observers: data.observers ?? [],
       openedBy: data.openedBy,
       status: 'open',
     },

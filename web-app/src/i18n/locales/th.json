@@ -237,6 +237,9 @@
       "impactPartial": "บางส่วน",
       "impactFull": "ทั้งสายการผลิต",
       "assignedTo": "ผู้รับผิดชอบ",
+      "observers": "ผู้สังเกตการณ์",
+      "assignedToOther": "อื่น ๆ (ระบุเอง)",
+      "enterAssignedToOther": "กรอกชื่อผู้รับผิดชอบ",
       "problemDesc": "รายละเอียดปัญหา",
       "resolutionDesc": "วิธีการแก้ไข",
       "attachImages": "แนบรูปภาพ",
@@ -738,6 +741,7 @@
       "colMttr": "เวลาที่ใช้แก้",
       "colOpened": "เปิดเมื่อ",
       "colOwner": "ผู้รับผิดชอบ",
+      "observers": "ผู้สังเกตการณ์",
       "relatedIncidents": "Incident ที่เกี่ยวข้อง",
       "totalIncidents": "Incident ทั้งหมด",
       "open": "เปิดอยู่",
@@ -1546,7 +1550,7 @@
     "permissions": {
       "modules": {
         "overview": "แดชบอร์ด / ภาพรวม",
-        "cameras": "กล้องวงจรปิด",
+        "cameras": "กล้อง",
         "search": "ค้นหาและจัดการรูปภาพ",
         "processing": "ประมวลผลงาน",
         "dead-letter": "คิวงานที่ล้มเหลว (DLQ)",

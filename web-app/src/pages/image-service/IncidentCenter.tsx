@@ -513,6 +513,8 @@ function IncidentDetailModal({ incidentId, onClose, onSwitch, labelReason, label
             <Field label={ic('preventiveAction')} value={incident.preventiveAction} />
             <Field label={ic('colOpened')} value={incident.openedAt ? `${formatDateTime(incident.openedAt, i18n.language)} (${incident.openedBy || '—'})` : null} />
             <Field label="Closed" value={incident.closedAt ? `${formatDateTime(incident.closedAt, i18n.language)} (${incident.closedBy || '—'})` : null} />
+            <Field label={ic('colOwner')} value={incident.assignedTo || '—'} />
+            <Field label={ic('observers')} value={Array.isArray(incident.observers) && incident.observers.length > 0 ? incident.observers.join(', ') : null} />
           </div>
 
           {/* Attachments */}
