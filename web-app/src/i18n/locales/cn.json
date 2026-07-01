@@ -1561,6 +1561,11 @@
     "expandAll": "全部展开",
     "collapseAll": "全部折叠",
     "expandSidebar": "展开侧边栏",
-    "collapseSidebar": "折叠侧边栏"
+    "collapseSidebar": "折叠侧边栏",
+    "export": "导出",
+    "exportScreenshot": "截图 (PNG)",
+    "exportExcel": "Excel (.xlsx)",
+    "exportPdf": "PDF",
+    "exporting": "导出中..."
   }
 }

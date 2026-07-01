@@ -1561,6 +1561,11 @@
     "expandAll": "すべて展開",
     "collapseAll": "すべて折りたたみ",
     "expandSidebar": "サイドバーを展開",
-    "collapseSidebar": "サイドバーを折りたたむ"
+    "collapseSidebar": "サイドバーを折りたたむ",
+    "export": "エクスポート",
+    "exportScreenshot": "スクリーンショット (PNG)",
+    "exportExcel": "Excel (.xlsx)",
+    "exportPdf": "PDF",
+    "exporting": "エクスポート中..."
   }
 }

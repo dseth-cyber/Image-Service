@@ -1556,6 +1556,11 @@
     "expandAll": "အားလုံးချဲ့",
     "collapseAll": "အားလုံးချုံ့",
     "expandSidebar": "ဘေးဘား ချဲ့ရန်",
-    "collapseSidebar": "ဘေးဘား ချုံ့ရန်"
+    "collapseSidebar": "ဘေးဘား ချုံ့ရန်",
+    "export": "ဒေါင်းလုဒ်လုပ်ရန်",
+    "exportScreenshot": "မျက်နှာပြင်ပုံရိပ် (PNG)",
+    "exportExcel": "Excel (.xlsx)",
+    "exportPdf": "PDF",
+    "exporting": "ဒေါင်းလုဒ်လုပ်နေသည်..."
   }
 }
