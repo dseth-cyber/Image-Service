@@ -147,6 +147,14 @@ export default function ImageServiceStorage() {
     }
   }, [systemConfig]);
 
+  // Dispatch a window resize event shortly after mount to resolve grid layout squishing issues
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 200);
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleLayoutChange = useCallback((_l: any, allLayouts: any) => {
     setLayouts(allLayouts);
     localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(allLayouts));
@@ -253,7 +261,7 @@ export default function ImageServiceStorage() {
               { title: t('imageService.storage.byCamera'), columns: [
                 { key: 'name', label: t('imageService.cameras.cameraName') },
                 { key: 'value', label: t('imageService.storage.totalSize') },
-              ], data: byCamera.map(c => ({ name: c.name, value: formatBytes(c.value) })) },
+              ], data: byCamera.map((c: any) => ({ name: c.name, value: formatBytes(c.value) })) },
               { title: t('imageService.storage.growthTrend'), columns: [
                 { key: 'label', label: t('common.date') },
                 { key: 'value', label: 'MB' },

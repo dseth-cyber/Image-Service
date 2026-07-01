@@ -129,7 +129,7 @@ export default function ImageServiceProcessingMonitor() {
 
   const { data: initialLogs } = useQuery({
     queryKey: ['processing-logs-initial'],
-    queryFn: () => imageServiceApi.getProcessingLogs({ page: 1, limit: 20, sort: 'queuedAt', order: 'desc' }),
+    queryFn: () => (imageServiceApi.getProcessingLogs as any)({ page: 1, limit: 20, sort: 'queuedAt', order: 'desc' }),
     staleTime: 1000 * 10,
   });
 
@@ -179,6 +179,14 @@ export default function ImageServiceProcessingMonitor() {
       if (!saved) setLayouts(systemConfig.dashboard_layout_processing.value);
     }
   }, [systemConfig]);
+
+  // Dispatch a window resize event shortly after mount to resolve grid layout squishing issues
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 200);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleResetLayout = () => {
     setLayouts(DEFAULT_LAYOUTS);

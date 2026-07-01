@@ -88,23 +88,112 @@ export async function listCameras(filters?: { status?: string; enabled?: boolean
     orderBy: { name: 'asc' },
   });
 
+  const counts = await prisma.image.groupBy({
+    by: ['cameraId'],
+    where: { deletedAt: null },
+    _count: { id: true }
+  });
+  const countMap = new Map(counts.map(x => [x.cameraId, x._count.id]));
+
+  const allIncidents = await (prisma as any).cameraIncident.findMany({
+    select: {
+      cameraId: true,
+      assignedTo: true,
+      reason: true,
+      openedAt: true
+    }
+  });
+
+  const statsMap = new Map<string, {
+    incidentCount: number;
+    technicians: Map<string, number>;
+    reasons: Map<string, number>;
+    hours: Map<number, number>;
+  }>();
+
+  for (const inc of allIncidents) {
+    const cid = inc.cameraId;
+    let s = statsMap.get(cid);
+    if (!s) {
+      s = {
+        incidentCount: 0,
+        technicians: new Map<string, number>(),
+        reasons: new Map<string, number>(),
+        hours: new Map<number, number>(),
+      };
+      statsMap.set(cid, s);
+    }
+    s.incidentCount += 1;
+    if (inc.assignedTo) {
+      s.technicians.set(inc.assignedTo, (s.technicians.get(inc.assignedTo) ?? 0) + 1);
+    }
+    if (inc.reason) {
+      s.reasons.set(inc.reason, (s.reasons.get(inc.reason) ?? 0) + 1);
+    }
+    if (inc.openedAt) {
+      const hr = new Date(inc.openedAt).getHours();
+      s.hours.set(hr, (s.hours.get(hr) ?? 0) + 1);
+    }
+  }
+
+  const getMaxKey = (m: Map<string, number>): string => {
+    let maxK = '—';
+    let maxV = -1;
+    for (const [k, v] of m.entries()) {
+      if (v > maxV) {
+        maxV = v;
+        maxK = k;
+      }
+    }
+    return maxK;
+  };
+
+  const getPeakHourStr = (m: Map<number, number>): string => {
+    let maxH = -1;
+    let maxV = -1;
+    for (const [k, v] of m.entries()) {
+      if (v > maxV) {
+        maxV = v;
+        maxH = k;
+      }
+    }
+    if (maxH === -1) return '—';
+    const start = String(maxH).padStart(2, '0') + ':00';
+    const end = String((maxH + 1) % 24).padStart(2, '0') + ':00';
+    return `${start} - ${end}`;
+  };
+
   // Decrypt SMB passwords for workers that need plaintext credentials, and
   // expose resolved processing config so sync/processing workers can read it.
-  return cameras.map((c) => ({
-    ...c,
-    overrides: {
-      acceptedExtensions: c.acceptedExtensions,
-      convertToPng: c.convertToPng,
-      keepSmaller: c.keepSmaller,
-      generateThumbnail: c.generateThumbnail,
-      thumbnailSize: c.thumbnailSize,
-      compressionQuality: c.compressionQuality,
-    },
-    smbPasswordEncrypted: c.smbPasswordEncrypted
-      ? decrypt(c.smbPasswordEncrypted)
-      : c.smbPasswordEncrypted,
-    ...resolveEffectiveConfig(c as ResolvableCamera),
-  }));
+  return cameras.map((c) => {
+    const totalImagesCount = countMap.get(c.id) ?? 0;
+    const cameraAgeDays = Math.max(1, Math.ceil((Date.now() - new Date(c.createdAt).getTime()) / (1000 * 60 * 60 * 24)));
+    const averageImagesPerDay = Math.round((Number(totalImagesCount) / cameraAgeDays) * 100) / 100;
+    const stats = statsMap.get(c.id);
+
+    return {
+      ...c,
+      totalImagesCount,
+      cameraAgeDays,
+      averageImagesPerDay,
+      incidentCount: stats?.incidentCount ?? 0,
+      topTechnician: stats ? getMaxKey(stats.technicians) : '—',
+      topReason: stats ? getMaxKey(stats.reasons) : '—',
+      peakHour: stats ? getPeakHourStr(stats.hours) : '—',
+      overrides: {
+        acceptedExtensions: c.acceptedExtensions,
+        convertToPng: c.convertToPng,
+        keepSmaller: c.keepSmaller,
+        generateThumbnail: c.generateThumbnail,
+        thumbnailSize: c.thumbnailSize,
+        compressionQuality: c.compressionQuality,
+      },
+      smbPasswordEncrypted: c.smbPasswordEncrypted
+        ? decrypt(c.smbPasswordEncrypted)
+        : c.smbPasswordEncrypted,
+      ...resolveEffectiveConfig(c as ResolvableCamera),
+    };
+  });
 }
 
 export async function getCameraById(id: string) {
@@ -116,8 +205,64 @@ export async function getCameraById(id: string) {
   });
 
   if (!camera) {
-    throw new NotFoundError('Camera', id);
+    throw new (await import('../../lib/errors.js')).NotFoundError('Camera', id);
   }
+
+  const totalImagesCount = await prisma.image.count({
+    where: { cameraId: id, deletedAt: null }
+  });
+
+  const incidents = await (prisma as any).cameraIncident.findMany({
+    where: { cameraId: id },
+    select: { assignedTo: true, reason: true, openedAt: true }
+  });
+
+  const technicians = new Map<string, number>();
+  const reasons = new Map<string, number>();
+  const hours = new Map<number, number>();
+
+  for (const inc of incidents) {
+    if (inc.assignedTo) {
+      technicians.set(inc.assignedTo, (technicians.get(inc.assignedTo) ?? 0) + 1);
+    }
+    if (inc.reason) {
+      reasons.set(inc.reason, (reasons.get(inc.reason) ?? 0) + 1);
+    }
+    if (inc.openedAt) {
+      const hr = new Date(inc.openedAt).getHours();
+      hours.set(hr, (hours.get(hr) ?? 0) + 1);
+    }
+  }
+
+  const getMaxKey = (m: Map<string, number>): string => {
+    let maxK = '—';
+    let maxV = -1;
+    for (const [k, v] of m.entries()) {
+      if (v > maxV) {
+        maxV = v;
+        maxK = k;
+      }
+    }
+    return maxK;
+  };
+
+  const getPeakHourStr = (m: Map<number, number>): string => {
+    let maxH = -1;
+    let maxV = -1;
+    for (const [k, v] of m.entries()) {
+      if (v > maxV) {
+        maxV = v;
+        maxH = k;
+      }
+    }
+    if (maxH === -1) return '—';
+    const start = String(maxH).padStart(2, '0') + ':00';
+    const end = String((maxH + 1) % 24).padStart(2, '0') + ':00';
+    return `${start} - ${end}`;
+  };
+
+  const cameraAgeDays = Math.max(1, Math.ceil((Date.now() - new Date(camera.createdAt).getTime()) / (1000 * 60 * 60 * 24)));
+  const averageImagesPerDay = Math.round((Number(totalImagesCount) / cameraAgeDays) * 100) / 100;
 
   // Decrypt SMB password for workers that need plaintext credentials, and
   // expose resolved processing config so sync/processing workers can read it.
@@ -125,6 +270,13 @@ export async function getCameraById(id: string) {
   // so the UI can distinguish "explicitly set" from "inherit from template".
   return {
     ...camera,
+    totalImagesCount,
+    cameraAgeDays,
+    averageImagesPerDay,
+    incidentCount: incidents.length,
+    topTechnician: getMaxKey(technicians),
+    topReason: getMaxKey(reasons),
+    peakHour: getPeakHourStr(hours),
     overrides: {
       acceptedExtensions: camera.acceptedExtensions,
       convertToPng: camera.convertToPng,

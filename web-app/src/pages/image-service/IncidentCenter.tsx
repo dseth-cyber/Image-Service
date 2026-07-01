@@ -663,11 +663,11 @@ function IncidentDetailModal({ incidentId, onClose, onSwitch, labelReason, label
                 <select
                   value={woStatus || 'open'} disabled={woBusy}
                   onChange={(e) => handleWoStatus(e.target.value)}
-                  className={`px-2 py-1 rounded-lg text-xs border ${themeConfig.inputBorder} bg-white/5 ${themeConfig.text.primary} focus:outline-none`}
+                  className={`px-2 py-1 rounded-lg text-xs border ${themeConfig.inputBorder} bg-slate-800 ${themeConfig.text.primary} focus:outline-none`}
                 >
-                  <option value="open">{ic('woOpen')}</option>
-                  <option value="in_progress">{ic('woInProgress')}</option>
-                  <option value="completed">{ic('woCompleted')}</option>
+                  <option className="bg-slate-800 text-slate-100" value="open">{ic('woOpen')}</option>
+                  <option className="bg-slate-800 text-slate-100" value="in_progress">{ic('woInProgress')}</option>
+                  <option className="bg-slate-800 text-slate-100" value="completed">{ic('woCompleted')}</option>
                 </select>
               </div>
             ) : (

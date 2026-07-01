@@ -36,11 +36,12 @@ const StorageProfilesPage = lazy(() => import('@/pages/image-service/StorageProf
 const CameraAnalytics = lazy(() => import('@/pages/image-service/CameraAnalytics'))
 const IncidentCenter = lazy(() => import('@/pages/image-service/IncidentCenter'))
 const CameraTemplates = lazy(() => import('@/pages/image-service/CameraTemplates'))
+const ImageServiceReports = lazy(() => import('@/pages/image-service/ImageServiceReports'))
 import { translateAlertTitle } from '@/utils/textUtils'
 import {
   Camera, LayoutDashboard, Search, Activity, HardDrive, FileText, Shield, Settings, Map,
   Globe, Palette, User, ChevronDown, ChevronLeft, ChevronRight, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info, Server, Layers, Image, BarChart3, RefreshCw, Play, ClipboardList, LayoutTemplate,
-  Menu, X, GripVertical, ArrowDownUp, RotateCcw, Hourglass,
+  Menu, X, GripVertical, ArrowDownUp, RotateCcw, Hourglass, FileSpreadsheet,
 } from 'lucide-react'
 
 export function hasPermission(user: any, permission: string): boolean {
@@ -75,6 +76,7 @@ const navItems = [
   { path: '/image-service/cameras', labelKey: 'nav.cameras', icon: Camera, permission: 'cameras:read' },
   { path: '/image-service/camera-templates', labelKey: 'nav.cameraTemplates', icon: LayoutTemplate, permission: 'cameras:read' },
   { path: '/image-service/incidents', labelKey: 'nav.incidents', icon: ClipboardList, permission: 'cameras:read' },
+  { path: '/image-service/reports', labelKey: 'nav.reports', icon: FileSpreadsheet, permission: 'cameras:read' },
   { path: '/image-service/storage-providers', labelKey: 'nav.storageProviders', icon: Server, permission: 'storage:read' },
   { path: '/image-service/storage-profiles', labelKey: 'nav.storageProfiles', icon: Layers, permission: 'storage:read' },
   { path: '/image-service/logs', labelKey: 'nav.logs', icon: FileText, permission: 'logs:read' },
@@ -549,6 +551,15 @@ function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavig
   const [dragPath, setDragPath] = useState<string | null>(null)
   const [overPath, setOverPath] = useState<string | null>(null)
 
+  const { data: openIncidents } = useQuery({
+    queryKey: ['sidebar-open-incidents-count'],
+    queryFn: () => imageServiceApi.searchIncidents({ status: 'open', limit: 1 }),
+    refetchInterval: 1000 * 30,
+    staleTime: 1000 * 15,
+    enabled: hasPermission(user, 'cameras:read'),
+  })
+  const openCount = openIncidents?.pagination?.total ?? 0
+
   const visiblePaths = ordered.map(i => i.path)
 
   const handleDrop = (toPath: string) => {
@@ -602,8 +613,26 @@ function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavig
                   }`}
                   title={collapsed ? t(`imageService.${item.labelKey}`) : undefined}
                 >
-                  <Icon size={16} className="flex-shrink-0" />
-                  {!collapsed && <span>{t(`imageService.${item.labelKey}`)}</span>}
+                  {collapsed ? (
+                    <div className="relative">
+                      <Icon size={16} className="flex-shrink-0" />
+                      {item.path === '/image-service/incidents' && openCount > 0 && (
+                        <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center animate-pulse z-10">
+                          {openCount > 99 ? '99+' : openCount}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <Icon size={16} className="flex-shrink-0" />
+                      <span className="truncate">{t(`imageService.${item.labelKey}`)}</span>
+                      {item.path === '/image-service/incidents' && openCount > 0 && (
+                        <span className="ml-auto w-5 h-5 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center animate-pulse flex-shrink-0">
+                          {openCount > 99 ? '99+' : openCount}
+                        </span>
+                      )}
+                    </>
+                  )}
                 </Link>
               )}
             </div>
@@ -1047,6 +1076,9 @@ export default function App() {
             } />
             <Route path="/image-service/incidents" element={
               hasPermission(user, 'cameras:read') ? <IncidentCenter /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/reports" element={
+              hasPermission(user, 'cameras:read') ? <ImageServiceReports /> : <UnauthorizedPage />
             } />
             <Route path="/image-service/camera-templates" element={
               hasPermission(user, 'cameras:read') ? <CameraTemplates /> : <UnauthorizedPage />
