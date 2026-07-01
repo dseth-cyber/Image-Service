@@ -135,6 +135,9 @@ export function createImageServiceApi(api: any) {
     getIncidentAttachmentBlob: (filename: string) =>
       api.get(`${BASE}/cameras/incidents/attachments/${filename}`, { responseType: 'blob' }).then((r: any) => r.data),
 
+    clearAllIncidents: (password: string, retentionYears?: number) =>
+      api.post(`${BASE}/cameras/incidents/clear-all`, { password, retentionYears }).then((r: any) => r.data),
+
     uploadIncidentAttachment: (incidentId: string, file: File) => {
       const fd = new FormData();
       fd.append('file', file);

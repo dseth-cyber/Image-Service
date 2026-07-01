@@ -1,15 +1,18 @@
 import { useState, useMemo, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '@/contexts/ThemeContext'
+import { useToast } from '@/contexts/ToastContext'
+import { useAuth } from '@/contexts/AuthContext'
+import { hasPermission } from '@/App'
 import { imageServiceApi } from '@/services/imageServiceApi'
 import { TableSkeleton, ExportButton, SearchableSelect, Modal } from '@/components/ui'
 import { formatDateTime } from '@/utils/dateUtils'
 import { getLocalizedValue } from '@/utils/textUtils'
 import {
   ClipboardList, BookOpen, Search, ChevronLeft, ChevronRight, Wrench,
-  AlertTriangle, CheckCircle2, Clock, Camera as CameraIcon, X,
+  AlertTriangle, CheckCircle2, Clock, Camera as CameraIcon, X, Trash2,
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
@@ -87,7 +90,14 @@ function AttachmentImage({ filename, alt }: { filename: string; alt: string }) {
 export default function IncidentCenter() {
   const { t, i18n } = useTranslation()
   const { themeConfig } = useTheme()
+  const toast = useToast()
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
   const [tab, setTab] = useState<'list' | 'knowledge'>('list')
+  const [clearDialogOpen, setClearDialogOpen] = useState(false)
+  const [clearPassword, setClearPassword] = useState('')
+  const [clearRetentionYears, setClearRetentionYears] = useState(0)
+  const [clearing, setClearing] = useState(false)
 
   // List filters
   const [q, setQ] = useState('')
@@ -161,6 +171,29 @@ export default function IncidentCenter() {
     owner: i.assignedTo || '-',
   })), [incidents, reasons, rootCauses, i18n.language])
 
+  const handleClearIncidents = async () => {
+    if (!clearPassword) {
+      toast.warning(t('imageService.incidentCenter.clearIncidentsConfirm', 'กรุณากรอกรหัสผ่านเพื่อยืนยันการลบ'));
+      return;
+    }
+    setClearing(true);
+    try {
+      await imageServiceApi.clearAllIncidents(clearPassword, clearRetentionYears || undefined);
+      toast.success(t('imageService.incidentCenter.clearIncidentsSuccess', 'ล้างประวัติ Incident ทั้งหมดเรียบร้อยแล้ว'));
+      setClearDialogOpen(false);
+      setClearPassword('');
+      setClearRetentionYears(0);
+      queryClient.invalidateQueries({ queryKey: ['incidents-search'] });
+      queryClient.invalidateQueries({ queryKey: ['incident-knowledge'] });
+    } catch (e: any) {
+      if (!e?._handled) {
+        toast.error(t('imageService.incidentCenter.clearIncidentsError', 'รหัสผ่านไม่ถูกต้อง หรือไม่สามารถดำเนินการได้'));
+      }
+    } finally {
+      setClearing(false);
+    }
+  };
+
   const ic = (k: string) => t(`imageService.incidentCenter.${k}`)
 
   const cameraOptions = [{ value: '', label: ic('filterCamera') }, ...camerasArr.map((c: any) => ({ value: c.id, label: c.name }))]
@@ -191,26 +224,37 @@ export default function IncidentCenter() {
           <p className={`text-sm ${themeConfig.text.secondary}`}>{ic('subtitle')}</p>
         </div>
         {tab === 'list' && (
-          <ExportButton
-            filename="incidents"
-            title={ic('title')}
-            sections={[{
-              title: ic('tabList'),
-              columns: [
-                { key: 'incidentNumber', label: ic('colIncident') },
-                { key: 'cameraName', label: ic('filterCamera') },
-                { key: 'reason', label: ic('filterReason') },
-                { key: 'rootCause', label: ic('filterRootCause') },
-                { key: 'priority', label: ic('filterPriority') },
-                { key: 'status', label: ic('filterStatus') },
-                { key: 'mttr', label: ic('colMttr') },
-                { key: 'openedAt', label: ic('colOpened') },
-                { key: 'creator', label: ic('colCreator') },
-                { key: 'owner', label: ic('colOwner') },
-              ],
-              data: exportData,
-            }]}
-          />
+          <div className="flex items-center gap-2">
+            {hasPermission(user, 'cameras:delete') && (
+              <button
+                onClick={() => setClearDialogOpen(true)}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600/30 transition-colors flex items-center gap-1.5"
+              >
+                <Trash2 size={13} />
+                {ic('clearIncidents')}
+              </button>
+            )}
+            <ExportButton
+              filename="incidents"
+              title={ic('title')}
+              sections={[{
+                title: ic('tabList'),
+                columns: [
+                  { key: 'incidentNumber', label: ic('colIncident') },
+                  { key: 'cameraName', label: ic('filterCamera') },
+                  { key: 'reason', label: ic('filterReason') },
+                  { key: 'rootCause', label: ic('filterRootCause') },
+                  { key: 'priority', label: ic('filterPriority') },
+                  { key: 'status', label: ic('filterStatus') },
+                  { key: 'mttr', label: ic('colMttr') },
+                  { key: 'openedAt', label: ic('colOpened') },
+                  { key: 'creator', label: ic('colCreator') },
+                  { key: 'owner', label: ic('colOwner') },
+                ],
+                data: exportData,
+              }]}
+            />
+          </div>
         )}
       </div>
 
@@ -333,6 +377,79 @@ export default function IncidentCenter() {
           labelResolution={(c: string) => labelFor(resolutions, c)}
           ic={ic}
         />
+      )}
+
+      {clearDialogOpen && (
+        <Modal isOpen={clearDialogOpen} onClose={() => { setClearDialogOpen(false); setClearPassword('') }} title={t('imageService.incidentCenter.clearIncidentsTitle', 'ยืนยันล้างประวัติ Incident ทั้งหมด')}>
+          <div className="space-y-4 p-1 max-w-md">
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+              <AlertTriangle size={18} className="text-red-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-semibold text-red-400 mb-1">
+                  {t('imageService.incidentCenter.clearIncidentsWarningTitle', 'คำเตือน (ระดับวิกฤต)')}
+                </p>
+                <p className={`text-xs ${themeConfig.text.secondary}`}>
+                  {t('imageService.incidentCenter.clearIncidentsWarning', 'การดำเนินการนี้จะลบรายการ Incident ทั้งหมดออกจากระบบ และลบไฟล์รูปภาพที่แนบประกอบการเปลี่ยนสถานะกล้องทั้งหมดออกจากดิสก์อย่างถาวร ข้อมูลนี้จะไม่สามารถกู้คืนกลับมาได้อีก')}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label className={`block text-xs font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                {t('imageService.incidentCenter.clearRetentionPeriod', 'ขอบเขตช่วงเวลาที่ต้องการลบ')}
+              </label>
+              <SearchableSelect
+                value={String(clearRetentionYears)}
+                onChange={v => setClearRetentionYears(Number(v))}
+                placeholder={t('imageService.incidentCenter.clearRetentionPeriod', 'ขอบเขตช่วงเวลาที่ต้องการลบ')}
+                options={[
+                  { value: '0', label: t('imageService.incidentCenter.clearAll', 'ลบทั้งหมดทุกช่วงเวลา') },
+                  ...[1, 2, 3, 5, 6, 7, 8, 9, 10].map(y => ({
+                    value: String(y),
+                    label: `${t('imageService.incidentCenter.clearOlderThan', 'ลบประวัติที่เก่ากว่า')} ${y} ${t('imageService.incidentCenter.years', 'ปี')}`
+                  }))
+                ]}
+              />
+            </div>
+
+            <div>
+              <label className={`block text-xs font-medium mb-1.5 ${themeConfig.text.primary}`}>
+                {t('imageService.incidentCenter.clearIncidentsConfirm', 'กรุณากรอกรหัสผ่านเพื่อยืนยันการลบ')}
+              </label>
+              <input
+                type="password"
+                autoComplete="new-password"
+                value={clearPassword}
+                onChange={e => setClearPassword(e.target.value)}
+                placeholder={t('imageService.incidentCenter.clearIncidentsPasswordPlaceholder', 'รหัสผ่านของคุณ')}
+                className={`w-full px-3 py-2 rounded-lg text-sm border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-red-500/50`}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 mt-2">
+              <button
+                type="button"
+                onClick={() => { setClearDialogOpen(false); setClearPassword('') }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium border ${themeConfig.cardBorder} ${themeConfig.text.secondary} hover:bg-white/5`}
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                type="button"
+                disabled={clearing || !clearPassword}
+                onClick={handleClearIncidents}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-600 hover:bg-red-500 text-white disabled:opacity-40 flex items-center gap-1.5"
+              >
+                {clearing ? (
+                  <div className="animate-spin w-3 h-3 border-2 border-white border-t-transparent rounded-full" />
+                ) : (
+                  <Trash2 size={13} />
+                )}
+                {t('imageService.incidentCenter.clearIncidentsButton', 'ล้างประวัติ Incident')}
+              </button>
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   )

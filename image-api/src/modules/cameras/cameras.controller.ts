@@ -454,6 +454,91 @@ async function updateWorkOrderStatusHandler(request: FastifyRequest, reply: Fast
   return reply.send(incident);
 }
 
+async function clearAllIncidentsHandler(request: FastifyRequest, reply: FastifyReply) {
+  const user = (request as any).user;
+  const { password, retentionYears } = request.body as { password?: string; retentionYears?: number };
+  if (!password) {
+    return reply.status(400).send({ error: 'Password required', code: 'PASSWORD_REQUIRED' });
+  }
+
+  const prisma = (await import('../../lib/prisma.js')).getPrisma();
+  const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+  
+  const bcrypt = await import('bcryptjs');
+  const compare = bcrypt.default?.compare || bcrypt.compare;
+  if (!dbUser || !(await compare(password, dbUser.password))) {
+    return reply.status(403).send({ error: 'Invalid password', code: 'INVALID_PASSWORD' });
+  }
+
+  let deleteWhere = {};
+  let filenamesToDelete: string[] = [];
+
+  const { readdir, unlink } = await import('fs/promises');
+
+  if (retentionYears && retentionYears > 0) {
+    const cutoffDate = new Date(Date.now() - retentionYears * 365 * 24 * 60 * 60 * 1000);
+    deleteWhere = { openedAt: { lt: cutoffDate } };
+
+    // Get specific attachments to delete
+    try {
+      const targets = await prisma.cameraIncident.findMany({
+        where: deleteWhere,
+        select: { attachments: true }
+      });
+      for (const t of targets) {
+        const atts = Array.isArray(t.attachments) ? t.attachments as any[] : [];
+        for (const a of atts) {
+          if (a.filename) {
+            filenamesToDelete.push(a.filename);
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  // 1. Delete physical attachment files from disk
+  try {
+    if (retentionYears && retentionYears > 0) {
+      // Delete only targeted files
+      for (const fn of filenamesToDelete) {
+        const filePath = join(ATTACHMENT_DIR, fn);
+        if (existsSync(filePath)) {
+          await unlink(filePath).catch(() => {});
+        }
+      }
+    } else {
+      // Delete all files in the directory
+      if (existsSync(ATTACHMENT_DIR)) {
+        const files = await readdir(ATTACHMENT_DIR);
+        for (const file of files) {
+          if (file !== '.' && file !== '..') {
+            await unlink(join(ATTACHMENT_DIR, file)).catch(() => {});
+          }
+        }
+      }
+    }
+  } catch (err) {
+    // ignore
+  }
+
+  // 2. Delete targeted records from CameraIncident table
+  const result = await prisma.cameraIncident.deleteMany({ where: deleteWhere });
+
+  // 3. Create audit log
+  await createAuditLog({
+    userId: user.id,
+    action: 'bulk_delete',
+    entity: 'camera',
+    description: retentionYears
+      ? `Cleared ${result.count} incidents older than ${retentionYears} years (and their attachments) by ${user.username}`
+      : `Cleared all ${result.count} incidents and their physical attachments by ${user.username}`,
+  }).catch(() => {});
+
+  return reply.send({ success: true, count: result.count });
+}
+
 export async function cameraRoutes(app: FastifyInstance): Promise<void> {
   app.get(
     '/',
@@ -489,6 +574,11 @@ export async function cameraRoutes(app: FastifyInstance): Promise<void> {
     '/incidents/options',
     { preHandler: [app.authenticate] },
     incidentOptionsHandler,
+  );
+  app.post(
+    '/incidents/clear-all',
+    { preHandler: [app.authenticate, requirePermission('cameras:delete')] },
+    clearAllIncidentsHandler,
   );
   app.get(
     '/incidents/attachments/:filename',

@@ -19,12 +19,96 @@ const ACTION_LABEL_KEY: Record<string, string> = {
   policy_create: 'imageService.auditLog.actionPolicyCreate',
   policy_update: 'imageService.auditLog.actionPolicyUpdate',
   policy_delete: 'imageService.auditLog.actionPolicyDelete',
+  camera_create: 'imageService.auditLog.actionCameraCreate',
+  camera_update: 'imageService.auditLog.actionCameraUpdate',
+  camera_delete: 'imageService.auditLog.actionCameraDelete',
+  camera_status_change: 'imageService.auditLog.actionCameraStatusChange',
+  camera_restore: 'imageService.auditLog.actionCameraRestore',
+  camera_permanent_delete: 'imageService.auditLog.actionCameraPermanentDelete',
 };
 
 const ENTITY_LABEL_KEY: Record<string, string> = {
   image: 'imageService.auditLog.entityImage',
   image_file: 'imageService.auditLog.entityImageFile',
   retention_policy: 'imageService.auditLog.entityRetentionPolicy',
+  camera: 'imageService.auditLog.entityCamera',
+};
+
+const localizeDescription = (description: string, action: string, t: any) => {
+  if (!description) return '—';
+
+  // 1. camera status change
+  // Format: Camera "Name" status changed: active → maintenance by admin
+  if (action === 'camera_status_change') {
+    const match = description.match(/Camera "([^"]+)" status changed: ([^\s]+) → ([^\s]+) by ([^\s]+)/i);
+    if (match) {
+      const [, name, from, to, user] = match;
+      const statusLabels: Record<string, string> = {
+        active: t('imageService.cameras.statusActive', 'Online'),
+        maintenance: t('imageService.cameras.statusMaintenance', 'Maintenance'),
+        inactive: t('imageService.cameras.statusInactive', 'Offline'),
+        error: t('imageService.cameras.statusError', 'Error'),
+      };
+      return t('imageService.auditLog.descCameraStatusChanged', {
+        name,
+        from: statusLabels[from] || from,
+        to: statusLabels[to] || to,
+        user
+      });
+    }
+  }
+
+  // 2. camera update
+  // Format: Camera "Name" updated by admin
+  if (action === 'camera_update') {
+    const match = description.match(/Camera "([^"]+)" updated by ([^\s]+)/i);
+    if (match) {
+      const [, name, user] = match;
+      return t('imageService.auditLog.descCameraUpdated', { name, user });
+    }
+  }
+
+  // 3. camera create
+  // Format: Camera "Name" created by admin
+  if (action === 'camera_create') {
+    const match = description.match(/Camera "([^"]+)" created by ([^\s]+)/i);
+    if (match) {
+      const [, name, user] = match;
+      return t('imageService.auditLog.descCameraCreated', { name, user });
+    }
+  }
+
+  // 4. camera delete
+  // Format: Camera "Name" deleted (deactivated) by admin
+  if (action === 'camera_delete') {
+    const match = description.match(/Camera "([^"]+)" deleted \(deactivated\) by ([^\s]+)/i);
+    if (match) {
+      const [, name, user] = match;
+      return t('imageService.auditLog.descCameraDeleted', { name, user });
+    }
+  }
+
+  // 5. camera restore
+  // Format: Camera "Name" restored from trash by admin
+  if (action === 'camera_restore') {
+    const match = description.match(/Camera "([^"]+)" restored from trash by ([^\s]+)/i);
+    if (match) {
+      const [, name, user] = match;
+      return t('imageService.auditLog.descCameraRestored', { name, user });
+    }
+  }
+
+  // 6. camera permanent delete
+  // Format: Camera "Name" permanently deleted by admin
+  if (action === 'camera_permanent_delete') {
+    const match = description.match(/Camera "([^"]+)" permanently deleted by ([^\s]+)/i);
+    if (match) {
+      const [, name, user] = match;
+      return t('imageService.auditLog.descCameraPermanentDeleted', { name, user });
+    }
+  }
+
+  return description;
 };
 
 export default function AuditLogViewer() {
@@ -184,8 +268,8 @@ export default function AuditLogViewer() {
                   <td className={`${tableCellClass} text-xs text-gray-400 font-mono max-w-[120px] truncate`}>
                     {log.entityId || '—'}
                   </td>
-                  <td className={`${tableCellClass} text-xs text-gray-400 max-w-[200px] truncate`}>
-                    {log.description || '—'}
+                  <td className={`${tableCellClass} text-xs text-gray-400 max-w-[200px] truncate`} title={localizeDescription(log.description, log.action, t)}>
+                    {localizeDescription(log.description, log.action, t)}
                   </td>
                   <td className={`${tableCellClass} text-xs text-gray-500 font-mono`}>{log.ipAddress || '—'}</td>
                 </tr>
@@ -242,7 +326,7 @@ export default function AuditLogViewer() {
             ) : bulkDeletePreview ? (
               <p className={`text-sm font-medium ${bulkDeletePreview.count > 0 ? 'text-red-400' : themeConfig.text.primary}`}>
                 {t('imageService.auditLog.bulkDeletePreview', {
-                  count: bulkDeletePreview.count.toLocaleString(),
+                  count: bulkDeletePreview.count,
                   date: bulkDeletePreview.cutoffDate.split('T')[0],
                 })}
               </p>

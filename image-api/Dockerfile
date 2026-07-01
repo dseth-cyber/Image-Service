@@ -35,7 +35,8 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 
-RUN chmod +x /app/docker-entrypoint.sh \
+RUN mkdir -p /app/incident-attachments \
+    && chmod +x /app/docker-entrypoint.sh \
     && chown -R appuser:appuser /app
 
 USER appuser
