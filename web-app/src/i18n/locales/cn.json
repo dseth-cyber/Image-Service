@@ -320,7 +320,8 @@
       "byType": "按类型",
       "recentJobs": "最近任务",
       "noData": "暂无处理数据",
-      "jobsToday": "今日任务"
+      "jobsToday": "今日任务",
+      "visualizer": "图像处理"
     },
     "processingLogs": {
       "title": "处理日志",

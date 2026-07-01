@@ -320,7 +320,8 @@
       "byType": "タイプ別",
       "recentJobs": "最近のジョブ",
       "noData": "処理データがありません",
-      "jobsToday": "本日のジョブ"
+      "jobsToday": "本日のジョブ",
+      "visualizer": "画像処理"
     },
     "processingLogs": {
       "title": "処理ログ",

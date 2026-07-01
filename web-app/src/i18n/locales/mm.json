@@ -320,7 +320,8 @@
       "byType": "အမျိုးအစားအလိုက်",
       "recentJobs": "လတ်တလောအလုပ်များ",
       "noData": "လုပ်ဆောင်မှုဒေတာမရှိပါ",
-      "jobsToday": "ယနေ့အလုပ်"
+      "jobsToday": "ယနေ့အလုပ်",
+      "visualizer": "လုပ်ဆောင်မှု"
     },
     "processingLogs": {
       "title": "လုပ်ဆောင်မှု Logs",

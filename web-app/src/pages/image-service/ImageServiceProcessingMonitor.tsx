@@ -119,6 +119,7 @@ export default function ImageServiceProcessingMonitor() {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [vizStyle, setVizStyle] = useState(() => localStorage.getItem('processing_viz_style') ?? 'ring');
   const [recovering, setRecovering] = useState(false);
+  const [realtimeQueueTotal, setRealtimeQueueTotal] = useState<number | null>(null);
 
   const { data: initialData } = useQuery({
     queryKey: ['processing-stats-initial'],
@@ -214,6 +215,12 @@ export default function ImageServiceProcessingMonitor() {
         if (elR) elR.textContent = String(data.running ?? 0);
         const elT = document.getElementById('stats-today');
         if (elT && data.jobsToday !== undefined) elT.textContent = String(data.jobsToday);
+
+        if (data.queue) {
+          const active = Number(data.queue.active ?? 0);
+          const wait = Number(data.queue.wait ?? 0);
+          setRealtimeQueueTotal(active + wait);
+        }
       } catch { /* ignore parse errors */ }
     });
 
@@ -272,6 +279,12 @@ export default function ImageServiceProcessingMonitor() {
   const failedJobs = ((bs as any)?.failed ?? 0) + ((bs as any)?.dead_letter ?? 0) || logs.filter((l: any) => l.status === 'failed' || l.status === 'dead_letter').length;
   const runningJobs = (bs as any)?.running ?? logs.filter((l: any) => l.status === 'running').length;
   const jobsToday = initialData?.jobsToday ?? 0;
+
+  const queueActiveCount = queueHealth?.active ?? 0;
+  const queueWaitingCount = queueHealth?.waiting ?? 0;
+  const initialQueueTotal = queueActiveCount + queueWaitingCount;
+  const currentQueueTotal = realtimeQueueTotal !== null ? realtimeQueueTotal : initialQueueTotal;
+  const isVisualizerActive = currentQueueTotal > 0;
 
   return (
     <div className="p-6">
@@ -370,13 +383,18 @@ export default function ImageServiceProcessingMonitor() {
           </div>
         </div>
 
-        <div key="visualizer" className={`${themeConfig.card} rounded-lg overflow-hidden relative h-full`}>
+        <div key="visualizer" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
           <DragHandle show={isEditing} />
-          <ProcessingVisualizer
-            active={runningJobs > 0}
-            style={vizStyle}
-            onStyleChange={(s) => { setVizStyle(s); localStorage.setItem('processing_viz_style', s); }}
-          />
+          <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>
+            {t('imageService.processing.visualizer')}
+          </h3>
+          <div className="flex-1 min-h-0">
+            <ProcessingVisualizer
+              active={isVisualizerActive}
+              style={vizStyle}
+              onStyleChange={(s) => { setVizStyle(s); localStorage.setItem('processing_viz_style', s); }}
+            />
+          </div>
         </div>
 
         <div key="jobStatus" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>

@@ -58,8 +58,8 @@ const DEFAULT_LAYOUTS = {
   ],
 };
 
-const BAR_COLORS = ['#06b6d4', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#3b82f6'];
-const PIE_COLORS = ['#06b6d4', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444'];
+const BAR_COLORS = ['#06b6d4', '#8b5cf6', '#f59e0b', '#10B880', '#ef4444', '#3b82f6'];
+const PIE_COLORS = ['#06b6d4', '#8b5cf6', '#f59e0b', '#10B880', '#ef4444'];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
@@ -158,7 +158,7 @@ export default function ImageServiceOverview() {
 
   const stats = [
     { label: t('imageService.overview.totalImages'), value: overview?.totalImages?.toLocaleString() ?? '—', icon: Image, color: '#06b6d4' },
-    { label: t('imageService.overview.activeCameras'), value: `${overview?.activeCameras ?? 0} / ${(overview?.activeCameras ?? 0) + (overview?.inactiveCameras ?? 0) + (overview?.errorCameras ?? 0) + (overview?.maintenanceCameras ?? 0)}`, icon: Camera, color: '#10b981' },
+    { label: t('imageService.overview.activeCameras'), value: `${overview?.activeCameras ?? 0} / ${(overview?.activeCameras ?? 0) + (overview?.inactiveCameras ?? 0) + (overview?.errorCameras ?? 0) + (overview?.maintenanceCameras ?? 0)}`, icon: Camera, color: '#10B880' },
     { label: t('imageService.overview.storageUsed'), value: overview?.storageUsed != null ? `${formatBytes(overview.storageUsed)} / ${formatBytes(overview.storageTotal ?? 0)}` : '—', icon: HardDrive, color: '#8b5cf6' },
     { label: t('imageService.overview.processingRate'), value: overview?.processingRate != null ? `${overview.processingRate}${t('imageService.overview.perHour')}` : '—', icon: Activity, color: '#f59e0b' },
   ];
@@ -354,7 +354,7 @@ export default function ImageServiceOverview() {
           </h3>
           {(() => {
             const camData = [
-              { name: t('imageService.cameras.active'), value: overview?.activeCameras ?? 0, color: '#10b981' },
+              { name: t('imageService.cameras.active'), value: overview?.activeCameras ?? 0, color: '#10B880' },
               { name: t('imageService.cameras.maintenance'), value: overview?.maintenanceCameras ?? 0, color: '#f59e0b' },
               { name: t('imageService.cameras.inactive'), value: overview?.inactiveCameras ?? 0, color: '#6b7280' },
               { name: t('imageService.cameras.error'), value: overview?.errorCameras ?? 0, color: '#ef4444' },

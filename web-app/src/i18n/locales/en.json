@@ -482,7 +482,8 @@
       "byType": "By Type",
       "recentJobs": "Recent Jobs",
       "noData": "No processing data",
-      "jobsToday": "Jobs Today"
+      "jobsToday": "Jobs Today",
+      "visualizer": "Visualizer"
     },
     "processingLogs": {
       "title": "Processing Logs",

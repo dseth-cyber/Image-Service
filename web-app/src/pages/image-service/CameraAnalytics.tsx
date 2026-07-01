@@ -199,7 +199,7 @@ export default function CameraAnalytics() {
   const pieData = useMemo(() => {
     if (!analytics) return []
     return [
-      { name: t('imageService.analytics.uptime'), value: analytics.uptime.percent, color: '#22c55e' },
+      { name: t('imageService.analytics.uptime'), value: analytics.uptime.percent, color: '#10B880' },
       { name: t('imageService.analytics.downtime'), value: analytics.downtime.percent, color: '#ef4444' },
       { name: t('imageService.analytics.maintenance'), value: analytics.maintenance.percent, color: '#f59e0b' },
     ].filter((d) => d.value > 0)
@@ -646,18 +646,22 @@ export default function CameraAnalytics() {
                       const widthPct = (seg.durationMs / totalMs) * 100
                       if (widthPct < 0.1) return null
                       const colorMap: Record<string, string> = {
-                        active: 'bg-green-500',
-                        online: 'bg-green-500',
-                        maintenance: 'bg-yellow-500',
-                        offline: 'bg-red-500',
-                        error: 'bg-red-500',
-                        inactive: 'bg-gray-500',
+                        active: '#10B880',
+                        online: '#10B880',
+                        maintenance: '#f59e0b',
+                        offline: '#ef4444',
+                        error: '#ef4444',
+                        inactive: '#6b7280',
                       }
                       return (
                         <div
                           key={idx}
-                          className={`${colorMap[seg.status] || 'bg-gray-500'} relative group cursor-pointer transition-opacity hover:opacity-80 ${idx === 0 ? 'rounded-l-full' : ''} ${idx === analytics.timeline.length - 1 ? 'rounded-r-full' : ''}`}
-                          style={{ width: `${widthPct}%`, minWidth: widthPct > 1 ? undefined : '3px' }}
+                          className={`relative group cursor-pointer transition-opacity hover:opacity-80 ${idx === 0 ? 'rounded-l-full' : ''} ${idx === analytics.timeline.length - 1 ? 'rounded-r-full' : ''}`}
+                          style={{
+                            width: `${widthPct}%`,
+                            minWidth: widthPct > 1 ? undefined : '3px',
+                            backgroundColor: colorMap[seg.status] || '#6b7280'
+                          }}
                           title={`${seg.status}: ${formatDurationLong(Math.round(seg.durationMs / 1000))}`}
                           onMouseEnter={(e) => {
                             const rect = e.currentTarget.getBoundingClientRect()
@@ -670,7 +674,7 @@ export default function CameraAnalytics() {
                   </div>
                   <div className="flex gap-4 text-xs">
                     <div className="flex items-center gap-1.5">
-                      <span className="w-3 h-3 rounded bg-green-500" />
+                      <span className="w-3 h-3 rounded" style={{ backgroundColor: '#10B880' }} />
                       <span className={themeConfig.text.secondary}>{t('imageService.analytics.uptime')}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -778,7 +782,7 @@ export default function CameraAnalytics() {
                             itemStyle={{ color: '#e2e8f0' }}
                           />
                           <Legend wrapperStyle={{ fontSize: '11px' }} />
-                          <Bar dataKey="availability" name={t('imageService.analytics.availability')} fill="#22c55e" radius={[4, 4, 0, 0]} />
+                          <Bar dataKey="availability" name={t('imageService.analytics.availability')} fill="#10B880" radius={[4, 4, 0, 0]} />
                           <Bar dataKey="healthScore" name={t('imageService.analytics.healthScore')} fill="#3b82f6" radius={[4, 4, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>

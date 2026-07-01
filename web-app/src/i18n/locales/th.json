@@ -482,7 +482,8 @@
       "byType": "แบ่งตามประเภท",
       "recentJobs": "งานล่าสุด",
       "noData": "ไม่มีข้อมูลการประมวลผล",
-      "jobsToday": "งานวันนี้"
+      "jobsToday": "งานวันนี้",
+      "visualizer": "ประมวลผล"
     },
     "processingLogs": {
       "title": "Log การประมวลผล",
