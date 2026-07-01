@@ -399,7 +399,17 @@
       "typeChecksum": "校验和",
       "typeArchive": "归档",
       "typeDelete": "删除",
-      "seconds": "秒"
+      "seconds": "秒",
+      "bulkDelete": "根据存留时间删除日志",
+      "bulkDeleteTitle": "删除处理日志",
+      "bulkDeleteDays": "删除早于以下时间的处理日志",
+      "bulkDeletePreview": "将删除截止日期 {{date}} 前的 {{count}} 条处理日志记录",
+      "bulkDeleteConfirm": "请输入您的密码以确认操作",
+      "bulkDeletePassword": "您的密码",
+      "bulkDeleteSuccess": "成功删除了 {{count}} 条处理日志",
+      "bulkDeleteWrongPassword": "密码不正确",
+      "bulkDeleteWarning": "此清空操作执行后将无法撤销或恢复数据",
+      "days": "天"
     },
     "deadLetter": {
       "title": "死信队列",

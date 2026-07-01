@@ -399,7 +399,17 @@
       "typeChecksum": "Checksum",
       "typeArchive": "Archive",
       "typeDelete": "ဖျက်ရန်",
-      "seconds": "စက္ကန့်"
+      "seconds": "စက္ကန့်",
+      "bulkDelete": "ရက်စွဲအလိုက် Log များဖျက်ရန်",
+      "bulkDeleteTitle": "လုပ်ဆောင်မှု Log များဖျက်ရန်",
+      "bulkDeleteDays": "ထက် ပိုမိုဟောင်းနွမ်းသော Log များကို ဖျက်ရန်",
+      "bulkDeletePreview": "{{date}} ရက်စွဲမတိုင်မီက လုပ်ဆောင်မှု Log ပေါင်း {{count}} ခု ဖျက်သိမ်းပါမည်",
+      "bulkDeleteConfirm": "လုပ်ဆောင်ရန် သင့်စကားဝှက်ကို ရိုက်ထည့်ပါ",
+      "bulkDeletePassword": "သင့်စကားဝှက်",
+      "bulkDeleteSuccess": "လုပ်ဆောင်မှု Log ပေါင်း {{count}} ခု အောင်မြင်စွာ ဖျက်သိမ်းပြီးပါပြီ",
+      "bulkDeleteWrongPassword": "စကားဝှက် မှားယွင်းနေပါသည်",
+      "bulkDeleteWarning": "ဤဖျက်သိမ်းမှု လုပ်ဆောင်ချက်ကို ပြန်လည်ရယူ၍ မရနိုင်ပါ",
+      "days": "ရက်"
     },
     "deadLetter": {
       "title": "Dead Letter Queue",
