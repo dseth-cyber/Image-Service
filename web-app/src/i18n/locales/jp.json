@@ -743,7 +743,14 @@
       "verification": "システム検証",
       "runVerification": "検証開始",
       "verificationMethod": "HTTPS経由のエンドツーエンドAPI検証 — すべてのエンドポイントをテスト",
-      "verificationHint": "「検証開始」をクリックしてすべてのエンドポイントをテスト"
+      "verificationHint": "「検証開始」をクリックしてすべてのエンドポイントをテスト",
+      "pipeline": "パイプラインステータス",
+      "pipelineCamera": "カメラ",
+      "pipelineSyncWorker": "同期ワーカー",
+      "pipelineProcessingWorker": "処理ワーカー",
+      "pipelineRedisQueue": "Redisキュー",
+      "pipelineStorage": "ストレージ",
+      "pipelineDatabase": "データベース"
     },
     "apiKeys": {
       "title": "API キー",

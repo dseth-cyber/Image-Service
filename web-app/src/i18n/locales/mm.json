@@ -743,7 +743,14 @@
       "verification": "စနစ်စစ်ဆေးခြင်း",
       "runVerification": "စစ်ဆေးရန်",
       "verificationMethod": "HTTPS မှတစ်ဆင့် API စစ်ဆေးခြင်း",
-      "verificationHint": "စစ်ဆေးရန်ခလုတ်ကိုနှိပ်ပါ"
+      "verificationHint": "စစ်ဆေးရန်ခလုတ်ကိုနှိပ်ပါ",
+      "pipeline": "Pipeline အခြေအနေ",
+      "pipelineCamera": "ကင်မရာ",
+      "pipelineSyncWorker": "Sync Worker",
+      "pipelineProcessingWorker": "Processing Worker",
+      "pipelineRedisQueue": "Redis Queue",
+      "pipelineStorage": "Storage",
+      "pipelineDatabase": "Database"
     },
     "apiKeys": {
       "title": "API သော့များ",

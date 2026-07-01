@@ -743,7 +743,14 @@
       "verification": "系统验证",
       "runVerification": "开始验证",
       "verificationMethod": "通过 HTTPS 端到端 API 验证 — 测试所有端点确认功能正常",
-      "verificationHint": "点击\"开始验证\"测试所有系统端点"
+      "verificationHint": "点击\"开始验证\"测试所有系统端点",
+      "pipeline": "Pipeline 状态",
+      "pipelineCamera": "摄像头",
+      "pipelineSyncWorker": "同步 Worker",
+      "pipelineProcessingWorker": "处理 Worker",
+      "pipelineRedisQueue": "Redis 队列",
+      "pipelineStorage": "存储服务",
+      "pipelineDatabase": "数据库"
     },
     "apiKeys": {
       "title": "API 密钥",
