@@ -10,6 +10,8 @@ import { Modal, Button, TableSkeleton, SearchableSelect } from '@/components/ui'
 const POLICY_NAME_KEYS: Record<string, { name: string; desc: string }> = {
   'Default Retention': { name: 'imageService.retention.defaultName', desc: 'imageService.retention.defaultDesc' },
   'Long-Term Retention': { name: 'imageService.retention.longTermName', desc: 'imageService.retention.longTermDesc' },
+  'การจัดเก็บเริ่มต้น (Default)': { name: 'imageService.retention.defaultName', desc: 'imageService.retention.defaultDesc' },
+  'การจัดเก็บระยะยาว (Long-Term)': { name: 'imageService.retention.longTermName', desc: 'imageService.retention.longTermDesc' },
 };
 
 const emptyForm = () => ({

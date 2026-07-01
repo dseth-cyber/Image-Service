@@ -422,7 +422,17 @@
       "entityApiKey": "APIキー",
       "entityAlert": "アラート",
       "entityAuditLog": "監査ログ",
-      "entityBackupRecord": "バックアップ記録"
+      "entityBackupRecord": "バックアップ記録",
+      "bulkDelete": "ログの期間指定クリア",
+      "bulkDeleteTitle": "監査ログのクリア",
+      "bulkDeleteDays": "指定より古いログをクリア",
+      "bulkDeletePreview": "基準日 {{date}} より前のログ {{count}} 件がクリアされます",
+      "bulkDeleteConfirm": "実行するにはパスワードを入力してください",
+      "bulkDeletePassword": "パスワード",
+      "bulkDeleteSuccess": "監査ログ {{count}} 件を正常にクリアしました",
+      "bulkDeleteWrongPassword": "パスワードが正しくありません",
+      "bulkDeleteWarning": "このクリア操作を実行するとデータは復元できません",
+      "days": "日"
     },
     "backup": {
       "title": "バックアップと復元",

@@ -422,7 +422,17 @@
       "entityApiKey": "API သော့",
       "entityAlert": "သတိပေးချက်",
       "entityAuditLog": "စစ်ဆေးမှတ်တမ်း",
-      "entityBackupRecord": "မိတ္တူမှတ်တမ်း"
+      "entityBackupRecord": "မိတ္တူမှတ်တမ်း",
+      "bulkDelete": "သက်တမ်းအလိုက် မှတ်တမ်းဖျက်ရန်",
+      "bulkDeleteTitle": "စစ်ဆေးမှုမှတ်တမ်း ဖျက်သိမ်းရန်",
+      "bulkDeleteDays": "ထက် ပိုမိုဟောင်းနွမ်းသော မှတ်တမ်းများကို ဖျက်ရန်",
+      "bulkDeletePreview": "{{date}} ရက်စွဲမတိုင်မီက မှတ်တမ်းပေါင်း {{count}} ခု ဖျက်သိမ်းပါမည်",
+      "bulkDeleteConfirm": "လုပ်ဆောင်ရန် သင့်စကားဝှက်ကို ရိုက်ထည့်ပါ",
+      "bulkDeletePassword": "သင့်စကားဝှက်",
+      "bulkDeleteSuccess": "စစ်ဆေးမှုမှတ်တမ်းပေါင်း {{count}} ခု အောင်မြင်စွာ ဖျက်သိမ်းပြီးပါပြီ",
+      "bulkDeleteWrongPassword": "စကားဝှက် မှားယွင်းနေပါသည်",
+      "bulkDeleteWarning": "ဤဖျက်သိမ်းမှု လုပ်ဆောင်ချက်ကို ပြန်လည်ရယူ၍ မရနိုင်ပါ",
+      "days": "ရက်"
     },
     "backup": {
       "title": "Backup နှင့် Restore",
