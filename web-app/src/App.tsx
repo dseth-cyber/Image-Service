@@ -558,125 +558,129 @@ function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavig
   }
 
   return (
-    <nav className={`flex-1 ${collapsed ? 'px-1.5' : 'px-3'} py-4 space-y-1`}>
-      {ordered.map(item => {
-        const Icon = item.icon
-        const isActive = locationPath === item.path
-        const isDragging = dragPath === item.path
-        const isOver = overPath === item.path && dragPath !== item.path
-        return (
-          <div
-            key={item.path}
-            draggable={reorderMode}
-            onDragStart={reorderMode ? () => setDragPath(item.path) : undefined}
-            onDragOver={reorderMode ? (e) => { e.preventDefault(); setOverPath(item.path) } : undefined}
-            onDragLeave={reorderMode ? () => setOverPath(p => (p === item.path ? null : p)) : undefined}
-            onDrop={reorderMode ? (e) => { e.preventDefault(); handleDrop(item.path) } : undefined}
-            onDragEnd={reorderMode ? () => { setDragPath(null); setOverPath(null) } : undefined}
-            className={`${isDragging ? 'opacity-50' : ''} ${isOver ? 'border-t-2 border-cyan-400' : 'border-t-2 border-transparent'}`}
-          >
-            {reorderMode ? (
-              <div
-                className={`flex items-center ${collapsed ? 'justify-center' : 'gap-2 px-3'} py-2 rounded-lg text-sm font-medium cursor-grab active:cursor-grabbing ${
-                  isActive ? 'bg-cyan-500/15 text-cyan-300' : 'text-gray-300 hover:bg-white/5'
-                }`}
-                title={collapsed ? t(`imageService.${item.labelKey}`) : undefined}
-              >
-                {collapsed ? (
+    <div className="flex flex-col h-full overflow-hidden">
+      <div className={`flex-1 overflow-y-auto ${collapsed ? 'px-1.5' : 'px-3'} py-4 space-y-1`}>
+        {ordered.map(item => {
+          const Icon = item.icon
+          const isActive = locationPath === item.path
+          const isDragging = dragPath === item.path
+          const isOver = overPath === item.path && dragPath !== item.path
+          return (
+            <div
+              key={item.path}
+              draggable={reorderMode}
+              onDragStart={reorderMode ? () => setDragPath(item.path) : undefined}
+              onDragOver={reorderMode ? (e) => { e.preventDefault(); setOverPath(item.path) } : undefined}
+              onDragLeave={reorderMode ? () => setOverPath(p => (p === item.path ? null : p)) : undefined}
+              onDrop={reorderMode ? (e) => { e.preventDefault(); handleDrop(item.path) } : undefined}
+              onDragEnd={reorderMode ? () => { setDragPath(null); setOverPath(null) } : undefined}
+              className={`${isDragging ? 'opacity-50' : ''} ${isOver ? 'border-t-2 border-cyan-400' : 'border-t-2 border-transparent'}`}
+            >
+              {reorderMode ? (
+                <div
+                  className={`flex items-center ${collapsed ? 'justify-center' : 'gap-2 px-3'} py-2 rounded-lg text-sm font-medium cursor-grab active:cursor-grabbing ${
+                    isActive ? 'bg-cyan-500/15 text-cyan-300' : 'text-gray-300 hover:bg-white/5'
+                  }`}
+                  title={collapsed ? t(`imageService.${item.labelKey}`) : undefined}
+                >
+                  {collapsed ? (
+                    <Icon size={16} className="flex-shrink-0" />
+                  ) : (
+                    <>
+                      <GripVertical size={14} className="text-gray-500 flex-shrink-0" />
+                      <Icon size={16} />
+                      <span className="truncate">{t(`imageService.${item.labelKey}`)}</span>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  to={item.path}
+                  onClick={onNavigate}
+                  className={`flex items-center ${collapsed ? 'justify-center px-2' : 'gap-3 px-3'} py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive ? 'bg-cyan-500/15 text-cyan-300' : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                  }`}
+                  title={collapsed ? t(`imageService.${item.labelKey}`) : undefined}
+                >
                   <Icon size={16} className="flex-shrink-0" />
-                ) : (
-                  <>
-                    <GripVertical size={14} className="text-gray-500 flex-shrink-0" />
-                    <Icon size={16} />
-                    <span className="truncate">{t(`imageService.${item.labelKey}`)}</span>
-                  </>
-                )}
-              </div>
-            ) : (
-              <Link
-                to={item.path}
-                onClick={onNavigate}
-                className={`flex items-center ${collapsed ? 'justify-center px-2' : 'gap-3 px-3'} py-2 rounded-lg text-sm font-medium transition-colors ${
-                  isActive ? 'bg-cyan-500/15 text-cyan-300' : 'text-gray-300 hover:bg-white/5 hover:text-white'
-                }`}
-                title={collapsed ? t(`imageService.${item.labelKey}`) : undefined}
-              >
-                <Icon size={16} className="flex-shrink-0" />
-                {!collapsed && <span>{t(`imageService.${item.labelKey}`)}</span>}
-              </Link>
-            )}
-          </div>
-        )
-      })}
+                  {!collapsed && <span>{t(`imageService.${item.labelKey}`)}</span>}
+                </Link>
+              )}
+            </div>
+          )
+        })}
 
-      <div onClick={(e) => { if ((e.target as HTMLElement).closest('a')) onNavigate() }}>
-        <SettingsNavGroup
-          settingsSubItems={settingsSubItems}
-          locationPath={locationPath}
-          t={t}
-          collapsed={collapsed}
-        />
+        <div onClick={(e) => { if ((e.target as HTMLElement).closest('a')) onNavigate() }}>
+          <SettingsNavGroup
+            settingsSubItems={settingsSubItems}
+            locationPath={locationPath}
+            t={t}
+            collapsed={collapsed}
+          />
+        </div>
       </div>
 
       {/* Reorder toggle row — bottom */}
-      {collapsed ? (
-        <div className="flex flex-col items-center gap-2 px-1 pt-3 mt-2 border-t border-white/10">
-          {/* Expand button */}
-          <button
-            onClick={onToggleCollapse}
-            title={t('common.expandSidebar')}
-            className="flex items-center justify-center p-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
-          >
-            <ChevronRight size={14} className="flex-shrink-0" />
-          </button>
-          {/* Reorder button */}
-          <button
-            onClick={() => setReorderMode(v => !v)}
-            title={reorderMode ? t('imageService.nav.reorderDone') : t('imageService.nav.reorderMenu')}
-            className={`flex items-center justify-center p-2 rounded-md text-[11px] font-medium transition-colors ${
-              reorderMode ? 'bg-cyan-500/20 text-cyan-300' : 'text-gray-400 hover:bg-white/5 hover:text-white'
-            }`}
-          >
-            <ArrowDownUp size={13} className="flex-shrink-0" />
-          </button>
-        </div>
-      ) : (
-        <div className="flex items-center justify-between gap-1 px-2 pt-3 mt-2 border-t border-white/10">
-          {/* Collapse button on the left */}
-          <button
-            onClick={onToggleCollapse}
-            title={t('common.collapseSidebar')}
-            className="flex items-center p-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
-          >
-            <ChevronLeft size={14} className="flex-shrink-0" />
-          </button>
-          
-          {/* Reorder & Reset buttons on the right */}
-          <div className="flex items-center gap-1.5">
-            {reorderMode && (
-              <button
-                onClick={reset}
-                title={t('imageService.nav.resetOrder')}
-                className="flex items-center gap-1 px-1.5 py-1 rounded-md text-[11px] text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
-              >
-                <RotateCcw size={12} className="flex-shrink-0" />
-                {t('imageService.nav.resetOrder')}
-              </button>
-            )}
+      <div className={`flex-shrink-0 p-3 border-t border-white/10 ${collapsed ? 'bg-black/10' : ''}`}>
+        {collapsed ? (
+          <div className="flex flex-col items-center gap-2">
+            {/* Expand button */}
+            <button
+              onClick={onToggleCollapse}
+              title={t('common.expandSidebar')}
+              className="flex items-center justify-center p-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+            >
+              <ChevronRight size={14} className="flex-shrink-0" />
+            </button>
+            {/* Reorder button */}
             <button
               onClick={() => setReorderMode(v => !v)}
               title={reorderMode ? t('imageService.nav.reorderDone') : t('imageService.nav.reorderMenu')}
-              className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${
+              className={`flex items-center justify-center p-2 rounded-md text-[11px] font-medium transition-colors ${
                 reorderMode ? 'bg-cyan-500/20 text-cyan-300' : 'text-gray-400 hover:bg-white/5 hover:text-white'
               }`}
             >
               <ArrowDownUp size={13} className="flex-shrink-0" />
-              {reorderMode ? t('imageService.nav.reorderDone') : t('imageService.nav.reorderMenu')}
             </button>
           </div>
-        </div>
-      )}
-    </nav>
+        ) : (
+          <div className="flex items-center justify-between gap-1">
+            {/* Collapse button on the left */}
+            <button
+              onClick={onToggleCollapse}
+              title={t('common.collapseSidebar')}
+              className="flex items-center p-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+            >
+              <ChevronLeft size={14} className="flex-shrink-0" />
+            </button>
+            
+            {/* Reorder & Reset buttons on the right */}
+            <div className="flex items-center gap-1.5">
+              {reorderMode && (
+                <button
+                  onClick={reset}
+                  title={t('imageService.nav.resetOrder')}
+                  className="flex items-center gap-1 px-1.5 py-1 rounded-md text-[11px] text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+                >
+                  <RotateCcw size={12} className="flex-shrink-0" />
+                  {t('imageService.nav.resetOrder')}
+                </button>
+              )}
+              <button
+                onClick={() => setReorderMode(v => !v)}
+                title={reorderMode ? t('imageService.nav.reorderDone') : t('imageService.nav.reorderMenu')}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${
+                  reorderMode ? 'bg-cyan-500/20 text-cyan-300' : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                <ArrowDownUp size={13} className="flex-shrink-0" />
+                {reorderMode ? t('imageService.nav.reorderDone') : t('imageService.nav.reorderMenu')}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -935,7 +939,7 @@ export default function App() {
   if (!isAuthenticated) return <LoginPage logoBase64={logoBase64} />
 
   return (
-    <div className={`min-h-screen flex flex-col ${themeConfig.background} ${themeConfig.text.primary}`}>
+    <div className={`h-screen overflow-hidden flex flex-col ${themeConfig.background} ${themeConfig.text.primary}`}>
       {/* Top Navbar */}
       <header className={`${themeConfig.navBar} px-5 py-2.5 flex items-center justify-between flex-shrink-0 z-40`}>
         <div className="flex items-center gap-3">
@@ -1006,7 +1010,7 @@ export default function App() {
 
         {/* Sidebar */}
         <aside
-          className={`flex-shrink-0 ${themeConfig.sidebar} flex flex-col overflow-y-auto
+          className={`flex-shrink-0 ${themeConfig.sidebar} flex flex-col overflow-hidden h-full
             fixed inset-y-0 left-0 z-50 transform transition-all duration-200 ease-in-out
             ${sidebarCollapsed ? 'md:w-16' : 'md:w-56'} w-56
             ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
