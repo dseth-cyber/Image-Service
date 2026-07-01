@@ -117,6 +117,16 @@ function DragHandle({ show }: { show: boolean }) {
   )
 }
 
+const safeParseLayout = (value: any) => {
+  if (!value || value === '[object Object]') return null
+  if (typeof value === 'object') return value
+  try {
+    const parsed = JSON.parse(value)
+    if (parsed && typeof parsed === 'object') return parsed
+  } catch { /* ignore */ }
+  return null
+}
+
 export default function CameraAnalytics() {
   const { t } = useTranslation()
   const { themeConfig } = useTheme()
@@ -145,9 +155,20 @@ export default function CameraAnalytics() {
   useEffect(() => {
     if (systemConfig?.dashboard_layout_analytics?.value) {
       const saved = localStorage.getItem(LAYOUT_STORAGE_KEY)
-      if (!saved) setLayouts(systemConfig.dashboard_layout_analytics.value)
+      if (!saved) {
+        const parsed = safeParseLayout(systemConfig.dashboard_layout_analytics.value)
+        if (parsed) setLayouts(parsed)
+      }
     }
   }, [systemConfig])
+
+  // Dispatch a window resize event shortly after mount to resolve grid layout squishing issues
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.dispatchEvent(new Event('resize'))
+    }, 200)
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleLayoutChange = useCallback((_l: any, allLayouts: any) => {
     setLayouts(allLayouts)

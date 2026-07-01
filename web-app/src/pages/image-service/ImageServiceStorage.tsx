@@ -94,6 +94,16 @@ function DragHandle({ show }: { show: boolean }) {
   );
 }
 
+const safeParseLayout = (value: any) => {
+  if (!value || value === '[object Object]') return null;
+  if (typeof value === 'object') return value;
+  try {
+    const parsed = JSON.parse(value);
+    if (parsed && typeof parsed === 'object') return parsed;
+  } catch { /* ignore */ }
+  return null;
+};
+
 export default function ImageServiceStorage() {
   const { t, i18n } = useTranslation();
   const { themeConfig } = useTheme();
@@ -143,7 +153,10 @@ export default function ImageServiceStorage() {
   useEffect(() => {
     if (systemConfig?.dashboard_layout_storage?.value) {
       const saved = localStorage.getItem(LAYOUT_STORAGE_KEY);
-      if (!saved) setLayouts(systemConfig.dashboard_layout_storage.value);
+      if (!saved) {
+        const parsed = safeParseLayout(systemConfig.dashboard_layout_storage.value);
+        if (parsed) setLayouts(parsed);
+      }
     }
   }, [systemConfig]);
 
