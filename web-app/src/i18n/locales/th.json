@@ -741,6 +741,7 @@
       "colMttr": "เวลาที่ใช้แก้",
       "colOpened": "เปิดเมื่อ",
       "colOwner": "ผู้รับผิดชอบ",
+      "colCreator": "ผู้สร้าง",
       "observers": "ผู้สังเกตการณ์",
       "relatedIncidents": "Incident ที่เกี่ยวข้อง",
       "totalIncidents": "Incident ทั้งหมด",

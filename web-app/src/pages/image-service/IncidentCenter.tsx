@@ -157,7 +157,8 @@ export default function IncidentCenter() {
     status: i.status,
     mttr: formatMttr(i.mttrMinutes),
     openedAt: i.openedAt ? formatDateTime(i.openedAt, i18n.language) : '-',
-    owner: i.openedBy || '-',
+    creator: i.openedBy || '-',
+    owner: i.assignedTo || '-',
   })), [incidents, reasons, rootCauses, i18n.language])
 
   const ic = (k: string) => t(`imageService.incidentCenter.${k}`)
@@ -204,6 +205,7 @@ export default function IncidentCenter() {
                 { key: 'status', label: ic('filterStatus') },
                 { key: 'mttr', label: ic('colMttr') },
                 { key: 'openedAt', label: ic('colOpened') },
+                { key: 'creator', label: ic('colCreator') },
                 { key: 'owner', label: ic('colOwner') },
               ],
               data: exportData,
@@ -265,7 +267,7 @@ export default function IncidentCenter() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className={themeConfig.tableHeader}>
-                      {[ic('colIncident'), ic('filterCamera'), ic('filterReason'), ic('filterRootCause'), ic('filterPriority'), ic('filterStatus'), ic('colMttr'), ic('colOpened'), ic('colOwner'), ''].map((h, idx) => (
+                      {[ic('colIncident'), ic('filterCamera'), ic('filterReason'), ic('filterRootCause'), ic('filterPriority'), ic('filterStatus'), ic('colMttr'), ic('colOpened'), ic('colCreator'), ic('colOwner'), ''].map((h, idx) => (
                         <th key={idx} className={`px-3 py-2 text-left text-xs font-semibold ${themeConfig.text.secondary}`}>{h}</th>
                       ))}
                     </tr>
@@ -282,6 +284,7 @@ export default function IncidentCenter() {
                         <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>{formatMttr(i.mttrMinutes)}</td>
                         <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>{i.openedAt ? formatDateTime(i.openedAt, i18n.language) : '—'}</td>
                         <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>{i.openedBy || '—'}</td>
+                        <td className={`px-3 py-2 text-xs ${themeConfig.text.secondary}`}>{i.assignedTo || '—'}</td>
                         <td className="px-3 py-2">
                           <button onClick={(e) => { e.stopPropagation(); setDetailId(i.id) }} className="text-xs text-cyan-400 hover:underline">{t('common.view', 'View')}</button>
                         </td>

@@ -741,6 +741,7 @@
       "colMttr": "MTTR",
       "colOpened": "Opened At",
       "colOwner": "Owner",
+      "colCreator": "Creator",
       "observers": "Observers",
       "relatedIncidents": "Related Incidents",
       "totalIncidents": "Total Incidents",
