@@ -708,7 +708,18 @@ export default function ImageServiceCameras() {
                         : '—'}
                     </td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>
-                      {(() => { const p = (policies as any[]).find((rp: any) => rp.id === camera.retentionPolicyId); return p?.name ?? '—'; })()}
+                      {(() => {
+                        const p = (policies as any[]).find((rp: any) => rp.id === camera.retentionPolicyId);
+                        if (!p) return '—';
+                        const nameMap: Record<string, string> = {
+                          'Default Retention': 'imageService.retention.defaultName',
+                          'Long-Term Retention': 'imageService.retention.longTermName',
+                          'การจัดเก็บเริ่มต้น (Default)': 'imageService.retention.defaultName',
+                          'การจัดเก็บระยะยาว (Long-Term)': 'imageService.retention.longTermName',
+                        };
+                        const translationKey = nameMap[p.name];
+                        return translationKey ? t(translationKey) : p.name;
+                      })()}
                     </td>
                     <td className="px-4 py-3">
                       <button

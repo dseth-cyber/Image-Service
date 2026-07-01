@@ -175,7 +175,17 @@
       "overrideHint": "空欄でテンプレート値を使用",
       "acceptedExtensionsHint": "未選択でテンプレート使用",
       "inherit": "テンプレート使用",
-      "templateHint": "テンプレートを選択して設定を適用、下で調整可能"
+      "templateHint": "テンプレートを選択して設定を適用、下で調整可能",
+      "cameraTrash": "カメラのゴミ箱",
+      "cameraTrashCount": "ゴミ箱内に {{count}} 台のカメラがあります",
+      "cameraTrashEmpty": "ゴミ箱は空です",
+      "restoreCamera": "カメラを復元",
+      "restoreCameraSuccess": "カメラを正常に復元しました",
+      "emptyCameraTrash": "カメラのゴミ箱を空にする",
+      "emptyCameraTrashConfirm": "ゴミ箱を空にすると、カメラデータは完全に削除され、復元できなくなります",
+      "emptyCameraTrashSuccess": "ゴミ箱内のカメラ {{count}} 台を完全に削除しました",
+      "wrongPassword": "パスワードが正しくありません",
+      "cameraType": "カメラタイプ"
     },
     "storage": {
       "title": "ストレージ監視",
@@ -347,7 +357,17 @@
       "recentJobs": "最近のジョブ",
       "noData": "処理データがありません",
       "jobsToday": "本日のジョブ",
-      "visualizer": "画像処理"
+      "visualizer": "画像処理",
+      "bulkDelete": "ログの期間指定削除",
+      "bulkDeleteTitle": "処理ログの削除",
+      "bulkDeleteDays": "指定より古い処理ログを削除",
+      "bulkDeletePreview": "基準日 {{date}} より前の処理ログ {{count}} 件が削除されます",
+      "bulkDeleteConfirm": "実行するにはパスワードを入力してください",
+      "bulkDeletePassword": "パスワード",
+      "bulkDeleteSuccess": "処理ログ {{count}} 件を正常に削除しました",
+      "bulkDeleteWrongPassword": "パスワードが正しくありません",
+      "bulkDeleteWarning": "この削除操作を実行するとデータは復元できません",
+      "days": "日"
     },
     "processingLogs": {
       "title": "処理ログ",
