@@ -1420,6 +1420,8 @@
     "clearDataSuccess": "ဒေတာအားလုံးရှင်းလင်းပြီးပါပြီ",
     "clearDataError": "ဒေတာရှင်းလင်းရန်မအောင်မြင်ပါ",
     "expandAll": "အားလုံးချဲ့",
-    "collapseAll": "အားလုံးချုံ့"
+    "collapseAll": "အားလုံးချုံ့",
+    "expandSidebar": "ဘေးဘား ချဲ့ရန်",
+    "collapseSidebar": "ဘေးဘား ချုံ့ရန်"
   }
 }

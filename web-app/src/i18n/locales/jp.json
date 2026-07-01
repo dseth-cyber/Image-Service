@@ -1425,6 +1425,8 @@
     "clearDataSuccess": "全データをクリアしました",
     "clearDataError": "データのクリアに失敗しました",
     "expandAll": "すべて展開",
-    "collapseAll": "すべて折りたたみ"
+    "collapseAll": "すべて折りたたみ",
+    "expandSidebar": "サイドバーを展開",
+    "collapseSidebar": "サイドバーを折りたたむ"
   }
 }

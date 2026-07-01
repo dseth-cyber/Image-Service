@@ -1711,6 +1711,8 @@
     "exportExcel": "Excel (.xlsx)",
     "exportPdf": "PDF",
     "exporting": "Exporting...",
-    "previous": "Previous"
+    "previous": "Previous",
+    "expandSidebar": "Expand Sidebar",
+    "collapseSidebar": "Collapse Sidebar"
   }
 }

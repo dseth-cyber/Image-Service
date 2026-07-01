@@ -39,7 +39,7 @@ const CameraTemplates = lazy(() => import('@/pages/image-service/CameraTemplates
 import { translateAlertTitle } from '@/utils/textUtils'
 import {
   Camera, LayoutDashboard, Search, Activity, HardDrive, FileText, Shield, Settings, Map,
-  Globe, Palette, User, ChevronDown, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info, Server, Layers, Image, BarChart3, RefreshCw, Play, ClipboardList, LayoutTemplate,
+  Globe, Palette, User, ChevronDown, ChevronLeft, ChevronRight, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info, Server, Layers, Image, BarChart3, RefreshCw, Play, ClipboardList, LayoutTemplate,
   Menu, X, GripVertical, ArrowDownUp, RotateCcw, Hourglass,
 } from 'lucide-react'
 
@@ -406,10 +406,11 @@ function ProfileMenu({ username, role, onLogout, onChangePassword, onAbout }: { 
   )
 }
 
-function SettingsNavGroup({ settingsSubItems, locationPath, t }: {
+function SettingsNavGroup({ settingsSubItems, locationPath, t, collapsed }: {
   settingsSubItems: { path: string; labelKey: string; icon: any; permission: string }[]
   locationPath: string
   t: (key: string) => string
+  collapsed?: boolean
 }) {
   const { user } = useAuth()
   const [open, setOpen] = useState(true)
@@ -419,6 +420,20 @@ function SettingsNavGroup({ settingsSubItems, locationPath, t }: {
 
   const isInSettings = visibleItems.some(item => locationPath === item.path)
   const SettingsIcon = settingsSubItems[0].icon
+
+  if (collapsed) {
+    return (
+      <Link
+        to={visibleItems[0].path}
+        className={`flex items-center justify-center p-2 rounded-lg text-sm font-medium transition-colors ${
+          isInSettings ? 'bg-cyan-500/15 text-cyan-300' : 'text-gray-300 hover:bg-white/5 hover:text-white'
+        }`}
+        title={t(`imageService.${settingsSubItems[0].labelKey}`)}
+      >
+        <SettingsIcon size={16} className="flex-shrink-0" />
+      </Link>
+    )
+  }
 
   return (
     <div>
@@ -518,13 +533,15 @@ function useSidebarOrder(username: string | undefined, items: NavItem[]) {
   return { ordered, reorder, reset }
 }
 
-function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavigate }: {
+function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavigate, collapsed, onToggleCollapse }: {
   navItems: NavItem[]
   settingsSubItems: NavItem[]
   user: any
   locationPath: string
   t: (key: string) => string
   onNavigate: () => void
+  collapsed?: boolean
+  onToggleCollapse?: () => void
 }) {
   const visibleNav = useMemo(() => navItems.filter(item => hasPermission(user, item.permission)), [navItems, user])
   const { ordered, reorder, reset } = useSidebarOrder(user?.username, visibleNav)
@@ -541,7 +558,7 @@ function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavig
   }
 
   return (
-    <nav className="flex-1 px-3 py-4 space-y-1">
+    <nav className={`flex-1 ${collapsed ? 'px-1.5' : 'px-3'} py-4 space-y-1`}>
       {ordered.map(item => {
         const Icon = item.icon
         const isActive = locationPath === item.path
@@ -560,24 +577,32 @@ function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavig
           >
             {reorderMode ? (
               <div
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium cursor-grab active:cursor-grabbing ${
+                className={`flex items-center ${collapsed ? 'justify-center' : 'gap-2 px-3'} py-2 rounded-lg text-sm font-medium cursor-grab active:cursor-grabbing ${
                   isActive ? 'bg-cyan-500/15 text-cyan-300' : 'text-gray-300 hover:bg-white/5'
                 }`}
+                title={collapsed ? t(`imageService.${item.labelKey}`) : undefined}
               >
-                <GripVertical size={14} className="text-gray-500 flex-shrink-0" />
-                <Icon size={16} />
-                <span className="truncate">{t(`imageService.${item.labelKey}`)}</span>
+                {collapsed ? (
+                  <Icon size={16} className="flex-shrink-0" />
+                ) : (
+                  <>
+                    <GripVertical size={14} className="text-gray-500 flex-shrink-0" />
+                    <Icon size={16} />
+                    <span className="truncate">{t(`imageService.${item.labelKey}`)}</span>
+                  </>
+                )}
               </div>
             ) : (
               <Link
                 to={item.path}
                 onClick={onNavigate}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex items-center ${collapsed ? 'justify-center px-2' : 'gap-3 px-3'} py-2 rounded-lg text-sm font-medium transition-colors ${
                   isActive ? 'bg-cyan-500/15 text-cyan-300' : 'text-gray-300 hover:bg-white/5 hover:text-white'
                 }`}
+                title={collapsed ? t(`imageService.${item.labelKey}`) : undefined}
               >
-                <Icon size={16} />
-                {t(`imageService.${item.labelKey}`)}
+                <Icon size={16} className="flex-shrink-0" />
+                {!collapsed && <span>{t(`imageService.${item.labelKey}`)}</span>}
               </Link>
             )}
           </div>
@@ -589,32 +614,68 @@ function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavig
           settingsSubItems={settingsSubItems}
           locationPath={locationPath}
           t={t}
+          collapsed={collapsed}
         />
       </div>
 
       {/* Reorder toggle row — bottom */}
-      <div className="flex items-center justify-between gap-1 px-2 pt-3 mt-2 border-t border-white/10">
-        <button
-          onClick={() => setReorderMode(v => !v)}
-          title={reorderMode ? t('imageService.nav.reorderDone') : t('imageService.nav.reorderMenu')}
-          className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${
-            reorderMode ? 'bg-cyan-500/20 text-cyan-300' : 'text-gray-400 hover:bg-white/5 hover:text-white'
-          }`}
-        >
-          <ArrowDownUp size={13} />
-          {reorderMode ? t('imageService.nav.reorderDone') : t('imageService.nav.reorderMenu')}
-        </button>
-        {reorderMode && (
+      {collapsed ? (
+        <div className="flex flex-col items-center gap-2 px-1 pt-3 mt-2 border-t border-white/10">
+          {/* Expand button */}
           <button
-            onClick={reset}
-            title={t('imageService.nav.resetOrder')}
-            className="flex items-center gap-1 px-1.5 py-1 rounded-md text-[11px] text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+            onClick={onToggleCollapse}
+            title={t('common.expandSidebar')}
+            className="flex items-center justify-center p-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
           >
-            <RotateCcw size={12} />
-            {t('imageService.nav.resetOrder')}
+            <ChevronRight size={14} className="flex-shrink-0" />
           </button>
-        )}
-      </div>
+          {/* Reorder button */}
+          <button
+            onClick={() => setReorderMode(v => !v)}
+            title={reorderMode ? t('imageService.nav.reorderDone') : t('imageService.nav.reorderMenu')}
+            className={`flex items-center justify-center p-2 rounded-md text-[11px] font-medium transition-colors ${
+              reorderMode ? 'bg-cyan-500/20 text-cyan-300' : 'text-gray-400 hover:bg-white/5 hover:text-white'
+            }`}
+          >
+            <ArrowDownUp size={13} className="flex-shrink-0" />
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between gap-1 px-2 pt-3 mt-2 border-t border-white/10">
+          {/* Collapse button on the left */}
+          <button
+            onClick={onToggleCollapse}
+            title={t('common.collapseSidebar')}
+            className="flex items-center p-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+          >
+            <ChevronLeft size={14} className="flex-shrink-0" />
+          </button>
+          
+          {/* Reorder & Reset buttons on the right */}
+          <div className="flex items-center gap-1.5">
+            {reorderMode && (
+              <button
+                onClick={reset}
+                title={t('imageService.nav.resetOrder')}
+                className="flex items-center gap-1 px-1.5 py-1 rounded-md text-[11px] text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+              >
+                <RotateCcw size={12} className="flex-shrink-0" />
+                {t('imageService.nav.resetOrder')}
+              </button>
+            )}
+            <button
+              onClick={() => setReorderMode(v => !v)}
+              title={reorderMode ? t('imageService.nav.reorderDone') : t('imageService.nav.reorderMenu')}
+              className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${
+                reorderMode ? 'bg-cyan-500/20 text-cyan-300' : 'text-gray-400 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              <ArrowDownUp size={13} className="flex-shrink-0" />
+              {reorderMode ? t('imageService.nav.reorderDone') : t('imageService.nav.reorderMenu')}
+            </button>
+          </div>
+        </div>
+      )}
     </nav>
   )
 }
@@ -814,6 +875,15 @@ export default function App() {
   const [passwordModalOpen, setPasswordModalOpen] = useState(false)
   const [aboutModalOpen, setAboutModalOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem('sidebar-collapsed') === 'true')
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed(prev => {
+      const next = !prev
+      localStorage.setItem('sidebar-collapsed', String(next))
+      return next
+    })
+  }
 
   // Close the mobile drawer whenever the route changes
   useEffect(() => { setMobileMenuOpen(false) }, [location.pathname])
@@ -877,6 +947,7 @@ export default function App() {
           >
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
+
           <div className="flex items-center gap-2">
             {logoBase64 ? (
               <img src={logoBase64} alt="Logo" className="h-7 w-7 rounded object-contain" />
@@ -935,8 +1006,9 @@ export default function App() {
 
         {/* Sidebar */}
         <aside
-          className={`w-56 flex-shrink-0 ${themeConfig.sidebar} flex flex-col overflow-y-auto
-            fixed inset-y-0 left-0 z-50 transform transition-transform duration-200 ease-in-out
+          className={`flex-shrink-0 ${themeConfig.sidebar} flex flex-col overflow-y-auto
+            fixed inset-y-0 left-0 z-50 transform transition-all duration-200 ease-in-out
+            ${sidebarCollapsed ? 'md:w-16' : 'md:w-56'} w-56
             ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
             md:relative md:translate-x-0 md:z-auto md:inset-auto`}
         >
@@ -947,6 +1019,8 @@ export default function App() {
             locationPath={location.pathname}
             t={t}
             onNavigate={() => setMobileMenuOpen(false)}
+            collapsed={sidebarCollapsed}
+            onToggleCollapse={toggleSidebar}
           />
         </aside>
 
