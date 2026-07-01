@@ -534,7 +534,10 @@
       "storageProfiles": "ストレージプロファイル",
       "migrations": "移行",
       "cameraAnalytics": "カメラ分析",
-      "incidents": "インシデントセンター"
+      "incidents": "インシデントセンター",
+      "reorderMenu": "メニュー再配置",
+      "reorderDone": "完了",
+      "resetOrder": "順序リセット"
     },
     "masterdataManagement": {
       "title": "マスタデータ管理",
@@ -1089,7 +1092,7 @@
         "✅ ログインレート制限 10回/分",
         "✅ セキュリティヘッダー"
       ],
-      "phase25": "P17 — Performance & Scalability",
+      "phase25": "P16 — Performance & Scalability",
       "phase25Desc": "Optimize for 100+ cameras",
       "phase25Status": "リリース済み",
       "phase25Tasks": [
@@ -1098,7 +1101,7 @@
         "✅ SSE 自動再接続",
         "✅ クエリ最適化 11→3"
       ],
-      "phase26": "P18 — Integration & Extensibility",
+      "phase26": "P17 — Integration & Extensibility",
       "phase26Desc": "External system integration",
       "phase26Status": "リリース済み",
       "phase26Tasks": [
@@ -1106,16 +1109,162 @@
         "✅ 優先キュー",
         "✅ Webhook 設定ページ"
       ],
-      "phase27": "P16 — Cloudflare Tunnel & External Access",
+      "phase27": "P18 — Cloudflare Tunnel & External Access",
       "phase27Desc": "External access via Cloudflare Tunnel",
-      "phase27Status": "Planned",
+      "phase27Status": "リリース済み",
       "phase27Tasks": [
-        "cloudflared in docker-compose",
-        "Subdomain config",
-        "Auto SSL",
-        "WAF + DDoS",
-        "Close inbound ports",
-        "Cloudflare Access"
+        "✅ cloudflared in docker-compose",
+        "✅ Subdomain config",
+        "✅ Auto SSL",
+        "✅ WAF + DDoS",
+        "✅ Close inbound ports",
+        "✅ Cloudflare Access"
+      ],
+      "phase28": "P19 — カメラ信頼性・可用性分析",
+      "phase28Desc": "カメラ可用性分析 — 可用性, MTBF, MTTR, 健康スコア, 停止時間レポート, インシデード管理",
+      "phase28Status": "リリース済み",
+      "phase28Tasks": [
+        "✅ 可用性割合とSLAターゲットの比較",
+        "✅ MTBF (平均故障間隔)",
+        "✅ MTTR (平均修復時間)",
+        "✅ 0-100 健康スコア (優/良/警告/重大)",
+        "✅ 原因別ダウンタイムの分類",
+        "✅ 推定損失画像数",
+        "✅ ステータスタイムライン (ガントチャート風)",
+        "✅ イベント履歴表とカメラ比較",
+        "✅ インシデント管理 — ステータス変更および解決ダイアログ",
+        "✅ インシデント番号 (INC-YYYY-XXXXXX) + 根本原因 + 是正予防処置 (CAPA)",
+        "✅ CameraDailySummary 事前集計テーブル",
+        "✅ 動的マスタデータ — UIからすべてのプルダウンを管理 (9種)",
+        "✅ 5言語で71件のマスタデータを事前登録",
+        "✅ camera_type と capture_mode をカメラフォームに連携"
+      ],
+      "phase29": "P20 — カメラインシデントセンター・ナレッジベース",
+      "phase29Desc": "カメラインシデントセンター — 検索, フィルター, 詳細表示, および問題・解決法の分析ナレッジベース",
+      "phase29Status": "リリース済み",
+      "phase29Tasks": [
+        "✅ インシデント一覧 + 検索 + フィルター (カメラ/原因/根本原因/ステータス/優先度)",
+        "✅ 画像添付付き詳細モーダル",
+        "✅ 関連インシデント (同じ原因または根本原因)",
+        "✅ ナレッジベース — インシデント総数, 平均MTTR",
+        "✅ 頻出の問題 / よく使われる解決策",
+        "✅ 障害の多いカメラ",
+        "✅ Excel + PDF エクスポート"
+      ],
+      "phase30": "P21 — メンテナンスワークオーダー",
+      "phase30Desc": "インシデントにリンクされたメンテナンスワークオーダーの作成と追跡",
+      "phase30Status": "リリース済み",
+      "phase30Tasks": [
+        "✅ ワークオーダー作成 (WO-YYYY-XXXXX)",
+        "✅ ステータス追跡 (未対応/対応中/完了)",
+        "✅ インシデント連携"
+      ],
+      "phase31": "P22 — AIインシデント検索",
+      "phase31Desc": "自然言語インシデント検索 + 意味的類似性",
+      "phase31Status": "計画中",
+      "phase31Tasks": [
+        "自然言語検索",
+        "インシデント間の意味的類似性",
+        "履歴から解決策を自動提案"
+      ],
+      "phase32": "P23 — 予測的カメラ故障検知",
+      "phase32Desc": "AIを使用したカメラ故障の事前予測",
+      "phase32Status": "計画中",
+      "phase32Tasks": [
+        "予測的故障検知",
+        "異常パターン検知",
+        "予防アラート"
+      ],
+      "phase33": "P24 — カメラテンプレート・柔軟なファイル取得",
+      "phase33Desc": "カメラごとの個別オーバーライドと複数形式に対応した再利用可能なカメラテンプレート",
+      "phase33Status": "リリース済み",
+      "phase33Tasks": [
+        "✅ カメラテンプレートのCRUD UIとデフォルトテンプレート",
+        "✅ カメラごとの処理設定オーバーライド (空欄 = 継承)",
+        "✅ 受け入れ可能なファイル形式の設定 (tif/tiff/ptif/ptiff/jpg/jpeg/png/bmp)",
+        "✅ オプションのPNG変換 (ファイル容量の小さい方を残すロジック)",
+        "✅ オプションのサムネイル生成; rawは常に保存",
+        "✅ カメラ設定を尊重した柔軟な処理Worker"
+      ],
+      "phase34": "P25 — 既知の解決策ナレッジベース",
+      "phase34Desc": "解決策ナレッジ記事 (症状/原因/解決策/検証方法/タグ) の追加と関連インシデントへのリンク",
+      "phase34Status": "対応中",
+      "phase34Tasks": [
+        "ナレッジ記事のCRUD管理",
+        "インシデント解決への記事の紐付け",
+        "タグや症状によるナレッジ記事の検索・フィルター"
+      ],
+      "phase35": "P26 — 標準作業手順書 (SOP)",
+      "phase35Desc": "作業手順を根本原因 (マスタデータ原因) にリンクし、技術者向けにステップバイステップのチェックリストガイドを表示",
+      "phase35Status": "対応中",
+      "phase35Tasks": [
+        "原因ごとのSOPステップチェックリストの定義",
+        "解決ダイアログでのインタラクティブなSOPチェックボックス",
+        "インシデントログでのSOPチェックリスト完了状況の追跡"
+      ],
+      "phase36": "P27 — 機能成熟度ラベル",
+      "phase36Desc": "開発ロードマップ (Roadmap) 上での Experimental/Beta/Stable/Enterprise/Deprecated タグの表示",
+      "phase36Status": "対応中",
+      "phase36Tasks": [
+        "成熟度ラベルとスタイルの定義",
+        "バッジによるロードマップ表示の更新",
+        "各ステータスのツールチップ説明の追加"
+      ],
+      "phase37": "P28 — 予備部品管理",
+      "phase37Desc": "カメラおよび関連機器の予備部品在庫管理",
+      "phase37Status": "計画中",
+      "phase37Tasks": [
+        "予備部品カタログと在庫追跡",
+        "使用した予備部品とワークオーダーの紐付け",
+        "在庫が安全基準を下回った際の発注アラート"
+      ],
+      "phase38": "P29 — カメラライフサイクル管理",
+      "phase38Desc": "カメラの寿命履歴、使用年数、および予防メンテナンス計画の追跡",
+      "phase38Status": "計画中",
+      "phase38Tasks": [
+        "ライフサイクルステータスの追跡 (新規/稼働中/修理中/廃棄済)",
+        "ダウンタイムとMTBFの連携",
+        "予防メンテナンススケジューリング"
+      ],
+      "phase39": "P30 — メンテナンスコスト分析",
+      "phase39Desc": "メンテナンスコストと想定損失画像コストを組み合わせた分析",
+      "phase39Status": "計画中",
+      "phase39Tasks": [
+        "インシデント/ワークオーダーへの修理費用フィールドの追加",
+        "予防と修理を比較するROI分析",
+        "コスト内訳ダッシュボード"
+      ],
+      "phase40": "P31 — カメラ信頼性ランキング",
+      "phase40Desc": "パフォーマンスと稼働率指標に基づくカメラ信頼性の順位付け",
+      "phase40Status": "計画中",
+      "phase40Tasks": [
+        "カメラ信頼性スコア算出式の統合",
+        "高信頼性 vs 低信頼性カメラのリーダーボード",
+        "交換や特別メンテナンスの自動推奨"
+      ],
+      "phase41": "P32 — 工場全体ダッシュボード",
+      "phase41Desc": "部門/工場ごとのパフォーマンス指標とカメラステータスを表示する統合ダッシュボード",
+      "phase41Status": "計画中",
+      "phase41Tasks": [
+        "複数工場/複数部門の集計ビュー",
+        "ダッシュボードから個別カメラ詳細へのドリルダウン",
+        "管理者用要約PDFレポートの自動作成"
+      ],
+      "phase42": "P33 — 品質エビデンスと追跡可能性",
+      "phase42Desc": "完全な追跡可能性のために画像を機械、生産ロット、オーダー番号、オペレーター、およびシフトにリンク",
+      "phase42Status": "計画中",
+      "phase42Tasks": [
+        "生産メタデータフィールドによるImageモデルの拡張",
+        "ロット/オーダー情報を受信するためのAPI取り込みの更新",
+        "生産ロットや機械番号による画像検索"
+      ],
+      "phase43": "P34 — プラグインアーキテクチャ",
+      "phase43Desc": "外部システムによる独立した処理のために、Kafkaを介したイベント駆動型統合を有効化",
+      "phase43Status": "計画中",
+      "phase43Tasks": [
+        "image.processed の正式なイベントスキーマ定義",
+        "イベントバスに公開するKafkaプロデューサーの実装",
+        "Webhookイベントサブスクリプションの動的登録"
       ]
     },
     "permissions": {

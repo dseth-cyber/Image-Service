@@ -717,7 +717,10 @@
       "storageProfiles": "Storage Profiles",
       "migrations": "Migrations",
       "cameraAnalytics": "Camera Analytics",
-      "incidents": "Incident Center"
+      "incidents": "Incident Center",
+      "reorderMenu": "Reorder Menu",
+      "reorderDone": "Done",
+      "resetOrder": "Reset Order"
     },
     "incidentCenter": {
       "title": "Incident Center",
@@ -1454,6 +1457,86 @@
         "✅ Optional PNG conversion with keep-smaller logic",
         "✅ Optional thumbnail generation; raw always stored",
         "✅ Flexible processing worker honoring resolved per-camera config"
+      ],
+      "phase34": "P25 — Known Solutions Knowledge Base",
+      "phase34Desc": "Add solution articles (Symptoms/Cause/Resolution/Verification/Tags) and link them to related incidents",
+      "phase34Status": "In Progress",
+      "phase34Tasks": [
+        "Knowledge Article CRUD management",
+        "Linking articles to Incident resolutions",
+        "Search and filter articles by tags/symptoms"
+      ],
+      "phase35": "P26 — Standard Operating Procedure (SOP)",
+      "phase35Desc": "Link work procedures to root causes (masterdata reason) and show step-by-step checklist guidelines for technicians",
+      "phase35Status": "In Progress",
+      "phase35Tasks": [
+        "SOP step checklist definition per reason",
+        "Interactive SOP checkboxes in Resolution dialog",
+        "Track SOP checklist completion in incident logs"
+      ],
+      "phase36": "P27 — Feature Maturity Labels",
+      "phase36Desc": "Display Experimental/Beta/Stable/Enterprise/Deprecated tags on the development roadmap",
+      "phase36Status": "In Progress",
+      "phase36Tasks": [
+        "Define maturity labels and styles",
+        "Update roadmap display with badges",
+        "Add tooltip explanations for each status"
+      ],
+      "phase37": "P28 — Spare Parts Management",
+      "phase37Desc": "Spare parts inventory management for cameras and related equipment",
+      "phase37Status": "Planned",
+      "phase37Tasks": [
+        "Spare parts catalog and inventory tracking",
+        "Link spare parts used to work orders",
+        "Reorder alerts when stock falls below safety limit"
+      ],
+      "phase38": "P29 — Camera Lifecycle Management",
+      "phase38Desc": "Track camera lifetime history, usage age, and preventive maintenance plans",
+      "phase38Status": "Planned",
+      "phase38Tasks": [
+        "Lifecycle status tracking (New/Active/Repair/Scrapped)",
+        "Downtime and MTBF integration",
+        "Preventive maintenance scheduling"
+      ],
+      "phase39": "P30 — Maintenance Cost Analytics",
+      "phase39Desc": "Analyze maintenance costs combined with estimated lost image cost",
+      "phase39Status": "Planned",
+      "phase39Tasks": [
+        "Add repair cost field to incidents/work orders",
+        "ROI analysis comparing prevention vs repair",
+        "Cost breakdown dashboards"
+      ],
+      "phase40": "P31 — Camera Reliability Ranking",
+      "phase40Desc": "Rank camera reliability based on performance and uptime metrics",
+      "phase40Status": "Planned",
+      "phase40Tasks": [
+        "Camera Reliability Score formula integration",
+        "Top-performing vs worst-performing cameras leaderboard",
+        "Automatic recommendation for replacement"
+      ],
+      "phase41": "P32 — Plant Overview Dashboard",
+      "phase41Desc": "Consolidated dashboard showing performance metrics and camera statuses by department/plant",
+      "phase41Status": "Planned",
+      "phase41Tasks": [
+        "Multi-plant/multi-department aggregation view",
+        "Drilldown capabilities to individual cameras",
+        "Executive PDF report generation"
+      ],
+      "phase42": "P33 — Quality Evidence & Traceability",
+      "phase42Desc": "Link images to machine, production lot, order number, operator, and shift for full traceability",
+      "phase42Status": "Planned",
+      "phase42Tasks": [
+        "Extend Image model with production metadata fields",
+        "Integrate API ingestion to receive lot/order info",
+        "Search images by production lot/machine"
+      ],
+      "phase43": "P34 — Plugin Architecture",
+      "phase43Desc": "Enable event-driven integrations via Kafka for independent processing by external systems",
+      "phase43Status": "Planned",
+      "phase43Tasks": [
+        "Define formal event schema contract for image.processed",
+        "Implement Kafka producer publishing to event bus",
+        "Register webhook event subscriptions dynamically"
       ]
     },
     "permissions": {

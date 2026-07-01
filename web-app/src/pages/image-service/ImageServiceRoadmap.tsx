@@ -50,6 +50,16 @@ const PHASE_ICONS: Record<string, any> = {
   phase31: Activity,
   phase32: Activity,
   phase33: Layers,
+  phase34: BookText,
+  phase35: FileText,
+  phase36: Palette,
+  phase37: Wrench,
+  phase38: Clock,
+  phase39: Activity,
+  phase40: Activity,
+  phase41: Layout,
+  phase42: Shield,
+  phase43: GitBranch,
 }
 
 const PHASES = [
@@ -87,6 +97,16 @@ const PHASES = [
   { key: 'phase31', status: 'Planned', priority: 'P22' },
   { key: 'phase32', status: 'Planned', priority: 'P23' },
   { key: 'phase33', status: 'Launched', priority: 'P24' },
+  { key: 'phase34', status: 'In Progress', priority: 'P25' },
+  { key: 'phase35', status: 'In Progress', priority: 'P26' },
+  { key: 'phase36', status: 'In Progress', priority: 'P27' },
+  { key: 'phase37', status: 'Planned', priority: 'P28' },
+  { key: 'phase38', status: 'Planned', priority: 'P29' },
+  { key: 'phase39', status: 'Planned', priority: 'P30' },
+  { key: 'phase40', status: 'Planned', priority: 'P31' },
+  { key: 'phase41', status: 'Planned', priority: 'P32' },
+  { key: 'phase42', status: 'Planned', priority: 'P33' },
+  { key: 'phase43', status: 'Planned', priority: 'P34' },
 ]
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -124,6 +144,16 @@ const PRIORITY_COLORS: Record<string, string> = {
   P22: 'bg-blue-500/20 text-blue-400',
   P23: 'bg-purple-500/20 text-purple-400',
   P24: 'bg-cyan-500/20 text-cyan-400',
+  P25: 'bg-emerald-500/20 text-emerald-400',
+  P26: 'bg-orange-500/20 text-orange-400',
+  P27: 'bg-teal-500/20 text-teal-400',
+  P28: 'bg-blue-500/20 text-blue-400',
+  P29: 'bg-purple-500/20 text-purple-400',
+  P30: 'bg-cyan-500/20 text-cyan-400',
+  P31: 'bg-lime-500/20 text-lime-400',
+  P32: 'bg-indigo-500/20 text-indigo-400',
+  P33: 'bg-rose-500/20 text-rose-400',
+  P34: 'bg-sky-500/20 text-sky-400',
 }
 
 const STATUS_WEIGHTS: Record<string, number> = {
