@@ -1465,6 +1465,33 @@
       "colCompression": "圧縮品質",
       "colCreated": "作成日時",
       "colUpdated": "最終更新日時"
+    },
+    "cameraTemplates": {
+      "title": "カメラテンプレート",
+      "subtitle": "再利用可能なカメラ用画像取り込みプリセット",
+      "newTemplate": "新規テンプレート",
+      "editTemplate": "テンプレート編集",
+      "noTemplates": "カメラテンプレートがまだありません",
+      "name": "名前",
+      "description": "説明",
+      "acceptedExtensions": "受け入れ可能な拡張子",
+      "convertToPng": "PNGに変換",
+      "keepSmaller": "小さいサイズを維持",
+      "generateThumbnail": "サムネイルを生成",
+      "thumbnailSize": "サムネイルサイズ (px)",
+      "compressionQuality": "圧縮品質",
+      "pollIntervalSeconds": "ポーリング間隔 (秒)",
+      "captureMode": "キャプチャモード",
+      "retentionPolicy": "保管ポリシー",
+      "isDefault": "デフォルトテンプレート",
+      "sortOrder": "ソート順",
+      "isActive": "有効",
+      "status": "ステータス",
+      "cameras": "カメラ",
+      "created": "テンプレートを作成しました",
+      "updated": "テンプレートを更新しました",
+      "deleted": "テンプレートを削除しました",
+      "deleteConfirm": "このテンプレートを削除してもよろしいですか？"
     }
   },
   "common": {

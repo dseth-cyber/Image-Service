@@ -1465,6 +1465,33 @@
       "colCompression": "压缩质量",
       "colCreated": "创建时间",
       "colUpdated": "最后更新时间"
+    },
+    "cameraTemplates": {
+      "title": "摄像头模板",
+      "subtitle": "可重复使用的摄像头图像导入预设",
+      "newTemplate": "新建模板",
+      "editTemplate": "编辑模板",
+      "noTemplates": "暂无摄像头模板",
+      "name": "名称",
+      "description": "描述",
+      "acceptedExtensions": "接受的文件类型",
+      "convertToPng": "转换为PNG",
+      "keepSmaller": "保留较小文件",
+      "generateThumbnail": "生成缩略图",
+      "thumbnailSize": "缩略图大小 (px)",
+      "compressionQuality": "压缩质量",
+      "pollIntervalSeconds": "轮询间隔 (秒)",
+      "captureMode": "捕获模式",
+      "retentionPolicy": "保留策略",
+      "isDefault": "默认模板",
+      "sortOrder": "排序",
+      "isActive": "启用",
+      "status": "状态",
+      "cameras": "摄像头",
+      "created": "模板已创建",
+      "updated": "模板已更新",
+      "deleted": "模板已删除",
+      "deleteConfirm": "您确定要删除此模板吗？"
     }
   },
   "common": {

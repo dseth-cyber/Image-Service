@@ -1460,6 +1460,33 @@
       "colCompression": "ချုံ့မှု အရည်အသွေး",
       "colCreated": "ဖန်တီးသည့် ရက်စွဲ",
       "colUpdated": "နောက်ဆုံး ပြင်ဆင်သည့် ရက်စွဲ"
+    },
+    "cameraTemplates": {
+      "title": "ကင်မရာ တမ်းပလိတ်များ",
+      "subtitle": "ကင်မရာများအတွက် ပြန်လည်အသုံးပြုနိုင်သော ပုံသွင်းယူမှု ပုံစံများ",
+      "newTemplate": "တမ်းပလိတ်အသစ် ဖန်တီးရန်",
+      "editTemplate": "တမ်းပလိတ် ပြင်ဆင်ရန်",
+      "noTemplates": "ကင်မရာတမ်းပလိတ် မရှိသေးပါ",
+      "name": "အမည်",
+      "description": "ဖော်ပြချက်",
+      "acceptedExtensions": "လက်ခံနိုင်သော ဖိုင်အမျိုးအစားများ",
+      "convertToPng": "PNG သို့ ပြောင်းလဲရန်",
+      "keepSmaller": "ဖိုင်အရွယ်အစား သေးငယ်သည်ကို သိမ်းဆည်းရန်",
+      "generateThumbnail": "Thumbnail ဖန်တီးရန်",
+      "thumbnailSize": "Thumbnail အရွယ်အစား (px)",
+      "compressionQuality": "ချုံ့မှု အရည်အသွေး",
+      "pollIntervalSeconds": "စစ်ဆေးသည့် အကြိမ်ရေ (စက္ကန့်)",
+      "captureMode": "ပုံဖမ်းယူမှု စနစ်",
+      "retentionPolicy": "သိမ်းဆည်းမှု မူဝါဒ",
+      "isDefault": "မူလ တမ်းပလိတ်",
+      "sortOrder": "အစီအစဉ်",
+      "isActive": "အသုံးပြုသည်",
+      "status": "အခြေအနေ",
+      "cameras": "ကင်မရာ",
+      "created": "တမ်းပလိတ် ဖန်တီးပြီးပါပြီ",
+      "updated": "တမ်းပလိတ် ပြင်ဆင်ပြီးပါပြီ",
+      "deleted": "တမ်းပလိတ် ဖျက်သိမ်းပြီးပါပြီ",
+      "deleteConfirm": "ဤတမ်းပလိတ်ကို ဖျက်သိမ်းရန် သေချာပါသလား?"
     }
   },
   "common": {
