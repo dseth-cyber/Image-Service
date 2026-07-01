@@ -208,6 +208,7 @@ services:
       - "3001:3001"
     volumes:
       - local-storage-data:/data/images
+      - incident-attachments-data:/app/incident-attachments
     environment:
       NODE_ENV: production
       HOST: 0.0.0.0
@@ -499,6 +500,7 @@ volumes:
   prometheus-data:
   grafana-data:
   loki-data:
+  incident-attachments-data:
 
 networks:
   image-network:

@@ -3,13 +3,24 @@ export function getLocalizedValue(obj: any, lang: string): string {
   if (typeof obj === 'string') return obj
 
   // Support masterdata entries with nameTh/nameEn/nameCn/nameMm/nameJp fields
-  const langMap: Record<string, string> = { th: 'nameTh', en: 'nameEn', cn: 'nameCn', mm: 'nameMm', jp: 'nameJp' }
-  const field = langMap[lang]
+  // Handle locale codes with country/region suffixes (e.g., 'th-TH', 'zh-CN')
+  const cleanLang = (lang || '').split('-')[0].toLowerCase()
+  const langMap: Record<string, string> = {
+    th: 'nameTh',
+    en: 'nameEn',
+    cn: 'nameCn',
+    zh: 'nameCn',
+    mm: 'nameMm',
+    my: 'nameMm',
+    jp: 'nameJp',
+    ja: 'nameJp'
+  }
+  const field = langMap[cleanLang]
   if (field && obj[field]) return obj[field]
   if (obj.nameEn) return obj.nameEn
   if (obj.nameTh) return obj.nameTh
 
-  return obj[lang] || obj.en || ''
+  return obj[lang] || obj[cleanLang] || obj.en || ''
 }
 
 // Translate stored alert titles like "Camera offline: CAM-01" using i18n.
