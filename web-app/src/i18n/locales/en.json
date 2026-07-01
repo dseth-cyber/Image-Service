@@ -1471,7 +1471,7 @@
         "✅ Status tracking (open/in progress/completed)",
         "✅ Incident linkage"
       ],
-      "phase31": "P22 — AI Incident Search",
+      "phase31": "P33 — AI Incident Search",
       "phase31Desc": "Natural-language incident search + semantic similarity",
       "phase31Status": "Planned",
       "phase31Tasks": [
@@ -1479,7 +1479,7 @@
         "Semantic similarity across incidents",
         "Auto-suggest resolutions from history"
       ],
-      "phase32": "P23 — Predictive Camera Failure",
+      "phase32": "P34 — Predictive Camera Failure",
       "phase32Desc": "Predict camera failures ahead of time using AI",
       "phase32Status": "Planned",
       "phase32Tasks": [
@@ -1487,7 +1487,7 @@
         "Anomaly pattern detection",
         "Preventive alerts"
       ],
-      "phase33": "P24 — Camera Template & Flexible Ingestion",
+      "phase33": "P22 — Camera Template & Flexible Ingestion",
       "phase33Desc": "Reusable camera templates with per-camera overrides and multi-format ingestion",
       "phase33Status": "Launched",
       "phase33Tasks": [
@@ -1498,7 +1498,7 @@
         "✅ Optional thumbnail generation; raw always stored",
         "✅ Flexible processing worker honoring resolved per-camera config"
       ],
-      "phase34": "P25 — Known Solutions Knowledge Base",
+      "phase34": "P23 — Known Solutions Knowledge Base",
       "phase34Desc": "Add solution articles (Symptoms/Cause/Resolution/Verification/Tags) and link them to related incidents",
       "phase34Status": "In Progress",
       "phase34Tasks": [
@@ -1506,7 +1506,7 @@
         "Linking articles to Incident resolutions",
         "Search and filter articles by tags/symptoms"
       ],
-      "phase35": "P26 — Standard Operating Procedure (SOP)",
+      "phase35": "P24 — Standard Operating Procedure (SOP)",
       "phase35Desc": "Link work procedures to root causes (masterdata reason) and show step-by-step checklist guidelines for technicians",
       "phase35Status": "In Progress",
       "phase35Tasks": [
@@ -1514,7 +1514,7 @@
         "Interactive SOP checkboxes in Resolution dialog",
         "Track SOP checklist completion in incident logs"
       ],
-      "phase36": "P27 — Feature Maturity Labels",
+      "phase36": "P25 — Feature Maturity Labels",
       "phase36Desc": "Display Experimental/Beta/Stable/Enterprise/Deprecated tags on the development roadmap",
       "phase36Status": "In Progress",
       "phase36Tasks": [
@@ -1522,7 +1522,7 @@
         "Update roadmap display with badges",
         "Add tooltip explanations for each status"
       ],
-      "phase37": "P28 — Spare Parts Management",
+      "phase37": "P26 — Spare Parts Management",
       "phase37Desc": "Spare parts inventory management for cameras and related equipment",
       "phase37Status": "Planned",
       "phase37Tasks": [
@@ -1530,7 +1530,7 @@
         "Link spare parts used to work orders",
         "Reorder alerts when stock falls below safety limit"
       ],
-      "phase38": "P29 — Camera Lifecycle Management",
+      "phase38": "P27 — Camera Lifecycle Management",
       "phase38Desc": "Track camera lifetime history, usage age, and preventive maintenance plans",
       "phase38Status": "Planned",
       "phase38Tasks": [
@@ -1538,7 +1538,7 @@
         "Downtime and MTBF integration",
         "Preventive maintenance scheduling"
       ],
-      "phase39": "P30 — Maintenance Cost Analytics",
+      "phase39": "P28 — Maintenance Cost Analytics",
       "phase39Desc": "Analyze maintenance costs combined with estimated lost image cost",
       "phase39Status": "Planned",
       "phase39Tasks": [
@@ -1546,7 +1546,7 @@
         "ROI analysis comparing prevention vs repair",
         "Cost breakdown dashboards"
       ],
-      "phase40": "P31 — Camera Reliability Ranking",
+      "phase40": "P29 — Camera Reliability Ranking",
       "phase40Desc": "Rank camera reliability based on performance and uptime metrics",
       "phase40Status": "Planned",
       "phase40Tasks": [
@@ -1554,7 +1554,7 @@
         "Top-performing vs worst-performing cameras leaderboard",
         "Automatic recommendation for replacement"
       ],
-      "phase41": "P32 — Plant Overview Dashboard",
+      "phase41": "P30 — Plant Overview Dashboard",
       "phase41Desc": "Consolidated dashboard showing performance metrics and camera statuses by department/plant",
       "phase41Status": "Planned",
       "phase41Tasks": [
@@ -1562,7 +1562,7 @@
         "Drilldown capabilities to individual cameras",
         "Executive PDF report generation"
       ],
-      "phase42": "P33 — Quality Evidence & Traceability",
+      "phase42": "P31 — Quality Evidence & Traceability",
       "phase42Desc": "Link images to machine, production lot, order number, operator, and shift for full traceability",
       "phase42Status": "Planned",
       "phase42Tasks": [
@@ -1570,7 +1570,7 @@
         "Integrate API ingestion to receive lot/order info",
         "Search images by production lot/machine"
       ],
-      "phase43": "P34 — Plugin Architecture",
+      "phase43": "P32 — Plugin Architecture",
       "phase43Desc": "Enable event-driven integrations via Kafka for independent processing by external systems",
       "phase43Status": "Planned",
       "phase43Tasks": [

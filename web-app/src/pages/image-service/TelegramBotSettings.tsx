@@ -81,6 +81,10 @@ export default function TelegramBotSettings() {
 
   return (
     <div className="p-6 max-w-3xl">
+      {/* Fake inputs to trap browser autofill at page-level */}
+      <input type="text" style={{ display: 'none' }} autoComplete="username" />
+      <input type="password" style={{ display: 'none' }} autoComplete="new-password" />
+
       <div className="mb-6">
         <p className={`text-xs font-medium uppercase tracking-widest ${themeConfig.text.secondary}`}>
           Image Service · {t('imageService.telegramBot.title')}
@@ -102,13 +106,17 @@ export default function TelegramBotSettings() {
         </div>
 
         <div className="space-y-4">
+          {/* Fake inputs to trap browser autofill and prevent it from filling search and token inputs */}
+          <input type="text" style={{ display: 'none' }} autoComplete="username" />
+          <input type="password" style={{ display: 'none' }} autoComplete="new-password" />
+
           <div>
             <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.telegramBot.botToken')}</label>
             <div className="relative">
               <input value={botToken} onChange={e => setBotToken(e.target.value)}
-                type={showToken ? 'text' : 'password'} autoComplete="off"
+                type={showToken ? 'text' : 'password'}
                 placeholder="1234567890:ABCdefGHIjklmNOPqrSTUvwxYZ"
-                autoComplete="off" data-1p-ignore data-lpignore="true" data-form-type="other"
+                autoComplete="new-password" data-1p-ignore data-lpignore="true" data-form-type="other"
                 className={`w-full px-4 py-2.5 rounded-md text-sm border font-mono ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-cyan-500/50 pr-10`} />
               <button onClick={() => setShowToken(!showToken)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                 {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -143,8 +151,9 @@ export default function TelegramBotSettings() {
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>{t('imageService.telegramBot.apiToken')}</label>
               <div className="relative">
                 <input value={apiToken} onChange={e => setApiToken(e.target.value)}
-                  type={showToken ? 'text' : 'password'} autoComplete="off"
+                  type={showToken ? 'text' : 'password'}
                   placeholder="sk_..."
+                  autoComplete="new-password" data-1p-ignore data-lpignore="true" data-form-type="other"
                   className={`w-full px-4 py-2.5 rounded-md text-sm border font-mono ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary} focus:outline-none focus:ring-1 focus:ring-cyan-500/50 pr-10`} />
                 <button onClick={() => setShowToken(!showToken)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                   {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
