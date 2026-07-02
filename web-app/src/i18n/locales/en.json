@@ -1472,7 +1472,7 @@
         "✅ Status tracking (open/in progress/completed)",
         "✅ Incident linkage"
       ],
-      "phase31": "P33 — AI Incident Search",
+      "phase31": "P35 — AI Incident Search",
       "phase31Desc": "Natural-language incident search + semantic similarity",
       "phase31Status": "Planned",
       "phase31Tasks": [
@@ -1480,7 +1480,7 @@
         "Semantic similarity across incidents",
         "Auto-suggest resolutions from history"
       ],
-      "phase32": "P34 — Predictive Camera Failure",
+      "phase32": "P36 — Predictive Camera Failure",
       "phase32Desc": "Predict camera failures ahead of time using AI",
       "phase32Status": "Planned",
       "phase32Tasks": [
@@ -1523,7 +1523,7 @@
         "Update roadmap display with badges",
         "Add tooltip explanations for each status"
       ],
-      "phase37": "P26 — Spare Parts Management",
+      "phase37": "P28 — Spare Parts Management",
       "phase37Desc": "Spare parts inventory management for cameras and related equipment",
       "phase37Status": "Planned",
       "phase37Tasks": [
@@ -1531,7 +1531,7 @@
         "Link spare parts used to work orders",
         "Reorder alerts when stock falls below safety limit"
       ],
-      "phase38": "P27 — Camera Lifecycle Management",
+      "phase38": "P29 — Camera Lifecycle Management",
       "phase38Desc": "Track camera lifetime history, usage age, and preventive maintenance plans",
       "phase38Status": "Planned",
       "phase38Tasks": [
@@ -1539,7 +1539,7 @@
         "Downtime and MTBF integration",
         "Preventive maintenance scheduling"
       ],
-      "phase39": "P28 — Maintenance Cost Analytics",
+      "phase39": "P30 — Maintenance Cost Analytics",
       "phase39Desc": "Analyze maintenance costs combined with estimated lost image cost",
       "phase39Status": "Planned",
       "phase39Tasks": [
@@ -1547,7 +1547,7 @@
         "ROI analysis comparing prevention vs repair",
         "Cost breakdown dashboards"
       ],
-      "phase40": "P29 — Camera Reliability Ranking",
+      "phase40": "P31 — Camera Reliability Ranking",
       "phase40Desc": "Rank camera reliability based on performance and uptime metrics",
       "phase40Status": "Planned",
       "phase40Tasks": [
@@ -1555,7 +1555,7 @@
         "Top-performing vs worst-performing cameras leaderboard",
         "Automatic recommendation for replacement"
       ],
-      "phase41": "P30 — Plant Overview Dashboard",
+      "phase41": "P32 — Plant Overview Dashboard",
       "phase41Desc": "Consolidated dashboard showing performance metrics and camera statuses by department/plant",
       "phase41Status": "Planned",
       "phase41Tasks": [
@@ -1563,7 +1563,7 @@
         "Drilldown capabilities to individual cameras",
         "Executive PDF report generation"
       ],
-      "phase42": "P31 — Quality Evidence & Traceability",
+      "phase42": "P33 — Quality Evidence & Traceability",
       "phase42Desc": "Link images to machine, production lot, order number, operator, and shift for full traceability",
       "phase42Status": "Planned",
       "phase42Tasks": [
@@ -1571,13 +1571,30 @@
         "Integrate API ingestion to receive lot/order info",
         "Search images by production lot/machine"
       ],
-      "phase43": "P32 — Plugin Architecture",
+      "phase43": "P34 — Plugin Architecture",
       "phase43Desc": "Enable event-driven integrations via Kafka for independent processing by external systems",
       "phase43Status": "Planned",
       "phase43Tasks": [
         "Define formal event schema contract for image.processed",
         "Implement Kafka producer publishing to event bus",
         "Register webhook event subscriptions dynamically"
+      ],
+      "phase44": "P26 — Data Lifecycle Policy & Auto Cleanup (Data Lifecycle Policy)",
+      "phase44Desc": "Define flexible storage capacity management, thresholds, and auto-cleanup policies for enterprise environments.",
+      "phase44Status": "Planned",
+      "phase44Tasks": [
+        "4 Cleanup Modes: Retention Only, High Watermark, Circular Storage, Read Only",
+        "Priority-based deletion order (Temp -> Normal -> Critical)",
+        "Image Locking protection to prevent deletion of audit files",
+        "Emergency Manual Cleanup modal with confirmation prompts"
+      ],
+      "phase45": "P27 — Multi-Tier Storage Archiving (Multi-Tier Storage Archiving)",
+      "phase45Desc": "Automatically migrate files between high-speed local disk (Fast SSD) and cost-effective cold storage (Cold NAS/S3/Tape) before cleanup.",
+      "phase45Status": "Planned",
+      "phase45Tasks": [
+        "Integrate and categorize storage tiers (Hot, Cold, Archive)",
+        "Configure auto-migration policies to transfer files before deletion",
+        "Implement data rehydration when files are requested for viewing"
       ]
     },
     "permissions": {
