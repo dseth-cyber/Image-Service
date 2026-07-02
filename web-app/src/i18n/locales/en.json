@@ -1734,6 +1734,139 @@
       "colCompression": "Compression Quality",
       "colCreated": "Created At",
       "colUpdated": "Last Updated At"
+    },
+    "docs": {
+      "title": "Product Documentation",
+      "subtitle": "Enterprise-grade developer portal, architecture breakdown, deployment instructions, and specifications.",
+      "menu": {
+        "gettingStarted": "Getting Started",
+        "architecture": "Architecture",
+        "deployment": "Deployment Guide",
+        "apiReference": "API Reference",
+        "eventCatalog": "Event Catalog",
+        "pluginSdk": "Plugin / Worker SDK",
+        "databaseSchema": "Database Schema",
+        "storageProviders": "Storage Providers",
+        "troubleshooting": "Troubleshooting",
+        "bestPractices": "Best Practices",
+        "releaseNotes": "Release Notes",
+        "roadmap": "Roadmap"
+      },
+      "gettingStarted": {
+        "title": "Getting Started",
+        "p1": "Welcome to the Image Service Documentation Portal. The Image Service is an enterprise-grade platform designed for automated capturing, processing, archiving, and monitoring of high-resolution camera feeds inside manufacturing execution systems (MES) and enterprise resource planning (ERP) environments.",
+        "noteTitle": "Architecture Snapshot",
+        "noteBody": "The system runs decoupled using workers communicating via a Redis BullMQ message queue. Cameras upload images to network SMB folders, which are pulled, converted, indexed, and pushed to S3 object storage safely.",
+        "preTitle": "System Prerequisites",
+        "preItem1": "Docker Engine v20.10+ & Docker Compose v2.0+",
+        "preItem2": "PostgreSQL v15+ (Database storage)",
+        "preItem3": "Redis v7.0+ (Job Queueing)",
+        "preItem4": "Network access to target camera shares (SMB/CIFS protocol)",
+        "dockerTitle": "Quick Start via Docker",
+        "dockerBody": "Run the docker container commands to fetch the workspace codebase and spin up:",
+        "dockerWarning": "Default superuser account is admin with password admin123. Change these credentials immediately upon deployment."
+      },
+      "architecture": {
+        "title": "System Architecture",
+        "p1": "The Image Service follows a microservices pattern designed to process thousands of high-resolution industrial images per hour without throttling.",
+        "flowTitle": "Data Flow Pipeline",
+        "flow1Title": "1. Polling Phase (Sync Worker)",
+        "flow1Body": "The Sync Worker polls cameras via SMB protocol. It scans for new TIFF/RAW files since the last checkpoint, downloads them to temporary storage, and posts job metadata to the Redis Queue.",
+        "flow2Title": "2. Processing Phase (Processing Worker)",
+        "flow2Body": "The processing workers pull jobs asynchronously. They calculate the SHA-256 hash (preventing duplicate processing), extract image dimensions/EXIF metadata, convert RAW images to PNG, and save highly compressed thumbnails.",
+        "flow3Title": "3. Storage & Database Indexing",
+        "flow3Body": "Files are uploaded to a configured Storage Provider (SeaweedFS, MinIO, or Local Directory). Simultaneously, metadata indices are written back to PostgreSQL via the API server and emit Webhook/WebSockets.",
+        "warnTitle": "Scale Thresholds",
+        "warnBody": "For heavy loads, configure multiple replicas of the image-processing-worker to achieve high parallelization and load balance."
+      },
+      "deployment": {
+        "title": "Deployment Guide",
+        "p1": "Recommended deployment instructions for VM and production servers.",
+        "composeTitle": "Docker Compose Sample Configuration",
+        "composeSub": "Save the following content to a docker-compose.yml file and configure environment variables:",
+        "sslTitle": "SSL/HTTPS Production Setup",
+        "sslBody": "To guarantee secure transmission of SMB credentials and API keys in enterprise production networks, HTTPS is enforced. Generates certificates using:"
+      },
+      "apiReference": {
+        "title": "API Reference",
+        "p1": "All write operations inside the API require Authentication and the corresponding Module Role Permission. Include the Bearer token in the header.",
+        "createTitle": "Create Camera Endpoint",
+        "createSub": "Create a new camera and configure its network share via REST endpoint:",
+        "primaryTitle": "Primary API Endpoints",
+        "thMethod": "Method",
+        "thPath": "Path",
+        "thPermission": "Required Permission"
+      },
+      "eventCatalog": {
+        "title": "Event Catalog",
+        "p1": "The Image Service publishes events to Webhooks, WebSockets, and Kafka when operations complete. Integrators can subscribe to these topics to build custom notifications.",
+        "triggerTitle": "Event: image.processed",
+        "triggerSub": "Triggered automatically when a worker finishes checksum calculation, conversion, and uploads to storage successfully:",
+        "signingTitle": "Webhook Signing",
+        "signingBody": "To guarantee payloads have not been modified, Webhook headers include X-Image-Service-Signature using a pre-shared secret key hash (HMAC-SHA256)."
+      },
+      "pluginSdk": {
+        "title": "Worker & Plugin SDK",
+        "p1": "The Image Processing Worker can be customized to perform real-time AI inspections, object detection, or face blurring on images before archiving.",
+        "hookTitle": "Python Worker Hook Sample",
+        "hookSub": "Implement a function inside the worker codebase to process downloaded files:",
+        "tipTitle": "Did you know?",
+        "tipBody": "The plugin SDK runs on lightweight worker instances. Scale them horizontally to avoid interference with the main web portal response times."
+      },
+      "databaseSchema": {
+        "title": "Database Schema",
+        "p1": "The database schema uses PostgreSQL. Below is the main model representation in the Prisma configuration format:",
+        "prismaTitle": "Camera Prisma Configuration",
+        "entitiesTitle": "Core Entities List",
+        "entityCamera": "Camera: Camera details, SMB paths, status.",
+        "entityImage": "ImageFile: Image records, size, status, file references.",
+        "entityPolicy": "RetentionPolicy: Storage settings, soft-delete rules.",
+        "entityAudit": "AuditLog: System actions, IPs, user modifications history."
+      },
+      "storageProviders": {
+        "title": "Storage Providers",
+        "p1": "Image Service supports multiple storage backends. Change providers dynamically from the UI settings.",
+        "localTitle": "Local Disk",
+        "localBody": "Simple file mounts. Best for local development and direct VM hosting.",
+        "minioTitle": "MinIO (S3 Compatible)",
+        "minioBody": "Enterprise standard object storage. Supports cloud hosting and cluster nodes.",
+        "seaweedTitle": "SeaweedFS",
+        "seaweedBody": "Ultra-fast distributed storage optimized for billions of small images."
+      },
+      "troubleshooting": {
+        "title": "Troubleshooting",
+        "p1": "Quick diagnostic steps for operational issues.",
+        "cameraTitle": "Camera goes Offline/Error status",
+        "cameraSteps": "1. Verify the physical camera IP is pingable from the host machine VM.\n2. Test the connection in the Camera Settings dialog to verify SMB credentials.\n3. Ensure user account passwords are correct and have not expired in active directory.",
+        "queueTitle": "BullMQ queue length is piling up",
+        "queueBody": "If the queue wait list is growing rapidly, check processing worker container logs or scale workers."
+      },
+      "bestPractices": {
+        "title": "Best Practices",
+        "p1": "Operational recommendations for production environments.",
+        "securityTitle": "Security & Encryption",
+        "securityItem1": "Change default secrets (JWT_SECRET, ENCRYPTION_KEY) before staging.",
+        "securityItem2": "Restrict backend access using firewalls; only allow scrapers on the metrics endpoint.",
+        "securityItem3": "Establish separate API keys for external applications; do not share JWT tokens."
+      },
+      "releaseNotes": {
+        "title": "Release Notes",
+        "p1": "Version details and changelog logs.",
+        "v110Title": "v1.1.0 (Current)",
+        "v110Body": "- Added 5-language internationalization support.\n- Integrated system verification end-to-end API checking tool.\n- Added camera soft-delete recycle bin mechanism with password confirmation logs.",
+        "v100Title": "v1.0.0",
+        "v100Body": "- Initial production build release with SMB polling, worker queue management, and SeaweedFS/MinIO options."
+      },
+      "roadmap": {
+        "title": "Product Roadmap",
+        "p1": "Upcoming development plan details aligned with core development phases:",
+        "phase1Title": "Phase 1: Advanced AI Inspections (Q3 2026)",
+        "phase1Body": "Integrate real-time anomaly detection, pattern matching, and OCR hooks directly into processing workers.",
+        "phase2Title": "Phase 2: Predictive Camera Diagnostics (Q4 2026)",
+        "phase2Body": "Leverage AI anomaly scoring to predict camera lens degradation, focus errors, or connectivity drops.",
+        "phase3Title": "Phase 3: Deep ERP Integration (Q1 2027)",
+        "phase3Body": "Fully synchronize metadata indexes directly into standard SAP/Oracle MES tracking lots systems."
+      }
     }
   },
   "common": {

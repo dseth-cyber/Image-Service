@@ -1568,6 +1568,139 @@
       "updated": "テンプレートを更新しました",
       "deleted": "テンプレートを削除しました",
       "deleteConfirm": "このテンプレートを削除してもよろしいですか？"
+    },
+    "docs": {
+      "title": "システム文書",
+      "subtitle": "開発者向けポータル、システムアーキテクチャ、展開ガイド、およびAPI仕様。",
+      "menu": {
+        "gettingStarted": "はじめに",
+        "architecture": "アーキテクチャ",
+        "deployment": "展開ガイド",
+        "apiReference": "API リファレンス",
+        "eventCatalog": "イベントカタログ",
+        "pluginSdk": "プラグイン / Worker SDK",
+        "databaseSchema": "データベーススキーマ",
+        "storageProviders": "ストレージプロバイダー",
+        "troubleshooting": "トラブルシューティング",
+        "bestPractices": "ベストプラクティス",
+        "releaseNotes": "リリースノート",
+        "roadmap": "ロードマップ"
+      },
+      "gettingStarted": {
+        "title": "はじめに",
+        "p1": "画像サービス（Image Service）ドキュメントポータルへようこそ。このシステムは、産業用のMESおよびERP環境において、高解像度カメラフィードの自動キャプチャ、処理、アーカイブ、および監視を行うためのエンタープライズ向けプラットフォームです。",
+        "noteTitle": "アーキテクチャ概要",
+        "noteBody": "システムは Redis BullMQ メッセージキューを介して非同期で稼働します。カメラは画像を共有SMBフォルダに保存し、Sync Workerがダウンロードして処理後にS3オブジェクトストレージに保存します。",
+        "preTitle": "システム前提要件",
+        "preItem1": "Docker Engine v20.10+ および Docker Compose v2.0+",
+        "preItem2": "PostgreSQL v15+ (データベースストレージ)",
+        "preItem3": "Redis v7.0+ (ジョブ管理キュー)",
+        "preItem4": "SMB/CIFSプロトコルによるカメラ共有フォルダへのアクセス権限",
+        "dockerTitle": "Dockerによるクイックスタート",
+        "dockerBody": "Dockerコマンドを実行してシステムイメージをビルドし、起動します：",
+        "dockerWarning": "初期管理者アカウントは admin、パスワードは admin123 です。デプロイ後、直ちにこれらの認証情報を変更してください。"
+      },
+      "architecture": {
+        "title": "システムアーキテクチャ",
+        "p1": "画像サービスは、遅延やボトルネックを発生させることなく、毎時数千枚の高解像度産業用画像を処理できるように設計されたマイクロサービスアーキテクチャを採用しています。",
+        "flowTitle": "データフローパイプライン",
+        "flow1Title": "1. 画像収集フェーズ (Sync Worker)",
+        "flow1Body": "Sync Workerは、SMBプロトコルを介してカメラの共有ディレクトリを定期的にポーリングします。チェックポイント以降の新しいTIFF/RAWファイルを検知し、一時ローカルディスクに保存後、タスクをRedisキューにプッシュします。",
+        "flow2Title": "2. 画像処理フェーズ (Processing Worker)",
+        "flow2Body": "処理ワーカーはRedisキューから非同期でジョブを取得します。重複処理を防ぐためにSHA-256チェックサムを算出し、画像解像度やEXIFメタデータを抽出し、RAW画像をPNG形式へ変換した上で圧縮サムネイルを作成します。",
+        "flow3Title": "3. ストレージ保管およびDBインデックス登録",
+        "flow3Body": "変換された画像とサムネイルは設定されたストレージ（SeaweedFS、MinIO、またはローカルディスク）にアップロードされます。同時に、メタデータがPostgreSQLデータベースに記録され、WebhookとWebSocketイベントがトリガーされます。",
+        "warnTitle": "ワーカーの並列スケールアウト",
+        "warnBody": "画像が急増した場合は、image-processing-worker コンテナの起動数をスケールアウトすることで、高速な並行処理が可能です。"
+      },
+      "deployment": {
+        "title": "展開ガイド",
+        "p1": "VMサーバーや本番環境システムでの推奨デプロイ手順。",
+        "composeTitle": "Docker Compose 設定サンプル",
+        "composeSub": "以下の内容を docker-compose.yml として保存し、環境変数を構成します：",
+        "sslTitle": "SSL/HTTPS セキュリティ設定",
+        "sslBody": "企業内ネットワークにおいてSMB認証情報やAPIキーの安全な送信を保証するため、HTTPSの利用が義務付けられています。自己署名証明書を発行するには以下のスクリプトを実行します："
+      },
+      "apiReference": {
+        "title": "API リファレンス",
+        "p1": "API内のすべての書き込み操作（POST/PATCH/DELETE）には、トークン認証（Bearer Token）と対応する権限（Role Permission）が必要です。",
+        "createTitle": "カメラ作成APIの例",
+        "createSub": "APIエンドポイントを使用して新しいカメラをシステムに登録します：",
+        "primaryTitle": "主要APIエンドポイント一覧",
+        "thMethod": "リクエスト方式",
+        "thPath": "エンドポイント",
+        "thPermission": "必要なスロット権限"
+      },
+      "eventCatalog": {
+        "title": "イベントカタログ",
+        "p1": "画像サービスは、処理の完了時にWebhook、WebSocket、およびKafkaに対してシステムイベントをブロードキャストします。開発者はこれらを購読して独自通知システムを構築できます。",
+        "triggerTitle": "イベント: image.processed",
+        "triggerSub": "ワーカーが画像処理・変換を完了し、ストレージに正常保存した段階で自動発行されます：",
+        "signingTitle": "Webhook セキュリティ署名",
+        "signingBody": "ペイロードが転送中に改ざんされるのを防ぐため、Webhookヘッダーには共有キーから算出された HMAC-SHA256 形式の X-Image-Service-Signature 署名が含まれます。"
+      },
+      "pluginSdk": {
+        "title": "プラグイン / Worker SDK",
+        "p1": "Processing Workerプロセスをカスタマイズすることで、画像のアーカイブ前にAIによる欠陥検査や画像認識、顔のモザイク処理などをリアルタイムで実行させることができます。",
+        "hookTitle": "PythonワーカーのHookサンプルコード",
+        "hookSub": "ワーカー環境で画像ダウンロード直後に実行されるメソッドを実装します：",
+        "tipTitle": "知っていますか？",
+        "tipBody": "AIによる画像分析は非常に高いコンピューティング負荷がかかるため、Webポータル画面の応答性に影響が出ないよう、画像処理ワーカーを物理的に別ホストへ展開することを推奨します。"
+      },
+      "databaseSchema": {
+        "title": "データベーススキーマ",
+        "p1": "データベース管理には PostgreSQL を使用し、Prisma ORM を通じて接続しています。以下は主要なスキーマモデル定義です：",
+        "prismaTitle": "Camera カメラモデル構成定義",
+        "entitiesTitle": "コアテーブル構成説明",
+        "entityCamera": "Camera: カメラ詳細、IPアドレス、SMBパス、動作ステータスを管理します。",
+        "entityImage": "ImageFile: 画像履歴、ファイルサイズ、保管場所へのパス、ロット情報とのリレーションを管理します。",
+        "entityPolicy": "RetentionPolicy: 画像の保管期限、自動圧縮、クリーンアップルールを設定します。",
+        "entityAudit": "AuditLog: システムセキュリティ追跡のためのユーザー操作履歴および接続元IPを記録します。"
+      },
+      "storageProviders": {
+        "title": "ストレージプロバイダー",
+        "p1": "複数のストレージバックエンドに対応しています。管理画面のUIから動的にストレージを変更可能です：",
+        "localTitle": "ローカルディスク (Local Disk)",
+        "localBody": "サーバーマシンのフォルダに直接保管します。シングルホストでの稼働やテスト評価段階に適しています。",
+        "minioTitle": "MinIO (S3互換)",
+        "minioBody": "クラウド運用と高可用クラスタ運用に対応した、実績あるオブジェクトストレージです。",
+        "seaweedTitle": "SeaweedFS",
+        "seaweedBody": "数十億単位の大量の画像・小ファイルを高速かつ省容量で処理するために設計された分散ファイルシステムです。"
+      },
+      "troubleshooting": {
+        "title": "トラブルシューティング",
+        "p1": "稼働トラブル発生時の自己診断および初期対応ガイド。",
+        "cameraTitle": "カメラステータスが Offline または Error になる",
+        "cameraSteps": "1. カメラの物理IPがサーバーから Ping 疎通可能か確認します。\n2. カメラ編集画面から「接続テスト」を実行し、SMB認証情報の有効性を確認します。\n3. 対象カメラの共有フォルダに指定ユーザーのアクセス権が付与されているか確認します。",
+        "queueTitle": "Redis BullMQ ジョブキューのジョブ滞留",
+        "queueBody": "ジョブ待ちが溜まる場合、ワーカーの処理能力を超えている可能性があります。コンテナのログを確認するか、ワーカーコンテナの起動数をスケールアップしてください。"
+      },
+      "bestPractices": {
+        "title": "ベストプラクティス",
+        "p1": "本番環境での安全で堅牢な稼働を保証するための運用推奨事項。",
+        "securityTitle": "セキュリティおよび認証キーの管理",
+        "securityItem1": "本番運用の開始前に、必ず標準キー (JWT_SECRET, ENCRYPTION_KEY) を独自のものに変更してください。",
+        "securityItem2": "ファイアウォールを使用して内部ネットワークからのみアクセスを許可し、metricsポートはPrometheusにのみ制限します。",
+        "securityItem3": "外部連携システムには個別の API Key を割り当て、管理者JWTトークンを直接提供しないでください。"
+      },
+      "releaseNotes": {
+        "title": "リリースノート",
+        "p1": "システムのリリース情報および各機能のバージョン変更ログ。",
+        "v110Title": "v1.1.0 (最新バージョン)",
+        "v110Body": "- 5ヶ国語の多言語切り替えサポートを追加。\n- エンドツーエンドAPI診断チェックツールの統合。\n- カメラ削除時のパスワード再確認ログ機能とゴミ箱機構の実装。",
+        "v100Title": "v1.0.0",
+        "v100Body": "- カメラSMBポーリング機能、非同期Redisジョブ分散、およびSeaweedFS/MinIOオブジェクトストレージ連携の初回リリース。"
+      },
+      "roadmap": {
+        "title": "ロードマップ",
+        "p1": "システム要件に沿った今後のロードマップ目標：",
+        "phase1Title": "フェーズ 1: AIを活用した高度画像欠陥検出 (Q3 2026)",
+        "phase1Body": "ワーカーで画像処理・保存するタイミングで、リアルタイムの形状・汚れ検出や一部文字読み取りAIを組み込みます。",
+        "phase2Title": "フェーズ 2: 予防保全カメラ自己診断 (Q4 2026)",
+        "phase2Body": "稼働推移からレンズ劣化、ピントずれ、および通信劣化を検知し、故障前にアラートを通知します。",
+        "phase3Title": "フェーズ 3: 外部ERP/MESとの自動連携 (Q1 2027)",
+        "phase3Body": "SAP/Oracle MESの作業ロットロット履歴と紐づけるためのメタデータ同期機能を拡充します。"
+      }
     }
   },
   "common": {

@@ -1568,6 +1568,139 @@
       "updated": "模板已更新",
       "deleted": "模板已删除",
       "deleteConfirm": "您确定要删除此模板吗？"
+    },
+    "docs": {
+      "title": "产品文档",
+      "subtitle": "企业级开发者门户，深入分析架构、部署指南以及API规范。",
+      "menu": {
+        "gettingStarted": "开始使用",
+        "architecture": "系统架构",
+        "deployment": "部署指南",
+        "apiReference": "API 参考",
+        "eventCatalog": "事件目录",
+        "pluginSdk": "插件 / Worker SDK",
+        "databaseSchema": "数据库模式",
+        "storageProviders": "存储提供商",
+        "troubleshooting": "问题排查",
+        "bestPractices": "最佳实践",
+        "releaseNotes": "版本记录",
+        "roadmap": "产品路线图"
+      },
+      "gettingStarted": {
+        "title": "开始使用",
+        "p1": "欢迎来到图像服务（Image Service）产品文档中心。图像服务是一个企业级平台，专为工业MES和ERP系统中的高分辨率摄像头源自动抓取、处理、归档和监控而设计。",
+        "noteTitle": "架构速览",
+        "noteBody": "系统采用解耦架构，通过 Redis BullMQ 队列进行通信。相机将图像上传到网络 SMB 共享文件夹，由同步工人下载、处理并上传到 S3 对象存储。",
+        "preTitle": "系统前置要求",
+        "preItem1": "Docker Engine v20.10+ 和 Docker Compose v2.0+",
+        "preItem2": "PostgreSQL v15+ (主数据库存储)",
+        "preItem3": "Redis v7.0+ (任务队列控制)",
+        "preItem4": "可通过 SMB/CIFS 协议访问相机的共享文件夹",
+        "dockerTitle": "通过 Docker 快速部署",
+        "dockerBody": "运行以下 Docker 命令以获取代码并启动系统：",
+        "dockerWarning": "默认管理员账户为 admin 密码为 admin123，部署后请立即修改此默认凭据。"
+      },
+      "architecture": {
+        "title": "系统架构",
+        "p1": "图像服务采用微服务架构设计，能支持每小时处理数千张高分辨率工业图像而不会出现延迟或瓶颈。",
+        "flowTitle": "数据处理流管道",
+        "flow1Title": "1. 扫描与同步阶段 (Sync Worker)",
+        "flow1Body": "Sync Worker 通过 SMB 协议定期轮询相机共享目录。扫描自上次检查点以来的新 TIFF/RAW 文件，下载到本地临时目录，并将任务元数据推入 Redis 队列。",
+        "flow2Title": "2. 图像处理阶段 (Processing Worker)",
+        "flow2Body": "图像处理节点异步从 Redis 队列中获取任务。计算 SHA-256 校验和以防重复处理，提取图像元数据，将RAW格式转换为标准PNG，并生成压缩的缩略图。",
+        "flow3Title": "3. 存储与数据库索引阶段",
+        "flow3Body": "处理后的图片和缩略图将上传到配置的存储提供商（SeaweedFS, MinIO, 或本地磁盘）。同时将元数据写入 PostgreSQL 数据库，并分发 Webhook/WebSocket 消息。",
+        "warnTitle": "弹性水平扩展",
+        "warnBody": "在重度负载下，可通过扩展 image-processing-worker 的容器副本数量实现并行处理以分担负载。"
+      },
+      "deployment": {
+        "title": "部署指南",
+        "p1": "适用于虚拟机和生产环境服务器的推荐部署步骤。",
+        "composeTitle": "Docker Compose 配置示例",
+        "composeSub": "将以下内容保存为 docker-compose.yml 并配置对应环境变量：",
+        "sslTitle": "SSL/HTTPS 生产环境安全设置",
+        "sslBody": "为了在企业内部网中确保 SMB 密码和 API 密匙的安全传输，强制要求启用 HTTPS。使用以下脚本生成自签名证书："
+      },
+      "apiReference": {
+        "title": "API 参考",
+        "p1": "API 中的所有写入操作（POST/PATCH/DELETE）均需要令牌认证（Bearer Token）和相应的模块角色权限。",
+        "createTitle": "创建相机接口示例",
+        "createSub": "调用 API 接口向系统内添加新相机：",
+        "primaryTitle": "核心 API 接口列表",
+        "thMethod": "请求方式",
+        "thPath": "接口路径",
+        "thPermission": "所需模块权限"
+      },
+      "eventCatalog": {
+        "title": "事件目录",
+        "p1": "图像服务在操作完成后会将事件广播到 Webhook、WebSocket 以及 Kafka。集成开发人员可订阅这些主题以获取实时通知。",
+        "triggerTitle": "事件类型: image.processed",
+        "triggerSub": "当工作节点完成校验和计算、转换并成功上传至存储时自动触发：",
+        "signingTitle": "Webhook 安全签名",
+        "signingBody": "为了确保推送内容未被篡改，Webhook 请求头包含 X-Image-Service-Signature，该签名采用共享密钥并基于 HMAC-SHA256 算法生成。"
+      },
+      "pluginSdk": {
+        "title": "Worker 与 插件 SDK",
+        "p1": "可以通过自定义 Processing Worker 脚本，在图片存档前运行实时 AI 缺陷检测、目标识别或面部遮罩过滤。",
+        "hookTitle": "Python Worker Hook 示例",
+        "hookSub": "在工作节点代码库中实现以下方法以处理下载的图像：",
+        "tipTitle": "小贴士",
+        "tipBody": "由于 AI 分析图像会占用大量 CPU/GPU 资源，建议将处理 Worker 部署到独立的机器上，以避免影响主控制台的响应速度。"
+      },
+      "databaseSchema": {
+        "title": "数据库模式",
+        "p1": "主数据库采用 PostgreSQL。以下是 Prisma ORM 的模型结构定义：",
+        "prismaTitle": "Camera 相机 Prisma 模型",
+        "entitiesTitle": "核心表结构说明",
+        "entityCamera": "Camera: 存储相机详情、SMB 路径和工作状态。",
+        "entityImage": "ImageFile: 存储图片元数据、尺寸、存储路径以及与工单/批次的关联。",
+        "entityPolicy": "RetentionPolicy: 存储期限、自动清理与压缩规则。",
+        "entityAudit": "AuditLog: 记录系统操作日志、用户操作行为和 IP 以供追溯审计。"
+      },
+      "storageProviders": {
+        "title": "存储提供商",
+        "p1": "图像服务支持多种存储后端。可在系统设置页面动态切换存储提供商：",
+        "localTitle": "本地磁盘 (Local Disk)",
+        "localBody": "直接将图片存储在服务器磁盘上。适用于单机环境及初级调试阶段。",
+        "minioTitle": "MinIO (兼容 S3)",
+        "minioBody": "企业级对象存储服务，支持云端部署和高可用集群模式。",
+        "seaweedTitle": "SeaweedFS",
+        "seaweedBody": "超高速分布式文件系统，专为处理数十亿小文件/小图片设计和优化。"
+      },
+      "troubleshooting": {
+        "title": "问题排查",
+        "p1": "常见运行故障的排查步骤及自检方法。",
+        "cameraTitle": "相机状态显示 Offline 或 Error",
+        "cameraSteps": "1. 检查物理相机 IP 能否从服务器主机 Ping 通。\n2. 在相机设置页面点击测试连接以确认 SMB 密码是否过期。\n3. 确认 SMB 共享目录是否为对应账号分配了读写权限。",
+        "queueTitle": "Redis BullMQ 队列任务积压",
+        "queueBody": "若任务积压严重，表示 Worker 处理速度滞后。请检查 Worker 容器日志或增加 Worker 容器副本数。"
+      },
+      "bestPractices": {
+        "title": "最佳实践",
+        "p1": "保障生产环境长期稳定运行的安全和架构建议。",
+        "securityTitle": "安全与加密规范",
+        "securityItem1": "在进入生产环境部署前，务必修改默认密钥 (JWT_SECRET, ENCRYPTION_KEY)。",
+        "securityItem2": "使用防火墙限制后端访问； metrics 监控接口仅对 Prometheus 抓取器开放。",
+        "securityItem3": "对于第三方外部系统对接，应使用独立的 API Key；严禁直接分享管理员 JWT 权限。"
+      },
+      "releaseNotes": {
+        "title": "版本记录",
+        "p1": "系统迭代开发日志与更新历史记录。",
+        "v110Title": "v1.1.0 (当前版本)",
+        "v110Body": "- 添加了 5 语言国际化翻译支持。\n- 集成了系统自检 API 批量测试诊断工具。\n- 新增了相机软删除回收站和删除时输入密码验证功能。",
+        "v100Title": "v1.0.0",
+        "v100Body": "- 发布初始版，提供 SMB 轮询抓图、Worker 队列分发以及 SeaweedFS/MinIO 存储对接。"
+      },
+      "roadmap": {
+        "title": "产品路线图",
+        "p1": "随着业务发展，系统下一阶段的演进路线规划：",
+        "phase1Title": "第一阶段: 高级 AI 缺陷分析 (Q3 2026)",
+        "phase1Body": "在 Worker 执行流中集成异常缺陷图像匹配、关键部分 OCR 识别等 AI 算法模块。",
+        "phase2Title": "第二阶段: 相机故障预测性维护 (Q4 2026)",
+        "phase2Body": "基于时序数据分析镜头偏移、污渍、偏色或网络闪断概率以实现提前报警。",
+        "phase3Title": "第三阶段: 深度 MES/ERP 业务整合 (Q1 2027)",
+        "phase3Body": "完成图片信息同 SAP/Oracle 等 MES 批次追踪链条的自动绑定与对齐。"
+      }
     }
   },
   "common": {
