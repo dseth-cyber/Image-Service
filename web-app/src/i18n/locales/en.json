@@ -1858,7 +1858,8 @@
         "troubleshooting": "Troubleshooting",
         "bestPractices": "Best Practices",
         "releaseNotes": "Release Notes",
-        "roadmap": "Roadmap"
+        "roadmap": "Roadmap",
+        "userGuide": "User Guide & Graphs"
       },
       "gettingStarted": {
         "title": "Getting Started",
@@ -1980,6 +1981,14 @@
         "phase2Body": "Leverage AI anomaly scoring to predict camera lens degradation, focus errors, or connectivity drops.",
         "phase3Title": "Phase 3: Deep ERP Integration (Q1 2027)",
         "phase3Body": "Fully synchronize metadata indexes directly into standard SAP/Oracle MES tracking lots systems."
+      },
+      "userGuide": {
+        "title": "User & Dashboard Guide",
+        "p1": "Detailed guide to understanding metrics, system settings, and data visualizations across the dashboards.",
+        "analyticsTitle": "1. Interpreting Camera Health Metrics",
+        "analyticsBody": "Details of the metrics and analysis criteria for camera health:\n\n• Availability\n  - Definition: The ratio of active camera operational time compared to total time in the period.\n  - Recommendation: Should be greater than or equal to 99.5% (SLA Target).\n  - Indication: Values below the target suggest frequent camera dropouts.\n\n• MTBF (Mean Time Between Failures)\n  - Definition: Average operational time between connection drops or errors (in hours).\n  - Recommendation: The higher the better (ideally greater than 168 hours or 7 days).\n  - Indication: Represents hardware and networking connection stability.\n\n• MTTR (Mean Time To Repair)\n  - Definition: Average repair or reconnect time since camera goes offline (in minutes).\n  - Recommendation: The lower the better (ideally less than 15 minutes).\n  - Indication: Represents the responsiveness of technician repairs or auto-reconnect loops.\n\n• Health Score\n  - Definition: A weighted index out of 100 calculated from Availability, MTBF, MTTR, and failure counts.\n  - Recommendation:\n    - 80 - 100: Excellent/Good (Green)\n    - 50 - 79: Warning (Yellow)\n    - Below 50: Critical (Red)\n\n• Estimated Missed Images\n  - Definition: The estimated count of image files lost during camera downtime.\n  - Formula: Average images taken per hour when active * Total hours offline.\n  - Indication: Helps Quality Assurance (QA) assess the scale of manufacturing data gaps.",
+        "monitorTitle": "2. Job Status & Type Chart Modes",
+        "monitorBody": "In the Processing Monitor page, you can toggle between two modes in the top-right corner of the Job Status card:\n\n• Real-time Mode (Last 20)\n  - Purpose: Acts as a live heart rate monitor showing status metrics for only the last 20 jobs.\n  - Indication: Best used to verify current throughput and immediately identify active ingestion errors.\n\n• Cumulative Mode\n  - Purpose: Shows total aggregate counts of all processing jobs recorded in the database.\n  - Indication: Best used for historical reporting and long-term system load diagnostics."
       }
     }
   },

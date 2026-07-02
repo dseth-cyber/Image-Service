@@ -130,6 +130,7 @@ export default function ImageServiceProcessingMonitor() {
   const [vizStyle, setVizStyle] = useState(() => localStorage.getItem('processing_viz_style') ?? 'ring');
   const [recovering, setRecovering] = useState(false);
   const [realtimeQueueTotal, setRealtimeQueueTotal] = useState<number | null>(null);
+  const [cumulativeMode, setCumulativeMode] = useState(false);
 
   const { data: initialData } = useQuery({
     queryKey: ['processing-stats-initial'],
@@ -273,7 +274,9 @@ export default function ImageServiceProcessingMonitor() {
 
   const statusCounts = ['completed', 'running', 'queued', 'failed', 'dead_letter'].map((s) => ({
     name: t(STATUS_LABEL_KEY[s] ?? s),
-    value: logs.filter((l) => l.status === s).length,
+    value: cumulativeMode
+      ? (initialData?.byStatus?.[s] ?? 0)
+      : logs.filter((l) => l.status === s).length,
   }));
 
   const jobsByType = logs.reduce((acc: Record<string, number>, l: any) => {
@@ -281,7 +284,15 @@ export default function ImageServiceProcessingMonitor() {
     return acc;
   }, {});
 
-  const jobTypeData = Object.entries(jobsByType).map(([k, v]) => ({ name: t(TYPE_LABEL_KEY[k] ?? k), value: v }));
+  const jobTypeData = cumulativeMode
+    ? (initialData?.byType || []).map((tItem: any) => ({
+        name: t(TYPE_LABEL_KEY[tItem.jobType] ?? tItem.jobType),
+        value: tItem.count,
+      }))
+    : Object.entries(jobsByType).map(([k, v]) => ({
+        name: t(TYPE_LABEL_KEY[k] ?? k),
+        value: v,
+      }));
 
   const tickFill = themeConfig.name === 'light' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)';
   const gridStroke = themeConfig.name === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.05)';
@@ -420,7 +431,15 @@ export default function ImageServiceProcessingMonitor() {
 
         <div key="jobStatus" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
           <DragHandle show={isEditing} />
-          <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>{t('imageService.processing.jobStatus')}</h3>
+          <div className="flex items-center justify-between mb-3 flex-shrink-0">
+            <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.processing.jobStatus')}</h3>
+            <button
+              onClick={() => setCumulativeMode(!cumulativeMode)}
+              className="text-[10px] px-2 py-0.5 rounded border border-cyan-500/20 bg-cyan-500/5 hover:bg-cyan-500/15 transition-all text-cyan-400 font-medium"
+            >
+              {cumulativeMode ? t('imageService.processing.modeCumulative', 'Cumulative') : t('imageService.processing.modeRealtime', 'Real-time (20)')}
+            </button>
+          </div>
           <div className="relative flex-1 min-h-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -435,7 +454,7 @@ export default function ImageServiceProcessingMonitor() {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className={`text-2xl font-bold ${themeConfig.text.primary}`}>{logs.length}</span>
+              <span className={`text-2xl font-bold ${themeConfig.text.primary}`}>{cumulativeMode ? totalJobs : logs.length}</span>
               <span className={`text-xs ${themeConfig.text.secondary}`}>{t('imageService.processing.totalJobs').toLowerCase()}</span>
             </div>
           </div>

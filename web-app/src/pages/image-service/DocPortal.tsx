@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '@/contexts/ThemeContext'
 import {
-  BookOpen, Terminal, Cpu, Database, Network, HardDrive, FileCode, Check, Copy, AlertTriangle, Lightbulb, Info, ArrowRight, ShieldCheck, Zap
+  BookOpen, Terminal, Cpu, Database, Network, HardDrive, FileCode, Check, Copy, AlertTriangle, Lightbulb, Info, ArrowRight, ShieldCheck, Zap, Kanban
 } from 'lucide-react'
 
 // Copy button component for code snippets
@@ -49,6 +49,7 @@ export default function DocPortal() {
     { id: 'storage-providers', label: t('imageService.docs.menu.storageProviders', 'Storage Providers'), icon: HardDrive },
     { id: 'troubleshooting', label: t('imageService.docs.menu.troubleshooting', 'Troubleshooting'), icon: AlertTriangle },
     { id: 'best-practices', label: t('imageService.docs.menu.bestPractices', 'Best Practices'), icon: ShieldCheck },
+    { id: 'user-guide', label: t('imageService.docs.menu.userGuide', 'User Guide & Graphs'), icon: Kanban },
     { id: 'release-notes', label: t('imageService.docs.menu.releaseNotes', 'Release Notes'), icon: Info },
     { id: 'roadmap', label: t('imageService.docs.menu.roadmap', 'Roadmap'), icon: ArrowRight },
   ]
@@ -574,6 +575,32 @@ def custom_image_processor(file_path: str, metadata: dict):
                 <li>{t('imageService.docs.bestPractices.securityItem2')}</li>
                 <li>{t('imageService.docs.bestPractices.securityItem3')}</li>
               </ul>
+            </div>
+          )}
+
+          {/* User Guide & Graphs */}
+          {activeTab === 'user-guide' && (
+            <div>
+              <h2 className="text-xl font-bold mb-4 border-b border-white/10 pb-2 text-cyan-400">
+                📊 {t('imageService.docs.userGuide.title', 'User Guide & Dashboard Interpretations')}
+              </h2>
+              <p className="mb-4">
+                {t('imageService.docs.userGuide.p1')}
+              </p>
+
+              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+                {t('imageService.docs.userGuide.analyticsTitle', '1. Interpreting Camera Health Analytics')}
+              </h3>
+              <p className="text-xs text-gray-300 mb-4 leading-relaxed whitespace-pre-line">
+                {t('imageService.docs.userGuide.analyticsBody')}
+              </p>
+
+              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+                {t('imageService.docs.userGuide.monitorTitle', '2. Processing Monitor Graphs & Toggles')}
+              </h3>
+              <p className="text-xs text-gray-300 mb-4 leading-relaxed whitespace-pre-line">
+                {t('imageService.docs.userGuide.monitorBody')}
+              </p>
             </div>
           )}
 

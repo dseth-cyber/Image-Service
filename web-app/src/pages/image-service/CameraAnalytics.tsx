@@ -465,6 +465,9 @@ export default function CameraAnalytics() {
                   ({t('imageService.analytics.slaTarget')}: {analytics.slaTarget}%)
                 </span>
               </div>
+              <p className="text-[10px] text-gray-400 mt-1.5 italic">
+                {t('imageService.analytics.availabilityTip', 'ยิ่งสูงยิ่งดี (ค่าแนะนำ >= 99.5%)')}
+              </p>
             </div>
 
             {/* MTBF */}
@@ -484,6 +487,9 @@ export default function CameraAnalytics() {
               <p className={`text-xs mt-2 ${themeConfig.text.secondary}`}>
                 {analytics.mtbf !== null ? t('imageService.analytics.mtbfDesc') : t('imageService.analytics.noFailures')}
               </p>
+              <p className="text-[10px] text-gray-400 mt-1.5 italic">
+                {t('imageService.analytics.mtbfTip', 'ระยะเวลาทำงานเฉลี่ยก่อนเสีย (ยิ่งสูงยิ่งดี)')}
+              </p>
             </div>
 
             {/* MTTR */}
@@ -502,6 +508,9 @@ export default function CameraAnalytics() {
               </div>
               <p className={`text-xs mt-2 ${themeConfig.text.secondary}`}>
                 {analytics.mttr !== null ? t('imageService.analytics.mttrDesc') : t('imageService.analytics.noRepairs')}
+              </p>
+              <p className="text-[10px] text-gray-400 mt-1.5 italic">
+                {t('imageService.analytics.mttrTip', 'ระยะเวลาเฉลี่ยซ่อมบำรุง/กู้คืน (ยิ่งต่ำยิ่งดี)')}
               </p>
             </div>
 
@@ -536,6 +545,9 @@ export default function CameraAnalytics() {
                 analytics.healthGrade === 'warning' ? 'text-yellow-400' : 'text-red-400'
               }`}>
                 {t(`imageService.analytics.${analytics.healthGrade}`)}
+              </p>
+              <p className="text-[10px] text-gray-400 mt-1.5 italic">
+                {t('imageService.analytics.healthTip', 'เกณฑ์คะแนน: >= 80 (ปกติ/ดี)')}
               </p>
             </div>
 
