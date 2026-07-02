@@ -28,6 +28,7 @@ const TelegramBotSettings = lazy(() => import('@/pages/image-service/TelegramBot
 const ApiKeysManagement = lazy(() => import('@/pages/image-service/ApiKeysManagement'))
 const MasterdataManagement = lazy(() => import('@/pages/image-service/MasterdataManagement'))
 const SystemConfigPage = lazy(() => import('@/pages/image-service/SystemConfigPage'))
+const RequiredFieldsSettings = lazy(() => import('@/pages/image-service/RequiredFieldsSettings'))
 const DeadLetterQueue = lazy(() => import('@/pages/image-service/DeadLetterQueue'))
 const AuditLogViewer = lazy(() => import('@/pages/image-service/AuditLogViewer'))
 const BackupDashboard = lazy(() => import('@/pages/image-service/BackupDashboard'))
@@ -96,6 +97,7 @@ const settingsSubItems = [
   { path: '/image-service/api-keys', labelKey: 'nav.apiKeys', icon: Key, permission: 'api-keys:read' },
   { path: '/image-service/telegram-bot', labelKey: 'nav.telegramBot', icon: MessageCircle, permission: 'telegram-bot:read' },
   { path: '/image-service/system-config', labelKey: 'nav.systemConfig', icon: Sliders, permission: 'system-config:read' },
+  { path: '/image-service/required-fields', labelKey: 'nav.requiredFields', icon: ClipboardList, permission: 'system-config:read' },
   { path: '/image-service/users', labelKey: 'nav.users', icon: Users, permission: 'users:read' },
   { path: '/image-service/health', labelKey: 'nav.health', icon: HeartPulse, permission: 'health:read' },
 ]
@@ -1136,8 +1138,11 @@ export default function App() {
             <Route path="/image-service/masterdata" element={
               hasPermission(user, 'masterdata:read') ? <MasterdataManagement /> : <UnauthorizedPage />
             } />
-            <Route path="/image-service/system-config" element={
+             <Route path="/image-service/system-config" element={
               hasPermission(user, 'system-config:read') ? <SystemConfigPage /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/required-fields" element={
+              hasPermission(user, 'system-config:read') ? <RequiredFieldsSettings /> : <UnauthorizedPage />
             } />
             <Route path="/image-service/settings" element={
               hasPermission(user, 'settings:read') ? <ImageServiceSettings /> : <UnauthorizedPage />

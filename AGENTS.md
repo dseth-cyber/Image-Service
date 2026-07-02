@@ -118,6 +118,10 @@ Actions ที่ต้อง log: create, update, delete, status_change, restor
 - **Security headers** ต้องมีใน nginx: HSTS, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy
 - **CORS** ตอนนี้ `origin: true` สำหรับ LAN — production ต้องจำกัด domain
 
+### Data Uniqueness Validation Rules
+- **Camera Name Uniqueness**: ทุกการสร้าง (`createCamera`) หรือการแก้ไข (`updateCamera` ที่เปลี่ยนชื่อ) **ต้องตรวจสอบ** ชื่อซ้ำก่อนบันทึกเสมอ หากพบชื่อซ้ำให้โยน `ConflictError` ป้องกันการทับซ้อนของกล้องในระบบ
+- **Masterdata Code Uniqueness**: ทุก masterdata entity ที่มีฟิลด์ `code` และ `type` **ต้องตรวจสอบ** การตั้งรหัสซ้ำภายใต้ประเภทข้อมูลเดียวกัน เสมอ หากพบรหัสซ้ำกันให้โยน `ConflictError`
+
 ### i18n Integrity
 เมื่อ agent copy `th.json` / `en.json` จาก worktree **ต้องเช็คว่า health keys ยังครบ** หลัง merge ทุกครั้ง:
 `serverResources`, `memory`, `disk`, `queueStatus`, `queueJobs`, `systemInfo`, `verification`, `runVerification`, `verificationMethod`, `verificationHint`
