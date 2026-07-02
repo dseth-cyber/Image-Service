@@ -203,15 +203,23 @@ export default function ImageServiceOverview() {
     }
   };
 
+  const hourlyThroughput = overview?.hourlyThroughput ?? [];
+  const totalProcessed24h = hourlyThroughput.reduce((sum: number, item: any) => sum + (item.value ?? 0), 0);
+  const avgProcessedPerHour = Math.round((totalProcessed24h / 24) * 10) / 10;
+
   const stats = [
     { label: t('imageService.overview.totalImages'), value: overview?.totalImages?.toLocaleString() ?? '—', icon: Image, color: '#06b6d4' },
     { label: t('imageService.overview.activeCameras'), value: `${overview?.activeCameras ?? 0} / ${(overview?.activeCameras ?? 0) + (overview?.inactiveCameras ?? 0) + (overview?.errorCameras ?? 0) + (overview?.maintenanceCameras ?? 0)}`, icon: Camera, color: '#10B880' },
     { label: t('imageService.overview.storageUsed'), value: overview?.storageUsed != null ? `${formatBytes(overview.storageUsed)} / ${formatBytes(overview.storageTotal ?? 0)}` : '—', icon: HardDrive, color: '#8b5cf6' },
-    { label: t('imageService.overview.processingRate'), value: overview?.processingRate != null ? `${overview.processingRate}${t('imageService.overview.perHour')}` : '—', icon: Activity, color: '#f59e0b' },
+    { 
+      label: t('imageService.overview.processingRate'), 
+      value: overview?.processingRate != null ? `${overview.processingRate}${t('imageService.overview.perHour')}` : '—', 
+      subValue: `เฉลี่ย: ${avgProcessedPerHour}/ชม. | ${totalProcessed24h}/วัน`,
+      icon: Activity, 
+      color: '#f59e0b' 
+    },
   ];
-
   const recentActivity = overview?.recentActivity ?? [];
-  const hourlyThroughput = overview?.hourlyThroughput ?? [];
   const storageGrowthRaw = overview?.storageGrowth ?? [];
   const storageGrowth = storageGrowthRaw.map((d: any) => ({ label: d.label, value: Math.round(d.value / (1024 * 1024 * 1024) * 100) / 100 }));
   const imagesByCamera = overview?.imagesByCamera ?? [];
@@ -347,6 +355,11 @@ export default function ImageServiceOverview() {
                   <span className={`text-xs ${themeConfig.text.secondary}`}>{s.label}</span>
                 </div>
                 <span className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</span>
+                {s.subValue && (
+                  <span className="text-[10px] text-gray-400 mt-1 font-medium select-none">
+                    {s.subValue}
+                  </span>
+                )}
               </div>
             ))}
           </div>
