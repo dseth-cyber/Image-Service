@@ -277,6 +277,34 @@ export async function getProcessingStats() {
   });
   const processingRate = hourlyJobs;
 
+  // Hourly throughput for the last 24 hours
+  const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const recentJobs = await prisma.processingJob.findMany({
+    where: {
+      status: 'completed',
+      completedAt: { gte: last24Hours },
+    },
+    select: { completedAt: true },
+  });
+
+  const hourlyMap: Record<string, number> = {};
+  for (let i = 0; i < 24; i++) {
+    const time = new Date(now.getTime() - i * 60 * 60 * 1000);
+    const hr = `${String(time.getHours()).padStart(2, '0')}:00`;
+    hourlyMap[hr] = 0;
+  }
+  for (const job of recentJobs) {
+    if (job.completedAt) {
+      const hr = `${String(job.completedAt.getHours()).padStart(2, '0')}:00`;
+      if (hourlyMap[hr] !== undefined) {
+        hourlyMap[hr]++;
+      }
+    }
+  }
+  const hourlyThroughput = Object.entries(hourlyMap)
+    .map(([label, value]) => ({ label, value }))
+    .reverse();
+
   // Recent activity (daily image counts for last 7 days)
   const dayMap: Record<string, number> = {};
   for (let i = 0; i < 7; i++) {
@@ -340,6 +368,7 @@ export async function getProcessingStats() {
     storageUsed,
     storageTotal: (Number(configs.max_storage_gb?.value ?? 1000)) * 1024 * 1024 * 1024,
     processingRate,
+    hourlyThroughput,
     recentActivity,
     storageGrowth,
     imagesByCamera,

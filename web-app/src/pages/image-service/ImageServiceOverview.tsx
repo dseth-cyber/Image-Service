@@ -25,36 +25,39 @@ const DEFAULT_LAYOUTS = {
     { i: 'stats', x: 0, y: 4.5, w: 12, h: 1.5, minW: 6, minH: 1.5 },
     { i: 'recent', x: 0, y: 6, w: 6, h: 2.5, minW: 3, minH: 2 },
     { i: 'growth', x: 6, y: 6, w: 6, h: 2.5, minW: 3, minH: 2 },
-    { i: 'cameraStatus', x: 0, y: 8.5, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'byCamera', x: 4, y: 8.5, w: 4, h: 2.5, minW: 3, minH: 2 },
-    { i: 'storageDonut', x: 8, y: 8.5, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'queueLength', x: 0, y: 11.5, w: 4, h: 2, minW: 3, minH: 1.5 },
-    { i: 'postgresStats', x: 4, y: 11.5, w: 4, h: 2, minW: 3, minH: 1.5 },
-    { i: 'providerStats', x: 8, y: 11.5, w: 4, h: 2, minW: 3, minH: 1.5 },
+    { i: 'throughputHistory', x: 0, y: 8.5, w: 12, h: 2.5, minW: 6, minH: 2 },
+    { i: 'cameraStatus', x: 0, y: 11, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 4, y: 11, w: 4, h: 2.5, minW: 3, minH: 2 },
+    { i: 'storageDonut', x: 8, y: 11, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'queueLength', x: 0, y: 14, w: 4, h: 2, minW: 3, minH: 1.5 },
+    { i: 'postgresStats', x: 4, y: 14, w: 4, h: 2, minW: 3, minH: 1.5 },
+    { i: 'providerStats', x: 8, y: 14, w: 4, h: 2, minW: 3, minH: 1.5 },
   ],
   md: [
     { i: 'trends', x: 0, y: 0, w: 10, h: 4.5, minW: 6, minH: 3.5 },
     { i: 'stats', x: 0, y: 4.5, w: 10, h: 1.5, minW: 6, minH: 1.5 },
     { i: 'recent', x: 0, y: 6, w: 5, h: 2.5, minW: 3, minH: 2 },
     { i: 'growth', x: 5, y: 6, w: 5, h: 2.5, minW: 3, minH: 2 },
-    { i: 'cameraStatus', x: 0, y: 8.5, w: 3, h: 3, minW: 3, minH: 2.5 },
-    { i: 'byCamera', x: 3, y: 8.5, w: 4, h: 2.5, minW: 3, minH: 2 },
-    { i: 'storageDonut', x: 7, y: 8.5, w: 3, h: 3, minW: 3, minH: 2.5 },
-    { i: 'queueLength', x: 0, y: 11.5, w: 3, h: 2, minW: 3, minH: 1.5 },
-    { i: 'postgresStats', x: 3, y: 11.5, w: 4, h: 2, minW: 3, minH: 1.5 },
-    { i: 'providerStats', x: 7, y: 11.5, w: 3, h: 2, minW: 3, minH: 1.5 },
+    { i: 'throughputHistory', x: 0, y: 8.5, w: 10, h: 2.5, minW: 5, minH: 2 },
+    { i: 'cameraStatus', x: 0, y: 11, w: 3, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 3, y: 11, w: 4, h: 2.5, minW: 3, minH: 2 },
+    { i: 'storageDonut', x: 7, y: 11, w: 3, h: 3, minW: 3, minH: 2.5 },
+    { i: 'queueLength', x: 0, y: 14, w: 3, h: 2, minW: 3, minH: 1.5 },
+    { i: 'postgresStats', x: 3, y: 14, w: 4, h: 2, minW: 3, minH: 1.5 },
+    { i: 'providerStats', x: 7, y: 14, w: 3, h: 2, minW: 3, minH: 1.5 },
   ],
   sm: [
     { i: 'trends', x: 0, y: 0, w: 6, h: 4.5, minW: 4, minH: 3.5 },
     { i: 'stats', x: 0, y: 4.5, w: 6, h: 1.5, minW: 4, minH: 1.5 },
     { i: 'recent', x: 0, y: 6, w: 6, h: 2.5, minW: 3, minH: 2 },
     { i: 'growth', x: 0, y: 8.5, w: 6, h: 2.5, minW: 3, minH: 2 },
-    { i: 'cameraStatus', x: 0, y: 11, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'byCamera', x: 0, y: 14, w: 6, h: 2.5, minW: 3, minH: 2 },
-    { i: 'storageDonut', x: 0, y: 16.5, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'queueLength', x: 0, y: 19.5, w: 6, h: 2, minW: 3, minH: 1.5 },
-    { i: 'postgresStats', x: 0, y: 21.5, w: 6, h: 2, minW: 3, minH: 1.5 },
-    { i: 'providerStats', x: 0, y: 23.5, w: 6, h: 2, minW: 3, minH: 1.5 },
+    { i: 'throughputHistory', x: 0, y: 11, w: 6, h: 2.5, minW: 3, minH: 2 },
+    { i: 'cameraStatus', x: 0, y: 13.5, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 0, y: 16.5, w: 6, h: 2.5, minW: 3, minH: 2 },
+    { i: 'storageDonut', x: 0, y: 19, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'queueLength', x: 0, y: 22, w: 6, h: 2, minW: 3, minH: 1.5 },
+    { i: 'postgresStats', x: 0, y: 24, w: 6, h: 2, minW: 3, minH: 1.5 },
+    { i: 'providerStats', x: 0, y: 26, w: 6, h: 2, minW: 3, minH: 1.5 },
   ],
 };
 
@@ -92,6 +95,28 @@ function formatBytes(bytes: number) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
+const mergeLayouts = (savedLayouts: any, defaultLayouts: any) => {
+  if (!savedLayouts) return defaultLayouts;
+  const merged = { ...savedLayouts };
+  for (const breakpoint of ['lg', 'md', 'sm'] as const) {
+    if (!merged[breakpoint]) {
+      merged[breakpoint] = defaultLayouts[breakpoint];
+      continue;
+    }
+    const savedKeys = new Set(merged[breakpoint].map((w: any) => w.i));
+    const missing = defaultLayouts[breakpoint].filter((w: any) => !savedKeys.has(w.i));
+    if (missing.length > 0) {
+      const maxY = Math.max(...merged[breakpoint].map((w: any) => w.y + w.h), 0);
+      const appended = missing.map((w: any, idx: number) => ({
+        ...w,
+        y: maxY + idx * 2.5
+      }));
+      merged[breakpoint] = [...merged[breakpoint], ...appended];
+    }
+  }
+  return merged;
+};
+
 const safeParseLayout = (value: any) => {
   if (!value || value === '[object Object]') return null;
   if (typeof value === 'object') return value;
@@ -114,7 +139,7 @@ export default function ImageServiceOverview() {
   const [layouts, setLayouts] = useState(() => {
     try {
       const saved = localStorage.getItem(LAYOUT_STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
+      if (saved) return mergeLayouts(JSON.parse(saved), DEFAULT_LAYOUTS);
     } catch {}
     return DEFAULT_LAYOUTS;
   });
@@ -128,10 +153,13 @@ export default function ImageServiceOverview() {
   useEffect(() => {
     if (systemConfig?.dashboard_layout_overview?.value) {
       const parsed = safeParseLayout(systemConfig.dashboard_layout_overview.value);
-      if (parsed) setDefaultLayout(parsed);
-      const saved = localStorage.getItem(LAYOUT_STORAGE_KEY);
-      if (!saved && parsed) {
-        setLayouts(parsed);
+      if (parsed) {
+        const merged = mergeLayouts(parsed, DEFAULT_LAYOUTS);
+        setDefaultLayout(merged);
+        const saved = localStorage.getItem(LAYOUT_STORAGE_KEY);
+        if (!saved) {
+          setLayouts(merged);
+        }
       }
     }
   }, [systemConfig]);
@@ -183,6 +211,7 @@ export default function ImageServiceOverview() {
   ];
 
   const recentActivity = overview?.recentActivity ?? [];
+  const hourlyThroughput = overview?.hourlyThroughput ?? [];
   const storageGrowthRaw = overview?.storageGrowth ?? [];
   const storageGrowth = storageGrowthRaw.map((d: any) => ({ label: d.label, value: Math.round(d.value / (1024 * 1024 * 1024) * 100) / 100 }));
   const imagesByCamera = overview?.imagesByCamera ?? [];
@@ -363,6 +392,28 @@ export default function ImageServiceOverview() {
                 <LabelList dataKey="value" position="top" style={{ fill: tickFill, fontSize: 10 }} />
               </Bar>
             </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div key="throughputHistory" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
+          <DragHandle show={isEditing} />
+          <h3 className={`text-sm font-semibold mb-3 flex-shrink-0 ${themeConfig.text.primary}`}>
+            {t('imageService.overview.throughputHistory', 'ประวัติอัตราการประมวลผล (24 ชั่วโมง)')}
+          </h3>
+          <ResponsiveContainer width="100%" height="100%" className="flex-1 min-h-0">
+            <AreaChart data={hourlyThroughput} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="throughputGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+              <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
+              <Tooltip content={<CustomTooltip />} />
+              <Area type="monotone" dataKey="value" stroke="#f59e0b" strokeWidth={2} fill="url(#throughputGrad)" dot={false} name={t('imageService.overview.jobsCompleted', 'งานที่เสร็จสิ้น')} />
+            </AreaChart>
           </ResponsiveContainer>
         </div>
 
