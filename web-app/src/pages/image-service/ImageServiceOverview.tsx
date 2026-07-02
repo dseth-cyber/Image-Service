@@ -26,9 +26,10 @@ const DEFAULT_LAYOUTS = {
     { i: 'recent', x: 0, y: 6, w: 6, h: 2.5, minW: 3, minH: 2 },
     { i: 'growth', x: 6, y: 6, w: 6, h: 2.5, minW: 3, minH: 2 },
     { i: 'throughputHistory', x: 0, y: 8.5, w: 12, h: 2.5, minW: 6, minH: 2 },
-    { i: 'cameraStatus', x: 0, y: 11, w: 4, h: 3, minW: 3, minH: 2.5 },
-    { i: 'byCamera', x: 4, y: 11, w: 4, h: 2.5, minW: 3, minH: 2 },
-    { i: 'storageDonut', x: 8, y: 11, w: 4, h: 3, minW: 3, minH: 2.5 },
+    { i: 'averageThroughput', x: 0, y: 11, w: 3, h: 3, minW: 3, minH: 2.5 },
+    { i: 'cameraStatus', x: 3, y: 11, w: 3, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 6, y: 11, w: 3, h: 3, minW: 3, minH: 2.5 },
+    { i: 'storageDonut', x: 9, y: 11, w: 3, h: 3, minW: 3, minH: 2.5 },
     { i: 'queueLength', x: 0, y: 14, w: 4, h: 2, minW: 3, minH: 1.5 },
     { i: 'postgresStats', x: 4, y: 14, w: 4, h: 2, minW: 3, minH: 1.5 },
     { i: 'providerStats', x: 8, y: 14, w: 4, h: 2, minW: 3, minH: 1.5 },
@@ -39,12 +40,13 @@ const DEFAULT_LAYOUTS = {
     { i: 'recent', x: 0, y: 6, w: 5, h: 2.5, minW: 3, minH: 2 },
     { i: 'growth', x: 5, y: 6, w: 5, h: 2.5, minW: 3, minH: 2 },
     { i: 'throughputHistory', x: 0, y: 8.5, w: 10, h: 2.5, minW: 5, minH: 2 },
-    { i: 'cameraStatus', x: 0, y: 11, w: 3, h: 3, minW: 3, minH: 2.5 },
-    { i: 'byCamera', x: 3, y: 11, w: 4, h: 2.5, minW: 3, minH: 2 },
-    { i: 'storageDonut', x: 7, y: 11, w: 3, h: 3, minW: 3, minH: 2.5 },
-    { i: 'queueLength', x: 0, y: 14, w: 3, h: 2, minW: 3, minH: 1.5 },
-    { i: 'postgresStats', x: 3, y: 14, w: 4, h: 2, minW: 3, minH: 1.5 },
-    { i: 'providerStats', x: 7, y: 14, w: 3, h: 2, minW: 3, minH: 1.5 },
+    { i: 'averageThroughput', x: 0, y: 11, w: 5, h: 3, minW: 3, minH: 2.5 },
+    { i: 'cameraStatus', x: 5, y: 11, w: 5, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 0, y: 14, w: 5, h: 3, minW: 3, minH: 2.5 },
+    { i: 'storageDonut', x: 5, y: 14, w: 5, h: 3, minW: 3, minH: 2.5 },
+    { i: 'queueLength', x: 0, y: 17, w: 3, h: 2, minW: 3, minH: 1.5 },
+    { i: 'postgresStats', x: 3, y: 17, w: 4, h: 2, minW: 3, minH: 1.5 },
+    { i: 'providerStats', x: 7, y: 17, w: 3, h: 2, minW: 3, minH: 1.5 },
   ],
   sm: [
     { i: 'trends', x: 0, y: 0, w: 6, h: 4.5, minW: 4, minH: 3.5 },
@@ -52,12 +54,13 @@ const DEFAULT_LAYOUTS = {
     { i: 'recent', x: 0, y: 6, w: 6, h: 2.5, minW: 3, minH: 2 },
     { i: 'growth', x: 0, y: 8.5, w: 6, h: 2.5, minW: 3, minH: 2 },
     { i: 'throughputHistory', x: 0, y: 11, w: 6, h: 2.5, minW: 3, minH: 2 },
-    { i: 'cameraStatus', x: 0, y: 13.5, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'byCamera', x: 0, y: 16.5, w: 6, h: 2.5, minW: 3, minH: 2 },
-    { i: 'storageDonut', x: 0, y: 19, w: 6, h: 3, minW: 3, minH: 2.5 },
-    { i: 'queueLength', x: 0, y: 22, w: 6, h: 2, minW: 3, minH: 1.5 },
-    { i: 'postgresStats', x: 0, y: 24, w: 6, h: 2, minW: 3, minH: 1.5 },
-    { i: 'providerStats', x: 0, y: 26, w: 6, h: 2, minW: 3, minH: 1.5 },
+    { i: 'averageThroughput', x: 0, y: 13.5, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'cameraStatus', x: 0, y: 16.5, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'byCamera', x: 0, y: 19.5, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'storageDonut', x: 0, y: 22.5, w: 6, h: 3, minW: 3, minH: 2.5 },
+    { i: 'queueLength', x: 0, y: 25.5, w: 6, h: 2, minW: 3, minH: 1.5 },
+    { i: 'postgresStats', x: 0, y: 27.5, w: 6, h: 2, minW: 3, minH: 1.5 },
+    { i: 'providerStats', x: 0, y: 29.5, w: 6, h: 2, minW: 3, minH: 1.5 },
   ],
 };
 
@@ -134,6 +137,7 @@ export default function ImageServiceOverview() {
   const toast = useToast();
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const [isEditing, setIsEditing] = useState(false);
+  const [throughputUnit, setThroughputUnit] = useState<'minute' | 'hour' | 'day'>('hour');
   const [defaultLayout, setDefaultLayout] = useState<any>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [layouts, setLayouts] = useState(() => {
@@ -211,13 +215,7 @@ export default function ImageServiceOverview() {
     { label: t('imageService.overview.totalImages'), value: overview?.totalImages?.toLocaleString() ?? '—', icon: Image, color: '#06b6d4' },
     { label: t('imageService.overview.activeCameras'), value: `${overview?.activeCameras ?? 0} / ${(overview?.activeCameras ?? 0) + (overview?.inactiveCameras ?? 0) + (overview?.errorCameras ?? 0) + (overview?.maintenanceCameras ?? 0)}`, icon: Camera, color: '#10B880' },
     { label: t('imageService.overview.storageUsed'), value: overview?.storageUsed != null ? `${formatBytes(overview.storageUsed)} / ${formatBytes(overview.storageTotal ?? 0)}` : '—', icon: HardDrive, color: '#8b5cf6' },
-    { 
-      label: t('imageService.overview.processingRate'), 
-      value: overview?.processingRate != null ? `${overview.processingRate}${t('imageService.overview.perHour')}` : '—', 
-      subValue: `เฉลี่ย: ${avgProcessedPerHour}/ชม. | ${totalProcessed24h}/วัน`,
-      icon: Activity, 
-      color: '#f59e0b' 
-    },
+    { label: t('imageService.overview.processingRate'), value: overview?.processingRate != null ? `${overview.processingRate}${t('imageService.overview.perHour')}` : '—', icon: Activity, color: '#f59e0b' },
   ];
   const recentActivity = overview?.recentActivity ?? [];
   const storageGrowthRaw = overview?.storageGrowth ?? [];
@@ -355,11 +353,6 @@ export default function ImageServiceOverview() {
                   <span className={`text-xs ${themeConfig.text.secondary}`}>{s.label}</span>
                 </div>
                 <span className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</span>
-                {s.subValue && (
-                  <span className="text-[10px] text-gray-400 mt-1 font-medium select-none">
-                    {s.subValue}
-                  </span>
-                )}
               </div>
             ))}
           </div>
@@ -428,6 +421,50 @@ export default function ImageServiceOverview() {
               <Area type="monotone" dataKey="value" stroke="#f59e0b" strokeWidth={2} fill="url(#throughputGrad)" dot={false} name={t('imageService.overview.jobsCompleted', 'งานที่เสร็จสิ้น')} />
             </AreaChart>
           </ResponsiveContainer>
+        </div>
+
+        <div key="averageThroughput" className={`${themeConfig.card} rounded-lg overflow-hidden relative p-5 flex flex-col h-full`}>
+          <DragHandle show={isEditing} />
+          <div className="flex items-center justify-between mb-4 flex-shrink-0">
+            <h3 className={`text-sm font-semibold ${themeConfig.text.primary}`}>
+              {t('imageService.overview.averageThroughput', 'อัตราการประมวลผลเฉลี่ย')}
+            </h3>
+            <div className="flex gap-1 bg-white/5 p-0.5 rounded border border-white/10 select-none">
+              {(['minute', 'hour', 'day'] as const).map((unit) => (
+                <button
+                  key={unit}
+                  onClick={() => setThroughputUnit(unit)}
+                  className={`px-1.5 py-0.5 text-[9px] rounded transition-all font-medium ${
+                    throughputUnit === unit
+                      ? 'bg-amber-500 text-slate-950 font-semibold shadow-sm'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {unit === 'minute' ? t('imageService.overview.unitMinute', 'นาที') :
+                   unit === 'hour' ? t('imageService.overview.unitHour', 'ชั่วโมง') :
+                   t('imageService.overview.unitDay', 'วัน')}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex-1 flex flex-col justify-center items-center relative min-h-0">
+            <div className="p-4 rounded-full bg-amber-500/10 mb-3 animate-pulse">
+              <Activity size={32} className="text-amber-400" />
+            </div>
+            <span className={`text-3xl font-extrabold tracking-tight ${themeConfig.text.primary}`}>
+              {throughputUnit === 'minute' ? (totalProcessed24h / (24 * 60)).toFixed(2) :
+               throughputUnit === 'hour' ? (totalProcessed24h / 24).toFixed(1) :
+               totalProcessed24h.toLocaleString()}
+            </span>
+            <span className={`text-xs mt-1.5 font-medium ${themeConfig.text.secondary}`}>
+              {throughputUnit === 'minute' ? t('imageService.overview.perMinuteLabel', 'ภาพ / นาที') :
+               throughputUnit === 'hour' ? t('imageService.overview.perHourLabel', 'ภาพ / ชั่วโมง') :
+               t('imageService.overview.perDayLabel', 'ภาพ / วัน')}
+            </span>
+            <p className="text-[10px] text-gray-500 mt-4 text-center italic select-none">
+              {t('imageService.overview.averagePeriodDesc', 'คำนวณจากยอดประมวลผลสะสมในรอบ 24 ชั่วโมงที่ผ่านมา')}
+            </p>
+          </div>
         </div>
 
         <div key="cameraStatus" className={`${themeConfig.card} rounded-lg relative p-5 flex flex-col h-full`}>

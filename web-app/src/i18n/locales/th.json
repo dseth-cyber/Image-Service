@@ -32,7 +32,15 @@
       "postgresDeadlocks": "Deadlocks",
       "providerTitle": "Storage Providers",
       "default": "เริ่มต้น",
-      "noProviders": "ไม่มี Provider ที่กำหนดค่า"
+      "noProviders": "ไม่มี Provider ที่กำหนดค่า",
+      "averageThroughput": "อัตราการประมวลผลเฉลี่ย",
+      "unitMinute": "นาที",
+      "unitHour": "ชั่วโมง",
+      "unitDay": "วัน",
+      "perMinuteLabel": "ภาพ / นาที",
+      "perHourLabel": "ภาพ / ชั่วโมง",
+      "perDayLabel": "ภาพ / วัน",
+      "averagePeriodDesc": "คำนวณจากยอดประมวลผลสะสมในรอบ 24 ชั่วโมงที่ผ่านมา"
     },
     "trends": {
       "title": "สถิติผู้บริหาร",

@@ -32,7 +32,15 @@
       "postgresDeadlocks": "死锁",
       "providerTitle": "存储提供商",
       "default": "默认",
-      "noProviders": "未配置任何提供商"
+      "noProviders": "未配置任何提供商",
+      "averageThroughput": "平均处理速率",
+      "unitMinute": "分钟",
+      "unitHour": "小时",
+      "unitDay": "天",
+      "perMinuteLabel": "张 / 分钟",
+      "perHourLabel": "张 / 小时",
+      "perDayLabel": "张 / 天",
+      "averagePeriodDesc": "基于过去 24 小时内的累计处理量计算"
     },
     "trends": {
       "title": "高管趋势",

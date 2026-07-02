@@ -32,7 +32,15 @@
       "postgresDeadlocks": "သေသော့ခတ်မှုများ",
       "providerTitle": "သိုလှောင်မှုပံ့ပိုးသူများ",
       "default": "မူလ",
-      "noProviders": "ပံ့ပိုးသူ မသတ်မှတ်ရသေးပါ"
+      "noProviders": "ပံ့ပိုးသူ မသတ်မှတ်ရသေးပါ",
+      "averageThroughput": "ပျမ်းမျှလုပ်ဆောင်မှုနှုန်း",
+      "unitMinute": "မိနစ်",
+      "unitHour": "နာရီ",
+      "unitDay": "ရက်",
+      "perMinuteLabel": "ပုံ / မိနစ်",
+      "perHourLabel": "ပုံ / နာရီ",
+      "perDayLabel": "ပုံ / ရက်",
+      "averagePeriodDesc": "လွန်ခဲ့သော ၂၄ နာရီအတွင်း စုစုပေါင်းလုပ်ဆောင်မှုအပေါ် အခြေခံတွက်ချက်သည်"
     },
     "trends": {
       "title": "အမှုဆောင်လမ်းကြောင်း",

@@ -32,7 +32,15 @@
       "postgresDeadlocks": "デッドロック",
       "providerTitle": "ストレージプロバイダー",
       "default": "デフォルト",
-      "noProviders": "プロバイダーが設定されていません"
+      "noProviders": "プロバイダーが設定されていません",
+      "averageThroughput": "平均処理レート",
+      "unitMinute": "分",
+      "unitHour": "時間",
+      "unitDay": "日",
+      "perMinuteLabel": "画像 / 分",
+      "perHourLabel": "画像 / 時間",
+      "perDayLabel": "画像 / 日",
+      "averagePeriodDesc": "過去24時間の累積処理数から算出"
     },
     "trends": {
       "title": "経営トレンド",

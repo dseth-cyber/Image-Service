@@ -32,7 +32,15 @@
       "postgresDeadlocks": "Deadlocks",
       "providerTitle": "Storage Providers",
       "default": "Default",
-      "noProviders": "No providers configured"
+      "noProviders": "No providers configured",
+      "averageThroughput": "Average Throughput",
+      "unitMinute": "Min",
+      "unitHour": "Hour",
+      "unitDay": "Day",
+      "perMinuteLabel": "img / minute",
+      "perHourLabel": "img / hour",
+      "perDayLabel": "img / day",
+      "averagePeriodDesc": "Calculated from aggregate throughput over the past 24 hours"
     },
     "trends": {
       "title": "Executive Trends",
