@@ -7,6 +7,7 @@ import {
   Microscope, Camera, Database, Server, Activity, CheckCircle2, Clock, Kanban,
   ArrowRight, HardDrive, Shield, Wifi, Bug, Lock, FileText, Cpu, Palette, Layout,
   BookText, MessageCircle, Settings, GitBranch, Layers, ChevronDown, ChevronRight, Wrench,
+  Globe, Smartphone, Video, ShoppingBag, MessageSquare, Box
 } from 'lucide-react'
 
 const PHASE_STATUS_STYLES: Record<string, string> = {
@@ -62,6 +63,17 @@ const PHASE_ICONS: Record<string, any> = {
   phase43: GitBranch,
   phase44: Database,
   phase45: Layers,
+  phase46: Cpu,
+  phase47: Video,
+  phase48: Server,
+  phase49: Globe,
+  phase50: Shield,
+  phase51: GitBranch,
+  phase52: Smartphone,
+  phase53: Box,
+  phase54: ShoppingBag,
+  phase55: MessageSquare,
+  phase56: Layout,
 }
 
 const PHASES = [
@@ -111,6 +123,17 @@ const PHASES = [
   { key: 'phase43', status: 'Planned', priority: 'P34' },
   { key: 'phase31', status: 'Planned', priority: 'P35' },
   { key: 'phase32', status: 'Planned', priority: 'P36' },
+  { key: 'phase46', status: 'Planned', priority: 'P37' },
+  { key: 'phase47', status: 'Planned', priority: 'P38' },
+  { key: 'phase48', status: 'Planned', priority: 'P39' },
+  { key: 'phase49', status: 'Planned', priority: 'P40' },
+  { key: 'phase50', status: 'Planned', priority: 'P41' },
+  { key: 'phase51', status: 'Planned', priority: 'P42' },
+  { key: 'phase52', status: 'Planned', priority: 'P43' },
+  { key: 'phase53', status: 'Planned', priority: 'P44' },
+  { key: 'phase54', status: 'Planned', priority: 'P45' },
+  { key: 'phase55', status: 'Planned', priority: 'P46' },
+  { key: 'phase56', status: 'Planned', priority: 'P47' },
 ]
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -160,6 +183,17 @@ const PRIORITY_COLORS: Record<string, string> = {
   P34: 'bg-sky-500/20 text-sky-400',
   P35: 'bg-pink-500/20 text-pink-400',
   P36: 'bg-emerald-500/20 text-emerald-400',
+  P37: 'bg-blue-500/20 text-blue-400',
+  P38: 'bg-purple-500/20 text-purple-400',
+  P39: 'bg-cyan-500/20 text-cyan-400',
+  P40: 'bg-emerald-500/20 text-emerald-400',
+  P41: 'bg-rose-500/20 text-rose-400',
+  P42: 'bg-sky-500/20 text-sky-400',
+  P43: 'bg-pink-500/20 text-pink-400',
+  P44: 'bg-amber-500/20 text-amber-400',
+  P45: 'bg-violet-500/20 text-violet-400',
+  P46: 'bg-teal-500/20 text-teal-400',
+  P47: 'bg-indigo-500/20 text-indigo-400',
 }
 
 const STATUS_WEIGHTS: Record<string, number> = {

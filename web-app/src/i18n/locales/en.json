@@ -1595,6 +1595,95 @@
         "Integrate and categorize storage tiers (Hot, Cold, Archive)",
         "Configure auto-migration policies to transfer files before deletion",
         "Implement data rehydration when files are requested for viewing"
+      ],
+      "phase46": "P37 — Vision AI Platform Integration (Vision AI Integration)",
+      "phase46Desc": "Convert processing workers into an AI Platform supporting Defect Detection, OCR, Object Detection, and Segmentation.",
+      "phase46Status": "Planned",
+      "phase46Tasks": [
+        "Model routing based on camera type and production part",
+        "Real-time defect classification using Deep Learning models",
+        "Optical Character Recognition (OCR) to read barcode/serial texts",
+        "Direct signaling to PLC arms for automatic defect sorting"
+      ],
+      "phase47": "P38 — Video Formats & Live Streaming Support (Video Support)",
+      "phase47Desc": "Extend ingestion pipeline to support video files (MP4) and live video feeds (RTSP, HLS) directly.",
+      "phase47Status": "Planned",
+      "phase47Tasks": [
+        "Segment and archive continuous video recording feeds",
+        "Low-latency live streaming video player in user interface",
+        "Automatic keyframe extraction for pipeline AI analysis"
+      ],
+      "phase48": "P39 — Edge Agent for Unstable Networks (Edge Agent)",
+      "phase48Desc": "Local-first Edge Agent software to compress, encrypt, and buffer image files when plant network is unstable.",
+      "phase48Status": "Planned",
+      "phase48Tasks": [
+        "Compress and encrypt image files at the edge before transmission",
+        "Local queue buffering on edge machines when backend is offline",
+        "Auto-resynchronization when network connectivity is restored"
+      ],
+      "phase49": "P40 — Multi-Site Federation & HQ Dashboard (Multi-Site Federation)",
+      "phase49Desc": "Federate separate site deployments into a centralized HQ Dashboard for executives and cluster administrators.",
+      "phase49Status": "Planned",
+      "phase49Tasks": [
+        "Global dashboard comparing operational metrics across all sites",
+        "Share storage profiles and AI inference models across plants",
+        "Real-time health monitoring of all system servers nationwide"
+      ],
+      "phase50": "P41 — Compliance Reporting Tools (Compliance)",
+      "phase50Desc": "Generate ready-to-print audit reports compliant with strict manufacturing standards (ISO9001, FDA, GMP).",
+      "phase50Status": "Planned",
+      "phase50Tasks": [
+        "Printable audit trails and historical camera maintenance records",
+        "Historical data logs for pharmaceutical/food compliance rules",
+        "Proactive quality deviation alerts according to standards"
+      ],
+      "phase51": "P42 — Multi-Language SDKs & Public API (SDK & Public API)",
+      "phase51Desc": "Enable external developers to integrate with the platform using official SDKs (Java, .NET, Python, Go, Node).",
+      "phase51Status": "Planned",
+      "phase51Tasks": [
+        "Build official SDK client libraries for popular languages",
+        "Interactive API documentation using Swagger / OpenAPI specs",
+        "Enhance Webhooks infrastructure for high-throughput events"
+      ],
+      "phase52": "P43 — Mobile App for Technicians (Mobile App)",
+      "phase52Desc": "Empower technicians to scan QR codes on cameras/machines to view history, report failure symptoms, and submit repair reports.",
+      "phase52Status": "Planned",
+      "phase52Tasks": [
+        "Scan QR codes to inspect cameras, view history and incidents",
+        "Capture and upload failure evidence pictures from mobile camera",
+        "Receive urgent system warning alerts via Push Notifications"
+      ],
+      "phase53": "P44 — 3D Factory Digital Twin Integration (Digital Twin)",
+      "phase53Desc": "Map camera locations onto a 3D plant layout, allowing administrators to visually navigate connected workstations.",
+      "phase53Status": "Planned",
+      "phase53Tasks": [
+        "Integrate interactive 3D plant layouts with live image assets",
+        "Click any machine element to open related camera feeds",
+        "Visualize camera field of view (FOV) projections on 3D maps"
+      ],
+      "phase54": "P45 — AI Plugins & Extension Marketplace (Marketplace)",
+      "phase54Desc": "Download and share popular processing plugins like YOLO models, OCR text readers, or OpenCV privacy filters.",
+      "phase54Status": "Planned",
+      "phase54Tasks": [
+        "App-store style graphical UI to browse and install plugins",
+        "Secure execution sandbox for running downloaded plugins",
+        "Developer Portal for publishing custom analytics extensions"
+      ],
+      "phase55": "P46 — Conversational AI Copilot (AI Copilot)",
+      "phase55Desc": "Ask questions about system metrics, failures, and statistics in plain natural language chats.",
+      "phase55Status": "Planned",
+      "phase55Tasks": [
+        "Analytical chatbot replying to diagnostics queries",
+        "Automatically generate and return charts in conversation threads",
+        "Predict and identify recurring root causes of failure trends"
+      ],
+      "phase56": "P47 — Smart Factory Command Center (Command Center)",
+      "phase56Desc": "A unified command center dashboard integrating Image analytics, Machine status, OEE, Maintenance, and Energy consumption.",
+      "phase56Status": "Planned",
+      "phase56Tasks": [
+        "Integrate Image Service APIs with external ERP/MES/SCADA",
+        "Custom dashboards designed for high-resolution control rooms",
+        "Consolidated reporting comparing product quality with energy usage"
       ]
     },
     "permissions": {
