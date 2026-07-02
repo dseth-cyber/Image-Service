@@ -348,6 +348,13 @@ export async function updateCamera(id: string, input: UpdateCameraInput) {
     throw new NotFoundError('Camera', id);
   }
 
+  if (input.name !== undefined && input.name !== existing.name) {
+    const nameConflict = await prisma.camera.findFirst({ where: { name: input.name } });
+    if (nameConflict) {
+      throw new ConflictError(`Camera with name '${input.name}' already exists`);
+    }
+  }
+
   if (input.retentionPolicyId) {
     const policy = await prisma.retentionPolicy.findUnique({ where: { id: input.retentionPolicyId } });
     if (!policy) {

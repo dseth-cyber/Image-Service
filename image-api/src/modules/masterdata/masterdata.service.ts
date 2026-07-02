@@ -1,4 +1,5 @@
 import { getPrisma } from '../../lib/prisma.js';
+import { NotFoundError, ConflictError } from '../../lib/errors.js';
 
 export const MASTERDATA_TYPES = ['camera_type', 'camera_status', 'capture_mode', 'image_category', 'defect_type', 'inspection_type', 'incident_reason', 'incident_root_cause', 'incident_resolution'] as const;
 export type MasterdataType = (typeof MASTERDATA_TYPES)[number];
@@ -48,6 +49,19 @@ export interface CreateMasterdataInput {
 
 export async function createMasterdata(input: CreateMasterdataInput) {
   const prisma = getPrisma();
+
+  const existing = await prisma.masterdata.findUnique({
+    where: {
+      type_code: {
+        type: input.type,
+        code: input.code
+      }
+    }
+  });
+  if (existing) {
+    throw new ConflictError(`Masterdata item with code '${input.code}' already exists for type '${input.type}'`);
+  }
+
   return prisma.masterdata.create({
     data: {
       type: input.type,
@@ -78,6 +92,26 @@ export interface UpdateMasterdataInput {
 
 export async function updateMasterdata(id: string, input: UpdateMasterdataInput) {
   const prisma = getPrisma();
+
+  const existing = await prisma.masterdata.findUnique({ where: { id } });
+  if (!existing) {
+    throw new NotFoundError('Masterdata', id);
+  }
+
+  if (input.code !== undefined && input.code !== existing.code) {
+    const conflict = await prisma.masterdata.findUnique({
+      where: {
+        type_code: {
+          type: existing.type,
+          code: input.code
+        }
+      }
+    });
+    if (conflict) {
+      throw new ConflictError(`Masterdata item with code '${input.code}' already exists for type '${existing.type}'`);
+    }
+  }
+
   const data: any = {};
   if (input.code !== undefined) data.code = input.code;
   if (input.nameTh !== undefined) data.nameTh = input.nameTh;
