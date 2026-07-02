@@ -329,7 +329,7 @@ export default function ImageServiceSearch() {
           <div className="w-44">
             <SearchableSelect value={cameraId} onChange={v => { setCameraId(v); setPage(1); }}
               placeholder={t('imageService.search.allCameras')}
-              options={cameras.map((c: any) => ({ value: c.id, label: c.name }))} />
+              options={[{ value: '', label: t('imageService.search.allCameras') }, ...((cameras as any).data ?? cameras).map((c: any) => ({ value: c.id, label: c.name }))]} />
           </div>
           <button onClick={() => setShowFilters(!showFilters)}
             className={`px-3 py-2 rounded-md text-xs flex items-center gap-1.5 border ${themeConfig.inputBorder} ${themeConfig.text.primary}`}>
@@ -409,8 +409,9 @@ export default function ImageServiceSearch() {
                       onChange={toggleSelectAll} className="rounded border-gray-500 cursor-pointer" />
                   </th>
                   <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>#</th>
+                  <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.cameras.cameraName')}</th>
                   <th onClick={() => handleSort('originalFilename')} className={thCls('originalFilename')}>
-                    <div className="flex items-center gap-1">{t('imageService.cameras.cameraName')}
+                    <div className="flex items-center gap-1">{t('imageService.search.filename')}
                       {sortCol === 'originalFilename' ? sortDir === 'asc' ? <ChevronUp size={11} className="text-cyan-400" /> : <ChevronDown size={11} className="text-cyan-400" /> : <ChevronsUpDown size={11} className="opacity-25" />}</div>
                   </th>
                   <th className={`px-4 py-3 text-left text-sm font-semibold ${themeConfig.text.primary}`}>{t('imageService.cameras.status')}</th>
@@ -437,6 +438,7 @@ export default function ImageServiceSearch() {
                         onChange={() => toggleSelect(item.id)} className="rounded border-gray-500 cursor-pointer" />
                     </td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>{(page - 1) * 20 + idx + 1}</td>
+                    <td className={`px-4 py-3 text-sm ${themeConfig.text.secondary}`}>{item.cameraName ?? '—'}</td>
                     <td className={`px-4 py-3 text-sm ${themeConfig.text.primary}`}>
                       {(() => { const { basename, subFolder } = parseFilePath(item.originalFilename); return (
                         <div>
@@ -496,15 +498,33 @@ export default function ImageServiceSearch() {
           )}
 
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-5">
+            <div className="flex items-center justify-center gap-1.5 mt-5 flex-wrap">
+              <button disabled={page <= 1} onClick={() => setPage(1)}
+                className={`px-2.5 py-1.5 rounded-lg text-xs border ${themeConfig.inputBorder} ${themeConfig.text.primary} disabled:opacity-30`}>
+                « {t('common.first') || 'หน้าแรก'}
+              </button>
               <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}
                 className={`px-3 py-1.5 rounded-lg text-xs border ${themeConfig.inputBorder} ${themeConfig.text.primary} disabled:opacity-30`}>
-                {t('common.prev')}
+                ‹ {t('common.prev')}
               </button>
-              <span className={`text-xs ${themeConfig.text.secondary}`}>{page} / {totalPages}</span>
+              <div className="flex items-center gap-1 text-xs">
+                <input
+                  type="number" min={1} max={totalPages}
+                  value={page}
+                  onChange={e => {
+                    const v = parseInt(e.target.value);
+                    if (v >= 1 && v <= totalPages) setPage(v);
+                  }}
+                  className={`w-14 px-2 py-1.5 rounded-lg text-center border ${themeConfig.inputBorder} ${themeConfig.inputBg} ${themeConfig.text.primary}`} />
+                <span className={themeConfig.text.secondary}>/ {totalPages}</span>
+              </div>
               <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}
                 className={`px-3 py-1.5 rounded-lg text-xs border ${themeConfig.inputBorder} ${themeConfig.text.primary} disabled:opacity-30`}>
-                {t('common.next')}
+                {t('common.next')} ›
+              </button>
+              <button disabled={page >= totalPages} onClick={() => setPage(totalPages)}
+                className={`px-2.5 py-1.5 rounded-lg text-xs border ${themeConfig.inputBorder} ${themeConfig.text.primary} disabled:opacity-30`}>
+                {t('common.last') || 'หน้าสุด'} »
               </button>
             </div>
           )}

@@ -32,7 +32,48 @@ const DEFAULT_CONFIGS: Record<string, { value: string; description: string; valu
   system_version: { value: '1.0.0', description: 'System version label', valueType: 'string', category: 'general' },
   system_developer: { value: 'Chiotron', description: 'Developer / company name', valueType: 'string', category: 'general' },
   system_copyright: { value: '© 2026 Chiotron. All rights reserved.', description: 'Copyright notice text', valueType: 'string', category: 'general' },
+
+  required_fields: { value: '{}', description: 'Required field configuration per entity (JSON)', valueType: 'json', category: 'general' },
 };
+
+const REQUIRED_FIELDS_KEY = 'required_fields';
+
+/** Read the parsed required-fields config object ({ "<entity>": ["field", ...] }). */
+export async function getRequiredFields(): Promise<Record<string, string[]>> {
+  const prisma = getPrisma();
+  const row = await prisma.systemConfig.findUnique({ where: { key: REQUIRED_FIELDS_KEY } });
+  const raw = row?.value ?? DEFAULT_CONFIGS[REQUIRED_FIELDS_KEY].value;
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+/** Persist the required-fields config object as a JSON string. */
+export async function setRequiredFields(config: Record<string, string[]>): Promise<void> {
+  const prisma = getPrisma();
+  // Normalise: keep only arrays of non-empty strings.
+  const clean: Record<string, string[]> = {};
+  for (const [entity, fields] of Object.entries(config ?? {})) {
+    if (Array.isArray(fields)) {
+      clean[entity] = fields.filter((f): f is string => typeof f === 'string' && f.length > 0);
+    }
+  }
+  const def = DEFAULT_CONFIGS[REQUIRED_FIELDS_KEY];
+  await prisma.systemConfig.upsert({
+    where: { key: REQUIRED_FIELDS_KEY },
+    update: { value: JSON.stringify(clean) },
+    create: {
+      key: REQUIRED_FIELDS_KEY,
+      value: JSON.stringify(clean),
+      description: def.description,
+      valueType: def.valueType,
+      category: def.category,
+    },
+  });
+}
 
 export async function getAllConfigs(): Promise<Record<string, any>> {
   const prisma = getPrisma();

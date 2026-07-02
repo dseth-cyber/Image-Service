@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '@/contexts/ThemeContext'
+import { EbookReader, type EbookPage } from '@/components/ui'
 import {
-  BookOpen, Terminal, Cpu, Database, Network, HardDrive, FileCode, Check, Copy, AlertTriangle, Lightbulb, Info, ArrowRight, ShieldCheck, Zap, Kanban
+  BookOpen, Terminal, Cpu, Database, Network, HardDrive, FileCode, Check, Copy, AlertTriangle, Lightbulb, Info, ArrowRight, ShieldCheck, Zap, Kanban, BarChart3, Server, Cloud, Boxes
 } from 'lucide-react'
 
 // Copy button component for code snippets
@@ -148,6 +149,57 @@ def custom_image_processor(file_path: str, metadata: dict):
             {"label": "defect_scratch", "confidence": 0.94, "box": [120, 240, 50, 100]}
         ]
     }`
+
+  const userGuidePages: EbookPage[] = [
+    {
+      id: 'overview',
+      title: t('imageService.docs.userGuide.title', 'User & Dashboard Guide'),
+      icon: BookOpen,
+      body: t('imageService.docs.userGuide.p1'),
+    },
+    {
+      id: 'camera-health',
+      title: t('imageService.docs.userGuide.analyticsTitle', '1. Interpreting Camera Health Metrics'),
+      icon: BarChart3,
+      body: t('imageService.docs.userGuide.analyticsBody'),
+    },
+    {
+      id: 'processing-monitor',
+      title: t('imageService.docs.userGuide.monitorTitle', '2. Job Status & Type Chart Modes'),
+      icon: Zap,
+      body: t('imageService.docs.userGuide.monitorBody'),
+    },
+    {
+      id: 'storage-intro',
+      title: t('imageService.docs.userGuide.storageGuide.introTitle', '3. Storage Provider Setup Guide (Overview)'),
+      icon: HardDrive,
+      body: t('imageService.docs.userGuide.storageGuide.introBody'),
+    },
+    {
+      id: 'storage-local',
+      title: t('imageService.docs.userGuide.storageGuide.localTitle', 'Case 1: Local Disk'),
+      icon: Server,
+      body: t('imageService.docs.userGuide.storageGuide.localBody'),
+    },
+    {
+      id: 'storage-minio',
+      title: t('imageService.docs.userGuide.storageGuide.minioTitle', 'Case 2: MinIO (S3 Compatible)'),
+      icon: Boxes,
+      body: t('imageService.docs.userGuide.storageGuide.minioBody'),
+    },
+    {
+      id: 'storage-seaweed',
+      title: t('imageService.docs.userGuide.storageGuide.seaweedTitle', 'Case 3: SeaweedFS'),
+      icon: Cloud,
+      body: t('imageService.docs.userGuide.storageGuide.seaweedBody'),
+    },
+    {
+      id: 'storage-caveats',
+      title: t('imageService.docs.userGuide.storageGuide.caveatsTitle', 'Important Caveats & Limitations'),
+      icon: AlertTriangle,
+      body: t('imageService.docs.userGuide.storageGuide.caveatsBody'),
+    },
+  ]
 
   const prismaSchemaCode = `model Camera {
   id                String          @id @default(uuid())
@@ -578,29 +630,13 @@ def custom_image_processor(file_path: str, metadata: dict):
             </div>
           )}
 
-          {/* User Guide & Graphs */}
+          {/* User Guide & Graphs — Ebook-style reader */}
           {activeTab === 'user-guide' && (
             <div>
               <h2 className="text-xl font-bold mb-4 border-b border-white/10 pb-2 text-cyan-400">
                 📊 {t('imageService.docs.userGuide.title', 'User Guide & Dashboard Interpretations')}
               </h2>
-              <p className="mb-4">
-                {t('imageService.docs.userGuide.p1')}
-              </p>
-
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
-                {t('imageService.docs.userGuide.analyticsTitle', '1. Interpreting Camera Health Analytics')}
-              </h3>
-              <p className="text-xs text-gray-300 mb-4 leading-relaxed whitespace-pre-line">
-                {t('imageService.docs.userGuide.analyticsBody')}
-              </p>
-
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
-                {t('imageService.docs.userGuide.monitorTitle', '2. Processing Monitor Graphs & Toggles')}
-              </h3>
-              <p className="text-xs text-gray-300 mb-4 leading-relaxed whitespace-pre-line">
-                {t('imageService.docs.userGuide.monitorBody')}
-              </p>
+              <EbookReader pages={userGuidePages} />
             </div>
           )}
 

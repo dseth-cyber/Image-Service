@@ -229,7 +229,7 @@ export default function HealthStatus() {
 }
 
 const VERIFY_ENDPOINTS = [
-  { name: 'Login', method: 'POST', path: '/auth/login', body: { username: 'admin', password: 'admin123' }, noAuth: true },
+  { name: 'Auth Session', path: '/auth/me' },
   { name: 'Overview', path: '/processing-logs/stats' },
   { name: 'Cameras', path: '/cameras' },
   { name: 'Images', path: '/images?limit=1' },

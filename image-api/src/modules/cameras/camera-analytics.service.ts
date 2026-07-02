@@ -155,7 +155,15 @@ async function getConfigValue(key: string, defaultValue: number): Promise<number
 export async function getCameraDowntimeReport(cameraId: string, period: string) {
   const prisma = getPrisma();
   const days = parseInt(period) || 7;
-  const since = new Date(Date.now() - days * 86400000);
+  const periodStart = new Date(Date.now() - days * 86400000);
+
+  // Clamp the analysis window to the camera's creation time — a camera added
+  // today must not count the days before it existed as downtime.
+  const camera = await prisma.camera.findUnique({
+    where: { id: cameraId },
+    select: { createdAt: true },
+  });
+  const since = camera && camera.createdAt > periodStart ? camera.createdAt : periodStart;
 
   // 1. Get camera events in period
   const events = await prisma.cameraEvent.findMany({

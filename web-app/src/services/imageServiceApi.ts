@@ -329,6 +329,13 @@ export function createImageServiceApi(api: any) {
     updateSystemConfigs: (data: Record<string, string>) =>
       api.post(`${BASE}/system-config/bulk-update`, data).then((r: any) => r.data),
 
+    // Required Fields configuration
+    getRequiredFields: (): Promise<Record<string, string[]>> =>
+      api.get(`${BASE}/system-config/required-fields`).then((r: any) => r.data),
+
+    updateRequiredFields: (data: Record<string, string[]>) =>
+      api.put(`${BASE}/system-config/required-fields`, data).then((r: any) => r.data),
+
     // Processing Logs Bulk Delete
     bulkDeleteLogsPreview: (days: number) =>
       api.get(`${BASE}/processing-logs/bulk-delete-preview`, { params: { days } }).then((r: any) => r.data),

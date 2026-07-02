@@ -13,6 +13,8 @@ import { Search, Plus, ChevronUp, ChevronDown, ChevronsUpDown,
   FolderOpen, RefreshCw, CheckCircle, XCircle, ExternalLink, ChevronRight, Play, Undo2 } from 'lucide-react';
 import { Modal, Button, SearchableSelect, TableSkeleton, ColumnSelector, ExportButton, DateTimePicker } from '@/components/ui';
 import { getLocalizedValue } from '@/utils/textUtils';
+import { useRequiredFields } from '@/hooks/useRequiredFields';
+import { catalogFieldsFor } from '@/config/requiredFieldsCatalog';
 
 const CAMERA_STATUS_STYLES: Record<string, { bg: string; icon: any }> = {
   active: { bg: 'bg-green-500/20 text-green-400', icon: Wifi },
@@ -55,6 +57,17 @@ export default function ImageServiceCameras() {
   const hasUsersPermission = hasPermission(user, 'users:read');
   const hasMasterdataPermission = hasPermission(user, 'masterdata:read');
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Admin-configured required fields (Required Fields Settings page).
+  // WIRED: the camera create/edit form + the incident status-change dialog below.
+  const { isRequired: isCameraFieldRequired } = useRequiredFields('camera');
+  const { isRequired: isIncidentFieldRequired } = useRequiredFields('incident');
+  // Renders a red * when the given camera field is admin-configured as required
+  // (skips fields already hard-marked in JSX to avoid a duplicate asterisk).
+  const cameraStar = (key: string) =>
+    isCameraFieldRequired(key) ? <span className="text-red-400"> *</span> : null;
+  const incidentStar = (key: string) =>
+    isIncidentFieldRequired(key) ? <span className="text-red-400"> *</span> : null;
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -158,6 +171,20 @@ export default function ImageServiceCameras() {
     e.preventDefault();
     if (!form.name || !form.ipAddress || !form.smbSharePath || !form.smbUsername || !form.retentionPolicyId) {
       toast.warning(t('common.requiredFields')); return;
+    }
+    // Enforce admin-configured required fields for the camera form (only fields
+    // that have an input in this modal; smbPassword is skipped on edit since it
+    // is intentionally left blank to keep the existing value).
+    const cameraFormKeys = ['name', 'ipAddress', 'smbSharePath', 'smbUsername',
+      'smbPasswordEncrypted', 'cameraTypeCode', 'captureMode', 'pollIntervalSeconds', 'retentionPolicyId', 'templateId'];
+    for (const fd of catalogFieldsFor('camera')) {
+      if (!cameraFormKeys.includes(fd.key) || !isCameraFieldRequired(fd.key)) continue;
+      if (modal.item && fd.key === 'smbPasswordEncrypted') continue;
+      const val = (form as any)[fd.key];
+      const empty = val === undefined || val === null
+        || (typeof val === 'string' && val.trim() === '')
+        || (Array.isArray(val) && val.length === 0);
+      if (empty) { toast.warning(t('imageService.requiredFields.missingField', { field: t(fd.labelKey) })); return; }
     }
     try {
       setSubmitting(true);
@@ -367,6 +394,33 @@ export default function ImageServiceCameras() {
     if (statusForm.status !== 'active' && !statusForm.reason) {
       toast.warning(t('imageService.incidents.reasonRequired'));
       return;
+    }
+
+    // Enforce admin-configured required incident fields (status-change dialog).
+    if (statusForm.status !== 'active') {
+      const assignee = hasUsersPermission
+        ? (statusForm.assignedToType === 'other' ? statusForm.assignedToOther : statusForm.assignedToType)
+        : statusForm.assignedTo;
+      const incidentVals: Record<string, any> = {
+        reason: statusForm.reason,
+        problemDesc: statusForm.problemDesc,
+        priority: statusForm.priority,
+        impact: statusForm.impact,
+        assignedTo: assignee,
+        attachments: attachmentFiles.length,
+      };
+      // estimatedFinish input is only shown for maintenance/inactive statuses.
+      if (statusForm.status === 'maintenance' || statusForm.status === 'inactive') {
+        incidentVals.estimatedFinish = statusForm.estimatedFinish;
+      }
+      for (const fd of catalogFieldsFor('incident')) {
+        if (!(fd.key in incidentVals) || !isIncidentFieldRequired(fd.key)) continue;
+        const val = incidentVals[fd.key];
+        const empty = val === undefined || val === null
+          || (typeof val === 'string' && val.trim() === '')
+          || (fd.key === 'attachments' && !val);
+        if (empty) { toast.warning(t('imageService.requiredFields.missingField', { field: t(fd.labelKey) })); return; }
+      }
     }
 
     setChangingStatus(prev => new Set(prev).add(camera.id));
@@ -783,7 +837,7 @@ export default function ImageServiceCameras() {
             </div>
             <div className="col-span-2">
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                {t('imageService.cameras.template')}
+                {t('imageService.cameras.template')}{cameraStar('templateId')}
               </label>
               <SearchableSelect value={form.templateId} onChange={v => setForm(p => ({ ...p, templateId: v }))}
                 placeholder={t('imageService.cameras.templateNone')}
@@ -823,7 +877,7 @@ export default function ImageServiceCameras() {
             </div>
             <div>
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                {t('imageService.cameras.cameraType')}
+                {t('imageService.cameras.cameraType')}{cameraStar('cameraTypeCode')}
               </label>
               <SearchableSelect value={form.cameraTypeCode} onChange={v => setForm(p => ({ ...p, cameraTypeCode: v }))}
                 placeholder={t('common.select')}
@@ -831,7 +885,7 @@ export default function ImageServiceCameras() {
             </div>
             <div>
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                {t('imageService.cameras.captureMode')}
+                {t('imageService.cameras.captureMode')}{cameraStar('captureMode')}
               </label>
               <SearchableSelect value={form.captureMode} onChange={v => setForm(p => ({ ...p, captureMode: v }))}
                 placeholder={t('common.select')}
@@ -842,7 +896,7 @@ export default function ImageServiceCameras() {
             </div>
             <div>
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                {t('imageService.cameras.pollInterval')}
+                {t('imageService.cameras.pollInterval')}{cameraStar('pollIntervalSeconds')}
               </label>
               <input type="number" value={form.pollIntervalSeconds}
                 onChange={e => setForm(p => ({ ...p, pollIntervalSeconds: parseInt(e.target.value) || 30 }))}
@@ -857,7 +911,7 @@ export default function ImageServiceCameras() {
             </div>
             <div className="col-span-2">
               <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                {t('imageService.cameras.smbPassword')}
+                {t('imageService.cameras.smbPassword')}{cameraStar('smbPasswordEncrypted')}
               </label>
               <input type="password" autoComplete="new-password" value={form.smbPasswordEncrypted}
                 onChange={e => setForm(p => ({ ...p, smbPasswordEncrypted: e.target.value }))}
@@ -1173,7 +1227,7 @@ export default function ImageServiceCameras() {
               {/* 3. Priority */}
               <div>
                 <label className={`block text-sm font-medium mb-2 ${themeConfig.text.primary}`}>
-                  {t('imageService.incidents.priority')}
+                  {t('imageService.incidents.priority')}{incidentStar('priority')}
                 </label>
                 <div className="grid grid-cols-4 gap-2">
                   {PRIORITY_OPTIONS.map(p => {
@@ -1209,7 +1263,7 @@ export default function ImageServiceCameras() {
                   {/* 6. Problem Description */}
                   <div>
                     <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                      {t('imageService.incidents.problemDesc')}
+                      {t('imageService.incidents.problemDesc')}{incidentStar('problemDesc')}
                     </label>
                     <textarea value={statusForm.problemDesc}
                       onChange={e => setStatusForm(p => ({ ...p, problemDesc: e.target.value }))}
@@ -1233,7 +1287,7 @@ export default function ImageServiceCameras() {
                   {/* 8. Attach Images */}
                   <div>
                     <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                      {t('imageService.incidents.attachImages')}
+                      {t('imageService.incidents.attachImages')}{incidentStar('attachments')}
                     </label>
                     <div
                       className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors cursor-pointer ${attachDragOver ? 'border-cyan-500 bg-cyan-500/10' : 'border-white/20 hover:border-white/40 hover:bg-white/5'}`}
@@ -1270,7 +1324,7 @@ export default function ImageServiceCameras() {
                   {/* 9. Assigned To */}
                   <div>
                     <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                      {t('imageService.incidents.assignedTo')}
+                      {t('imageService.incidents.assignedTo')}{incidentStar('assignedTo')}
                     </label>
                     <div className="space-y-2">
                       {hasUsersPermission ? (
@@ -1339,7 +1393,7 @@ export default function ImageServiceCameras() {
                   {(statusForm.status === 'maintenance' || statusForm.status === 'inactive') && (
                     <div>
                       <label className={`block text-sm font-medium mb-1.5 ${themeConfig.text.primary}`}>
-                        {t('imageService.incidents.estimatedFinish')}
+                        {t('imageService.incidents.estimatedFinish')}{incidentStar('estimatedFinish')}
                       </label>
                       <DateTimePicker
                         value={statusForm.estimatedFinish}
@@ -1351,7 +1405,7 @@ export default function ImageServiceCameras() {
                   {/* 11. Impact */}
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${themeConfig.text.primary}`}>
-                      {t('imageService.incidents.impact')}
+                      {t('imageService.incidents.impact')}{incidentStar('impact')}
                     </label>
                     <div className="flex gap-3">
                       {IMPACT_OPTIONS.map(opt => (
