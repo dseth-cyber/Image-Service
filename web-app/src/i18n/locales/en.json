@@ -735,7 +735,8 @@
       "reports": "Reports",
       "reorderMenu": "Reorder Menu",
       "reorderDone": "Done",
-      "resetOrder": "Reset Order"
+      "resetOrder": "Reset Order",
+      "docs": "Documentation"
     },
     "incidentCenter": {
       "title": "Incident Center",

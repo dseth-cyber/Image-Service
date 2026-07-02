@@ -735,7 +735,8 @@
       "reports": "รายงาน",
       "reorderMenu": "จัดเรียงเมนู",
       "reorderDone": "เสร็จสิ้น",
-      "resetOrder": "รีเซ็ตลำดับ"
+      "resetOrder": "รีเซ็ตลำดับ",
+      "docs": "เอกสารระบบ"
     },
     "incidentCenter": {
       "title": "ศูนย์จัดการ Incident",

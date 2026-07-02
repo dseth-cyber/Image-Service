@@ -605,7 +605,8 @@
       "reorderMenu": "重排菜单",
       "reorderDone": "完成",
       "resetOrder": "重置顺序",
-      "reports": "报表"
+      "reports": "报表",
+      "docs": "产品文档"
     },
     "masterdataManagement": {
       "title": "主数据管理",

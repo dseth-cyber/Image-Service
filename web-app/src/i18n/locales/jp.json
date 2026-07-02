@@ -605,7 +605,8 @@
       "reorderMenu": "メニュー再配置",
       "reorderDone": "完了",
       "resetOrder": "順序リセット",
-      "reports": "レポート"
+      "reports": "レポート",
+      "docs": "ドキュメント"
     },
     "masterdataManagement": {
       "title": "マスタデータ管理",

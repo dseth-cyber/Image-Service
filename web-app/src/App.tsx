@@ -37,10 +37,11 @@ const CameraAnalytics = lazy(() => import('@/pages/image-service/CameraAnalytics
 const IncidentCenter = lazy(() => import('@/pages/image-service/IncidentCenter'))
 const CameraTemplates = lazy(() => import('@/pages/image-service/CameraTemplates'))
 const ImageServiceReports = lazy(() => import('@/pages/image-service/ImageServiceReports'))
+const DocPortal = lazy(() => import('@/pages/image-service/DocPortal'))
 import { translateAlertTitle } from '@/utils/textUtils'
 import {
   Camera, LayoutDashboard, Search, Activity, HardDrive, FileText, Shield, Settings, Map,
-  Globe, Palette, User, ChevronDown, ChevronLeft, ChevronRight, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info, Server, Layers, Image, BarChart3, RefreshCw, Play, ClipboardList, LayoutTemplate,
+  Globe, Palette, User, ChevronDown, ChevronLeft, ChevronRight, LogOut, Lock, Bell, Users, HeartPulse, Key, MessageCircle, BookText, Sliders, AlertTriangle, History, Info, Server, Layers, Image, BarChart3, RefreshCw, Play, ClipboardList, LayoutTemplate, BookOpen,
   Menu, X, GripVertical, ArrowDownUp, RotateCcw, Hourglass, FileSpreadsheet,
 } from 'lucide-react'
 
@@ -86,6 +87,7 @@ const navItems = [
   { path: '/image-service/retention', labelKey: 'nav.retention', icon: Shield, permission: 'retention:read' },
   { path: '/image-service/alerts', labelKey: 'nav.alerts', icon: Bell, permission: 'alerts:read' },
   { path: '/image-service/masterdata', labelKey: 'nav.masterdata', icon: BookText, permission: 'masterdata:read' },
+  { path: '/image-service/docs', labelKey: 'nav.docs', icon: BookOpen, permission: 'overview:read' },
 ]
 
 const settingsSubItems = [
@@ -1139,6 +1141,9 @@ export default function App() {
             } />
             <Route path="/image-service/settings" element={
               hasPermission(user, 'settings:read') ? <ImageServiceSettings /> : <UnauthorizedPage />
+            } />
+            <Route path="/image-service/docs" element={
+              hasPermission(user, 'overview:read') ? <DocPortal /> : <UnauthorizedPage />
             } />
             <Route path="/" element={<Navigate to="/image-service/overview" replace />} />
             <Route path="*" element={<Navigate to="/image-service/overview" replace />} />
