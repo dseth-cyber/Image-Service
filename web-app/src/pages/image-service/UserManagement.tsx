@@ -198,6 +198,14 @@ const PERMISSION_MODULES = [
     permissions: [
       { key: 'health:read', labelTh: 'ดูสถานะเซิร์ฟเวอร์', labelEn: 'View System Health' }
     ]
+  },
+  {
+    key: 'docs',
+    labelTh: 'เอกสารระบบ',
+    labelEn: 'Documentation',
+    permissions: [
+      { key: 'docs:read', labelTh: 'ดูเอกสารระบบ', labelEn: 'View Documentation' }
+    ]
   }
 ]
 

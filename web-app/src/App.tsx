@@ -87,7 +87,7 @@ const navItems = [
   { path: '/image-service/retention', labelKey: 'nav.retention', icon: Shield, permission: 'retention:read' },
   { path: '/image-service/alerts', labelKey: 'nav.alerts', icon: Bell, permission: 'alerts:read' },
   { path: '/image-service/masterdata', labelKey: 'nav.masterdata', icon: BookText, permission: 'masterdata:read' },
-  { path: '/image-service/docs', labelKey: 'nav.docs', icon: BookOpen, permission: 'overview:read' },
+  { path: '/image-service/docs', labelKey: 'nav.docs', icon: BookOpen, permission: 'docs:read' },
 ]
 
 const settingsSubItems = [
@@ -1143,7 +1143,7 @@ export default function App() {
               hasPermission(user, 'settings:read') ? <ImageServiceSettings /> : <UnauthorizedPage />
             } />
             <Route path="/image-service/docs" element={
-              hasPermission(user, 'overview:read') ? <DocPortal /> : <UnauthorizedPage />
+              hasPermission(user, 'docs:read') ? <DocPortal /> : <UnauthorizedPage />
             } />
             <Route path="/" element={<Navigate to="/image-service/overview" replace />} />
             <Route path="*" element={<Navigate to="/image-service/overview" replace />} />
