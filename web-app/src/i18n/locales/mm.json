@@ -741,6 +741,8 @@
       "acknowledgedAt": "လက်ခံချိန်",
       "resolvedAt": "ဖြေရှင်းချိန်",
       "acknowledge": "လက်ခံ",
+      "markAllRead": "အားလုံးကို လက်ခံရန်",
+      "viewAll": "အားလုံးကြည့်ရန်",
       "resolve": "ဖြေရှင်း",
       "acknowledged": "သတိပေးချက်လက်ခံပြီး",
       "clearAll": "အားလုံးရှင်းလင်းရန်",

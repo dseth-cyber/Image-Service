@@ -456,6 +456,7 @@ export default function ImageServiceCameras() {
       }
       toast.success(t('imageService.incidents.incidentCreated'));
       queryClient.invalidateQueries({ queryKey: ['cameras-list'] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-open-incidents-count'] });
     } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
     finally {
       setChangingStatus(prev => { const next = new Set(prev); next.delete(camera.id); return next; });
@@ -479,6 +480,7 @@ export default function ImageServiceCameras() {
       });
       toast.success(t('imageService.incidents.incidentResolved'));
       queryClient.invalidateQueries({ queryKey: ['cameras-list'] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-open-incidents-count'] });
     } catch (e: any) { if (!e?._handled) toast.error(t('common.error')); }
     finally {
       setChangingStatus(prev => { const next = new Set(prev); next.delete(camera.id); return next; });

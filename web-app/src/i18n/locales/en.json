@@ -945,6 +945,8 @@
       "acknowledgedAt": "Acknowledged At",
       "resolvedAt": "Resolved At",
       "acknowledge": "Acknowledge",
+      "markAllRead": "Mark all read",
+      "viewAll": "View all",
       "resolve": "Resolve",
       "acknowledged": "Alert acknowledged",
       "clearAll": "Clear All",

@@ -79,7 +79,7 @@ export async function alertRoutes(app: FastifyInstance): Promise<void> {
   app.get('/:id', { preHandler: [app.authenticate, requirePermission('alerts:read')] }, getByIdHandler);
   app.patch('/:id/acknowledge', { preHandler: [app.authenticate, requirePermission('alerts:update')] }, acknowledgeHandler);
   app.patch('/:id/resolve', { preHandler: [app.authenticate, requirePermission('alerts:update')] }, resolveHandler);
-  app.post('/acknowledge-all', { preHandler: [app.authenticate] }, acknowledgeAllHandler);
+  app.post('/acknowledge-all', { preHandler: [app.authenticate, requirePermission('alerts:update')] }, acknowledgeAllHandler);
   app.get('/unacknowledged-count', { preHandler: [app.authenticate] }, unacknowledgedCountHandler);
   app.post('/clear-all', { preHandler: [app.authenticate, requirePermission('alerts:update')] }, clearAllHandler);
 }

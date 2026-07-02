@@ -741,6 +741,8 @@
       "acknowledgedAt": "確認日時",
       "resolvedAt": "解決日時",
       "acknowledge": "確認",
+      "markAllRead": "すべて既読にする",
+      "viewAll": "すべて表示",
       "resolve": "解決",
       "acknowledged": "アラートを確認しました",
       "clearAll": "全てクリア",

@@ -945,6 +945,8 @@
       "acknowledgedAt": "รับทราบเมื่อ",
       "resolvedAt": "แก้ไขเมื่อ",
       "acknowledge": "รับทราบ",
+      "markAllRead": "รับทราบทั้งหมด",
+      "viewAll": "ดูทั้งหมด",
       "resolve": "แก้ไข",
       "acknowledged": "รับทราบการแจ้งเตือนแล้ว",
       "clearAll": "ล้างทั้งหมด",

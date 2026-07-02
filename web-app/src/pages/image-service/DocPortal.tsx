@@ -36,7 +36,16 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
 
 export default function DocPortal() {
   const { t } = useTranslation()
-  const { themeConfig } = useTheme()
+  const { themeConfig, theme } = useTheme()
+  const isLight = theme === 'light'
+  // Doc content below hardcodes dark-theme colors (built dark-first); these tokens patch
+  // the worst-offending combos (invisible text) when the Light theme is active.
+  const docHeading = isLight ? 'text-gray-900' : 'text-white'
+  const docBody = isLight ? 'text-gray-700' : 'text-gray-300'
+  const docMuted = isLight ? 'text-gray-500' : 'text-gray-400'
+  const docDivider = isLight ? 'border-gray-200' : 'border-white/5'
+  const docDivider10 = isLight ? 'border-gray-200' : 'border-white/10'
+  const docCard = isLight ? 'bg-gray-50 border-gray-200' : 'bg-white/5 border-white/5'
   const [activeTab, setActiveTab] = useState('getting-started')
 
   const docMenu = [
@@ -237,7 +246,7 @@ def custom_image_processor(file_path: str, metadata: dict):
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar navigation topics */}
-        <div className="lg:col-span-1 space-y-1 bg-white/5 p-3 rounded-lg border border-white/5 self-start">
+        <div className={`lg:col-span-1 space-y-1 p-3 rounded-lg border self-start ${docCard}`}>
           {docMenu.map((item) => {
             const Icon = item.icon
             const active = activeTab === item.id
@@ -247,8 +256,8 @@ def custom_image_processor(file_path: str, metadata: dict):
                 onClick={() => setActiveTab(item.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all ${
                   active
-                    ? 'bg-cyan-500/20 text-cyan-400 shadow-sm ring-1 ring-cyan-500/30'
-                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                    ? (isLight ? 'bg-cyan-100 text-cyan-700 shadow-sm ring-1 ring-cyan-500/30' : 'bg-cyan-500/20 text-cyan-400 shadow-sm ring-1 ring-cyan-500/30')
+                    : (isLight ? 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' : 'text-gray-400 hover:bg-white/5 hover:text-white')
                 }`}
               >
                 <Icon size={14} />
@@ -259,12 +268,12 @@ def custom_image_processor(file_path: str, metadata: dict):
         </div>
 
         {/* Reading pane */}
-        <div className={`lg:col-span-3 rounded-lg border border-white/5 p-6 bg-slate-900/40 min-h-[500px] leading-relaxed text-sm ${themeConfig.text.primary}`}>
+        <div className={`lg:col-span-3 rounded-lg border p-6 min-h-[500px] leading-relaxed text-sm ${themeConfig.text.primary} ${isLight ? 'bg-white border-gray-200' : 'bg-slate-900/40 border-white/5'}`}>
           
           {/* Getting Started */}
           {activeTab === 'getting-started' && (
             <div>
-              <h2 className="text-xl font-bold mb-4 border-b border-white/10 pb-2 text-cyan-400">
+              <h2 className={`text-xl font-bold mb-4 border-b ${docDivider10} pb-2 text-cyan-400`}>
                 📘 {t('imageService.docs.gettingStarted.title', 'Getting Started')}
               </h2>
               <p className="mb-4">
@@ -281,32 +290,32 @@ def custom_image_processor(file_path: str, metadata: dict):
                 </div>
               </div>
 
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+              <h3 className={`text-md font-semibold mt-6 mb-2 ${docHeading}`}>
                 {t('imageService.docs.gettingStarted.preTitle', 'System Prerequisites')}
               </h3>
-              <ul className="list-disc pl-5 mb-4 space-y-1.5 text-xs text-gray-300">
+              <ul className={`list-disc pl-5 mb-4 space-y-1.5 text-xs ${docBody}`}>
                 <li>{t('imageService.docs.gettingStarted.preItem1')}</li>
                 <li>{t('imageService.docs.gettingStarted.preItem2')}</li>
                 <li>{t('imageService.docs.gettingStarted.preItem3')}</li>
                 <li>{t('imageService.docs.gettingStarted.preItem4')}</li>
               </ul>
 
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+              <h3 className={`text-md font-semibold mt-6 mb-2 ${docHeading}`}>
                 {t('imageService.docs.gettingStarted.dockerTitle', 'Quick Start via Docker')}
               </h3>
-              <p className="mb-2 text-xs text-gray-300">
+              <p className={`mb-2 text-xs ${docBody}`}>
                 {t('imageService.docs.gettingStarted.dockerBody')}
               </p>
               <CodeBlock code="docker compose up -d" lang="bash" />
-              <p className="text-xs text-gray-400">
+              <p className={`text-xs ${docMuted}`}>
                 {t('imageService.docs.gettingStarted.dockerWarning')}
               </p>
 
               {/* Scaling section */}
-              <h3 className="text-md font-semibold mt-8 mb-2 text-white border-t border-white/5 pt-6">
+              <h3 className={`text-md font-semibold mt-8 mb-2 border-t ${docDivider} pt-6 ${docHeading}`}>
                 🚀 {t('imageService.docs.gettingStarted.scaleTitle', 'Scaling & Performance Optimization')}
               </h3>
-              <p className="mb-4 text-xs text-gray-300">
+              <p className={`mb-4 text-xs ${docBody}`}>
                 {t('imageService.docs.gettingStarted.scaleBody')}
               </p>
               <div className="space-y-4 text-xs">
@@ -315,13 +324,13 @@ def custom_image_processor(file_path: str, metadata: dict):
                     {t('imageService.docs.gettingStarted.scaleStep1')}
                   </strong>
                   <CodeBlock code="docker compose up -d --scale image-processing-worker=3 --no-recreate" lang="bash" />
-                  <p className="text-gray-400 italic" dangerouslySetInnerHTML={{ __html: t('imageService.docs.gettingStarted.scaleStep1Desc') }} />
+                  <p className={`${docMuted} italic`} dangerouslySetInnerHTML={{ __html: t('imageService.docs.gettingStarted.scaleStep1Desc') }} />
                 </div>
-                <div className="border-t border-white/5 pt-3">
+                <div className={`border-t ${docDivider} pt-3`}>
                   <strong className="text-cyan-400 block mb-1">
                     {t('imageService.docs.gettingStarted.scaleStep2')}
                   </strong>
-                  <p className="text-gray-300">
+                  <p className={`${docBody}`}>
                     {t('imageService.docs.gettingStarted.scaleStep2Desc')}
                   </p>
                 </div>
@@ -332,22 +341,22 @@ def custom_image_processor(file_path: str, metadata: dict):
           {/* Architecture */}
           {activeTab === 'architecture' && (
             <div>
-              <h2 className="text-xl font-bold mb-4 border-b border-white/10 pb-2 text-cyan-400">
+              <h2 className={`text-xl font-bold mb-4 border-b ${docDivider10} pb-2 text-cyan-400`}>
                 🏗️ {t('imageService.docs.architecture.title', 'System Architecture')}
               </h2>
               <p className="mb-4">
                 {t('imageService.docs.architecture.p1')}
               </p>
 
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+              <h3 className={`text-md font-semibold mt-6 mb-2 ${docHeading}`}>
                 {t('imageService.docs.architecture.flowTitle', 'Data Flow Pipeline')}
               </h3>
-              <div className="space-y-4 my-4 pl-4 border-l-2 border-white/10">
+              <div className={`space-y-4 my-4 pl-4 border-l-2 ${docDivider10}`}>
                 <div>
                   <h4 className="text-xs font-bold text-cyan-400">
                     {t('imageService.docs.architecture.flow1Title', '1. Polling Phase (Sync Worker)')}
                   </h4>
-                  <p className="text-xs text-gray-300">
+                  <p className={`text-xs ${docBody}`}>
                     {t('imageService.docs.architecture.flow1Body')}
                   </p>
                 </div>
@@ -355,7 +364,7 @@ def custom_image_processor(file_path: str, metadata: dict):
                   <h4 className="text-xs font-bold text-cyan-400">
                     {t('imageService.docs.architecture.flow2Title', '2. Processing Phase (Processing Worker)')}
                   </h4>
-                  <p className="text-xs text-gray-300">
+                  <p className={`text-xs ${docBody}`}>
                     {t('imageService.docs.architecture.flow2Body')}
                   </p>
                 </div>
@@ -363,7 +372,7 @@ def custom_image_processor(file_path: str, metadata: dict):
                   <h4 className="text-xs font-bold text-cyan-400">
                     {t('imageService.docs.architecture.flow3Title', '3. Storage & Database Indexing')}
                   </h4>
-                  <p className="text-xs text-gray-300">
+                  <p className={`text-xs ${docBody}`}>
                     {t('imageService.docs.architecture.flow3Body')}
                   </p>
                 </div>
@@ -384,25 +393,25 @@ def custom_image_processor(file_path: str, metadata: dict):
           {/* Deployment Guide */}
           {activeTab === 'deployment' && (
             <div>
-              <h2 className="text-xl font-bold mb-4 border-b border-white/10 pb-2 text-cyan-400">
+              <h2 className={`text-xl font-bold mb-4 border-b ${docDivider10} pb-2 text-cyan-400`}>
                 🚀 {t('imageService.docs.deployment.title', 'Deployment Guide')}
               </h2>
               <p className="mb-4">
                 {t('imageService.docs.deployment.p1')}
               </p>
 
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+              <h3 className={`text-md font-semibold mt-6 mb-2 ${docHeading}`}>
                 {t('imageService.docs.deployment.composeTitle', 'Docker Compose Sample Configuration')}
               </h3>
-              <p className="text-xs text-gray-400 mb-2">
+              <p className={`text-xs ${docMuted} mb-2`}>
                 {t('imageService.docs.deployment.composeSub')}
               </p>
               <CodeBlock code={dockerComposeCode} lang="yaml" />
 
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+              <h3 className={`text-md font-semibold mt-6 mb-2 ${docHeading}`}>
                 {t('imageService.docs.deployment.sslTitle', 'SSL/HTTPS Production Setup')}
               </h3>
-              <p className="text-xs text-gray-300">
+              <p className={`text-xs ${docBody}`}>
                 {t('imageService.docs.deployment.sslBody')}
               </p>
               <CodeBlock code="./ssl/generate-cert.sh <YOUR_PRODUCTION_IP_ADDRESS>" lang="bash" />
@@ -412,34 +421,34 @@ def custom_image_processor(file_path: str, metadata: dict):
           {/* API Reference */}
           {activeTab === 'api-reference' && (
             <div>
-              <h2 className="text-xl font-bold mb-4 border-b border-white/10 pb-2 text-cyan-400">
+              <h2 className={`text-xl font-bold mb-4 border-b ${docDivider10} pb-2 text-cyan-400`}>
                 🔌 {t('imageService.docs.apiReference.title', 'API Reference')}
               </h2>
               <p className="mb-4">
                 {t('imageService.docs.apiReference.p1')}
               </p>
 
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+              <h3 className={`text-md font-semibold mt-6 mb-2 ${docHeading}`}>
                 {t('imageService.docs.apiReference.createTitle', 'Create Camera Endpoint')}
               </h3>
-              <p className="text-xs text-gray-300 mb-2">
+              <p className={`text-xs ${docBody} mb-2`}>
                 {t('imageService.docs.apiReference.createSub')}
               </p>
               <CodeBlock code={apiRequestCode} lang="http" />
 
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+              <h3 className={`text-md font-semibold mt-6 mb-2 ${docHeading}`}>
                 {t('imageService.docs.apiReference.primaryTitle', 'Primary API Endpoints')}
               </h3>
               <div className="overflow-x-auto my-4 text-xs">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-white/10 text-cyan-400">
+                    <tr className={`border-b ${docDivider10} text-cyan-400`}>
                       <th className="py-2">{t('imageService.docs.apiReference.thMethod', 'Method')}</th>
                       <th className="py-2">{t('imageService.docs.apiReference.thPath', 'Path')}</th>
                       <th className="py-2">{t('imageService.docs.apiReference.thPermission', 'Required Permission')}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5 text-gray-300">
+                  <tbody className={`divide-y divide-white/5 ${docBody}`}>
                     <tr>
                       <td className="py-2 font-mono text-green-400">GET</td>
                       <td className="py-2 font-mono">/api/v1/cameras</td>
@@ -469,25 +478,25 @@ def custom_image_processor(file_path: str, metadata: dict):
           {/* Event Catalog */}
           {activeTab === 'event-catalog' && (
             <div>
-              <h2 className="text-xl font-bold mb-4 border-b border-white/10 pb-2 text-cyan-400">
+              <h2 className={`text-xl font-bold mb-4 border-b ${docDivider10} pb-2 text-cyan-400`}>
                 ⚡ {t('imageService.docs.eventCatalog.title', 'Event Catalog')}
               </h2>
               <p className="mb-4">
                 {t('imageService.docs.eventCatalog.p1')}
               </p>
 
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+              <h3 className={`text-md font-semibold mt-6 mb-2 ${docHeading}`}>
                 {t('imageService.docs.eventCatalog.triggerTitle', 'Event: image.processed')}
               </h3>
-              <p className="text-xs text-gray-300 mb-2">
+              <p className={`text-xs ${docBody} mb-2`}>
                 {t('imageService.docs.eventCatalog.triggerSub')}
               </p>
               <CodeBlock code={eventPayloadCode} lang="json" />
 
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+              <h3 className={`text-md font-semibold mt-6 mb-2 ${docHeading}`}>
                 {t('imageService.docs.eventCatalog.signingTitle', 'Webhook Signing')}
               </h3>
-              <p className="text-xs text-gray-300">
+              <p className={`text-xs ${docBody}`}>
                 {t('imageService.docs.eventCatalog.signingBody')}
               </p>
             </div>
@@ -496,17 +505,17 @@ def custom_image_processor(file_path: str, metadata: dict):
           {/* Plugin SDK */}
           {activeTab === 'plugin-sdk' && (
             <div>
-              <h2 className="text-xl font-bold mb-4 border-b border-white/10 pb-2 text-cyan-400">
+              <h2 className={`text-xl font-bold mb-4 border-b ${docDivider10} pb-2 text-cyan-400`}>
                 🔌 {t('imageService.docs.pluginSdk.title', 'Worker & Plugin SDK')}
               </h2>
               <p className="mb-4">
                 {t('imageService.docs.pluginSdk.p1')}
               </p>
 
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+              <h3 className={`text-md font-semibold mt-6 mb-2 ${docHeading}`}>
                 {t('imageService.docs.pluginSdk.hookTitle', 'Python Worker Hook Sample')}
               </h3>
-              <p className="text-xs text-gray-300 mb-2">
+              <p className={`text-xs ${docBody} mb-2`}>
                 {t('imageService.docs.pluginSdk.hookSub')}
               </p>
               <CodeBlock code={pythonWorkerCode} lang="python" />
@@ -526,22 +535,22 @@ def custom_image_processor(file_path: str, metadata: dict):
           {/* Database Schema */}
           {activeTab === 'database-schema' && (
             <div>
-              <h2 className="text-xl font-bold mb-4 border-b border-white/10 pb-2 text-cyan-400">
+              <h2 className={`text-xl font-bold mb-4 border-b ${docDivider10} pb-2 text-cyan-400`}>
                 🗄️ {t('imageService.docs.databaseSchema.title', 'Database Schema')}
               </h2>
               <p className="mb-4">
                 {t('imageService.docs.databaseSchema.p1')}
               </p>
 
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+              <h3 className={`text-md font-semibold mt-6 mb-2 ${docHeading}`}>
                 {t('imageService.docs.databaseSchema.prismaTitle', 'Camera Prisma Configuration')}
               </h3>
               <CodeBlock code={prismaSchemaCode} lang="prisma" />
 
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+              <h3 className={`text-md font-semibold mt-6 mb-2 ${docHeading}`}>
                 {t('imageService.docs.databaseSchema.entitiesTitle', 'Core Entities List')}
               </h3>
-              <ul className="list-disc pl-5 mb-4 text-xs text-gray-300 space-y-1.5">
+              <ul className={`list-disc pl-5 mb-4 text-xs ${docBody} space-y-1.5`}>
                 <li><strong>{t('imageService.docs.databaseSchema.entityCamera')}</strong></li>
                 <li><strong>{t('imageService.docs.databaseSchema.entityImage')}</strong></li>
                 <li><strong>{t('imageService.docs.databaseSchema.entityPolicy')}</strong></li>
@@ -553,7 +562,7 @@ def custom_image_processor(file_path: str, metadata: dict):
           {/* Storage Providers */}
           {activeTab === 'storage-providers' && (
             <div>
-              <h2 className="text-xl font-bold mb-4 border-b border-white/10 pb-2 text-cyan-400">
+              <h2 className={`text-xl font-bold mb-4 border-b ${docDivider10} pb-2 text-cyan-400`}>
                 💾 {t('imageService.docs.storageProviders.title', 'Storage Providers')}
               </h2>
               <p className="mb-4">
@@ -561,23 +570,23 @@ def custom_image_processor(file_path: str, metadata: dict):
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-4 text-xs">
-                <div className="p-4 rounded bg-white/5 border border-white/5">
+                <div className={`p-4 rounded border ${docCard}`}>
                   <h4 className="font-bold text-cyan-400 mb-1">
                     {t('imageService.docs.storageProviders.localTitle', 'Local Disk')}
                   </h4>
-                  <p className="text-gray-400">{t('imageService.docs.storageProviders.localBody')}</p>
+                  <p className={`${docMuted}`}>{t('imageService.docs.storageProviders.localBody')}</p>
                 </div>
-                <div className="p-4 rounded bg-white/5 border border-white/5">
+                <div className={`p-4 rounded border ${docCard}`}>
                   <h4 className="font-bold text-cyan-400 mb-1">
                     {t('imageService.docs.storageProviders.minioTitle', 'MinIO (S3 Compatible)')}
                   </h4>
-                  <p className="text-gray-400">{t('imageService.docs.storageProviders.minioBody')}</p>
+                  <p className={`${docMuted}`}>{t('imageService.docs.storageProviders.minioBody')}</p>
                 </div>
-                <div className="p-4 rounded bg-white/5 border border-white/5">
+                <div className={`p-4 rounded border ${docCard}`}>
                   <h4 className="font-bold text-cyan-400 mb-1">
                     {t('imageService.docs.storageProviders.seaweedTitle', 'SeaweedFS')}
                   </h4>
-                  <p className="text-gray-400">{t('imageService.docs.storageProviders.seaweedBody')}</p>
+                  <p className={`${docMuted}`}>{t('imageService.docs.storageProviders.seaweedBody')}</p>
                 </div>
               </div>
             </div>
@@ -586,24 +595,24 @@ def custom_image_processor(file_path: str, metadata: dict):
           {/* Troubleshooting */}
           {activeTab === 'troubleshooting' && (
             <div>
-              <h2 className="text-xl font-bold mb-4 border-b border-white/10 pb-2 text-cyan-400">
+              <h2 className={`text-xl font-bold mb-4 border-b ${docDivider10} pb-2 text-cyan-400`}>
                 ⚠️ {t('imageService.docs.troubleshooting.title', 'Troubleshooting')}
               </h2>
               <p className="mb-4">
                 {t('imageService.docs.troubleshooting.p1')}
               </p>
 
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+              <h3 className={`text-md font-semibold mt-6 mb-2 ${docHeading}`}>
                 {t('imageService.docs.troubleshooting.cameraTitle', 'Camera goes Offline/Error status')}
               </h3>
-              <p className="text-xs text-gray-300 leading-loose whitespace-pre-line">
+              <p className={`text-xs ${docBody} leading-loose whitespace-pre-line`}>
                 {t('imageService.docs.troubleshooting.cameraSteps')}
               </p>
 
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+              <h3 className={`text-md font-semibold mt-6 mb-2 ${docHeading}`}>
                 {t('imageService.docs.troubleshooting.queueTitle', 'BullMQ queue length is piling up')}
               </h3>
-              <p className="text-xs text-gray-300">
+              <p className={`text-xs ${docBody}`}>
                 {t('imageService.docs.troubleshooting.queueBody')}
               </p>
             </div>
@@ -612,17 +621,17 @@ def custom_image_processor(file_path: str, metadata: dict):
           {/* Best Practices */}
           {activeTab === 'best-practices' && (
             <div>
-              <h2 className="text-xl font-bold mb-4 border-b border-white/10 pb-2 text-cyan-400">
+              <h2 className={`text-xl font-bold mb-4 border-b ${docDivider10} pb-2 text-cyan-400`}>
                 🛡️ {t('imageService.docs.bestPractices.title', 'Best Practices')}
               </h2>
               <p className="mb-4">
                 {t('imageService.docs.bestPractices.p1')}
               </p>
 
-              <h3 className="text-md font-semibold mt-6 mb-2 text-white">
+              <h3 className={`text-md font-semibold mt-6 mb-2 ${docHeading}`}>
                 {t('imageService.docs.bestPractices.securityTitle', 'Security & Encryption')}
               </h3>
-              <ul className="list-disc pl-5 text-xs text-gray-300 space-y-1.5">
+              <ul className={`list-disc pl-5 text-xs ${docBody} space-y-1.5`}>
                 <li>{t('imageService.docs.bestPractices.securityItem1')}</li>
                 <li>{t('imageService.docs.bestPractices.securityItem2')}</li>
                 <li>{t('imageService.docs.bestPractices.securityItem3')}</li>
@@ -633,7 +642,7 @@ def custom_image_processor(file_path: str, metadata: dict):
           {/* User Guide & Graphs — Ebook-style reader */}
           {activeTab === 'user-guide' && (
             <div>
-              <h2 className="text-xl font-bold mb-4 border-b border-white/10 pb-2 text-cyan-400">
+              <h2 className={`text-xl font-bold mb-4 border-b ${docDivider10} pb-2 text-cyan-400`}>
                 📊 {t('imageService.docs.userGuide.title', 'User Guide & Dashboard Interpretations')}
               </h2>
               <EbookReader pages={userGuidePages} />
@@ -643,7 +652,7 @@ def custom_image_processor(file_path: str, metadata: dict):
           {/* Release Notes */}
           {activeTab === 'release-notes' && (
             <div>
-              <h2 className="text-xl font-bold mb-4 border-b border-white/10 pb-2 text-cyan-400">
+              <h2 className={`text-xl font-bold mb-4 border-b ${docDivider10} pb-2 text-cyan-400`}>
                 📋 {t('imageService.docs.releaseNotes.title', 'Release Notes')}
               </h2>
               <p className="mb-4">
@@ -651,19 +660,19 @@ def custom_image_processor(file_path: str, metadata: dict):
               </p>
 
               <div className="space-y-4 text-xs">
-                <div className="p-4 rounded bg-white/5 border border-white/5">
+                <div className={`p-4 rounded border ${docCard}`}>
                   <span className="bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded text-[10px] font-bold">
                     {t('imageService.docs.releaseNotes.v110Title', 'v1.1.0 (Current)')}
                   </span>
-                  <p className="mt-2 text-gray-300 whitespace-pre-line">
+                  <p className={`mt-2 ${docBody} whitespace-pre-line`}>
                     {t('imageService.docs.releaseNotes.v110Body')}
                   </p>
                 </div>
-                <div className="p-4 rounded bg-white/5 border border-white/5">
-                  <span className="bg-gray-500/20 text-gray-400 px-2 py-0.5 rounded text-[10px] font-bold">
+                <div className={`p-4 rounded border ${docCard}`}>
+                  <span className={`bg-gray-500/20 ${docMuted} px-2 py-0.5 rounded text-[10px] font-bold`}>
                     {t('imageService.docs.releaseNotes.v100Title', 'v1.0.0')}
                   </span>
-                  <p className="mt-2 text-gray-400 whitespace-pre-line">
+                  <p className={`mt-2 ${docMuted} whitespace-pre-line`}>
                     {t('imageService.docs.releaseNotes.v100Body')}
                   </p>
                 </div>
@@ -674,28 +683,28 @@ def custom_image_processor(file_path: str, metadata: dict):
           {/* Roadmap */}
           {activeTab === 'roadmap' && (
             <div>
-              <h2 className="text-xl font-bold mb-4 border-b border-white/10 pb-2 text-cyan-400">
+              <h2 className={`text-xl font-bold mb-4 border-b ${docDivider10} pb-2 text-cyan-400`}>
                 🗺️ {t('imageService.docs.roadmap.title', 'Product Roadmap')}
               </h2>
               <p className="mb-4">
                 {t('imageService.docs.roadmap.p1')}
               </p>
 
-              <div className="relative border-l-2 border-white/10 pl-6 space-y-6 text-xs text-gray-300 my-4">
+              <div className={`relative border-l-2 ${docDivider10} pl-6 space-y-6 text-xs ${docBody} my-4`}>
                 <div className="relative">
                   <span className="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-cyan-400 flex items-center justify-center text-[8px] font-bold text-black">1</span>
                   <h4 className="font-bold text-cyan-400">{t('imageService.docs.roadmap.phase1Title')}</h4>
-                  <p className="text-gray-400">{t('imageService.docs.roadmap.phase1Body')}</p>
+                  <p className={`${docMuted}`}>{t('imageService.docs.roadmap.phase1Body')}</p>
                 </div>
                 <div className="relative">
                   <span className="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-cyan-400 flex items-center justify-center text-[8px] font-bold text-black">2</span>
                   <h4 className="font-bold text-cyan-400">{t('imageService.docs.roadmap.phase2Title')}</h4>
-                  <p className="text-gray-400">{t('imageService.docs.roadmap.phase2Body')}</p>
+                  <p className={`${docMuted}`}>{t('imageService.docs.roadmap.phase2Body')}</p>
                 </div>
                 <div className="relative">
-                  <span className="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-white/10 flex items-center justify-center text-[8px] font-bold text-gray-400">3</span>
-                  <h4 className="font-bold text-gray-500">{t('imageService.docs.roadmap.phase3Title')}</h4>
-                  <p className="text-gray-400">{t('imageService.docs.roadmap.phase3Body')}</p>
+                  <span className={`absolute -left-[31px] top-0 w-4 h-4 rounded-full ${isLight ? 'bg-gray-200' : 'bg-white/10'} flex items-center justify-center text-[8px] font-bold ${docMuted}`}>3</span>
+                  <h4 className={`font-bold ${docMuted}`}>{t('imageService.docs.roadmap.phase3Title')}</h4>
+                  <p className={`${docMuted}`}>{t('imageService.docs.roadmap.phase3Body')}</p>
                 </div>
               </div>
             </div>

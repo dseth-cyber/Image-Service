@@ -185,6 +185,7 @@ export default function IncidentCenter() {
       setClearRetentionYears(0);
       queryClient.invalidateQueries({ queryKey: ['incidents-search'] });
       queryClient.invalidateQueries({ queryKey: ['incident-knowledge'] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-open-incidents-count'] });
     } catch (e: any) {
       if (!e?._handled) {
         toast.error(t('imageService.incidentCenter.clearIncidentsError', 'รหัสผ่านไม่ถูกต้อง หรือไม่สามารถดำเนินการได้'));

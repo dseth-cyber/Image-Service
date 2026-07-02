@@ -53,6 +53,17 @@ export function hasPermission(user: any, permission: string): boolean {
   return user.permissions.includes(permission) || user.permissions.includes('*')
 }
 
+// Sidebar nav item text/hover colors, aware of the light theme (whose sidebar bg is near-white —
+// the dark-theme gray-300/400 text used elsewhere is invisible against it).
+function sidebarItemClasses(theme: string, isActive: boolean, muted = false): string {
+  if (isActive) return theme === 'light' ? 'bg-cyan-100 text-cyan-700' : 'bg-cyan-500/15 text-cyan-300'
+  if (theme === 'light') return muted ? 'text-gray-500 hover:bg-gray-100 hover:text-gray-900' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+  return muted ? 'text-gray-400 hover:bg-white/5 hover:text-white' : 'text-gray-300 hover:bg-white/5 hover:text-white'
+}
+function sidebarBorderClass(theme: string): string {
+  return theme === 'light' ? 'border-gray-200' : 'border-white/10'
+}
+
 function UnauthorizedPage() {
   const { t } = useTranslation()
   const { themeConfig } = useTheme()
@@ -200,6 +211,8 @@ function NavBell() {
   const ref = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const { user } = useAuth()
+  const canAcknowledge = hasPermission(user, 'alerts:update')
 
   const { data: countData } = useQuery({
     queryKey: ['unacknowledged-count'],
@@ -234,7 +247,7 @@ function NavBell() {
 
   return (
     <div ref={ref} className="relative">
-      <button onClick={() => { setOpen(!open); if (!open && count > 0) handleAcknowledge() }}
+      <button onClick={() => setOpen(!open)}
         className="relative flex items-center px-2.5 py-1.5 rounded-md text-xs hover:bg-white/10 transition-colors">
         <Bell size={16} />
         {count > 0 && (
@@ -247,7 +260,7 @@ function NavBell() {
         <div className="absolute right-0 mt-1 w-80 rounded-md border border-white/20 bg-slate-800 shadow-xl z-50 overflow-hidden">
           <div className="px-3 py-2 border-b border-white/10 flex items-center justify-between">
             <span className="text-xs font-semibold text-white">{t('imageService.nav.alerts') || 'การแจ้งเตือน'}</span>
-            {count > 0 && (
+            {count > 0 && canAcknowledge && (
               <button onClick={handleAcknowledge} className="text-[10px] text-cyan-400 hover:text-cyan-300">
                 {t('imageService.alerts.markAllRead') || 'รับทราบทั้งหมด'}
               </button>
@@ -271,7 +284,7 @@ function NavBell() {
             <p className="px-3 py-4 text-xs text-gray-400 text-center">{t('imageService.health.healthy') || 'ไม่มีการแจ้งเตือน'}</p>
           )}
           <a href="/image-service/alerts" className="block px-3 py-2 text-center text-xs text-cyan-400 hover:bg-white/5 border-t border-white/10 transition-colors">
-            {t('imageService.nav.alerts') || 'ดูทั้งหมด'} →
+            {t('imageService.alerts.viewAll') || 'ดูทั้งหมด'} →
           </a>
         </div>
       )}
@@ -419,8 +432,9 @@ function SettingsNavGroup({ settingsSubItems, locationPath, t, collapsed }: {
   collapsed?: boolean
 }) {
   const { user } = useAuth()
+  const { theme } = useTheme()
   const [open, setOpen] = useState(true)
-  
+
   const visibleItems = settingsSubItems.filter(item => hasPermission(user, item.permission))
   if (visibleItems.length === 0) return null
 
@@ -431,9 +445,7 @@ function SettingsNavGroup({ settingsSubItems, locationPath, t, collapsed }: {
     return (
       <Link
         to={visibleItems[0].path}
-        className={`flex items-center justify-center p-2 rounded-lg text-sm font-medium transition-colors ${
-          isInSettings ? 'bg-cyan-500/15 text-cyan-300' : 'text-gray-300 hover:bg-white/5 hover:text-white'
-        }`}
+        className={`flex items-center justify-center p-2 rounded-lg text-sm font-medium transition-colors ${sidebarItemClasses(theme, isInSettings)}`}
         title={t(`imageService.${settingsSubItems[0].labelKey}`)}
       >
         <SettingsIcon size={16} className="flex-shrink-0" />
@@ -445,16 +457,14 @@ function SettingsNavGroup({ settingsSubItems, locationPath, t, collapsed }: {
     <div>
       <button
         onClick={() => setOpen(!open)}
-        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-          isInSettings ? 'bg-cyan-500/15 text-cyan-300' : 'text-gray-300 hover:bg-white/5 hover:text-white'
-        }`}
+        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${sidebarItemClasses(theme, isInSettings)}`}
       >
         <SettingsIcon size={16} />
         <span className="flex-1 text-left">{t(`imageService.${settingsSubItems[0].labelKey}`)}</span>
         <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="ml-3 mt-0.5 space-y-0.5 border-l border-white/10 pl-2">
+        <div className={`ml-3 mt-0.5 space-y-0.5 border-l ${sidebarBorderClass(theme)} pl-2`}>
           {visibleItems.map(item => {
             const Icon = item.icon
             const isActive = locationPath === item.path
@@ -462,11 +472,7 @@ function SettingsNavGroup({ settingsSubItems, locationPath, t, collapsed }: {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-cyan-500/15 text-cyan-300'
-                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                }`}
+                className={`flex items-center gap-3 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${sidebarItemClasses(theme, isActive, true)}`}
               >
                 <Icon size={14} />
                 {t(`imageService.${item.labelKey}`)}
@@ -549,6 +555,7 @@ function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavig
   collapsed?: boolean
   onToggleCollapse?: () => void
 }) {
+  const { theme } = useTheme()
   const visibleNav = useMemo(() => navItems.filter(item => hasPermission(user, item.permission)), [navItems, user])
   const { ordered, reorder, reset } = useSidebarOrder(user?.username, visibleNav)
   const [reorderMode, setReorderMode] = useState(false)
@@ -558,8 +565,8 @@ function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavig
   const { data: openIncidents } = useQuery({
     queryKey: ['sidebar-open-incidents-count'],
     queryFn: () => imageServiceApi.searchIncidents({ status: 'open', limit: 1 }),
-    refetchInterval: 1000 * 30,
-    staleTime: 1000 * 15,
+    refetchInterval: 1000 * 15,
+    staleTime: 1000 * 10,
     enabled: hasPermission(user, 'cameras:read'),
   })
   const openCount = openIncidents?.pagination?.total ?? 0
@@ -593,9 +600,7 @@ function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavig
             >
               {reorderMode ? (
                 <div
-                  className={`flex items-center ${collapsed ? 'justify-center' : 'gap-2 px-3'} py-2 rounded-lg text-sm font-medium cursor-grab active:cursor-grabbing ${
-                    isActive ? 'bg-cyan-500/15 text-cyan-300' : 'text-gray-300 hover:bg-white/5'
-                  }`}
+                  className={`flex items-center ${collapsed ? 'justify-center' : 'gap-2 px-3'} py-2 rounded-lg text-sm font-medium cursor-grab active:cursor-grabbing ${sidebarItemClasses(theme, isActive)}`}
                   title={collapsed ? t(`imageService.${item.labelKey}`) : undefined}
                 >
                   {collapsed ? (
@@ -612,9 +617,7 @@ function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavig
                 <Link
                   to={item.path}
                   onClick={onNavigate}
-                  className={`flex items-center ${collapsed ? 'justify-center px-2' : 'gap-3 px-3'} py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive ? 'bg-cyan-500/15 text-cyan-300' : 'text-gray-300 hover:bg-white/5 hover:text-white'
-                  }`}
+                  className={`flex items-center ${collapsed ? 'justify-center px-2' : 'gap-3 px-3'} py-2 rounded-lg text-sm font-medium transition-colors ${sidebarItemClasses(theme, isActive)}`}
                   title={collapsed ? t(`imageService.${item.labelKey}`) : undefined}
                 >
                   {collapsed ? (
@@ -654,14 +657,14 @@ function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavig
       </div>
 
       {/* Reorder toggle row — bottom */}
-      <div className={`flex-shrink-0 p-3 border-t border-white/10 ${collapsed ? 'bg-black/10' : ''}`}>
+      <div className={`flex-shrink-0 p-3 border-t ${sidebarBorderClass(theme)} ${collapsed ? (theme === 'light' ? 'bg-gray-50' : 'bg-black/10') : ''}`}>
         {collapsed ? (
           <div className="flex flex-col items-center gap-2">
             {/* Expand button */}
             <button
               onClick={onToggleCollapse}
               title={t('common.expandSidebar')}
-              className="flex items-center justify-center p-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+              className={`flex items-center justify-center p-2 rounded-md transition-colors ${sidebarItemClasses(theme, false, true)}`}
             >
               <ChevronRight size={14} className="flex-shrink-0" />
             </button>
@@ -669,9 +672,7 @@ function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavig
             <button
               onClick={() => setReorderMode(v => !v)}
               title={reorderMode ? t('imageService.nav.reorderDone') : t('imageService.nav.reorderMenu')}
-              className={`flex items-center justify-center p-2 rounded-md text-[11px] font-medium transition-colors ${
-                reorderMode ? 'bg-cyan-500/20 text-cyan-300' : 'text-gray-400 hover:bg-white/5 hover:text-white'
-              }`}
+              className={`flex items-center justify-center p-2 rounded-md text-[11px] font-medium transition-colors ${sidebarItemClasses(theme, reorderMode, true)}`}
             >
               <ArrowDownUp size={13} className="flex-shrink-0" />
             </button>
@@ -682,18 +683,18 @@ function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavig
             <button
               onClick={onToggleCollapse}
               title={t('common.collapseSidebar')}
-              className="flex items-center p-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+              className={`flex items-center p-2 rounded-md transition-colors ${sidebarItemClasses(theme, false, true)}`}
             >
               <ChevronLeft size={14} className="flex-shrink-0" />
             </button>
-            
+
             {/* Reorder & Reset buttons on the right */}
             <div className="flex items-center gap-1.5">
               {reorderMode && (
                 <button
                   onClick={reset}
                   title={t('imageService.nav.resetOrder')}
-                  className="flex items-center gap-1 px-1.5 py-1 rounded-md text-[11px] text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+                  className={`flex items-center gap-1 px-1.5 py-1 rounded-md text-[11px] transition-colors ${sidebarItemClasses(theme, false, true)}`}
                 >
                   <RotateCcw size={12} className="flex-shrink-0" />
                   {t('imageService.nav.resetOrder')}
@@ -702,9 +703,7 @@ function SidebarNav({ navItems, settingsSubItems, user, locationPath, t, onNavig
               <button
                 onClick={() => setReorderMode(v => !v)}
                 title={reorderMode ? t('imageService.nav.reorderDone') : t('imageService.nav.reorderMenu')}
-                className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${
-                  reorderMode ? 'bg-cyan-500/20 text-cyan-300' : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                }`}
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${sidebarItemClasses(theme, reorderMode, true)}`}
               >
                 <ArrowDownUp size={13} className="flex-shrink-0" />
                 {reorderMode ? t('imageService.nav.reorderDone') : t('imageService.nav.reorderMenu')}

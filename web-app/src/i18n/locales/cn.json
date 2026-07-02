@@ -741,6 +741,8 @@
       "acknowledgedAt": "确认时间",
       "resolvedAt": "解决时间",
       "acknowledge": "确认",
+      "markAllRead": "全部标记为已读",
+      "viewAll": "查看全部",
       "resolve": "解决",
       "acknowledged": "告警已确认",
       "clearAll": "全部清除",

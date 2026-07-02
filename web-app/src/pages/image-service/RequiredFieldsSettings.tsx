@@ -12,7 +12,7 @@ import { REQUIRED_FIELD_CATALOG, catalogFieldsFor } from '@/config/requiredField
 
 export default function RequiredFieldsSettings() {
   const { t } = useTranslation();
-  const { themeConfig } = useTheme();
+  const { themeConfig, theme } = useTheme();
   const toast = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -136,7 +136,7 @@ export default function RequiredFieldsSettings() {
 
           {/* Active tab content */}
           <div className={`${themeConfig.card} rounded-lg p-6`}>
-            <div className="flex items-center justify-between mb-5 pb-3 border-b" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+            <div className={`flex items-center justify-between mb-5 pb-3 border-b ${theme === 'light' ? 'border-gray-200' : 'border-white/[0.08]'}`}>
               <h3 className={`text-base font-semibold ${themeConfig.text.primary}`}>{t(active.labelKey)}</h3>
               <div className="flex items-center gap-3">
                 <span className={`text-xs ${themeConfig.text.secondary}`}>
@@ -178,12 +178,12 @@ export default function RequiredFieldsSettings() {
                             onClick={() => !disabled && toggleField(activeEntity, fd.key)}
                             className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-left border transition-all ${checked
                               ? 'border-cyan-500/50 bg-cyan-500/10'
-                              : 'border-white/10 hover:border-white/20 hover:bg-white/5'} ${disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
+                              : theme === 'light' ? 'border-gray-200 hover:border-gray-300 hover:bg-gray-50' : 'border-white/10 hover:border-white/20 hover:bg-white/5'} ${disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
                             title={disabled ? t('imageService.requiredFields.alwaysRequired') : ''}>
-                            <span className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border ${checked ? 'bg-cyan-500 border-cyan-500' : 'border-white/30'}`}>
+                            <span className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border ${checked ? 'bg-cyan-500 border-cyan-500' : theme === 'light' ? 'border-gray-300' : 'border-white/30'}`}>
                               {checked && <Check size={12} className="text-white" />}
                             </span>
-                            <span className={checked ? 'text-cyan-100' : themeConfig.text.primary}>
+                            <span className={checked ? (theme === 'light' ? 'text-cyan-800' : 'text-cyan-100') : themeConfig.text.primary}>
                               {t(fd.labelKey)}
                               {fd.alwaysRequired && <span className="text-red-400 ml-1">*</span>}
                             </span>
