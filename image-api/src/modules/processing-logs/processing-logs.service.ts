@@ -290,14 +290,17 @@ export async function getProcessingStats() {
   const hourlyMap: Record<string, number> = {};
   for (let i = 0; i < 24; i++) {
     const time = new Date(now.getTime() - i * 60 * 60 * 1000);
-    const hr = `${String(time.getHours()).padStart(2, '0')}:00`;
-    hourlyMap[hr] = 0;
+    time.setUTCMinutes(0, 0, 0);
+    const isoStr = time.toISOString();
+    hourlyMap[isoStr] = 0;
   }
   for (const job of recentJobs) {
     if (job.completedAt) {
-      const hr = `${String(job.completedAt.getHours()).padStart(2, '0')}:00`;
-      if (hourlyMap[hr] !== undefined) {
-        hourlyMap[hr]++;
+      const time = new Date(job.completedAt.getTime());
+      time.setUTCMinutes(0, 0, 0);
+      const isoStr = time.toISOString();
+      if (hourlyMap[isoStr] !== undefined) {
+        hourlyMap[isoStr]++;
       }
     }
   }

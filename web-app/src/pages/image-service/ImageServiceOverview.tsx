@@ -69,9 +69,17 @@ const PIE_COLORS = ['#06b6d4', '#8b5cf6', '#f59e0b', '#10B880', '#ef4444'];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
+  const formattedLabel = label && typeof label === 'string' && label.includes('T') && label.endsWith('Z') ? (() => {
+    try {
+      const date = new Date(label);
+      return `${String(date.getHours()).padStart(2, '0')}:00`;
+    } catch {
+      return label;
+    }
+  })() : label;
   return (
     <div className="px-3 py-2 rounded-lg border border-white/20 bg-slate-900/90 backdrop-blur-md text-xs shadow-xl">
-      <p className="text-gray-300 mb-1">{label}</p>
+      <p className="text-gray-300 mb-1">{formattedLabel}</p>
       {payload.map((p: any) => (
         <p key={p.dataKey} style={{ color: p.color }} className="font-semibold">
           {p.name}: {typeof p.value === 'number' ? p.value.toLocaleString() : p.value}
@@ -415,7 +423,20 @@ export default function ImageServiceOverview() {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
-              <XAxis dataKey="label" tick={{ fill: tickFill, fontSize: 10 }} axisLine={false} tickLine={false} />
+              <XAxis 
+                dataKey="label" 
+                tick={{ fill: tickFill, fontSize: 10 }} 
+                axisLine={false} 
+                tickLine={false} 
+                tickFormatter={(tick) => {
+                  try {
+                    const d = new Date(tick);
+                    return `${String(d.getHours()).padStart(2, '0')}:00`;
+                  } catch {
+                    return tick;
+                  }
+                }}
+              />
               <YAxis tick={{ fill: tickFill, fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
               <Area type="monotone" dataKey="value" stroke="#f59e0b" strokeWidth={2} fill="url(#throughputGrad)" dot={false} name={t('imageService.overview.jobsCompleted', 'งานที่เสร็จสิ้น')} />
