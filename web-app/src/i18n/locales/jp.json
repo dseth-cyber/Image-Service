@@ -1363,7 +1363,8 @@
         "telegram-bot": "Telegramボット設定",
         "system-config": "システム設定",
         "users": "ユーザーと役割の管理",
-        "health": "システムヘルス＆サービス"
+        "health": "システムヘルス＆サービス",
+        "docs": "システム文書"
       },
       "actions": {
         "overview_read": "ダッシュボードを表示",
@@ -1409,7 +1410,8 @@
         "users_create": "ユーザーと役割を作成",
         "users_update": "ユーザーと役割を更新",
         "users_delete": "ユーザーと役割を削除",
-        "health_read": "システムヘルスを表示"
+        "health_read": "システムヘルスを表示",
+        "docs_read": "システム文書の閲覧"
       }
     },
     "analytics": {
@@ -1598,7 +1600,13 @@
         "preItem4": "SMB/CIFSプロトコルによるカメラ共有フォルダへのアクセス権限",
         "dockerTitle": "Dockerによるクイックスタート",
         "dockerBody": "Dockerコマンドを実行してシステムイメージをビルドし、起動します：",
-        "dockerWarning": "初期管理者アカウントは admin、パスワードは admin123 です。デプロイ後、直ちにこれらの認証情報を変更してください。"
+        "dockerWarning": "初期管理者アカウントは admin、パスワードは admin123 です。デプロイ後、直ちにこれらの認証情報を変更してください。",
+        "scaleTitle": "スケーリングとパフォーマンス最適化のアドバイス（オプション）",
+        "scaleBody": "将来的にカメラ台数が増加し、処理時間をさらに短縮したい場合は、コードを変更することなく、Docker Composeを介して簡単にスケーリングが可能です。",
+        "scaleStep1": "1. 処理ワーカーの並列スケールアウト (Scale Workers):",
+        "scaleStep1Desc": "*これにより、空いている残り約 50% のCPUリソースが有効活用され、即座に処理速度が毎秒 3〜4 枚に向上します。*",
+        "scaleStep2": "2. 一時ストレージにSSD/NVMeドライブを使用する:",
+        "scaleStep2Desc": "システムは一時ファイルの書き込みやアップロードを頻繁に行うため、SSD上で運用することでディスクI/O遅延のボトルネックを解消できます。"
       },
       "architecture": {
         "title": "システムアーキテクチャ",

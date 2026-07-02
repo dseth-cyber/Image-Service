@@ -248,6 +248,31 @@ def custom_image_processor(file_path: str, metadata: dict):
               <p className="text-xs text-gray-400">
                 {t('imageService.docs.gettingStarted.dockerWarning')}
               </p>
+
+              {/* Scaling section */}
+              <h3 className="text-md font-semibold mt-8 mb-2 text-white border-t border-white/5 pt-6">
+                🚀 {t('imageService.docs.gettingStarted.scaleTitle', 'Scaling & Performance Optimization')}
+              </h3>
+              <p className="mb-4 text-xs text-gray-300">
+                {t('imageService.docs.gettingStarted.scaleBody')}
+              </p>
+              <div className="space-y-4 text-xs">
+                <div>
+                  <strong className="text-cyan-400 block mb-1">
+                    {t('imageService.docs.gettingStarted.scaleStep1')}
+                  </strong>
+                  <CodeBlock code="docker compose up -d --scale image-processing-worker=3 --no-recreate" lang="bash" />
+                  <p className="text-gray-400 italic" dangerouslySetInnerHTML={{ __html: t('imageService.docs.gettingStarted.scaleStep1Desc') }} />
+                </div>
+                <div className="border-t border-white/5 pt-3">
+                  <strong className="text-cyan-400 block mb-1">
+                    {t('imageService.docs.gettingStarted.scaleStep2')}
+                  </strong>
+                  <p className="text-gray-300">
+                    {t('imageService.docs.gettingStarted.scaleStep2Desc')}
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 

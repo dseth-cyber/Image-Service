@@ -1363,7 +1363,8 @@
         "telegram-bot": "Telegram 机器人设置",
         "system-config": "系统配置",
         "users": "用户与角色管理",
-        "health": "系统健康与服务"
+        "health": "系统健康与服务",
+        "docs": "产品文档"
       },
       "actions": {
         "overview_read": "查看仪表板",
@@ -1409,7 +1410,8 @@
         "users_create": "创建用户与角色",
         "users_update": "更新用户与角色",
         "users_delete": "删除用户与角色",
-        "health_read": "查看系统健康状况"
+        "health_read": "查看系统健康状况",
+        "docs_read": "查看产品文档"
       }
     },
     "analytics": {
@@ -1598,7 +1600,13 @@
         "preItem4": "可通过 SMB/CIFS 协议访问相机的共享文件夹",
         "dockerTitle": "通过 Docker 快速部署",
         "dockerBody": "运行以下 Docker 命令以获取代码并启动系统：",
-        "dockerWarning": "默认管理员账户为 admin 密码为 admin123，部署后请立即修改此默认凭据。"
+        "dockerWarning": "默认管理员账户为 admin 密码为 admin123，部署后请立即修改此默认凭据。",
+        "scaleTitle": "系统性能与扩容优化建议（可选）",
+        "scaleBody": "如果未来相机数量增加，需要提高处理速度，您可以通过 Docker Compose 轻松扩容，无需修改任何代码：",
+        "scaleStep1": "1. 扩展处理 Worker 节点 (Scale Workers):",
+        "scaleStep1Desc": "*此操作将充分利用剩余约 50% 的 CPU 空闲资源，并立即使吞吐量提高到每秒 3 - 4 张图片。*",
+        "scaleStep2": "2. 使用 SSD/NVMe 固态硬盘作为临时存储:",
+        "scaleStep2Desc": "由于管道频繁进行本地文件读写与上传，将系统部署在 SSD 上能最有效地解决磁盘 I/O 延迟瓶颈。"
       },
       "architecture": {
         "title": "系统架构",

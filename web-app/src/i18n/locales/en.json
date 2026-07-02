@@ -1600,7 +1600,8 @@
         "users": "User & Role Management",
         "health": "System Health & Services",
         "settings": "General Settings",
-        "roadmap": "Development Roadmap"
+        "roadmap": "Development Roadmap",
+        "docs": "Documentation"
       },
       "actions": {
         "overview_read": "View Dashboard",
@@ -1649,7 +1650,8 @@
         "health_read": "View System Health",
         "settings_read": "View Settings Page",
         "settings_update": "Update Settings",
-        "roadmap_read": "View Roadmap"
+        "roadmap_read": "View Roadmap",
+        "docs_read": "View Documentation"
       }
     },
     "analytics": {
@@ -1764,7 +1766,13 @@
         "preItem4": "Network access to target camera shares (SMB/CIFS protocol)",
         "dockerTitle": "Quick Start via Docker",
         "dockerBody": "Run the docker container commands to fetch the workspace codebase and spin up:",
-        "dockerWarning": "Default superuser account is admin with password admin123. Change these credentials immediately upon deployment."
+        "dockerWarning": "Default superuser account is admin with password admin123. Change these credentials immediately upon deployment.",
+        "scaleTitle": "Scaling & Performance Optimization Tips (Optional)",
+        "scaleBody": "If the number of cameras increases in the future and you need to process images faster, you can scale easily via Docker Compose without modifying any code:",
+        "scaleStep1": "1. Scale Image Processing Workers (Scale Workers):",
+        "scaleStep1Desc": "*This utilizes the remaining CPU headroom (~50%) and increases throughput to 3 - 4 images per second immediately.*",
+        "scaleStep2": "2. Use Solid State Drives (SSD/NVMe) for Temporary Storage:",
+        "scaleStep2Desc": "Since the pipeline performs active file writes and uploads, deploying the app on SSD eliminates disk I/O latency bottlenecks."
       },
       "architecture": {
         "title": "System Architecture",
