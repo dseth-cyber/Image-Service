@@ -135,6 +135,45 @@ export function createImageServiceApi(api: any) {
     getIncidentAttachmentBlob: (filename: string) =>
       api.get(`${BASE}/cameras/incidents/attachments/${filename}`, { responseType: 'blob' }).then((r: any) => r.data),
 
+    getKnowledgeArticles: (params?: any) =>
+      api.get(`${BASE}/knowledge-articles`, { params }).then((r: any) => r.data),
+
+    getKnowledgeArticle: (id: string) =>
+      api.get(`${BASE}/knowledge-articles/${id}`).then((r: any) => r.data),
+
+    getRelatedArticles: (params?: any) =>
+      api.get(`${BASE}/knowledge-articles/related`, { params }).then((r: any) => r.data),
+
+    createKnowledgeArticle: (data: Record<string, unknown>) =>
+      api.post(`${BASE}/knowledge-articles`, data).then((r: any) => r.data),
+
+    updateKnowledgeArticle: (id: string, data: Record<string, unknown>) =>
+      api.patch(`${BASE}/knowledge-articles/${id}`, data).then((r: any) => r.data),
+
+    deleteKnowledgeArticle: (id: string) =>
+      api.delete(`${BASE}/knowledge-articles/${id}`).then((r: any) => r.data),
+
+    getSopChecklists: () =>
+      api.get(`${BASE}/sop-checklists`).then((r: any) => r.data),
+
+    getSopChecklistByReason: (reasonCode: string) =>
+      api.get(`${BASE}/sop-checklists/by-reason/${reasonCode}`).then((r: any) => r.data),
+
+    createSopChecklist: (data: Record<string, unknown>) =>
+      api.post(`${BASE}/sop-checklists`, data).then((r: any) => r.data),
+
+    updateSopChecklist: (id: string, data: Record<string, unknown>) =>
+      api.patch(`${BASE}/sop-checklists/${id}`, data).then((r: any) => r.data),
+
+    deleteSopChecklist: (id: string) =>
+      api.delete(`${BASE}/sop-checklists/${id}`).then((r: any) => r.data),
+
+    getSopIncidentState: (incidentId: string) =>
+      api.get(`${BASE}/sop-checklists/incidents/${incidentId}`).then((r: any) => r.data),
+
+    toggleSopStep: (incidentId: string, data: { stepId: string; stepText: string; checked: boolean }) =>
+      api.patch(`${BASE}/sop-checklists/incidents/${incidentId}/steps`, data).then((r: any) => r.data),
+
     clearAllIncidents: (password: string, retentionYears?: number) =>
       api.post(`${BASE}/cameras/incidents/clear-all`, { password, retentionYears }).then((r: any) => r.data),
 

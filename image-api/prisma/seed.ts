@@ -38,6 +38,8 @@ async function main() {
         'dead-letter:read', 'dead-letter:create',
         'retention:read', 'retention:create', 'retention:update',
         'alerts:read', 'alerts:update',
+        'knowledge:read', 'knowledge:create', 'knowledge:update',
+        'sop:read', 'sop:create', 'sop:update',
         'docs:read'
       ],
       sortOrder: 2,
@@ -58,6 +60,8 @@ async function main() {
         'storage:read',
         'logs:read',
         'alerts:read',
+        'knowledge:read',
+        'sop:read',
         'docs:read'
       ],
       sortOrder: 3,

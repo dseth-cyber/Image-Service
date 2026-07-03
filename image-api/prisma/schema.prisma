@@ -674,11 +674,65 @@ model CameraIncident {
   closedBy         String?   @map("closed_by") @db.VarChar(128)
   openedAt         DateTime  @default(now()) @map("opened_at")
   closedAt         DateTime? @map("closed_at")
+  sopProgress      Json      @default("{}") @map("sop_progress")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
 
-  camera Camera       @relation(fields: [cameraId], references: [id])
-  event  CameraEvent? @relation(fields: [eventId], references: [id])
+  camera  Camera           @relation(fields: [cameraId], references: [id])
+  event   CameraEvent?     @relation(fields: [eventId], references: [id])
+  sopLogs IncidentSopLog[]
 
   @@map("camera_incidents")
+}
+
+model SopChecklist {
+  id         String    @id @default(uuid()) @db.Uuid
+  reasonCode String    @unique @map("reason_code") @db.VarChar(64)
+  title      String    @db.VarChar(256)
+  steps      Json      @default("[]")
+  isActive   Boolean   @default(true) @map("is_active")
+  createdBy  String?   @map("created_by") @db.VarChar(128)
+  updatedBy  String?   @map("updated_by") @db.VarChar(128)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  @@map("sop_checklists")
+}
+
+model IncidentSopLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  incidentId String   @map("incident_id") @db.Uuid
+  stepId     String   @map("step_id") @db.VarChar(64)
+  stepText   String   @map("step_text") @db.Text
+  checked    Boolean
+  actedBy    String?  @map("acted_by") @db.VarChar(128)
+  actedAt    DateTime @default(now()) @map("acted_at")
+
+  incident CameraIncident @relation(fields: [incidentId], references: [id])
+
+  @@index([incidentId])
+  @@map("incident_sop_logs")
+}
+
+model KnowledgeArticle {
+  id            String    @id @default(uuid()) @db.Uuid
+  title         String    @db.VarChar(256)
+  symptoms      String    @db.Text
+  cause         String?   @db.Text
+  resolution    String    @db.Text
+  verification  String?   @db.Text
+  tags          Json      @default("[]")
+  reasonCode    String?   @map("reason_code") @db.VarChar(64)
+  rootCauseCode String?   @map("root_cause_code") @db.VarChar(64)
+  isActive      Boolean   @default(true) @map("is_active")
+  createdBy     String?   @map("created_by") @db.VarChar(128)
+  updatedBy     String?   @map("updated_by") @db.VarChar(128)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  @@index([reasonCode])
+  @@index([rootCauseCode])
+  @@map("knowledge_articles")
 }

@@ -124,6 +124,28 @@ const PERMISSION_MODULES = [
     ]
   },
   {
+    key: 'knowledge',
+    labelTh: 'คลังบทความวิธีแก้ปัญหา',
+    labelEn: 'Knowledge Articles',
+    permissions: [
+      { key: 'knowledge:read', labelTh: 'ดูบทความ', labelEn: 'View Articles' },
+      { key: 'knowledge:create', labelTh: 'เพิ่มบทความใหม่', labelEn: 'Create Article' },
+      { key: 'knowledge:update', labelTh: 'แก้ไขบทความ', labelEn: 'Edit Article' },
+      { key: 'knowledge:delete', labelTh: 'ลบบทความ', labelEn: 'Delete Article' }
+    ]
+  },
+  {
+    key: 'sop',
+    labelTh: 'ขั้นตอนปฏิบัติงานมาตรฐาน (SOP)',
+    labelEn: 'SOP Checklists',
+    permissions: [
+      { key: 'sop:read', labelTh: 'ดู Checklist', labelEn: 'View Checklists' },
+      { key: 'sop:create', labelTh: 'เพิ่ม Checklist ใหม่', labelEn: 'Create Checklist' },
+      { key: 'sop:update', labelTh: 'แก้ไข Checklist', labelEn: 'Edit Checklist' },
+      { key: 'sop:delete', labelTh: 'ลบ Checklist', labelEn: 'Delete Checklist' }
+    ]
+  },
+  {
     key: 'masterdata',
     labelTh: 'ข้อมูลหลัก',
     labelEn: 'Masterdata',

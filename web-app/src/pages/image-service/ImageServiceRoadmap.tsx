@@ -16,6 +16,23 @@ const PHASE_STATUS_STYLES: Record<string, string> = {
   Planned: 'bg-gray-500/20 text-gray-400',
 }
 
+// Feature Maturity Labels (P25). Derived from each phase's dev status rather than hand-tagged
+// per feature, since maturity here tracks "how far along/production-ready" — the same axis
+// status already tracks, just labeled the way a changelog/docs site would.
+type Maturity = 'experimental' | 'beta' | 'stable' | 'enterprise' | 'deprecated'
+const MATURITY_STYLES: Record<Maturity, string> = {
+  experimental: 'bg-fuchsia-500/20 text-fuchsia-400',
+  beta: 'bg-amber-500/20 text-amber-400',
+  stable: 'bg-green-500/20 text-green-400',
+  enterprise: 'bg-indigo-500/20 text-indigo-400',
+  deprecated: 'bg-gray-500/20 text-gray-400 line-through',
+}
+function getMaturity(status: string): Maturity {
+  if (status === 'Launched') return 'stable'
+  if (status === 'In Progress') return 'beta'
+  return 'experimental'
+}
+
 const PHASE_ICONS: Record<string, any> = {
   phase0: Activity,
   phase1: Wifi,
@@ -111,7 +128,7 @@ const PHASES = [
   { key: 'phase33', status: 'Launched', priority: 'P22' },
   { key: 'phase34', status: 'In Progress', priority: 'P23' },
   { key: 'phase35', status: 'In Progress', priority: 'P24' },
-  { key: 'phase36', status: 'In Progress', priority: 'P25' },
+  { key: 'phase36', status: 'Launched', priority: 'P25' },
   { key: 'phase44', status: 'Planned', priority: 'P26' },
   { key: 'phase45', status: 'Planned', priority: 'P27' },
   { key: 'phase37', status: 'Planned', priority: 'P28' },
@@ -430,6 +447,7 @@ export default function ImageServiceRoadmap() {
             {PHASES.map((p, i) => {
               const Icon = PHASE_ICONS[p.key]
               const statusClass = PHASE_STATUS_STYLES[p.status] ?? 'bg-gray-500/20 text-gray-400'
+              const maturity = getMaturity(p.status)
               const isExpanded = expandedPhases.has(i)
               const tasks = Array.isArray(t(`imageService.roadmap.${p.key}Tasks`, { returnObjects: true })) ? t(`imageService.roadmap.${p.key}Tasks`, { returnObjects: true }) as string[] : []
               return (
@@ -445,6 +463,12 @@ export default function ImageServiceRoadmap() {
                         </p>
                         <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${PRIORITY_COLORS[p.priority]}`}>
                           {p.priority}
+                        </span>
+                        <span
+                          className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${MATURITY_STYLES[maturity]}`}
+                          title={t(`imageService.roadmap.maturityDesc.${maturity}`)}
+                        >
+                          {t(`imageService.roadmap.maturity.${maturity}`)}
                         </span>
                       </div>
                       <p className={`text-xs ${themeConfig.text.secondary}`}>

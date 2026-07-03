@@ -354,18 +354,42 @@ export default function IncidentCenter() {
           </div>
         </>
       ) : (
-        <KnowledgeTab
-          knowledge={knowledge}
-          loading={knowledgeLoading}
-          period={period}
-          setPeriod={setPeriod}
-          labelReason={(c: string) => labelFor(reasons, c)}
-          labelRootCause={(c: string) => labelFor(rootCauses, c)}
-          labelResolution={(c: string) => labelFor(resolutions, c)}
-          onSelectCamera={(id: string) => { setTab('list'); setFilterCamera(id) }}
-          themeConfig={themeConfig}
-          ic={ic}
-        />
+        <>
+          <KnowledgeTab
+            knowledge={knowledge}
+            loading={knowledgeLoading}
+            period={period}
+            setPeriod={setPeriod}
+            labelReason={(c: string) => labelFor(reasons, c)}
+            labelRootCause={(c: string) => labelFor(rootCauses, c)}
+            labelResolution={(c: string) => labelFor(resolutions, c)}
+            onSelectCamera={(id: string) => { setTab('list'); setFilterCamera(id) }}
+            themeConfig={themeConfig}
+            ic={ic}
+          />
+          <div className="mt-4">
+            <ArticlesSection
+              reasons={reasons}
+              rootCauses={rootCauses}
+              labelReason={(c: string) => labelFor(reasons, c)}
+              labelRootCause={(c: string) => labelFor(rootCauses, c)}
+              themeConfig={themeConfig}
+              t={t}
+              user={user}
+              toast={toast}
+            />
+          </div>
+          <div className="mt-4">
+            <SopChecklistsSection
+              reasons={reasons}
+              labelReason={(c: string) => labelFor(reasons, c)}
+              themeConfig={themeConfig}
+              t={t}
+              user={user}
+              toast={toast}
+            />
+          </div>
+        </>
       )}
 
       {detailId && (
@@ -555,10 +579,404 @@ function KnowledgeTab({ knowledge, loading, period, setPeriod, labelReason, labe
   )
 }
 
+/* ---------------- Articles Section (P23 — Knowledge Base articles) ---------------- */
+function ArticlesSection({ reasons, rootCauses, labelReason, labelRootCause, themeConfig, t, user, toast }: any) {
+  const queryClient = useQueryClient()
+  const kc = (k: string) => t(`imageService.knowledgeArticles.${k}`)
+  const canCreate = hasPermission(user, 'knowledge:create')
+  const canUpdate = hasPermission(user, 'knowledge:update')
+  const canDelete = hasPermission(user, 'knowledge:delete')
+
+  const [q, setQ] = useState('')
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [formModal, setFormModal] = useState<{ open: boolean; item?: any }>({ open: false })
+  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const [saving, setSaving] = useState(false)
+  const [form, setForm] = useState<any>({ title: '', symptoms: '', cause: '', resolution: '', verification: '', tags: '', reasonCode: '', rootCauseCode: '' })
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['knowledge-articles', q],
+    queryFn: () => imageServiceApi.getKnowledgeArticles({ q: q || undefined, limit: 50 }),
+    staleTime: 15000,
+  })
+  const articles = data?.data ?? []
+
+  const reasonOptions = (reasons || []).map((r: any) => ({ value: r.code, label: labelReason(r.code) }))
+  const rootCauseOptions = (rootCauses || []).map((r: any) => ({ value: r.code, label: labelRootCause(r.code) }))
+
+  const openCreate = () => {
+    setForm({ title: '', symptoms: '', cause: '', resolution: '', verification: '', tags: '', reasonCode: '', rootCauseCode: '' })
+    setFormModal({ open: true })
+  }
+  const openEdit = (item: any) => {
+    setForm({
+      title: item.title, symptoms: item.symptoms, cause: item.cause || '', resolution: item.resolution,
+      verification: item.verification || '', tags: (item.tags || []).join(', '),
+      reasonCode: item.reasonCode || '', rootCauseCode: item.rootCauseCode || '',
+    })
+    setFormModal({ open: true, item })
+  }
+
+  const handleSave = async () => {
+    if (!form.title.trim() || !form.symptoms.trim() || !form.resolution.trim()) {
+      toast.warning(kc('validationRequired'))
+      return
+    }
+    setSaving(true)
+    try {
+      const payload = {
+        title: form.title.trim(),
+        symptoms: form.symptoms.trim(),
+        cause: form.cause.trim() || undefined,
+        resolution: form.resolution.trim(),
+        verification: form.verification.trim() || undefined,
+        tags: form.tags.split(',').map((s: string) => s.trim()).filter(Boolean),
+        reasonCode: form.reasonCode || undefined,
+        rootCauseCode: form.rootCauseCode || undefined,
+      }
+      if (formModal.item) {
+        await imageServiceApi.updateKnowledgeArticle(formModal.item.id, payload)
+        toast.success(kc('updateSuccess'))
+      } else {
+        await imageServiceApi.createKnowledgeArticle(payload)
+        toast.success(kc('createSuccess'))
+      }
+      queryClient.invalidateQueries({ queryKey: ['knowledge-articles'] })
+      setFormModal({ open: false })
+    } catch (e: any) {
+      if (!e?._handled) toast.error(t('common.error'))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    try {
+      await imageServiceApi.deleteKnowledgeArticle(deleteTarget.id)
+      toast.success(kc('deleteSuccess'))
+      queryClient.invalidateQueries({ queryKey: ['knowledge-articles'] })
+    } catch (e: any) {
+      if (!e?._handled) toast.error(t('common.error'))
+    } finally {
+      setDeleteTarget(null)
+    }
+  }
+
+  return (
+    <div className={`${themeConfig.card} rounded-xl p-4`}>
+      <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+        <h3 className={`text-sm font-semibold flex items-center gap-2 ${themeConfig.text.primary}`}>
+          <BookOpen size={15} className="text-cyan-400" /> {kc('title')}
+        </h3>
+        {canCreate && (
+          <button onClick={openCreate} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 transition-colors">
+            + {kc('addArticle')}
+          </button>
+        )}
+      </div>
+
+      <div className="relative mb-3">
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder={kc('searchPlaceholder')}
+          className={`w-full pl-9 pr-3 py-2 rounded-lg text-sm border ${themeConfig.inputBorder} bg-white/5 ${themeConfig.text.primary} placeholder:text-gray-500 focus:outline-none focus:border-cyan-500`}
+        />
+      </div>
+
+      {isLoading ? (
+        <TableSkeleton rows={4} cols={3} />
+      ) : articles.length === 0 ? (
+        <p className={`text-sm text-center py-8 ${themeConfig.text.secondary}`}>{kc('noArticles')}</p>
+      ) : (
+        <div className="space-y-2">
+          {articles.map((a: any) => {
+            const isExpanded = expandedId === a.id
+            return (
+              <div key={a.id} className={`rounded-lg border ${themeConfig.cardBorder} overflow-hidden`}>
+                <button onClick={() => setExpandedId(isExpanded ? null : a.id)} className="w-full px-3 py-2.5 flex items-center justify-between gap-3 text-left hover:bg-white/5 transition-colors">
+                  <div className="min-w-0">
+                    <p className={`text-sm font-medium truncate ${themeConfig.text.primary}`}>{a.title}</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {(a.tags || []).map((tag: string) => (
+                        <span key={tag} className="px-1.5 py-0.5 rounded text-[10px] bg-cyan-500/10 text-cyan-400">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {canUpdate && (
+                      <span onClick={(e) => { e.stopPropagation(); openEdit(a) }} className="px-2 py-1 rounded text-[11px] text-cyan-400 hover:bg-cyan-500/10 cursor-pointer">{t('common.edit', 'Edit')}</span>
+                    )}
+                    {canDelete && (
+                      <span onClick={(e) => { e.stopPropagation(); setDeleteTarget(a) }} className="p-1.5 rounded text-red-400 hover:bg-red-500/10 cursor-pointer"><Trash2 size={13} /></span>
+                    )}
+                  </div>
+                </button>
+                {isExpanded && (
+                  <div className={`px-3 pb-3 space-y-2 text-xs ${themeConfig.text.secondary} border-t ${themeConfig.cardBorder} pt-2`}>
+                    <p><strong className={themeConfig.text.primary}>{kc('fieldSymptoms')}:</strong> {a.symptoms}</p>
+                    {a.cause && <p><strong className={themeConfig.text.primary}>{kc('fieldCause')}:</strong> {a.cause}</p>}
+                    <p><strong className={themeConfig.text.primary}>{kc('fieldResolution')}:</strong> {a.resolution}</p>
+                    {a.verification && <p><strong className={themeConfig.text.primary}>{kc('fieldVerification')}:</strong> {a.verification}</p>}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Create/Edit modal */}
+      {formModal.open && (
+        <Modal isOpen={formModal.open} onClose={() => setFormModal({ open: false })} title={formModal.item ? kc('editArticle') : kc('addArticle')} size="lg">
+          <div className="space-y-3 p-1">
+            <div>
+              <label className={`text-xs font-medium mb-1 block ${themeConfig.text.secondary}`}>{kc('fieldTitle')} *</label>
+              <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
+                className={`w-full px-3 py-2 rounded-lg text-sm border ${themeConfig.inputBorder} bg-white/5 ${themeConfig.text.primary} focus:outline-none focus:border-cyan-500`} />
+            </div>
+            <div>
+              <label className={`text-xs font-medium mb-1 block ${themeConfig.text.secondary}`}>{kc('fieldSymptoms')} *</label>
+              <textarea value={form.symptoms} onChange={(e) => setForm({ ...form, symptoms: e.target.value })} rows={2}
+                className={`w-full px-3 py-2 rounded-lg text-sm border ${themeConfig.inputBorder} bg-white/5 ${themeConfig.text.primary} focus:outline-none focus:border-cyan-500`} />
+            </div>
+            <div>
+              <label className={`text-xs font-medium mb-1 block ${themeConfig.text.secondary}`}>{kc('fieldCause')}</label>
+              <textarea value={form.cause} onChange={(e) => setForm({ ...form, cause: e.target.value })} rows={2}
+                className={`w-full px-3 py-2 rounded-lg text-sm border ${themeConfig.inputBorder} bg-white/5 ${themeConfig.text.primary} focus:outline-none focus:border-cyan-500`} />
+            </div>
+            <div>
+              <label className={`text-xs font-medium mb-1 block ${themeConfig.text.secondary}`}>{kc('fieldResolution')} *</label>
+              <textarea value={form.resolution} onChange={(e) => setForm({ ...form, resolution: e.target.value })} rows={3}
+                className={`w-full px-3 py-2 rounded-lg text-sm border ${themeConfig.inputBorder} bg-white/5 ${themeConfig.text.primary} focus:outline-none focus:border-cyan-500`} />
+            </div>
+            <div>
+              <label className={`text-xs font-medium mb-1 block ${themeConfig.text.secondary}`}>{kc('fieldVerification')}</label>
+              <textarea value={form.verification} onChange={(e) => setForm({ ...form, verification: e.target.value })} rows={2}
+                className={`w-full px-3 py-2 rounded-lg text-sm border ${themeConfig.inputBorder} bg-white/5 ${themeConfig.text.primary} focus:outline-none focus:border-cyan-500`} />
+            </div>
+            <div>
+              <label className={`text-xs font-medium mb-1 block ${themeConfig.text.secondary}`}>{kc('fieldTags')}</label>
+              <input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder={kc('fieldTagsHint')}
+                className={`w-full px-3 py-2 rounded-lg text-sm border ${themeConfig.inputBorder} bg-white/5 ${themeConfig.text.primary} placeholder:text-gray-500 focus:outline-none focus:border-cyan-500`} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={`text-xs font-medium mb-1 block ${themeConfig.text.secondary}`}>{kc('fieldReasonLink')}</label>
+                <SearchableSelect value={form.reasonCode} onChange={(v: string) => setForm({ ...form, reasonCode: v })} options={reasonOptions} placeholder={kc('fieldReasonLink')} />
+              </div>
+              <div>
+                <label className={`text-xs font-medium mb-1 block ${themeConfig.text.secondary}`}>{kc('fieldRootCauseLink')}</label>
+                <SearchableSelect value={form.rootCauseCode} onChange={(v: string) => setForm({ ...form, rootCauseCode: v })} options={rootCauseOptions} placeholder={kc('fieldRootCauseLink')} />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button onClick={() => setFormModal({ open: false })} className={`px-4 py-2 rounded-lg text-sm font-medium ${themeConfig.text.secondary} hover:bg-white/5`}>{t('common.cancel', 'Cancel')}</button>
+              <button onClick={handleSave} disabled={saving} className="px-4 py-2 rounded-lg text-sm font-medium bg-cyan-500 text-white hover:bg-cyan-400 disabled:opacity-50">
+                {saving ? t('common.saving') : t('common.save')}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Delete confirm */}
+      {deleteTarget && (
+        <Modal isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} title={kc('deleteConfirmTitle')} size="sm">
+          <div className="p-1 space-y-4">
+            <p className={`text-sm ${themeConfig.text.secondary}`}>{kc('deleteConfirmBody')} <strong className={themeConfig.text.primary}>{deleteTarget.title}</strong>?</p>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setDeleteTarget(null)} className={`px-4 py-2 rounded-lg text-sm font-medium ${themeConfig.text.secondary} hover:bg-white/5`}>{t('common.cancel', 'Cancel')}</button>
+              <button onClick={handleDelete} className="px-4 py-2 rounded-lg text-sm font-medium bg-red-500 text-white hover:bg-red-400">{t('common.delete', 'Delete')}</button>
+            </div>
+          </div>
+        </Modal>
+      )}
+    </div>
+  )
+}
+
+/* ---------------- SOP Checklists Section (P24 — Standard Operating Procedures) ---------------- */
+function SopChecklistsSection({ reasons, labelReason, themeConfig, t, user, toast }: any) {
+  const queryClient = useQueryClient()
+  const sc = (k: string) => t(`imageService.sopChecklists.${k}`)
+  const canCreate = hasPermission(user, 'sop:create')
+  const canUpdate = hasPermission(user, 'sop:update')
+  const canDelete = hasPermission(user, 'sop:delete')
+
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [formModal, setFormModal] = useState<{ open: boolean; item?: any }>({ open: false })
+  const [deleteTarget, setDeleteTarget] = useState<any>(null)
+  const [saving, setSaving] = useState(false)
+  const [form, setForm] = useState<any>({ reasonCode: '', title: '', stepsText: '' })
+
+  const { data: checklists = [], isLoading } = useQuery({
+    queryKey: ['sop-checklists'],
+    queryFn: () => imageServiceApi.getSopChecklists(),
+    staleTime: 15000,
+  })
+
+  const reasonOptions = (reasons || []).map((r: any) => ({ value: r.code, label: labelReason(r.code) }))
+
+  const openCreate = () => { setForm({ reasonCode: '', title: '', stepsText: '' }); setFormModal({ open: true }) }
+  const openEdit = (item: any) => {
+    setForm({ reasonCode: item.reasonCode, title: item.title, stepsText: (item.steps || []).map((s: any) => s.text).join('\n') })
+    setFormModal({ open: true, item })
+  }
+
+  const handleSave = async () => {
+    const stepLines = form.stepsText.split('\n').map((s: string) => s.trim()).filter(Boolean)
+    if (!form.reasonCode || !form.title.trim() || stepLines.length === 0) {
+      toast.warning(sc('validationRequired'))
+      return
+    }
+    setSaving(true)
+    try {
+      if (formModal.item) {
+        await imageServiceApi.updateSopChecklist(formModal.item.id, {
+          title: form.title.trim(),
+          steps: (formModal.item.steps || []).length === stepLines.length
+            ? formModal.item.steps.map((s: any, i: number) => ({ id: s.id, text: stepLines[i] }))
+            : stepLines.map((text: string) => ({ id: crypto.randomUUID(), text })),
+        })
+        toast.success(sc('updateSuccess'))
+      } else {
+        await imageServiceApi.createSopChecklist({
+          reasonCode: form.reasonCode,
+          title: form.title.trim(),
+          steps: stepLines.map((text: string) => ({ text })),
+        })
+        toast.success(sc('createSuccess'))
+      }
+      queryClient.invalidateQueries({ queryKey: ['sop-checklists'] })
+      setFormModal({ open: false })
+    } catch (e: any) {
+      if (!e?._handled) toast.error(e?.response?.data?.message || t('common.error'))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    try {
+      await imageServiceApi.deleteSopChecklist(deleteTarget.id)
+      toast.success(sc('deleteSuccess'))
+      queryClient.invalidateQueries({ queryKey: ['sop-checklists'] })
+    } catch (e: any) {
+      if (!e?._handled) toast.error(t('common.error'))
+    } finally {
+      setDeleteTarget(null)
+    }
+  }
+
+  return (
+    <div className={`${themeConfig.card} rounded-xl p-4`}>
+      <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+        <h3 className={`text-sm font-semibold flex items-center gap-2 ${themeConfig.text.primary}`}>
+          <ClipboardList size={15} className="text-cyan-400" /> {sc('title')}
+        </h3>
+        {canCreate && (
+          <button onClick={openCreate} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 transition-colors">
+            + {sc('addChecklist')}
+          </button>
+        )}
+      </div>
+
+      {isLoading ? (
+        <TableSkeleton rows={3} cols={3} />
+      ) : checklists.length === 0 ? (
+        <p className={`text-sm text-center py-8 ${themeConfig.text.secondary}`}>{sc('noChecklists')}</p>
+      ) : (
+        <div className="space-y-2">
+          {checklists.map((c: any) => {
+            const isExpanded = expandedId === c.id
+            return (
+              <div key={c.id} className={`rounded-lg border ${themeConfig.cardBorder} overflow-hidden`}>
+                <button onClick={() => setExpandedId(isExpanded ? null : c.id)} className="w-full px-3 py-2.5 flex items-center justify-between gap-3 text-left hover:bg-white/5 transition-colors">
+                  <div className="min-w-0">
+                    <p className={`text-sm font-medium truncate ${themeConfig.text.primary}`}>{c.title}</p>
+                    <p className={`text-xs ${themeConfig.text.secondary}`}>{labelReason(c.reasonCode)} · {(c.steps || []).length} {sc('steps')}</p>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {canUpdate && (
+                      <span onClick={(e) => { e.stopPropagation(); openEdit(c) }} className="px-2 py-1 rounded text-[11px] text-cyan-400 hover:bg-cyan-500/10 cursor-pointer">{t('common.edit', 'Edit')}</span>
+                    )}
+                    {canDelete && (
+                      <span onClick={(e) => { e.stopPropagation(); setDeleteTarget(c) }} className="p-1.5 rounded text-red-400 hover:bg-red-500/10 cursor-pointer"><Trash2 size={13} /></span>
+                    )}
+                  </div>
+                </button>
+                {isExpanded && (
+                  <ol className={`px-3 pb-3 space-y-1 text-xs ${themeConfig.text.secondary} border-t ${themeConfig.cardBorder} pt-2 list-decimal list-inside`}>
+                    {(c.steps || []).map((s: any) => <li key={s.id}>{s.text}</li>)}
+                  </ol>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Create/Edit modal */}
+      {formModal.open && (
+        <Modal isOpen={formModal.open} onClose={() => setFormModal({ open: false })} title={formModal.item ? sc('editChecklist') : sc('addChecklist')} size="lg">
+          <div className="space-y-3 p-1">
+            <div>
+              <label className={`text-xs font-medium mb-1 block ${themeConfig.text.secondary}`}>{sc('fieldReason')} *</label>
+              {formModal.item ? (
+                <p className={`px-3 py-2 rounded-lg text-sm border ${themeConfig.inputBorder} bg-white/5 ${themeConfig.text.secondary}`}>{labelReason(form.reasonCode)}</p>
+              ) : (
+                <SearchableSelect value={form.reasonCode} onChange={(v: string) => setForm({ ...form, reasonCode: v })} options={reasonOptions} placeholder={sc('fieldReason')} />
+              )}
+            </div>
+            <div>
+              <label className={`text-xs font-medium mb-1 block ${themeConfig.text.secondary}`}>{sc('fieldTitle')} *</label>
+              <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
+                className={`w-full px-3 py-2 rounded-lg text-sm border ${themeConfig.inputBorder} bg-white/5 ${themeConfig.text.primary} focus:outline-none focus:border-cyan-500`} />
+            </div>
+            <div>
+              <label className={`text-xs font-medium mb-1 block ${themeConfig.text.secondary}`}>{sc('fieldSteps')} *</label>
+              <textarea value={form.stepsText} onChange={(e) => setForm({ ...form, stepsText: e.target.value })} rows={6} placeholder={sc('fieldStepsHint')}
+                className={`w-full px-3 py-2 rounded-lg text-sm border ${themeConfig.inputBorder} bg-white/5 ${themeConfig.text.primary} placeholder:text-gray-500 focus:outline-none focus:border-cyan-500`} />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button onClick={() => setFormModal({ open: false })} className={`px-4 py-2 rounded-lg text-sm font-medium ${themeConfig.text.secondary} hover:bg-white/5`}>{t('common.cancel', 'Cancel')}</button>
+              <button onClick={handleSave} disabled={saving} className="px-4 py-2 rounded-lg text-sm font-medium bg-cyan-500 text-white hover:bg-cyan-400 disabled:opacity-50">
+                {saving ? t('common.saving') : t('common.save')}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Delete confirm */}
+      {deleteTarget && (
+        <Modal isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} title={sc('deleteConfirmTitle')} size="sm">
+          <div className="p-1 space-y-4">
+            <p className={`text-sm ${themeConfig.text.secondary}`}>{sc('deleteConfirmBody')} <strong className={themeConfig.text.primary}>{deleteTarget.title}</strong>?</p>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setDeleteTarget(null)} className={`px-4 py-2 rounded-lg text-sm font-medium ${themeConfig.text.secondary} hover:bg-white/5`}>{t('common.cancel', 'Cancel')}</button>
+              <button onClick={handleDelete} className="px-4 py-2 rounded-lg text-sm font-medium bg-red-500 text-white hover:bg-red-400">{t('common.delete', 'Delete')}</button>
+            </div>
+          </div>
+        </Modal>
+      )}
+    </div>
+  )
+}
+
 /* ---------------- Detail Modal ---------------- */
 function IncidentDetailModal({ incidentId, onClose, onSwitch, labelReason, labelRootCause, labelResolution, ic }: any) {
-  const { i18n } = useTranslation()
+  const { i18n, t } = useTranslation()
   const { themeConfig } = useTheme()
+  const { user } = useAuth()
+  const toast = useToast()
+  const queryClient = useQueryClient()
+  const sc = (k: string) => t(`imageService.sopChecklists.${k}`)
+  const canToggleSop = hasPermission(user, 'cameras:update')
   const [woBusy, setWoBusy] = useState(false)
   const [localWo, setLocalWo] = useState<{ number: string | null; status: string | null } | null>(null)
 
@@ -573,6 +991,28 @@ function IncidentDetailModal({ incidentId, onClose, onSwitch, labelReason, label
     queryFn: () => imageServiceApi.getRelatedIncidents(incidentId),
     staleTime: 30000,
   })
+
+  const { data: relatedArticles = [] } = useQuery({
+    queryKey: ['related-articles', incident?.reason, incident?.rootCause],
+    queryFn: () => imageServiceApi.getRelatedArticles({ reasonCode: incident?.reason, rootCauseCode: incident?.rootCause }),
+    enabled: !!incident && (!!incident.reason || !!incident.rootCause),
+    staleTime: 30000,
+  })
+
+  const { data: sopState } = useQuery({
+    queryKey: ['sop-incident-state', incidentId],
+    queryFn: () => imageServiceApi.getSopIncidentState(incidentId),
+    staleTime: 10000,
+  })
+
+  const handleToggleStep = async (stepId: string, stepText: string, checked: boolean) => {
+    try {
+      await imageServiceApi.toggleSopStep(incidentId, { stepId, stepText, checked })
+      queryClient.invalidateQueries({ queryKey: ['sop-incident-state', incidentId] })
+    } catch (e: any) {
+      if (!e?._handled) toast.error(t('common.error'))
+    }
+  }
 
   useEffect(() => { setLocalWo(null) }, [incidentId])
 
@@ -679,6 +1119,41 @@ function IncidentDetailModal({ incidentId, onClose, onSwitch, labelReason, label
             )}
           </div>
 
+          {/* SOP Checklist (P24) */}
+          {sopState?.checklist && (
+            <div>
+              <p className={`text-sm font-semibold mb-2 flex items-center gap-1.5 ${themeConfig.text.primary}`}>
+                <ClipboardList size={14} className="text-cyan-400" /> {sc('title')}: {sopState.checklist.title}
+              </p>
+              <div className="space-y-1">
+                {sopState.steps.map((s: any) => (
+                  <label key={s.id} className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 ${canToggleSop ? 'cursor-pointer hover:bg-white/10' : 'cursor-not-allowed opacity-70'} transition-colors`}>
+                    <input
+                      type="checkbox"
+                      checked={s.checked}
+                      disabled={!canToggleSop}
+                      onChange={(e) => handleToggleStep(s.id, s.text, e.target.checked)}
+                      className="w-4 h-4 rounded accent-cyan-500 flex-shrink-0"
+                    />
+                    <span className={`text-xs ${s.checked ? 'line-through text-gray-500' : themeConfig.text.primary}`}>{s.text}</span>
+                  </label>
+                ))}
+              </div>
+              {sopState.logs.length > 0 && (
+                <details className="mt-2">
+                  <summary className={`text-xs cursor-pointer ${themeConfig.text.secondary}`}>{sc('history')}</summary>
+                  <div className="mt-1.5 space-y-1 pl-3">
+                    {sopState.logs.map((l: any) => (
+                      <p key={l.id} className={`text-[11px] ${themeConfig.text.secondary}`}>
+                        {l.actedBy || '—'} {l.checked ? sc('logChecked') : sc('logUnchecked')} "{l.stepText}" — {formatDateTime(l.actedAt, i18n.language)}
+                      </p>
+                    ))}
+                  </div>
+                </details>
+              )}
+            </div>
+          )}
+
           {/* Related incidents */}
           {related.length > 0 && (
             <div>
@@ -691,6 +1166,25 @@ function IncidentDetailModal({ incidentId, onClose, onSwitch, labelReason, label
                     <span className={`text-xs ${themeConfig.text.secondary}`}>{r.cameraName} · {labelReason(r.reason)}</span>
                     <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-medium ${STATUS_COLORS[r.status] || 'bg-gray-500/20 text-gray-400'}`}>{r.status === 'open' ? ic('open') : ic('resolved')}</span>
                   </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Related knowledge articles (P23) */}
+          {relatedArticles.length > 0 && (
+            <div>
+              <p className={`text-sm font-semibold mb-2 flex items-center gap-1.5 ${themeConfig.text.primary}`}>
+                <BookOpen size={14} className="text-cyan-400" /> {ic('relatedArticles')}
+              </p>
+              <div className="space-y-1">
+                {relatedArticles.map((a: any) => (
+                  <details key={a.id} className="rounded-lg bg-white/5 px-3 py-2">
+                    <summary className={`text-xs font-medium cursor-pointer ${themeConfig.text.primary}`}>{a.title}</summary>
+                    <div className={`mt-2 space-y-1 text-xs ${themeConfig.text.secondary}`}>
+                      <p><strong className={themeConfig.text.primary}>{ic('relatedArticleResolution')}:</strong> {a.resolution}</p>
+                    </div>
+                  </details>
                 ))}
               </div>
             </div>

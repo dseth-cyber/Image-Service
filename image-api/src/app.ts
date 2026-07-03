@@ -28,6 +28,8 @@ import { storageProviderRoutes } from './modules/storage-providers/storage-provi
 import { storageProfileRoutes } from './modules/storage-profiles/storage-profiles.controller.js';
 import { migrationRoutes } from './modules/migrations/migrations.controller.js';
 import { alertRoutes } from './modules/alerts/alerts.controller.js';
+import { knowledgeArticleRoutes } from './modules/knowledge-articles/knowledge-articles.controller.js';
+import { sopChecklistRoutes } from './modules/sop-checklists/sop-checklists.controller.js';
 import { userRoutes } from './modules/users/users.controller.js';
 import { roleRoutes } from './modules/roles/roles.controller.js';
 import { processingLogRoutes } from './modules/processing-logs/processing-logs.controller.js';
@@ -128,6 +130,8 @@ export async function buildApp() {
       await api.register(healthRoutes, { prefix: '/api/v1/health' });
       await api.register(storageRoutes, { prefix: '/api/v1/storage' });
       await api.register(alertRoutes, { prefix: '/api/v1/alerts' });
+      await api.register(knowledgeArticleRoutes, { prefix: '/api/v1/knowledge-articles' });
+      await api.register(sopChecklistRoutes, { prefix: '/api/v1/sop-checklists' });
       await api.register(userRoutes, { prefix: '/api/v1/users' });
       await api.register(roleRoutes, { prefix: '/api/v1/roles' });
       await api.register(processingLogRoutes, { prefix: '/api/v1/processing-logs' });
